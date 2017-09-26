@@ -1,0 +1,208 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Positive selection screening &#8212; wgd 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="wgd 0.0.1 documentation" href="index.html" />
+    <link rel="prev" title="Ks distribution analysis" href="ks.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ks.html" title="Ks distribution analysis"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-wgd.positive_selection">
+<span id="positive-selection-screening"></span><h1>Positive selection screening<a class="headerlink" href="#module-wgd.positive_selection" title="Permalink to this headline">¶</a></h1>
+<p>Arthur Zwaenepoel</p>
+<dl class="class">
+<dt id="wgd.positive_selection.PositiveSelection">
+<em class="property">class </em><code class="descclassname">wgd.positive_selection.</code><code class="descname">PositiveSelection</code><span class="sig-paren">(</span><em>gene_pattern</em>, <em>gene_families</em>, <em>nucleotide</em>, <em>protein</em>, <em>species='pos'</em>, <em>muscle_path='muscle'</em>, <em>codeml_path='codeml'</em>, <em>tmp_dir='./'</em>, <em>output_dir='./'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.positive_selection.PositiveSelection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for performing positive selection screen.
+Highly similar to <code class="xref py py-class docutils literal"><span class="pre">KsDistribution</span></code>
+Required parameters:</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>species</strong> &#8211; species id</li>
+<li><strong>gene_pattern</strong> &#8211; gene pattern (regex for parsing out species specfic genes from gene families)</li>
+<li><strong>gene_families</strong> &#8211; gene families file</li>
+<li><strong>nucleotide</strong> &#8211; fasta file containing all nucleotide sequences (CDS) for all species.</li>
+<li><strong>protein</strong> &#8211; fasta file containing all protein sequences for all species.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="wgd.positive_selection.PositiveSelection.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>gene_pattern</em>, <em>gene_families</em>, <em>nucleotide</em>, <em>protein</em>, <em>species='pos'</em>, <em>muscle_path='muscle'</em>, <em>codeml_path='codeml'</em>, <em>tmp_dir='./'</em>, <em>output_dir='./'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.positive_selection.PositiveSelection.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>init for positive selection class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>gene_pattern</strong> &#8211; gene pattern (regex for parsing out species specfic genes from gene families)</li>
+<li><strong>gene_families</strong> &#8211; gene families file</li>
+<li><strong>nucleotide</strong> &#8211; fasta file containing all nucleotide sequences (CDS) for all species</li>
+<li><strong>protein</strong> &#8211; fasta file containing all protein sequences for all species</li>
+<li><strong>species</strong> &#8211; species id</li>
+<li><strong>muscle_path</strong> &#8211; path to muscle executable</li>
+<li><strong>codeml_path</strong> &#8211; path to codeml executable</li>
+<li><strong>tmp_dir</strong> &#8211; path to tmp directory</li>
+<li><strong>output_dir</strong> &#8211; path to output directory</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wgd.positive_selection.PositiveSelection.positive_selection">
+<code class="descname">positive_selection</code><span class="sig-paren">(</span><em>check=True</em>, <em>preserve=False</em>, <em>prompt=True</em>, <em>times=1</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.positive_selection.PositiveSelection.positive_selection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculates for each non-singleton gene of a species of interest the mean Kn/Ks (omega) value.
+This is performed by performing codeml analysis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>check</strong> &#8211; boolean, check directories if present/empty?</li>
+<li><strong>preserve</strong> &#8211; boolean, preserve intermediate files?</li>
+<li><strong>prompt</strong> &#8211; boolean, prompt for possible overwriting?</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">data frame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.positive_selection._mean_for_genes">
+<code class="descclassname">wgd.positive_selection.</code><code class="descname">_mean_for_genes</code><span class="sig-paren">(</span><em>data_frame</em>, <em>gene_pattern</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.positive_selection._mean_for_genes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the mean omega value for all genes of a species
+:param data_frame:
+:param gene_pattern:
+:return:</p>
+</dd></dl>
+
+<div class="section" id="example-performing-screen">
+<h2>Example: performing screen<a class="headerlink" href="#example-performing-screen" title="Permalink to this headline">¶</a></h2>
+<p>To perform a full positive selection screen for a gene family file and a species of interest,
+one can do something like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wgd</span> <span class="k">import</span> <span class="n">positive_selection</span>
+
+<span class="n">pos</span> <span class="o">=</span> <span class="n">PositiveSelection</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="s1">&#39;Arabidopsis thaliana&#39;</span><span class="p">,</span> <span class="n">gene_pattern</span><span class="o">=</span><span class="s1">&#39;AT.+&#39;</span><span class="p">,</span> <span class="n">gene_families</span><span class="o">=</span><span class="s1">&#39;OrthoMCL_out.txt&#39;</span><span class="p">,</span>
+                        <span class="n">nucleotide</span><span class="o">=</span><span class="s1">&#39;nucleotide.fasta&#39;</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s1">&#39;./test_w&#39;</span><span class="p">,</span> <span class="n">tmp_dir</span><span class="o">=</span><span class="s1">&#39;./tmp&#39;</span><span class="p">)</span>
+<span class="n">pos</span><span class="o">.</span><span class="n">positive_selection</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>In fact, this is the pipeline as implemented in the command line utility <code class="docutils literal"><span class="pre">wgd</span> <span class="pre">pos</span></code> (see <a class="reference internal" href="cli.html#cli"><span class="std std-ref">Command line interface</span></a>)</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Positive selection screening</a><ul>
+<li><a class="reference internal" href="#example-performing-screen">Example: performing screen</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ks.html"
+                        title="previous chapter">Ks distribution analysis</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pos.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ks.html" title="Ks distribution analysis"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Arthur Zwaenepoel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>

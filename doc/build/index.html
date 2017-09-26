@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>wgd: Whole genome duplication analysis in Python &#8212; wgd 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="wgd 0.0.1 documentation" href="#" />
+    <link rel="next" title="Markov clustering related functions" href="mcl.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mcl.html" title="Markov clustering related functions"
+             accesskey="N">next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">wgd 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="wgd-whole-genome-duplication-analysis-in-python">
+<h1>wgd: Whole genome duplication analysis in Python<a class="headerlink" href="#wgd-whole-genome-duplication-analysis-in-python" title="Permalink to this headline">¶</a></h1>
+<p>This Python package and corresponding command line interface (CLI) were developed for various analyses related
+to whole genome duplications (WGDs). Here the Python API Package is documented as well as the various command line
+utilities bundled in the <code class="docutils literal"><span class="pre">wgd</span></code> CLI.</p>
+<p>To install <code class="docutils literal"><span class="pre">wgd</span></code>, clone the repository available at <a class="reference external" href="https://github.com/arzwa/wgd">https://github.com/arzwa/wgd</a>, navigate into the repo, run
+<code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">.</span></code>.</p>
+<p>Make sure you have the following external software tools installed:</p>
+<ol class="arabic simple">
+<li>PAML (<a class="reference external" href="http://abacus.gene.ucl.ac.uk/software/paml.html">http://abacus.gene.ucl.ac.uk/software/paml.html</a>)</li>
+<li>MUSCLE (<a class="reference external" href="http://www.drive5.com/muscle/">http://www.drive5.com/muscle/</a>)</li>
+<li>Optional: <code class="docutils literal"><span class="pre">mcl</span></code> (<a class="reference external" href="https://micans.org/mcl/index.html">https://micans.org/mcl/index.html</a>)</li>
+<li>Optional: Blastp (<a class="reference external" href="https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&amp;PAGE_TYPE=BlastDocs&amp;DOC_TYPE=Download">https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&amp;PAGE_TYPE=BlastDocs&amp;DOC_TYPE=Download</a>)</li>
+</ol>
+<div class="section" id="python-package">
+<h2>Python package<a class="headerlink" href="#python-package" title="Permalink to this headline">¶</a></h2>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="mcl.html">Markov clustering (mcl)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="codeml.html">Codeml wrapper</a></li>
+<li class="toctree-l1"><a class="reference internal" href="alignment.html">Alignment tools</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ks.html">Ks distribution analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ks.html#module-wgd.ks_distribution">Ks distribution construction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ks.html#module-wgd.modeling">Modeling of Ks distributions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ks.html#example-performing-ks-analysis">Example: performing Ks analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pos.html">Positive selection screening</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pos.html#example-performing-screen">Example: performing screen</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="command-line-tools">
+<h2>Command line tools<a class="headerlink" href="#command-line-tools" title="Permalink to this headline">¶</a></h2>
+<p>Note that besides using the python library directly, you can also use the provided command line utilities.
+Upon cloning/downloading, run <cite>wgd</cite> at the command to see the various available commands.
+These are written in python using the <code class="docutils literal"><span class="pre">click</span></code> library and require the <code class="docutils literal"><span class="pre">wgd</span></code> module and its dependencies to be
+installed correctly.</p>
+<ul class="simple">
+<li><a class="reference internal" href="cli.html#cli"><span class="std std-ref">Command line interface</span></a></li>
+</ul>
+</div>
+<div class="section" id="indices-and-tables">
+<h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">wgd: Whole genome duplication analysis in Python</a><ul>
+<li><a class="reference internal" href="#python-package">Python package</a></li>
+<li><a class="reference internal" href="#command-line-tools">Command line tools</a></li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="mcl.html"
+                        title="next chapter">Markov clustering related functions</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mcl.html" title="Markov clustering related functions"
+             >next</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">wgd 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Arthur Zwaenepoel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>

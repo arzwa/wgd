@@ -1,0 +1,284 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Command line interface &#8212; wgd 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="wgd 0.0.1 documentation" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="command-line-interface">
+<span id="cli"></span><h1>Command line interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h1>
+<p>The command line interface (CLI) and all command line utilities are written in python3.5 using the click library.
+Upon installation, all available command line utilities bundled in the CLI can be listed by running:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd
+</pre></div>
+</div>
+<p>Which should, if installation went correctly, render the following response:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>Usage: wgd [OPTIONS] COMMAND [ARGS]...
+
+  Welcome to the wgd command line interface!
+
+                         _______
+                         \  ___ `&#39;.
+         _     _ .--./)   &#39; |--.\  \
+   /\    \\   ///.&#39;&#39;\\    | |    \  &#39;
+   `\\  //\\ //| |  | |   | |     |  &#39;
+     \`//  \&#39;/  \`-&#39; /    | |     |  |
+      \|   |/   /(&quot;&#39;`     | |     &#39; .&#39;
+       &#39;        \ &#39;---.   | |___.&#39; /&#39;
+                 /&#39;&quot;&quot;&#39;.\ /_______.&#39;/
+                ||     ||\_______|/
+                \&#39;. __//
+                 `&#39;---&#39;
+
+
+Options:
+  --verbose [silent|info|debug]  Verbosity level, default = info.
+  --help                         Show this message and exit.
+
+Commands:
+  ks   Construct a Ks distribution.
+  ls   List available commands with info.
+  pos  Exploratory positive selection analysis.
+</pre></div>
+</div>
+<p>To get a description for a command of interest (<cite>e.g.</cite> ls) run:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd ls --help
+</pre></div>
+</div>
+<p>Note that the verbose flag can be set before the subcommands:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd --verbose [silent|info|debug] [COMMAND]
+</pre></div>
+</div>
+<p>Which sets the verbosity for the logging.</p>
+<div class="section" id="ks-distribution-analysis">
+<h2>Ks distribution analysis<a class="headerlink" href="#ks-distribution-analysis" title="Permalink to this headline">¶</a></h2>
+<p>Command line utility for Ks, Ka and Ka/Ks analysis for whole paranomes.
+For usage instructions run the following:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd ks --help
+</pre></div>
+</div>
+<p>Which will show:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>Usage: wgd ks [OPTIONS] CDS_FASTA_FILE OUTPUT_DIRECTORY
+
+  Construct a Ks distribution. Enables running full analysis pipeline for a
+  species of interest.
+
+  ARGUMENTS (MINIMAL INPUT):
+      - CDS_FASTA_FILE:
+          File with CDS sequences in fasta format.
+      - OUTPUT_DIRECTORY:
+          Output directory name, species name is recommended (for plot titles etc.)
+
+  OUTPUT:
+      - csv files and histograms with Ks, Ka, w analysis output
+      - modeling plots (Bayesian Gaussian mixture/kde)
+      - html report
+
+Options:
+  -ava, --all_vs_all TEXT         File with all-versus-all Blast results. Will
+                                  be used for MCL clustering. Please format
+                                  your file as `gene 1 [TAB] gene 2 [TAB]
+                                  e-value`. Note that you can also provide
+                                  precomputed gene families using the
+                                  `--gene_families` flag.
+  -gf, --gene_families TEXT       File with precomputed gene families, e.g.
+                                  from MCL clustering of all-vs-all Blast
+                                  results,OrthoMCL, INPARANOID, OrthoFinder
+                                  etc. Please format your file with one tab
+                                  separated gene family per line. Note that
+                                  you can also provide raw all-vs-all Blast
+                                  results using the `--all_vs_all` flag.
+  -p, --prefix TEXT               Prefix for parsing out the genes of
+                                  interest, for example &#39;orysa&#39; for genes
+                                  named like `orysa|OS1G11100`. Note that you
+                                  can also provide a regex pattern
+                                  (`--regex`). Note that if neither a prefix
+                                  nor a regex pattern is provided, all genes
+                                  are assumed to be relevant. (optional)
+  -r, --regex TEXT                Regular expression pattern (Python/Perl
+                                  type) for parsing out genes of interest.
+                                  Especially useful when multi-species gene
+                                  families are provided. Note that if neither
+                                  a prefix nor a regex pattern is provided,
+                                  all genes are assumed to be relevant.
+                                  (optional)
+  -I, --inflation_factor FLOAT    Inflation factor for MCL clustering, when
+                                  blast results provided. (Default = 2)
+  -ps, --protein_sequences TEXT   Protein sequences fasta file. Optional since
+                                  by default the CDS file will be translated.
+  -tmp, --tmp_dir TEXT            Path to store temporary files. (Default =
+                                  ./)
+  -m, --muscle TEXT               Path to muscle executable, not necessary if
+                                  in PATH environment variable.
+  -c, --codeml TEXT               Path to codeml executable, not necessary if
+                                  in PATH environment variable.
+  -t, --times INTEGER             Number of times to perform ML estimation
+                                  (for more stable estimates). (Default = 1)
+  --preserve / --no_preserve      Do you want to keep the multiple sequence
+                                  alignment and codeml output? (Default =
+                                  False)
+  --prompt / --no_prompt          Prompt for directory clearing? (Default =
+                                  True)
+  -mix, --mixture [no|bayesian|gaussian]
+                                  Mixture modeling method (requires
+                                  sklearn.mixture). Set to no if not desired.
+  --kde / --no_kde                Perform mixture modeling (requires
+                                  sklearn.neighbors.KernelDensity)? (Default =
+                                  True)
+  -h, --help                      Show this message and exit.
+</pre></div>
+</div>
+<p>Ks distribution analysis requires the following input data:</p>
+<ol class="arabic simple">
+<li>CDS sequences in fasta format</li>
+<li>Output directory</li>
+</ol>
+<p>If gene families or all-<cite>versus</cite>-all Blast results are provided separately, please take note of the following comments:</p>
+<ul class="simple">
+<li>All-<cite>vs.</cite>-all Blast output should be formatted as <code class="docutils literal"><span class="pre">gene_1</span> <span class="pre">[TAB]</span> <span class="pre">gene_2</span> <span class="pre">[TAB]</span>&#160; <span class="pre">e-value</span></code></li>
+<li>The gene families file should contain one family per line with tab separated member genes.</li>
+<li>Optionally either a prefix or regular expression pattern can be provided using the <code class="docutils literal"><span class="pre">--prefix</span></code> or <code class="docutils literal"><span class="pre">--regex</span></code> flag respectively. These parameters are used to parse out the correct genes from the input all-<cite>vs.</cite>-all Blast results or gene families.</li>
+<li>Use <code class="docutils literal"><span class="pre">--prefix</span></code> when gene IDs from the nucleotide fasta are prefixed with a species identifier in the all-<cite>vs.</cite>-all/gene families file, <cite>e.g.</cite> use <code class="docutils literal"><span class="pre">arath</span></code> when the gene looks like <code class="docutils literal"><span class="pre">arath|AT1G50700</span></code> in the all-<cite>vs.</cite>-all output, and like <code class="docutils literal"><span class="pre">AT1G50700</span></code> in the CDS fasta file input.</li>
+<li>Use <code class="docutils literal"><span class="pre">--regex</span></code> when you want to use only genes that match a particular pattern (use Python/Perl regex patterns). This is particularly useful when using multi-species gene families as input. For example use <code class="docutils literal"><span class="pre">AT[1-9].+</span></code> for genes like <code class="docutils literal"><span class="pre">AT1G50700</span></code>, <code class="docutils literal"><span class="pre">AT4G09800</span></code> <cite>etc.</cite>.</li>
+</ul>
+<p>Note that if only genes of interest are included in the all-<cite>vs.</cite>-all/gene
+families file and they are identical with those in the fasta file, these
+options are not needed.</p>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<p>Using only a CDS file as input, <code class="docutils literal"><span class="pre">wgd</span> <span class="pre">ks</span></code> will perform all-<cite>vs.</cite>-all Blastp, MCL clustering and Ks analysis, <cite>e.g.</cite>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd ks aptenodytes_patagonicus.cds.fasta ./penguin_ks_out
+</pre></div>
+</div>
+<p>Using <em>multi species gene families</em>, both a gene families file (<cite>e.g.</cite> OrthoMCL output) and a gene pattern (species specific regex
+pattern) are required. For example with the data included in the <cite>example</cite> directory:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd ks --regex &#39;AT.+&#39; -gf ./example/input/gene_families.txt ./example/input/cds.fasta ./example/output
+</pre></div>
+</div>
+<p>When using <em>all-vs-all Blast results</em> as input data, first MCL clustering
+using <code class="docutils literal"><span class="pre">mcl</span></code> is performed (should be installed on your system, it is
+available from most Linux distro&#8217;s). A default inflation factor of 2 is
+used (can be modified with the <code class="docutils literal"><span class="pre">-I</span></code> flag). An example command:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd --verbose=debug ks -ava all_v_all_blast_results.tsv  --prefix &#39;arat&#39; cds.fasta output_dir
+</pre></div>
+</div>
+<p>Note the usage of the verbose flag, which works for all commands in <code class="docutils literal"><span class="pre">wgd</span></code>.</p>
+</div>
+</div>
+<div class="section" id="positive-selection-screen">
+<h2>Positive selection screen<a class="headerlink" href="#positive-selection-screen" title="Permalink to this headline">¶</a></h2>
+<p>Command line utility for running a positive selection screen for a species of interest.
+For usage instructions run the following:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd pos --help
+</pre></div>
+</div>
+<p>Ks distribution analysis requires the following input data:</p>
+<ul class="simple">
+<li>Gene families file</li>
+<li>Nucleotide fasta (CDS) (one file with all sequences for all species, just <code class="docutils literal"><span class="pre">cat</span> <span class="pre">&gt;&gt;</span></code> your separate files (UNIX))</li>
+<li>Unique gene pattern (e.g. &#8216;AT.+&#8217;)</li>
+</ul>
+<p>Example of a run on <cite>Populus trichocarpa</cite>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd pos -gd populus_descriptions.tsv &#39;PT.+&#39; orthoMCL_out.txt nucleotide.fasta ./output_dir
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Command line interface</a><ul>
+<li><a class="reference internal" href="#ks-distribution-analysis">Ks distribution analysis</a><ul>
+<li><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#positive-selection-screen">Positive selection screen</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/cli.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Arthur Zwaenepoel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>

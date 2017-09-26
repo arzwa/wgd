@@ -1,0 +1,515 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Ks distribution analysis &#8212; wgd 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="wgd 0.0.1 documentation" href="index.html" />
+    <link rel="next" title="Positive selection screening" href="pos.html" />
+    <link rel="prev" title="Alignment tools" href="alignment.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pos.html" title="Positive selection screening"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="alignment.html" title="Alignment tools"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ks-distribution-analysis">
+<h1>Ks distribution analysis<a class="headerlink" href="#ks-distribution-analysis" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="module-wgd.ks_distribution">
+<span id="ks-distribution-construction"></span><h2>Ks distribution construction<a class="headerlink" href="#module-wgd.ks_distribution" title="Permalink to this headline">¶</a></h2>
+<p>Arthur Zwaenepoel</p>
+<dl class="class">
+<dt id="wgd.ks_distribution.KsDistribution">
+<em class="property">class </em><code class="descclassname">wgd.ks_distribution.</code><code class="descname">KsDistribution</code><span class="sig-paren">(</span><em>species='species'</em>, <em>gene_families=None</em>, <em>nucleotide=None</em>, <em>protein=None</em>, <em>gene_pattern=None</em>, <em>muscle_path='muscle'</em>, <em>codeml_path='codeml'</em>, <em>tmp_dir='./'</em>, <em>output_dir='./'</em>, <em>results_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.KsDistribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class representing a Ks distribution and the data used for it.
+Note that Ks distribution analysis starts from CDS sequences and gene families (singe or multi-species).
+For performing all-<cite>versus</cite>-all Blastp, use <a class="reference internal" href="mcl.html#wgd.mcl.all_v_all_blast" title="wgd.mcl.all_v_all_blast"><code class="xref py py-func docutils literal"><span class="pre">wgd.mcl.all_v_all_blast()</span></code></a>.
+For creating gene families from all-<cite>versus</cite>-all Blast results using MCL use <a class="reference internal" href="mcl.html#wgd.mcl.run_mcl_ava" title="wgd.mcl.run_mcl_ava"><code class="xref py py-func docutils literal"><span class="pre">wgd.mcl.run_mcl_ava()</span></code></a>.</p>
+<dl class="method">
+<dt id="wgd.ks_distribution.KsDistribution.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>species='species'</em>, <em>gene_families=None</em>, <em>nucleotide=None</em>, <em>protein=None</em>, <em>gene_pattern=None</em>, <em>muscle_path='muscle'</em>, <em>codeml_path='codeml'</em>, <em>tmp_dir='./'</em>, <em>output_dir='./'</em>, <em>results_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.KsDistribution.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>init for KsDistribution class.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>species</strong> &#8211; species id</li>
+<li><strong>gene_families</strong> &#8211; gene families file (tab separated genes per line)</li>
+<li><strong>nucleotide</strong> &#8211; nucleotide fasta file</li>
+<li><strong>protein</strong> &#8211; protein fasta file</li>
+<li><strong>gene_pattern</strong> &#8211; gene pattern (in case multi-species gene families provided)</li>
+<li><strong>muscle_path</strong> &#8211; path to musce executable</li>
+<li><strong>codeml_path</strong> &#8211; path to codeml executable</li>
+<li><strong>tmp_dir</strong> &#8211; temporary directory</li>
+<li><strong>output_dir</strong> &#8211; output directory</li>
+<li><strong>results_file</strong> &#8211; results_file (use this if you want to load a previously computed data frame and perform
+downstream analysis such as mixture modeling/KDE analysis)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wgd.ks_distribution.KsDistribution.histogram">
+<code class="descname">histogram</code><span class="sig-paren">(</span><em>key='Ks'</em>, <em>ks_range=(0.1</em>, <em>5)</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.KsDistribution.histogram" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot histogram of a distribution in the results frame (Ks, Ka or omega).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key</strong> &#8211; distribution to plot, usually one of <code class="docutils literal"><span class="pre">'Ks'</span></code>, <code class="docutils literal"><span class="pre">'Ka'</span></code> or <code class="docutils literal"><span class="pre">'Omega'</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a istogram of the distribution</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wgd.ks_distribution.KsDistribution.kernel_density">
+<code class="descname">kernel_density</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.KsDistribution.kernel_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Kernel density estimation method.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>kwargs</strong> &#8211; Keyword arguments for <a class="reference internal" href="#wgd.modeling.kernel_density_estimation" title="wgd.modeling.kernel_density_estimation"><code class="xref py py-func docutils literal"><span class="pre">wgd.modeling.kernel_density_estimation()</span></code></a></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">sklearn.KernelDensity objects for different bandwidths</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wgd.ks_distribution.KsDistribution.ks_analysis_parallel">
+<code class="descname">ks_analysis_parallel</code><span class="sig-paren">(</span><em>check=True</em>, <em>preserve=True</em>, <em>times=1</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.KsDistribution.ks_analysis_parallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parallel implementation for full analysis pipeline. Uses the asyncio library.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Ks, Ka and w distributions for the whole paranome as csv files and histograms.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wgd.ks_distribution.KsDistribution.ks_analysis_pipeline">
+<code class="descname">ks_analysis_pipeline</code><span class="sig-paren">(</span><em>verbose=True</em>, <em>preserve=False</em>, <em>prompt=True</em>, <em>times=1</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.KsDistribution.ks_analysis_pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Full analysis pipeline wrapper function, non-parallel implementation. (DEPRECATED)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Ks, Ka and w distributions for the whole paranome as csv files and histograms.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wgd.ks_distribution.KsDistribution.load_distribution">
+<code class="descname">load_distribution</code><span class="sig-paren">(</span><em>csv_file</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.KsDistribution.load_distribution" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for loading a data frame with results.
+For visualization and modeling of precomputed results.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>csv_file</strong> &#8211; CSV file with at least following columns:
+<code class="docutils literal"><span class="pre">'Paralog1','Paralog2','WeightOutliersIncluded','Ks'</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">self</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wgd.ks_distribution.KsDistribution.mixture_modeling">
+<code class="descname">mixture_modeling</code><span class="sig-paren">(</span><em>method='bgmm'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.KsDistribution.mixture_modeling" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mixture modeling method. Uses by default a Bayesian Gaussian mixture modeling approach.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>kwargs</strong> &#8211; Keyword arguments for <a class="reference internal" href="#wgd.modeling.mixture_model_bgmm" title="wgd.modeling.mixture_model_bgmm"><code class="xref py py-func docutils literal"><span class="pre">wgd.modeling.mixture_model_bgmm()</span></code></a></li>
+<li><strong>method</strong> &#8211; Mixture modeling method (bayesian/gaussian)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">sklearn.mixture models for different numbers of components</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wgd.ks_distribution.KsDistribution.write_report">
+<code class="descname">write_report</code><span class="sig-paren">(</span><em>mixture</em>, <em>kde</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.KsDistribution.write_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method for writing a html report.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">writes a <cite>html</cite> report of the performed analysis</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.ks_distribution._average_linkage_clustering">
+<code class="descclassname">wgd.ks_distribution.</code><code class="descname">_average_linkage_clustering</code><span class="sig-paren">(</span><em>pairwise_estimates</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution._average_linkage_clustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform average linkage clustering using fastcluster.
+The first two columns of the output contain the node indices which are joined in each step.
+The input nodes are labeled 0, . . . , N - 1, and the newly generated nodes have the labels N, . . . , 2N - 2.
+The third column contains the distance between the two nodes at each step, ie. the
+current minimal distance at the time of the merge. The fourth column counts the
+number of points which comprise each new node.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pairwise_estimates</strong> &#8211; dictionary with data frames with pairwise estimates of Ks, Ka and Ka/Ks
+(or at least Ks), as returned by <a class="reference internal" href="#wgd.ks_distribution.analyse_family" title="wgd.ks_distribution.analyse_family"><code class="xref py py-func docutils literal"><span class="pre">analyse_family()</span></code></a>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">average linkage clustering as performed with <code class="docutils literal"><span class="pre">fastcluster.average</span></code>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.ks_distribution._calculate_weighted_ks">
+<code class="descclassname">wgd.ks_distribution.</code><code class="descname">_calculate_weighted_ks</code><span class="sig-paren">(</span><em>clustering</em>, <em>pairwise_estimates</em>, <em>family_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution._calculate_weighted_ks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate weighted Ks, Kn and w values following the procedure as outline in Vanneste et al. (2013)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>clustering</strong> &#8211; average linkage clustering results as produced with <a class="reference internal" href="#wgd.ks_distribution._average_linkage_clustering" title="wgd.ks_distribution._average_linkage_clustering"><code class="xref py py-func docutils literal"><span class="pre">_average_linkage_clustering()</span></code></a></li>
+<li><strong>pairwise_estimates</strong> &#8211; pairwise Ks, Kn and w estimates as produced by <code class="xref py py-meth docutils literal"><span class="pre">codeml.Codeml.run_codeml()</span></code></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a pandas data frame of weighted Ks, Kn and w values.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.ks_distribution._get_paralogs">
+<code class="descclassname">wgd.ks_distribution.</code><code class="descname">_get_paralogs</code><span class="sig-paren">(</span><em>gene_family_dict</em>, <em>gene_pattern</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution._get_paralogs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get paralogs for a species from gene families</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>gene_family_dict</strong> &#8211; gene family dictionary</li>
+<li><strong>gene_pattern</strong> &#8211; gene pattern</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dictionary with paralogs</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.ks_distribution.analyse_family">
+<code class="descclassname">wgd.ks_distribution.</code><code class="descname">analyse_family</code><span class="sig-paren">(</span><em>family_id</em>, <em>family</em>, <em>nucleotide</em>, <em>tmp='./'</em>, <em>muscle='muscle'</em>, <em>codeml='codeml'</em>, <em>preserve=False</em>, <em>times=1</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.analyse_family" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper function for the analysis of one paralog family. Performs alignment with
+<code class="xref py py-meth docutils literal"><span class="pre">alignment.Muscle.run_muscle()</span></code> and codeml analysis with <code class="xref py py-meth docutils literal"><span class="pre">codeml.Codeml.run_codeml()</span></code>.
+Subsequently also clustering with <a class="reference internal" href="#wgd.ks_distribution._average_linkage_clustering" title="wgd.ks_distribution._average_linkage_clustering"><code class="xref py py-func docutils literal"><span class="pre">_average_linkage_clustering()</span></code></a> is performed and weighted Ks, Kn and w
+values are calculated using <a class="reference internal" href="#wgd.ks_distribution._calculate_weighted_ks" title="wgd.ks_distribution._calculate_weighted_ks"><code class="xref py py-func docutils literal"><span class="pre">_calculate_weighted_ks()</span></code></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>family_id</strong> &#8211; gene family id</li>
+<li><strong>family</strong> &#8211; dictionary with sequences of paralogs</li>
+<li><strong>nucleotide</strong> &#8211; nucleotide (CDS) sequences dictionary</li>
+<li><strong>tmp</strong> &#8211; tmp directory</li>
+<li><strong>muscle</strong> &#8211; muscle path</li>
+<li><strong>codeml</strong> &#8211; codeml path</li>
+<li><strong>preserve</strong> &#8211; preserve intermediate files</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">csv</span></code> file with results for the paralog family of interest</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-wgd.modeling">
+<span id="modeling-of-ks-distributions"></span><h2>Modeling of Ks distributions<a class="headerlink" href="#module-wgd.modeling" title="Permalink to this headline">¶</a></h2>
+<p>Arthur Zwaenepoel</p>
+<dl class="function">
+<dt id="wgd.modeling.kernel_density_estimation">
+<code class="descclassname">wgd.modeling.</code><code class="descname">kernel_density_estimation</code><span class="sig-paren">(</span><em>data_frame, bandwidths=[0.01, 0.05, 0.1, 0.15, 0.2], kernel='gaussian', output_dir=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.modeling.kernel_density_estimation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Kernel density estimation (KDE) for Ks distribution</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data_frame</strong> &#8211; pandas data frame with Ks analysis results</li>
+<li><strong>bandwidths</strong> &#8211; the bandwidths to apply in the KDE</li>
+<li><strong>kernel</strong> &#8211; kernel to aply in the KDE (gaussian, epachenikov, top_hat)</li>
+<li><strong>output_dir</strong> &#8211; output directory</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">sklearn.KernelDensity objects</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.modeling.mixture_model_bgmm">
+<code class="descclassname">wgd.modeling.</code><code class="descname">mixture_model_bgmm</code><span class="sig-paren">(</span><em>data_frame</em>, <em>n_range=(1</em>, <em>5)</em>, <em>Ks_range=(0.1</em>, <em>2)</em>, <em>gamma=0.01</em>, <em>max_iter=1000</em>, <em>plot=True</em>, <em>log=True</em>, <em>output_dir='./'</em>, <em>plot_save=True</em>, <em>output_file='mixture.png'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.modeling.mixture_model_bgmm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit a Bayesian Gaussian mixture model and make some plots.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data_frame</strong> &#8211; pandas data frame from Ks analysis</li>
+<li><strong>n_range</strong> &#8211; range of numbers of components</li>
+<li><strong>Ks_range</strong> &#8211; Ks value interval to model</li>
+<li><strong>gamma</strong> &#8211; gamma hyperparameter for sklearn.mixture.BayesianGaussianMixture</li>
+<li><strong>max_iter</strong> &#8211; maximum number of iterations</li>
+<li><strong>plot</strong> &#8211; make plots (boolean)</li>
+<li><strong>log</strong> &#8211; fit log-normal components rather than Normal</li>
+<li><strong>output_dir</strong> &#8211; output directory</li>
+<li><strong>plot_save</strong> &#8211; save the plot</li>
+<li><strong>output_file</strong> &#8211; output file name</li>
+<li><strong>kwargs</strong> &#8211; other keyword arguments for <code class="xref py py-func docutils literal"><span class="pre">sklearn.mixture.BayesianGaussianMixture()</span></code></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">mixture models and plots thereof</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.modeling.mixture_model_bgmm_">
+<code class="descclassname">wgd.modeling.</code><code class="descname">mixture_model_bgmm_</code><span class="sig-paren">(</span><em>data_frame</em>, <em>n_range=(1</em>, <em>5)</em>, <em>Ks_range=(0.1</em>, <em>2)</em>, <em>gamma=0.01</em>, <em>max_iter=1000</em>, <em>plot=True</em>, <em>output_dir=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.modeling.mixture_model_bgmm_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit a Bayesian Gaussian mixture model and make some plots</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data_frame</strong> &#8211; pandas dataframe from Ks analysis</li>
+<li><strong>n_range</strong> &#8211; range of numbers of components</li>
+<li><strong>Ks_range</strong> &#8211; Ks value interval to model</li>
+<li><strong>gamma</strong> &#8211; gamma hyperparameter for sklearn.mixture.BayesianGaussianMixture</li>
+<li><strong>max_iter</strong> &#8211; maximum number of iterations</li>
+<li><strong>plot</strong> &#8211; make plots (boolean)</li>
+<li><strong>output_dir</strong> &#8211; output directory</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">mixture models</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.modeling.mixture_model_gmm">
+<code class="descclassname">wgd.modeling.</code><code class="descname">mixture_model_gmm</code><span class="sig-paren">(</span><em>data_frame</em>, <em>n=4</em>, <em>metric='AIC'</em>, <em>Ks_range=(0.1</em>, <em>2)</em>, <em>log=True</em>, <em>plot=True</em>, <em>output_dir=None</em>, <em>plot_save=True</em>, <em>output_file='mixture.png'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.modeling.mixture_model_gmm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit mixture models using Gaussian Mixture Modeling for different numbers of components and choose best one.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data_frame</strong> &#8211; pandas data frame from Ks analysis</li>
+<li><strong>n</strong> &#8211; max number of components</li>
+<li><strong>metric</strong> &#8211; information criterion to use (<code class="docutils literal"><span class="pre">'AIC'</span></code> or <code class="docutils literal"><span class="pre">'BIC'</span></code>)</li>
+<li><strong>Ks_range</strong> &#8211; Ks range to model</li>
+<li><strong>log</strong> &#8211; fit log-normal components</li>
+<li><strong>plot</strong> &#8211; make plots</li>
+<li><strong>output_dir</strong> &#8211; output directory for plots</li>
+<li><strong>plot_save</strong> &#8211; save plots</li>
+<li><strong>output_file</strong> &#8211; output file name</li>
+<li><strong>kwargs</strong> &#8211; other keyword arguments for <code class="docutils literal"><span class="pre">mixture.GaussianMixture</span></code></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Mixture models and plots</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.modeling.weighted_to_unweighted">
+<code class="descclassname">wgd.modeling.</code><code class="descname">weighted_to_unweighted</code><span class="sig-paren">(</span><em>data_frame</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.modeling.weighted_to_unweighted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate an unweighted histogram from a weighted Ks distribution.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_frame</strong> &#8211; Ks distribution data frame</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">reweighted Ks distribution</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="example-performing-ks-analysis">
+<h2>Example: performing Ks analysis<a class="headerlink" href="#example-performing-ks-analysis" title="Permalink to this headline">¶</a></h2>
+<p>To perform a full Ks analysis on a gene family file, one can do something like this:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wgd</span> <span class="k">import</span> <span class="n">ks_distribution</span>
+
+<span class="n">ks_dist</span> <span class="o">=</span> <span class="n">KsDistribution</span><span class="p">(</span><span class="n">species</span><span class="o">=</span><span class="s1">&#39;Arabidopsis thaliana&#39;</span><span class="p">,</span> <span class="n">gene_pattern</span><span class="o">=</span><span class="s1">&#39;AT.+&#39;</span><span class="p">,</span>
+                         <span class="n">gene_families</span><span class="o">=</span><span class="s1">&#39;gene_families.txt&#39;</span><span class="p">,</span> <span class="n">nucleotide</span><span class="o">=</span><span class="s1">&#39;nucleotide.fasta&#39;</span><span class="p">)</span>
+<span class="n">ks_dist</span><span class="o">.</span><span class="n">ks_analysis_parallel</span><span class="p">()</span>
+<span class="n">ks_dist</span><span class="o">.</span><span class="n">mixture_modeling</span><span class="p">()</span>
+<span class="n">ks_dist</span><span class="o">.</span><span class="n">kde</span><span class="p">()</span>
+<span class="n">ks_dist</span><span class="o">.</span><span class="n">write_report</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>In fact, this is the pipeline as implemented in the command line utility <code class="docutils literal"><span class="pre">ks.py</span></code> (see <a class="reference internal" href="cli.html#cli"><span class="std std-ref">Command line interface</span></a>)</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Ks distribution analysis</a><ul>
+<li><a class="reference internal" href="#module-wgd.ks_distribution">Ks distribution construction</a></li>
+<li><a class="reference internal" href="#module-wgd.modeling">Modeling of Ks distributions</a></li>
+<li><a class="reference internal" href="#example-performing-ks-analysis">Example: performing Ks analysis</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="alignment.html"
+                        title="previous chapter">Alignment tools</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pos.html"
+                        title="next chapter">Positive selection screening</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/ks.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pos.html" title="Positive selection screening"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="alignment.html" title="Alignment tools"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Arthur Zwaenepoel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>

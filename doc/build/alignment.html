@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Alignment tools &#8212; wgd 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="wgd 0.0.1 documentation" href="index.html" />
+    <link rel="next" title="Ks distribution analysis" href="ks.html" />
+    <link rel="prev" title="Codeml python wrapper" href="codeml.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ks.html" title="Ks distribution analysis"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="codeml.html" title="Codeml python wrapper"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-wgd.alignment">
+<span id="alignment-tools"></span><h1>Alignment tools<a class="headerlink" href="#module-wgd.alignment" title="Permalink to this headline">¶</a></h1>
+<p>Arthur Zwaenepoel</p>
+<dl class="class">
+<dt id="wgd.alignment.Muscle">
+<em class="property">class </em><code class="descclassname">wgd.alignment.</code><code class="descname">Muscle</code><span class="sig-paren">(</span><em>muscle='muscle'</em>, <em>tmp='./tmp'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.alignment.Muscle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Muscle (multiple sequence alignment program) python wrapper.
+Currently only runs with default settings.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>muscle</strong> &#8211; path to Muscle executable, will by defult look for Muscle in the system PATH</li>
+<li><strong>tmp</strong> &#8211; directory to store temporary files.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Usage examples</p>
+<ul>
+<li><p class="first">Sequences in dictionary, output as dictionary:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">sequences</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;bear_gene&#39;</span><span class="p">:</span> <span class="s1">&#39;BEAR&#39;</span><span class="p">,</span> <span class="s1">&#39;hare_gene&#39;</span><span class="p">:</span> <span class="s1">&#39;HARE&#39;</span><span class="p">,</span> <span class="s1">&#39;yeast_gene&#39;</span><span class="p">:</span> <span class="s1">&#39;BEER&#39;</span><span class="p">}</span>
+<span class="o">&gt;&gt;</span> <span class="n">msa</span> <span class="o">=</span> <span class="n">Muscle</span><span class="p">()</span>
+<span class="o">&gt;&gt;</span> <span class="n">msa</span><span class="o">.</span><span class="n">run_muscle</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p class="first">Sequences in fasta file, output as fasta file <code class="docutils literal"><span class="pre">(msa.fasta)</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">msa</span> <span class="o">=</span> <span class="n">Muscle</span><span class="p">()</span>
+<span class="o">&gt;&gt;</span> <span class="n">msa</span><span class="o">.</span><span class="n">run_muscle</span><span class="p">(</span><span class="s1">&#39;./sequences.fasta&#39;</span><span class="p">,</span> <span class="s1">&#39;./msa.fasta&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<dl class="method">
+<dt id="wgd.alignment.Muscle.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>muscle='muscle'</em>, <em>tmp='./tmp'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.alignment.Muscle.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Muscle wrapper init.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>muscle</strong> &#8211; path to Muscle executable, will by defult look for Muscle in the system PATH</li>
+<li><strong>tmp</strong> &#8211; directory to store temporary files.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wgd.alignment.Muscle.run_muscle">
+<code class="descname">run_muscle</code><span class="sig-paren">(</span><em>sequences</em>, <em>file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.alignment.Muscle.run_muscle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run MUSCLE on sequences stored in dictionary</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sequences</strong> &#8211; dictionary of sequences or input fasta file</li>
+<li><strong>file</strong> &#8211; output file name, if not provided output is dictionary</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">MSA file</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.alignment._nucleotide_msa_from_protein_msa">
+<code class="descclassname">wgd.alignment.</code><code class="descname">_nucleotide_msa_from_protein_msa</code><span class="sig-paren">(</span><em>protein_msa_sequences</em>, <em>nucleotide_sequences</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.alignment._nucleotide_msa_from_protein_msa" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a nucleotide multiple sequence alignment from a protein multiple sequence alignment</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>protein_msa_sequences</strong> &#8211; dictionary with protein sequences (aligned)</li>
+<li><strong>nucleotide_sequences</strong> &#8211; dictionary with nucleotide sequences (unaligned)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dictionary with nucleotide sequences (aligned)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.alignment._strip_gaps">
+<code class="descclassname">wgd.alignment.</code><code class="descname">_strip_gaps</code><span class="sig-paren">(</span><em>msa_dict</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.alignment._strip_gaps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Strip gap positions from a multiple sequence alignment (MSA).
+Finds the positions in the strings that have a gap and removes them in all sequences.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msa_dict</strong> &#8211; dictionary with aligned nucleotide sequences.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.alignment.multiple_sequence_aligment_nucleotide">
+<code class="descclassname">wgd.alignment.</code><code class="descname">multiple_sequence_aligment_nucleotide</code><span class="sig-paren">(</span><em>msa_protein</em>, <em>nucleotide_sequences</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.alignment.multiple_sequence_aligment_nucleotide" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a nucleotide multiple sequence alignment based on a protein alignment</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>msa_protein</strong> &#8211; dictionary of aligned protein sequences</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">nucleotide MSA</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="codeml.html"
+                        title="previous chapter">Codeml python wrapper</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ks.html"
+                        title="next chapter">Ks distribution analysis</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/alignment.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="ks.html" title="Ks distribution analysis"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="codeml.html" title="Codeml python wrapper"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Arthur Zwaenepoel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>

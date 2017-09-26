@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Codeml python wrapper &#8212; wgd 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="wgd 0.0.1 documentation" href="index.html" />
+    <link rel="next" title="Alignment tools" href="alignment.html" />
+    <link rel="prev" title="Markov clustering related functions" href="mcl.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="alignment.html" title="Alignment tools"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mcl.html" title="Markov clustering related functions"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-wgd.codeml">
+<span id="codeml-python-wrapper"></span><h1>Codeml python wrapper<a class="headerlink" href="#module-wgd.codeml" title="Permalink to this headline">¶</a></h1>
+<p>Arthur Zwaenepoel (2017)</p>
+<p>A python wrapper for codeml (PAML package, Yang 2007)</p>
+<dl class="class">
+<dt id="wgd.codeml.Codeml">
+<em class="property">class </em><code class="descclassname">wgd.codeml.</code><code class="descname">Codeml</code><span class="sig-paren">(</span><em>codeml='codeml'</em>, <em>tmp='./'</em>, <em>id='tmp'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.codeml.Codeml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class for codeml (PAML Yang 2007) python wrapper.
+Defines the controle file and enables running codeml from within python in one line of code.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>codeml</strong> &#8211; path to codeml executable (by default will look for codeml in the system PATH)</li>
+<li><strong>tmp</strong> &#8211; path to temporary directory, will default to the current working directory (&#8216;./&#8217;)</li>
+<li><strong>id</strong> &#8211; filename prefix for output/tmp files</li>
+<li><strong>kwargs</strong> &#8211; <p>other codeml keyword arguments (see PAML user guide):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="s1">&#39;seqfile&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+<span class="s1">&#39;outfile&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">out_file</span><span class="p">,</span>
+<span class="s1">&#39;noisy&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<span class="s1">&#39;verbose&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<span class="s1">&#39;runmode&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">2</span><span class="p">,</span>
+<span class="s1">&#39;seqtype&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+<span class="s1">&#39;CodonFreq&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+<span class="s1">&#39;clock&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<span class="s1">&#39;aaDist&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<span class="s1">&#39;aaRatefile&#39;</span><span class="p">:</span> <span class="s1">&#39;dat/jones.dat&#39;</span><span class="p">,</span>
+<span class="s1">&#39;model&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<span class="s1">&#39;NSsites&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<span class="s1">&#39;icode&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<span class="s1">&#39;Mgene&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<span class="s1">&#39;fix_kappa&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<span class="s1">&#39;kappa&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+<span class="s1">&#39;fix_omega&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<span class="s1">&#39;omega&#39;</span><span class="p">:</span> <span class="o">.</span><span class="mi">4</span><span class="p">,</span>
+<span class="s1">&#39;fix_alpha&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+<span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<span class="s1">&#39;Malpha&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<span class="s1">&#39;ncatG&#39;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
+<span class="s1">&#39;getSE&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<span class="s1">&#39;RateAncestor&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+<span class="s1">&#39;Small_Diff&#39;</span><span class="p">:</span> <span class="o">.</span><span class="mi">5</span><span class="n">e</span><span class="o">-</span><span class="mi">6</span><span class="p">,</span>
+<span class="s1">&#39;cleandata&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+<span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="mi">0</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>Usage examples:</p>
+<p>Run codeml with default (Ks analysis) settings on a multiple sequence alignment (msa.fasta)::</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">codeml</span> <span class="o">=</span> <span class="n">Codeml</span><span class="p">()</span>
+<span class="o">&gt;&gt;</span> <span class="n">codeml</span><span class="o">.</span><span class="n">run_codeml</span><span class="p">(</span><span class="n">msa</span><span class="o">.</span><span class="n">fasta</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Change control setting CodonFreq to the F1x4 option (1) and rerun above example::</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">codeml</span><span class="o">.</span><span class="n">control</span><span class="p">[</span><span class="s1">&#39;CodonFreq&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="o">&gt;&gt;</span> <span class="n">codeml</span><span class="o">.</span><span class="n">run_codeml</span><span class="p">(</span><span class="n">msa</span><span class="o">.</span><span class="n">fasta</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Do the above example directly without modifying the control settings in the dict directly::</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">codeml</span> <span class="o">=</span> <span class="n">Codeml</span><span class="p">(</span><span class="n">CodonFreq</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="o">&gt;&gt;</span> <span class="n">codeml</span><span class="o">.</span><span class="n">run_codeml</span><span class="p">(</span><span class="n">msa</span><span class="o">.</span><span class="n">fasta</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Print the default control settings::</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">codeml</span> <span class="o">=</span> <span class="n">Codeml</span><span class="p">()</span>
+<span class="o">&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">codeml</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="wgd.codeml.Codeml.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>codeml='codeml'</em>, <em>tmp='./'</em>, <em>id='tmp'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.codeml.Codeml.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Codeml wrapper init. Initializes the default control file for Ks analysis as proposed by Vanneste et al. (2013)
+Takes as keyword arguments the options from the normal codeml distribution.
+Control settings are stored in a dictionary that can be accessed with the .control attribute</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>codeml</strong> &#8211; path to codeml executable (by default will look for codeml in the system PATH)</li>
+<li><strong>tmp</strong> &#8211; path to temporary directory, will default to the current working directory (&#8216;./&#8217;)</li>
+<li><strong>id</strong> &#8211; filename prefix for output/tmp files</li>
+<li><strong>kwargs</strong> &#8211; any codeml control option (see PAML user guide)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="wgd.codeml.Codeml.run_codeml">
+<code class="descname">run_codeml</code><span class="sig-paren">(</span><em>msa=None</em>, <em>raw=False</em>, <em>preserve=False</em>, <em>times=1</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.codeml.Codeml.run_codeml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run codeml on a multiple sequence alignment file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>msa</strong> &#8211; multiple sequence alignment file</li>
+<li><strong>raw</strong> &#8211; boolean, return raw results?</li>
+<li><strong>preserve</strong> &#8211; boolean, preserve intermediate files?</li>
+<li><strong>times</strong> &#8211; integer, perform codeml multiple times (average results)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">dictionary with Ks, Kn and Kn/Ks (omega) values</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mcl.html"
+                        title="previous chapter">Markov clustering related functions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="alignment.html"
+                        title="next chapter">Alignment tools</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/codeml.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="alignment.html" title="Alignment tools"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mcl.html" title="Markov clustering related functions"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Arthur Zwaenepoel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.6.
+    </div>
+  </body>
+</html>
