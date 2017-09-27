@@ -5,7 +5,7 @@ Arthur Zwaenepoel
 Markov clustering (MCL) related functions
 """
 
-from .utils import process_gene_families_ortho_mcl, translate_cds, read_fasta
+from .utils import process_gene_families, translate_cds, read_fasta
 import os
 import subprocess
 import re
@@ -110,7 +110,7 @@ def run_mcl_ava(input_file, regex='.+', prefix=None, tmp_dir='./', output_file='
 
     # return output as desired
     if return_dict:
-        results = process_gene_families_ortho_mcl(output_file)
+        results = process_gene_families(output_file)
 
         # if dict asked and no output file given by user, remove output file
         if output_file == 'mcl.out':
@@ -218,7 +218,7 @@ def run_mcl_ava_2(graph, output_dir='./', inflation=2, output_file='out.mcl', pr
 
     # return output as desired
     if return_dict:
-        results = process_gene_families_ortho_mcl(output_file)
+        results = process_gene_families(output_file)
         return results
 
     return output_file

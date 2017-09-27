@@ -3,7 +3,7 @@
 Arthur Zwaenepoel
 """
 from .ks_distribution import analyse_family
-from .utils import read_fasta, process_gene_families_ortho_mcl, get_sequences
+from .utils import read_fasta, process_gene_families, get_sequences
 from .utils import get_gfs_for_species, check_dirs, translate_cds
 import pandas as pd
 import numpy as np
@@ -103,7 +103,7 @@ class PositiveSelection():
         :return: data frame
         """
         logging.debug('Pre-processing sequence and gene family data')
-        self.gf_dict = process_gene_families_ortho_mcl(self.gene_families)
+        self.gf_dict = process_gene_families(self.gene_families)
         species_gfs = get_gfs_for_species(self.gf_dict, self.gene_pattern)
         self.nucleotide = get_sequences(species_gfs, self.nucleotide_file)
 

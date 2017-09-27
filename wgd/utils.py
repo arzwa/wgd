@@ -49,9 +49,9 @@ def get_sequences(paralog_dict, sequences):
     return paralog_sequence_dict
 
 
-def process_gene_families_ortho_mcl(gene_family_file):
+def process_gene_families(gene_family_file, ignore_prefix=False):
     """
-    Processes a raw gene family file from orthoMCL into a generic dictionary structure
+    Processes a raw gene family file as e.g. from OrthoMCL into a generic dictionary structure
     OrthoMCL raw file consists of one gene family per line, including tab separated gene IDs,
     without gene family ID.
     """
@@ -61,6 +61,9 @@ def process_gene_families_ortho_mcl(gene_family_file):
     with open(gene_family_file, 'r') as f:
         for line in f:
             genes = line.strip().split("\t")
+            if ignore_prefix:
+                if '|' in genes[0]:
+                    genes = [gene.split('|')[1] for gene in genes]
             gene_family_dict["GF_{}".format(ID)] = genes
             ID += 1
 
@@ -237,3 +240,26 @@ def regex_matcher(gene, r_dict):
         if r_dict[key].match(gene):
             return key
     return None
+
+
+def filter_one_vs_one_families(gene_families, s1, s2):
+    """
+    Filter one-vs-one ortholog containing families for two given species.
+
+    :param gene_families:
+    :param s1:
+    :param s2:
+    :return:
+    """
+    to_delete = []
+    for key, val in gene_families.items():
+        count = 0
+        for gene in val:
+            prefix=gene.split('|')[0]
+            if prefix == s1 or prefix == s2:
+                count += 1
+        if count != 2:
+            to_delete.append(key)
+    for k in to_delete:
+        del gene_families[k]
+    return gene_families

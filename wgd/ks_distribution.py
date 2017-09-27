@@ -7,7 +7,7 @@ Arthur Zwaenepoel
 # IMPORTS
 from .codeml import Codeml
 from .alignment import Muscle, multiple_sequence_aligment_nucleotide
-from .utils import read_fasta, check_dirs, process_gene_families_ortho_mcl, get_sequences, translate_cds
+from .utils import read_fasta, check_dirs, process_gene_families, get_sequences, translate_cds
 from .modeling import mixture_model_bgmm, mixture_model_gmm, kernel_density_estimation, weighted_to_unweighted
 from .html_report import write_report_ks
 import pandas as pd
@@ -214,7 +214,8 @@ class KsDistribution():
     """
 
     def __init__(self, species='species', gene_families=None, nucleotide=None, protein=None, gene_pattern=None,
-                 muscle_path='muscle', codeml_path='codeml', tmp_dir='./', output_dir='./', results_file=None):
+                 prefix=None, muscle_path='muscle', codeml_path='codeml', tmp_dir='./', output_dir='./',
+                 results_file=None):
         """
         init for KsDistribution class.
 
@@ -232,6 +233,7 @@ class KsDistribution():
         """
         self.species = species
         self.gene_pattern = gene_pattern
+        self.prefix = prefix
         self.gene_families = gene_families
         self.nucleotide_file = nucleotide
         self.protein_file = protein
@@ -262,7 +264,7 @@ class KsDistribution():
         :return: Ks, Ka and w distributions for the whole paranome as csv files and histograms.
         """
         self.nucleotide = read_fasta(self.nucleotide_file, split_on_pipe=True)
-        self.gf_dict = process_gene_families_ortho_mcl(self.gene_families)
+        self.gf_dict = process_gene_families(self.gene_families)
         self.paralogs = _get_paralogs(self.gf_dict, self.gene_pattern)
 
         if not self.protein_file:
@@ -369,6 +371,104 @@ class KsDistribution():
 
         return self
 
+    def ks_analysis_paranome(self, check=True, preserve=True, times=1):
+        """
+        Ks distribution construction for a whole paranome
+
+        :param verbose:
+        :param preserve:
+        :param prompt:
+        :param times:
+        :return:
+        """
+        # read in the data
+        self.nucleotide = read_fasta(self.nucleotide_file, split_on_pipe=True)
+        self.paralogs = process_gene_families(self.gene_families)
+        if not self.protein_file:
+            logging.info('Translating CDS to protein (standard genetic code)')
+            protein = translate_cds(self.nucleotide)
+            self.protein = get_sequences(self.paralogs, protein)
+        else:
+            self.protein = get_sequences(self.paralogs, self.protein_file)
+
+        # check directories
+        if check:
+            logging.debug('Checking directories (tmp, output)')
+            check_dirs(self.tmp_dir, self.output_dir, prompt=True, preserve=preserve)
+
+        # start analysis
+        logging.info('Started analysis in parallel')
+        loop = asyncio.get_event_loop()
+        tasks = [loop.run_in_executor(None, analyse_family, family, self.protein[family],
+                                      self.nucleotide, self.tmp_dir, self.muscle_path,
+                                      self.codeml_path, preserve, times) for family in self.protein.keys()]
+
+        loop.run_until_complete(asyncio.gather(*tasks))
+        logging.info('Analysis done')
+
+        # preserve intermediate data if asked
+        if preserve:
+            logging.info('Moving files (preserve=True)')
+            os.system(" ".join(['mv', os.path.join(self.tmp_dir, '*.msa*'), os.path.join(self.output_dir, 'msa')]))
+            os.system(" ".join(['mv', os.path.join(self.tmp_dir, '*.codeml'), os.path.join(self.output_dir, 'codeml')]))
+
+        else:
+            logging.info('Removing files (preserve=False)')
+            os.system(" ".join(['rm', os.path.join(self.tmp_dir, '*.msa*')]))
+
+        logging.info('Making results data frame')
+        results_frame = pd.DataFrame(columns=['Paralog1', 'Paralog2', 'Family',
+                                              'WeightOutliersIncluded', 'Ks', 'Ka', 'Omega'])
+
+        # count the number of analyzed pairs
+        counts = 0
+        for f in os.listdir(self.tmp_dir):
+            if f[-3:] == '.Ks':
+                counts += 1
+                df = pd.read_csv(os.path.join(self.tmp_dir, f), index_col=0)
+                results_frame = pd.concat([results_frame, df])
+        self.counts = counts
+        results_frame.index = list(range(len(results_frame.index)))
+
+        logging.info('Removing tmp directory')
+        os.system('rm -r {}'.format(self.tmp_dir))
+        results_frame.to_csv(os.path.join(self.output_dir, 'all.csv'))
+
+        # Process the Ks distribution
+        for key in ['Ks', 'Ka', 'Omega']:
+            logging.info('Processing {} distribution'.format(key))
+
+            distribution = results_frame[['Paralog1', 'Paralog2', 'WeightOutliersIncluded', key]]
+            distribution.to_csv(os.path.join(self.output_dir, '{}_distribution.csv'.format(key)))
+            distribution = distribution[distribution[key] <= 5]
+
+            metric = key
+            if metric == 'Omega':
+                metric = 'ln(\omega)'
+            elif metric == 'Ks':
+                metric = 'K_S'
+            else:
+                metric = 'K_A'
+
+            # Make Ks plot, omitting Ks values <= 0.1 to avoid the incorporation of allelic and/or splice variants
+            logging.info('Generating png for {} distribution'.format(key))
+            plt.figure()
+            plt.title("{0} ${1}$ distribution".format(self.species, metric))
+            plt.xlabel("Binned ${}$".format(metric))
+            if key == 'Omega':
+                plt.hist(np.log(distribution[key]), bins=100,
+                         weights=distribution['WeightOutliersIncluded'],
+                         histtype='stepfilled', color='#82c982')
+            else:
+                plt.hist(distribution[distribution[key] >= 0.1][key], bins=100,
+                         weights=distribution[distribution[key] >= 0.1]['WeightOutliersIncluded'],
+                         histtype='stepfilled', color='#82c982')
+                plt.xlim(0.1, max(distribution[key]))
+            plt.savefig(os.path.join(self.output_dir, '{}_distribution.png'.format(key)), dpi=400)
+
+        self.results = results_frame
+        return self
+
     def ks_analysis_parallel(self, check=True, preserve=True, times=1):
         """
         Parallel implementation for full analysis pipeline. Uses the asyncio library.
@@ -377,7 +477,7 @@ class KsDistribution():
         """
         logging.debug('Pre-processing sequence and gene family data')
         self.nucleotide = read_fasta(self.nucleotide_file, split_on_pipe=True)
-        self.gf_dict = process_gene_families_ortho_mcl(self.gene_families)
+        self.gf_dict = process_gene_families(self.gene_families)
         self.paralogs = _get_paralogs(self.gf_dict, self.gene_pattern)
 
         if not self.protein_file:
