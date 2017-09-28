@@ -47,7 +47,7 @@ class Genome:
             for line in f:
                 line = line.strip().split('\t')
 
-                if line[2] == 'gene':
+                if line[2] == 'mRNA':
                     chromosome = line[0]
                     start = line[3]
                     stop = line[4]

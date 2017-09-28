@@ -1,13 +1,17 @@
 #!/usr/bin/python3.5
 """
 Arthur Zwaenepoel
+
+Version 1.1:
+    - Rewrite of Ks distribution construction
+    - Implementation of one-vs-one ortholog Ks distributions
 """
 
 from setuptools import setup
 
 setup(
     name='wgd',
-    version='1.0',
+    version='1.1',
     packages=['wgd'],
     url='http://github.com/arzwa/wgd',
     license='',

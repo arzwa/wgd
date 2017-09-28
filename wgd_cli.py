@@ -2,6 +2,8 @@
 """
 Arthur Zwaenepoel
 """
+# TODO: separate subcommand for mixture modeling of Ks distributions
+# TODO: this can than also include a mixture model + peak based paralog extraction tool?
 
 import click
 import coloredlogs
