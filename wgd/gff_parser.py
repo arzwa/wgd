@@ -35,11 +35,12 @@ class Genome:
         self.gene_lists = {}
         self.colors = {}
 
-    def parse_plaza_gff(self, gff_file):
+    def parse_plaza_gff(self, gff_file, keyword='mRNA'):
         """
         Parse a PLAZA annotation file into a genome dictionary
 
         :param gff_file: input gff (PLAZA style)
+        :param keyword: keyword for elements to parse out
         """
         self.parent_file = gff_file
 
@@ -47,7 +48,7 @@ class Genome:
             for line in f:
                 line = line.strip().split('\t')
 
-                if line[2] == 'mRNA':
+                if line[2] == keyword:
                     chromosome = line[0]
                     start = line[3]
                     stop = line[4]
