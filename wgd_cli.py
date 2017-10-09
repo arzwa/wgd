@@ -12,7 +12,7 @@ import sys
 import os
 import re
 from wgd.ks_distribution import KsDistribution
-from wgd.ks_distribution_ import ks_analysis_paranome, ks_analysis_one_vs_one
+from wgd.ks_distribution_ import ks_analysis_paranome, ks_analysis_one_vs_one, ks_analysis_paranome_2
 from wgd.positive_selection import PositiveSelection
 from wgd.mcl import run_mcl_ava, all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2, family_stats
 from wgd.utils import check_dirs, translate_cds, read_fasta, write_fasta, prefix_fasta, prefix_multi_fasta, prefix_mcl
@@ -210,6 +210,7 @@ def ks2(gene_families, sequences, species_prefixes, output_directory, protein_se
     Construct a Ks distribution.
 
     Ks distribution construction for a set of paralogs or one-to-one orthologs.
+    This implementation uses the asyncio library for parallellization.
     """
     if not (gene_families and sequences):
         logging.error('No gene families or no sequences provided.')
@@ -240,6 +241,77 @@ def ks2(gene_families, sequences, species_prefixes, output_directory, protein_se
         ks_analysis_paranome(sequences, protein_sequences, gene_families, tmp_dir, output_directory,
                              muscle, codeml, preserve=preserve, check=False, times=times,
                              ignore_prefixes=ignore_prefixes)
+
+    logging.info('Done')
+
+
+# Ks ANALYSIS USING JOBLIB  ----------------------------------------------------------------------------------------
+@cli.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.option('--gene_families', '-gf', default=None,
+              help='Gene families (paralogs or one-to-one orthologs). Every '
+                   'family should be provided as a tab separated line of gene IDs.')
+@click.option('--sequences', '-s', default=None,
+              help='CDS sequences file in fasta format.')
+@click.option('--species_prefixes', '-p', default=None,
+              help='Comma-separated species prefixes for one-to-one ortholog '
+                   'distributions (not necessary for whole paranome distributions).')
+@click.option('--output_directory', '-o', default='ks.out',
+              help='Output directory (should not yet exist). (Default = ks.out)')
+@click.option('--protein_sequences', '-ps', default=None,
+              help="Protein sequences fasta file. Optional since by default the CDS file will be translated.")
+@click.option('--tmp_dir', '-tmp', default='./',
+              help="Path to store temporary files. (Default = ./)")
+@click.option('--muscle', '-m', default='muscle',
+              help="Path to muscle executable, not necessary if in PATH environment variable.")
+@click.option('--codeml', '-c', default='codeml',
+              help="Path to codeml executable, not necessary if in PATH environment variable.")
+@click.option('--times', '-t', default=1,
+              help="Number of times to perform ML estimation (for more stable estimates). (Default = 1)")
+@click.option('--ignore_prefixes', is_flag=True,
+              help="Ignore gene ID prefixes (defined by the '|' symbol) in the gene families file.")
+@click.option('--preserve', is_flag=True,
+              help="Keep multiple sequence alignment and codeml output. ")
+@click.option('--no_prompt', is_flag=True,
+              help="Disable prompt for directory clearing.")
+@click.option('--n_cores','-n', default=4,
+              help="Number of CPU cores to use.")
+def ks3(gene_families, sequences, species_prefixes, output_directory, protein_sequences,
+        tmp_dir, muscle, codeml, times, ignore_prefixes, preserve, no_prompt, n_cores):
+    """
+    Construct a Ks distribution.
+
+    Ks distribution construction for a set of paralogs or one-to-one orthologs.
+    This implementation uses the joblib library for parallellization.
+    """
+    if not (gene_families and sequences):
+        logging.error('No gene families or no sequences provided.')
+
+    tmp_dir = os.path.join(tmp_dir, output_directory + '.tmp')
+    check_dirs(tmp_dir, output_directory, prompt=not no_prompt, preserve=preserve)
+
+    logging.debug("Constructing KsDistribution object")
+
+    if not protein_sequences:
+        logging.info('Translating CDS file')
+        protein_seqs = translate_cds(read_fasta(sequences))
+        protein_sequences = os.path.join(sequences + '.tfa')
+        write_fasta(protein_seqs, protein_sequences)
+
+    if species_prefixes:
+        sp = species_prefixes.strip().split(',')
+        if len(sp) != 2:
+            logging.error('Number of species prefixes provided differs from 2.')
+        s1, s2 = sp[0], sp[1]
+        logging.info('Species prefixes provided, will calculate a one-vs-one ortholog Ks distribution for'
+                     '{0} vs {1}'.format(s1, s2))
+        ks_analysis_one_vs_one(sequences, protein_sequences, gene_families, s1, s2, tmp_dir,
+                               output_directory, muscle, codeml, preserve=preserve, check=False, times=times)
+
+    else:
+        logging.info('Started whole paranome Ks analysis')
+        ks_analysis_paranome_2(sequences, protein_sequences, gene_families, tmp_dir, output_directory,
+                             muscle, codeml, preserve=preserve, check=False, times=times,
+                             ignore_prefixes=ignore_prefixes, n_cores=n_cores)
 
     logging.info('Done')
 

@@ -9,6 +9,7 @@ from .codeml import Codeml
 from .alignment import Muscle, multiple_sequence_aligment_nucleotide
 from .utils import read_fasta, check_dirs, process_gene_families, get_sequences
 from .utils import filter_one_vs_one_families
+from joblib import Parallel, delayed
 import pandas as pd
 import numpy as np
 import os
@@ -393,7 +394,105 @@ def ks_analysis_paranome(nucleotide_sequences, protein_sequences, paralogs, tmp_
             counts += 1
             df = pd.read_csv(os.path.join(tmp_dir, f), index_col=0)
             results_frame = pd.concat([results_frame, df])
-    counts = counts
+    results_frame.index = list(range(len(results_frame.index)))
+
+    logging.info('Removing tmp directory')
+    os.system('rm -r {}'.format(tmp_dir))
+    results_frame.to_csv(os.path.join(output_dir, 'all.csv'))
+
+    # Process the Ks distribution
+    for key in ['Ks', 'Ka', 'Omega']:
+        logging.info('Processing {} distribution'.format(key))
+
+        distribution = results_frame[['Paralog1', 'Paralog2', 'WeightOutliersIncluded', key]]
+        distribution.to_csv(os.path.join(output_dir, '{}_distribution.csv'.format(key)))
+        distribution = distribution[distribution[key] <= 5]
+
+        metric = key
+        if metric == 'Omega':
+            metric = 'ln(\omega)'
+        elif metric == 'Ks':
+            metric = 'K_S'
+        else:
+            metric = 'K_A'
+
+        # Make Ks plot, omitting Ks values <= 0.1 to avoid the incorporation of allelic and/or splice variants
+        logging.info('Generating png for {} distribution'.format(key))
+        plt.figure()
+        plt.title("${0}$ distribution".format(metric))
+        plt.xlabel("Binned ${}$".format(metric))
+        if key == 'Omega':
+            plt.hist(np.log(distribution[key]), bins=70,
+                     weights=distribution['WeightOutliersIncluded'],
+                     histtype='barstacked', color='black', alpha=0.6, rwidth=0.85)
+        else:
+            plt.hist(distribution[distribution[key] >= 0.1][key], bins=70,
+                     weights=distribution[distribution[key] >= 0.1]['WeightOutliersIncluded'],
+                     histtype='barstacked', color='black', alpha=0.6, rwidth=0.85)
+            plt.xlim(0.1, max(distribution[key]))
+        plt.savefig(os.path.join(output_dir, '{}_distribution.png'.format(key)), dpi=200)
+
+    return
+
+
+def ks_analysis_paranome_2(nucleotide_sequences, protein_sequences, paralogs, tmp_dir='./tmp', output_dir='./ks.out',
+                         muscle_path='muscle', codeml_path='codeml', check=True, preserve=True, times=1,
+                         ignore_prefixes=False, n_cores=4):
+    """
+    Calculate a Ks distribution for a whole paranome.
+
+    :param nucleotide_sequences: CDS fasta file
+    :param protein_sequences: protein fasta file
+    :param paralogs: file with paralog families
+    :param tmp_dir: tmp directory
+    :param output_dir: output directory
+    :param muscle_path: path to muscle executable
+    :param codeml_path: path to codeml executable
+    :param check: check directories before proceeding (safer)
+    :param preserve: preserve intermediate results (muscle, codeml)
+    :param times: number of times to perform codeml analysis
+    :param ignore_prefixes: ignore prefixes in paralog/gene family file (e.g. in ath|AT1G45000, ath| will be ignored)
+    :return: some files and plots in the chosen output directory
+    """
+
+    # ignore prefixes in gene families, since only one species
+    nucleotide = read_fasta(nucleotide_sequences, split_on_pipe=True)
+    paralogs = process_gene_families(paralogs, ignore_prefix=ignore_prefixes)
+    protein = get_sequences(paralogs, protein_sequences)
+
+    # check directories
+    if check:
+        logging.debug('Checking directories (tmp, output)')
+        check_dirs(tmp_dir, output_dir, prompt=True, preserve=preserve)
+
+    # start analysis
+    logging.info('Started analysis in parallel')
+    Parallel(n_jobs=n_cores)(delayed(analyse_family)(family, protein[family],
+                                  nucleotide, tmp_dir, muscle_path,
+                                  codeml_path, preserve, times) for family in protein.keys())
+    logging.info('Analysis done')
+
+    # preserve intermediate data if asked
+    if preserve:
+        logging.info('Moving files (preserve=True)')
+        os.system(" ".join(['mv', os.path.join(tmp_dir, '*.msa*'), os.path.join(output_dir, 'msa')]))
+        os.system(" ".join(['mv', os.path.join(tmp_dir, '*.codeml'), os.path.join(output_dir, 'codeml')]))
+
+    else:
+        logging.info('Removing files (preserve=False)')
+        os.system(" ".join(['rm', os.path.join(tmp_dir, '*.msa*')]))
+
+    logging.info('Making results data frame')
+    results_frame = pd.DataFrame(columns=['Paralog1', 'Paralog2', 'Family',
+                                          'WeightOutliersIncluded', 'Ks', 'Ka', 'Omega'])
+
+    # count the number of analyzed pairs
+    counts = 0
+    for f in os.listdir(tmp_dir):
+        if f[-3:] == '.Ks':
+            counts += 1
+            df = pd.read_csv(os.path.join(tmp_dir, f), index_col=0)
+            results_frame = pd.concat([results_frame, df])
     results_frame.index = list(range(len(results_frame.index)))
 
     logging.info('Removing tmp directory')
