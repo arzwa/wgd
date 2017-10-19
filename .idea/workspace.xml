@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="821fa536-1b70-4930-9299-1d4345685448" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/codeml.py" afterPath="$PROJECT_DIR$/wgd/codeml.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/modeling.py" afterPath="$PROJECT_DIR$/wgd/modeling.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -30,7 +28,7 @@
       <file leaf-file-name="modeling.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/modeling.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3122">
+            <state relative-caret-position="425">
               <caret line="233" column="52" lean-forward="false" selection-start-line="233" selection-start-column="52" selection-end-line="233" selection-end-column="52" />
               <folding />
             </state>
@@ -53,7 +51,7 @@
         <entry file="file://$PROJECT_DIR$/wgd/ks_distribution_.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="307">
-              <caret line="73" column="0" lean-forward="true" selection-start-line="73" selection-start-column="0" selection-end-line="74" selection-end-column="0" />
+              <caret line="73" column="0" lean-forward="false" selection-start-line="73" selection-start-column="0" selection-end-line="74" selection-end-column="0" />
               <folding>
                 <element signature="e#218#244#0" expanded="true" />
               </folding>
@@ -64,8 +62,8 @@
       <file leaf-file-name="codeml.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wgd/codeml.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="504">
-              <caret line="84" column="42" lean-forward="true" selection-start-line="84" selection-start-column="42" selection-end-line="84" selection-end-column="42" />
+            <state relative-caret-position="742">
+              <caret line="95" column="23" lean-forward="false" selection-start-line="95" selection-start-column="23" selection-end-line="95" selection-end-column="23" />
               <folding />
             </state>
           </provider>
@@ -611,14 +609,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wgd/modeling.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3122">
-          <caret line="233" column="52" lean-forward="false" selection-start-line="233" selection-start-column="52" selection-end-line="233" selection-end-column="52" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wgd/ks_distribution.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="770">
@@ -642,17 +632,25 @@
     <entry file="file://$PROJECT_DIR$/wgd/ks_distribution_.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="307">
-          <caret line="73" column="0" lean-forward="true" selection-start-line="73" selection-start-column="0" selection-end-line="74" selection-end-column="0" />
+          <caret line="73" column="0" lean-forward="false" selection-start-line="73" selection-start-column="0" selection-end-line="74" selection-end-column="0" />
           <folding>
             <element signature="e#218#244#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/wgd/modeling.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="233" column="52" lean-forward="false" selection-start-line="233" selection-start-column="52" selection-end-line="233" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/wgd/codeml.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="504">
-          <caret line="84" column="42" lean-forward="true" selection-start-line="84" selection-start-column="42" selection-end-line="84" selection-end-column="42" />
+        <state relative-caret-position="742">
+          <caret line="95" column="23" lean-forward="false" selection-start-line="95" selection-start-column="23" selection-end-line="95" selection-end-column="23" />
           <folding />
         </state>
       </provider>

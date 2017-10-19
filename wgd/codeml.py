@@ -75,21 +75,25 @@ def _parse_codeml_out(codeml_out):
         ka_value_m = ka_p.search(pairwise_estimate)
         w_m = w_p.search(pairwise_estimate)
 
+        # On the PLAZA 4.0 Vitis vinifera genome I had an issue with a pattern match
+        # that was not retrieved. So now I check whether there is a match and give a warning.
+        # anyway this shouldn't be necessary! if there is codeml output, it should have
+        # the ks, ka and w values!
         if ks_value_m:
             ks_value = ks_value_m.group(1)
         else:
             logging.warning("No Ks value found in codeml file!")
-            ks_value = 'NA'
+            return None
 
         if ka_value_m:
             ka_value = ka_value_m.group(1)
         else:
-            ka_value = 'NA'
+            return None
 
         if w_m:
             w = w_m.group(1)
         else:
-            w = 'NA'
+            return None
 
         results_dict['Ks'][gene_1][gene_2] = ks_value
         results_dict['Ks'][gene_2][gene_1] = ks_value
