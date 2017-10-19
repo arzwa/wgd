@@ -231,7 +231,7 @@ def mixture_model_bgmm(data_frame, n_range=(1,5), Ks_range=(0.1, 2), gamma=0.01,
         logging.info("Plotting mixture models")
 
         if not fig_size:
-            fig_size = (20, (n_range[1]-n_range[0]) * 5)
+            fig_size = (20, (n_range[1]-n_range[0]+1) * 5)
         fig = plt.figure(figsize=fig_size)
 
         for i in range(len(models)):
@@ -241,7 +241,7 @@ def mixture_model_bgmm(data_frame, n_range=(1,5), Ks_range=(0.1, 2), gamma=0.01,
             weights = models[i].weights_
 
             # plot histogram with fitted components
-            ax = fig.add_subplot(n_range[1] - 1, 2, 2 * i + 1)
+            ax = fig.add_subplot(n_range[1], 2, 2 * i + 1)
             if log:
                 ax.hist(np.exp(X), Ks_range[1] * 25, normed=True, histtype='stepfilled', color="#82c982", alpha=0.4)
             else:
@@ -294,7 +294,7 @@ def mixture_model_bgmm(data_frame, n_range=(1,5), Ks_range=(0.1, 2), gamma=0.01,
             wm = [(weights[j], means[j]) for j in range(len(weights))]
             wm = sorted(wm, key=lambda tup: tup[1])
 
-            ax = fig.add_subplot(n_range[1] - 1, 2, 2 * i + 2)
+            ax = fig.add_subplot(n_range[1], 2, 2 * i + 2)
             for m in range(len(wm)):
                 ax.bar(m, wm[m][0], color="#a6d9a6")
                 ax.text(m, wm[m][0], "{0:0.2f}".format(wm[m][1][0]), horizontalalignment='center')

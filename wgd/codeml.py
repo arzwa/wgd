@@ -71,9 +71,25 @@ def _parse_codeml_out(codeml_out):
     # populate results
     for pairwise_estimate in codeml_results:
         gene_1, gene_2 = gene_pair_p.search(pairwise_estimate).group(1), gene_pair_p.search(pairwise_estimate).group(2)
-        ks_value = ks_p.search(pairwise_estimate).group(1)
-        ka_value = ka_p.search(pairwise_estimate).group(1)
-        w = w_p.search(pairwise_estimate).group(1)
+        ks_value_m = ks_p.search(pairwise_estimate)
+        ka_value_m = ka_p.search(pairwise_estimate)
+        w_m = w_p.search(pairwise_estimate)
+
+        if ks_value_m:
+            ks_value = ks_value_m.group(1)
+        else:
+            logging.warning("No Ks value found in codeml file!")
+            ks_value = 'NA'
+
+        if ka_value_m:
+            ka_value = ka_value_m.group(1)
+        else:
+            ka_value = 'NA'
+
+        if w_m:
+            w = w_m.group(1)
+        else:
+            w = 'NA'
 
         results_dict['Ks'][gene_1][gene_2] = ks_value
         results_dict['Ks'][gene_2][gene_1] = ks_value
