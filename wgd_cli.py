@@ -455,8 +455,10 @@ def ks(cds_fasta_file, output_directory, all_vs_all, gene_families, prefix, rege
               help="Ks distribution for the whole paranome of the species of interest, "
                    "csv file as generated using `wgd ks`.")
 @click.option('--keyword', '-kw', default='mRNA',
-              help="Keyword for parsing the genes from the GFF file. (Default = 'mRNA').")
-def coll(gff_file, families, output_dir, ks_distribution, keyword):
+              help="Keyword for parsing the genes from the GFF file (column 3). (Default = 'mRNA').")
+@click.option('--id_string', '-id', default='ID',
+              help="Keyword for parsing the gene IDs from the GFF file (column 9). (Default = 'ID').")
+def coll(gff_file, families, output_dir, ks_distribution, keyword, id_string):
     """
     Collinearity analyses.
     Requires I-ADHoRe
@@ -471,7 +473,7 @@ def coll(gff_file, families, output_dir, ks_distribution, keyword):
 
     logging.info("Parsing GFF file")
     genome = Genome()
-    genome.parse_plaza_gff(gff_file, keyword=keyword)
+    genome.parse_plaza_gff(gff_file, keyword=keyword, id_string=id_string)
 
     logging.info("Writing gene lists")
     all_genes = write_gene_lists(

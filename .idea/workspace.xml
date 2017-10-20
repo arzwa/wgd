@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="821fa536-1b70-4930-9299-1d4345685448" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/setup.py" afterPath="$PROJECT_DIR$/setup.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/codeml.py" afterPath="$PROJECT_DIR$/wgd/codeml.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/gff_parser.py" afterPath="$PROJECT_DIR$/wgd/gff_parser.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd_cli.py" afterPath="$PROJECT_DIR$/wgd_cli.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -16,11 +13,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="wgd_cli.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="wgd_cli.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wgd_cli.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2786">
-              <caret line="212" column="70" lean-forward="false" selection-start-line="212" selection-start-column="70" selection-end-line="212" selection-end-column="70" />
+            <state relative-caret-position="444">
+              <caret line="466" column="24" lean-forward="true" selection-start-line="466" selection-start-column="24" selection-end-line="466" selection-end-column="24" />
               <folding>
                 <element signature="e#206#218#0" expanded="true" />
               </folding>
@@ -41,8 +38,8 @@
       <file leaf-file-name="collinearity.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/collinearity.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="612">
-              <caret line="135" column="28" lean-forward="false" selection-start-line="135" selection-start-column="26" selection-end-line="135" selection-end-column="28" />
+            <state relative-caret-position="646">
+              <caret line="430" column="23" lean-forward="false" selection-start-line="430" selection-start-column="18" selection-end-line="430" selection-end-column="23" />
               <folding>
                 <element signature="e#122#131#0" expanded="true" />
               </folding>
@@ -53,8 +50,8 @@
       <file leaf-file-name="gff_parser.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/gff_parser.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="392">
-              <caret line="56" column="81" lean-forward="false" selection-start-line="56" selection-start-column="81" selection-end-line="56" selection-end-column="81" />
+            <state relative-caret-position="126">
+              <caret line="37" column="65" lean-forward="false" selection-start-line="37" selection-start-column="56" selection-end-line="37" selection-end-column="65" />
               <folding />
             </state>
           </provider>
@@ -82,7 +79,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="setup.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="setup.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/setup.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="490">
@@ -117,8 +114,8 @@
     <findStrings>
       <find>self</find>
       <find>self.</find>
-      <find>parse</find>
       <find>ID</find>
+      <find>parse</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -133,11 +130,11 @@
         <option value="$PROJECT_DIR$/wgd/utils.py" />
         <option value="$PROJECT_DIR$/wgd/phylogenomics.py" />
         <option value="$PROJECT_DIR$/wgd/ks_distribution_.py" />
-        <option value="$PROJECT_DIR$/wgd_cli.py" />
         <option value="$PROJECT_DIR$/wgd/modeling.py" />
         <option value="$PROJECT_DIR$/wgd/gff_parser.py" />
         <option value="$PROJECT_DIR$/wgd/codeml.py" />
         <option value="$PROJECT_DIR$/setup.py" />
+        <option value="$PROJECT_DIR$/wgd_cli.py" />
       </list>
     </option>
   </component>
@@ -610,16 +607,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wgd_cli.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2786">
-          <caret line="212" column="70" lean-forward="false" selection-start-line="212" selection-start-column="70" selection-end-line="212" selection-end-column="70" />
-          <folding>
-            <element signature="e#206#218#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wgd/ks_distribution.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="770">
@@ -648,24 +635,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wgd/collinearity.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="612">
-          <caret line="135" column="28" lean-forward="false" selection-start-line="135" selection-start-column="26" selection-end-line="135" selection-end-column="28" />
-          <folding>
-            <element signature="e#122#131#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wgd/gff_parser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="392">
-          <caret line="56" column="81" lean-forward="false" selection-start-line="56" selection-start-column="81" selection-end-line="56" selection-end-column="81" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wgd/codeml.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="632">
@@ -679,6 +648,34 @@
         <state relative-caret-position="490">
           <caret line="35" column="15" lean-forward="false" selection-start-line="35" selection-start-column="15" selection-end-line="35" selection-end-column="15" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wgd/gff_parser.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="126">
+          <caret line="37" column="65" lean-forward="false" selection-start-line="37" selection-start-column="56" selection-end-line="37" selection-end-column="65" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wgd/collinearity.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="646">
+          <caret line="430" column="23" lean-forward="false" selection-start-line="430" selection-start-column="18" selection-end-line="430" selection-end-column="23" />
+          <folding>
+            <element signature="e#122#131#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wgd_cli.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="444">
+          <caret line="466" column="24" lean-forward="true" selection-start-line="466" selection-start-column="24" selection-end-line="466" selection-end-column="24" />
+          <folding>
+            <element signature="e#206#218#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
