@@ -271,5 +271,7 @@ class Codeml:
             return results
 
         else:
-            return results['results']
+            if results is not None:
+                return results['results']
+            return None
 

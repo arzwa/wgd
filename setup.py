@@ -32,6 +32,8 @@ setup(
         'plumbum',
         'fastcluster',
         'pandas',
+        'ete3',
+        'joblib'
     ],
     entry_points='''
         [console_scripts]

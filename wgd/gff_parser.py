@@ -35,7 +35,7 @@ class Genome:
         self.gene_lists = {}
         self.colors = {}
 
-    def parse_plaza_gff(self, gff_file, keyword='mRNA'):
+    def parse_plaza_gff(self, gff_file, keyword='mRNA', id_string='ID'):
         """
         Parse a PLAZA annotation file into a genome dictionary
 
@@ -53,17 +53,18 @@ class Genome:
                     start = line[3]
                     stop = line[4]
                     orientation = line[6]
-                    gene = line[8].split(';')[0].split('=')[1]
+                    gene_l = line[8].split(';')
+                    gene_dict = {x.split('=')[0]: x.split('=')[1] for x in gene_l}
 
                     if chromosome not in self.genome:
                         self.genome[chromosome] = {}
                         self.gene_lists[chromosome] = []
                         self.colors[chromosome] = _random_color()
 
-                    self.genome[chromosome][gene] = {
+                    self.genome[chromosome][gene_dict[id_string]] = {
                         'orientation': orientation, 'start': start, 'stop': stop}
                     self.gene_lists[chromosome].append(
-                        (gene, orientation, start, stop))
+                        (gene_dict[id_string], orientation, start, stop))
         return
 
     def karyotype_json(self, out_file='genome.json'):
