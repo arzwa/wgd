@@ -80,13 +80,14 @@ def blast(cds, mcl, sequences, species_ids, blast_results, inflation_factor, eva
     """
     Perform all-vs.-all Blastp (+ MCL) analysis.
     """
+
+    if not os.path.exists(output_dir):
+        logging.info('Output directory: {} does not exist, will make it.'.format(output_dir))
+        os.mkdir(output_dir)
+
     if not blast_results:
         if not sequences:
             logging.error('No sequences provided (use the -s flag)')
-
-        logging.info('Output directory: {} does not exist, will make it.'.format(output_dir))
-        if not os.path.exists(output_dir):
-            os.mkdir(output_dir)
 
         sequence_files = sequences.strip().split(',')
 
@@ -119,7 +120,7 @@ def blast(cds, mcl, sequences, species_ids, blast_results, inflation_factor, eva
         logging.info('Performing MCL clustering (inflation factor = {0})'.format(inflation_factor))
         ava_graph = ava_blast_to_abc_2(blast_results)
         mcl_out = run_mcl_ava_2(ava_graph, output_dir=output_dir, output_file='out.mcl')
-        family_stats(mcl_out)
+        # family_stats(mcl_out)
 
     logging.info('Done')
     pass
