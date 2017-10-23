@@ -68,51 +68,56 @@ def cli(verbose):
 @click.option('--species_ids','-id', default=None,
               help='Species identifiers for respective input sequence files, as a comma separated '
                    'string (e.g. x,y,z). (optional)')
+@click.option('--blast_results','-b', default=None,
+              help='Input precomputed tab separated blast results.')
 @click.option('--inflation_factor', '-I', default=2.0,
-              help="Inflation factor for MCL clustering, when blast results provided. (Default = 2)")
+              help="Inflation factor for MCL clustering. (Default = 2)")
+@click.option('--eval_cutoff', '-e', default=1e-10,
+              help="E-value cut-off for Blast results (Default = 1e-10)")
 @click.option('--output_dir','-o', default='wgd.blast.out',
               help='Output directory.')
-def blast(cds, mcl, sequences, species_ids, inflation_factor, output_dir):
+def blast(cds, mcl, sequences, species_ids, blast_results, inflation_factor, eval_cutoff, output_dir):
     """
     Perform all-vs.-all Blastp (+ MCL) analysis.
     """
-    if not sequences:
-        logging.error('No sequences provided (use the -s flag)')
+    if not blast_results:
+        if not sequences:
+            logging.error('No sequences provided (use the -s flag)')
 
-    logging.info('Output directory: {} does not exist, will make it.'.format(output_dir))
-    if not os.path.exists(output_dir):
-        os.mkdir(output_dir)
+        logging.info('Output directory: {} does not exist, will make it.'.format(output_dir))
+        if not os.path.exists(output_dir):
+            os.mkdir(output_dir)
 
-    sequence_files = sequences.strip().split(',')
+        sequence_files = sequences.strip().split(',')
 
-    if species_ids:
-        ids = species_ids.strip().split(',')
-        if len(ids) != len(sequence_files):
-            logging.error('Number of species identifiers ({0}) does not match number of provided sequence '
-                          'files ({1}).'.format(len(ids), len(sequence_files)))
-    else:
-        ids = [''] * len(sequence_files)
-
-    if cds:
-        logging.info("CDS sequences provided, will first translate.")
-
-    sequences_dict = {}
-    for i in range(len(sequence_files)):
-        if cds:
-            protein_seqs = translate_cds(read_fasta(sequence_files[i], prefix=ids[i]))
-            sequences_dict.update(protein_seqs)
+        if species_ids:
+            ids = species_ids.strip().split(',')
+            if len(ids) != len(sequence_files):
+                logging.error('Number of species identifiers ({0}) does not match number of provided sequence '
+                              'files ({1}).'.format(len(ids), len(sequence_files)))
         else:
-            sequences_dict.update(read_fasta(sequence_files[i], prefix=ids[i]))
+            ids = [''] * len(sequence_files)
 
-    logging.info('Writing merged sequences file to seqs.fasta.')
-    write_fasta(sequences_dict, os.path.join(output_dir,'seqs.fasta'))
+        if cds:
+            logging.info("CDS sequences provided, will first translate.")
 
-    logging.info('Performing all_v_all_blastp (this might take a while)')
-    all_vs_all = all_v_all_blast(os.path.join(output_dir,'seqs.fasta'), output_dir)
+        sequences_dict = {}
+        for i in range(len(sequence_files)):
+            if cds:
+                protein_seqs = translate_cds(read_fasta(sequence_files[i], prefix=ids[i]))
+                sequences_dict.update(protein_seqs)
+            else:
+                sequences_dict.update(read_fasta(sequence_files[i], prefix=ids[i]))
+
+        logging.info('Writing merged sequences file to seqs.fasta.')
+        write_fasta(sequences_dict, os.path.join(output_dir,'seqs.fasta'))
+
+        logging.info('Performing all_v_all_blastp (this might take a while)')
+        blast_results = all_v_all_blast(os.path.join(output_dir,'seqs.fasta'), output_dir, eval_cutoff=eval_cutoff)
 
     if mcl:
         logging.info('Performing MCL clustering (inflation factor = {0})'.format(inflation_factor))
-        ava_graph = ava_blast_to_abc_2(all_vs_all)
+        ava_graph = ava_blast_to_abc_2(blast_results)
         mcl_out = run_mcl_ava_2(ava_graph, output_dir=output_dir, output_file='out.mcl')
         family_stats(mcl_out)
 
