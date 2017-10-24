@@ -119,7 +119,8 @@ def blast(cds, mcl, sequences, species_ids, blast_results, inflation_factor, eva
     if mcl:
         logging.info('Performing MCL clustering (inflation factor = {0})'.format(inflation_factor))
         ava_graph = ava_blast_to_abc_2(blast_results)
-        mcl_out = run_mcl_ava_2(ava_graph, output_dir=output_dir, output_file='out.mcl', inflation=inflation_factor)
+        mcl_out = run_mcl_ava_2(ava_graph, output_dir=output_dir, output_file='out.mcl',
+                                inflation=inflation_factor)
         # family_stats(mcl_out)
 
     logging.info('Done')
@@ -578,6 +579,30 @@ def pos(gene_pattern, gene_families, protein_sequences, nucleotide_sequences, ou
 
     logging.info('Writing results to csv')
     results.to_csv(os.path.join(output_dir, '{}_out.csv'.format(job_id)))
+
+
+@cli.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.option('--fasta_dir', '-d', default=None, help="Directory with fasta files to translate.")
+@click.option('--fasta_file', '-f', default=None, help="Fasta file to translate.")
+def translate(fasta_dir, fasta_file):
+    """
+    Translate a CDS fasta file
+    """
+    fastas = []
+    if fasta_dir:
+        fastas = [os.path.join(fasta_dir, x) for x in os.listdir(fasta_dir)]
+    elif fasta_file:
+        fastas.append(fasta_file)
+    else:
+        logging.error('Neither fasta file nor directory provided!')
+
+    for ffile in fastas:
+        logging.info('Translating {}'.format(ffile))
+        protein_seqs = translate_cds(read_fasta(ffile))
+        protein_sequences = os.path.join(ffile + '.tfa')
+        write_fasta(protein_seqs, protein_sequences)
+
+    logging.info('DONE')
 
 
 if __name__ == '__main__':
