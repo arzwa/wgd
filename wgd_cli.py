@@ -11,7 +11,9 @@ import logging
 import sys
 import os
 import re
-from wgd.ks_distribution import KsDistribution
+import datetime
+import pandas as pd
+from wgd.modeling import mixture_model_bgmm, mixture_model_gmm
 from wgd.ks_distribution_ import ks_analysis_paranome, ks_analysis_one_vs_one, ks_analysis_paranome_2
 from wgd.positive_selection import PositiveSelection
 from wgd.mcl import run_mcl_ava, all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2, family_stats
@@ -45,17 +47,15 @@ def cli(verbose):
     \b
     Arthur Zwaenepoel - 2017
     """
+    coloredlogs.install()
+
     if verbose == 'debug':
-        coloredlogs.install()
         logging.basicConfig(format='%(asctime)s: %(levelname)s\t%(message)s', level=logging.DEBUG,
                             stream=sys.stdout)
 
     elif verbose == 'info':
-        coloredlogs.install()
         logging.basicConfig(format='%(asctime)s: %(levelname)s\t%(message)s', level=logging.INFO,
                             stream=sys.stdout)
-
-    # click.echo(click.style('WGD v1.0', fg='green'))
     pass
 
 
@@ -121,25 +121,11 @@ def blast(cds, mcl, sequences, species_ids, blast_results, inflation_factor, eva
         ava_graph = ava_blast_to_abc_2(blast_results)
         mcl_out = run_mcl_ava_2(ava_graph, output_dir=output_dir, output_file='out.mcl',
                                 inflation=inflation_factor)
-        # family_stats(mcl_out)
+
+        # family_stats(mcl_out) # TODO add some statistics from the mcl output
 
     logging.info('Done')
     pass
-
-
-# PHYLOGENETIC PROFILE -------------------------------------------------------------------------------------------------
-@cli.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.argument('input_file')
-@click.option('--output_file','-o', default=None,
-              help='Output file name, if none given than only summary statistics are shown.')
-def profile(input_file, output_file):
-    """
-    Generate a phylogenetic profile.
-
-    The input file should be a typical (Ortho)MCL output file,
-    with gene IDs prefixed with their respective species ID.
-    """
-    family_stats(input_file, pro_file=output_file)
 
 
 # PREFIX ---------------------------------------------------------------------------------------------------------------
@@ -181,9 +167,7 @@ def prefix(input_file, fasta, prefixes, regexes, mcl, output_file):
         prefix_mcl(prefix_dict, input_file, output_file)
 
 
-# Ks ANALYSIS REWRITE --------------------------------------------------------------------------------------------------
-# TODO: clean up prefix/regex mess - assume clean input data from wgd blast
-# TODO: ensure one-to-one ortholog Ks distributions work
+# Ks ANALYSIS USING JOBLIB/ASYNC  --------------------------------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option('--gene_families', '-gf', default=None,
               help='Gene families (paralogs or one-to-one orthologs). Every '
@@ -200,9 +184,9 @@ def prefix(input_file, fasta, prefixes, regexes, mcl, output_file):
 @click.option('--tmp_dir', '-tmp', default='./',
               help="Path to store temporary files. (Default = ./)")
 @click.option('--muscle', '-m', default='muscle',
-              help="Path to muscle executable, not necessary if in PATH environment variable.")
+              help="Absolute path to muscle executable, not necessary if in PATH environment variable.")
 @click.option('--codeml', '-c', default='codeml',
-              help="Path to codeml executable, not necessary if in PATH environment variable.")
+              help="Absolute path to codeml executable, not necessary if in PATH environment variable.")
 @click.option('--times', '-t', default=1,
               help="Number of times to perform ML estimation (for more stable estimates). (Default = 1)")
 @click.option('--ignore_prefixes', is_flag=True,
@@ -211,79 +195,14 @@ def prefix(input_file, fasta, prefixes, regexes, mcl, output_file):
               help="Keep multiple sequence alignment and codeml output. ")
 @click.option('--no_prompt', is_flag=True,
               help="Disable prompt for directory clearing.")
-def ks2(gene_families, sequences, species_prefixes, output_directory, protein_sequences,
-        tmp_dir, muscle, codeml, times, ignore_prefixes, preserve, no_prompt):
-    """
-    Construct a Ks distribution.
-
-    Ks distribution construction for a set of paralogs or one-to-one orthologs.
-    This implementation uses the asyncio library for parallellization.
-    """
-    if not (gene_families and sequences):
-        logging.error('No gene families or no sequences provided.')
-
-    tmp_dir = os.path.join(tmp_dir, output_directory + '.tmp')
-    check_dirs(tmp_dir, output_directory, prompt=not no_prompt, preserve=preserve)
-
-    logging.debug("Constructing KsDistribution object")
-
-    if not protein_sequences:
-        logging.info('Translating CDS file')
-        protein_seqs = translate_cds(read_fasta(sequences))
-        protein_sequences = os.path.join(sequences + '.tfa')
-        write_fasta(protein_seqs, protein_sequences)
-
-    if species_prefixes:
-        sp = species_prefixes.strip().split(',')
-        if len(sp) != 2:
-            logging.error('Number of species prefixes provided differs from 2.')
-        s1, s2 = sp[0], sp[1]
-        logging.info('Species prefixes provided, will calculate a one-vs-one ortholog Ks distribution for'
-                     '{0} vs {1}'.format(s1, s2))
-        ks_analysis_one_vs_one(sequences, protein_sequences, gene_families, s1, s2, tmp_dir,
-                               output_directory, muscle, codeml, preserve=preserve, check=False, times=times)
-
-    else:
-        logging.info('Started whole paranome Ks analysis')
-        ks_analysis_paranome(sequences, protein_sequences, gene_families, tmp_dir, output_directory,
-                             muscle, codeml, preserve=preserve, check=False, times=times,
-                             ignore_prefixes=ignore_prefixes)
-
-    logging.info('Done')
-
-
-# Ks ANALYSIS USING JOBLIB  ----------------------------------------------------------------------------------------
-@cli.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.option('--gene_families', '-gf', default=None,
-              help='Gene families (paralogs or one-to-one orthologs). Every '
-                   'family should be provided as a tab separated line of gene IDs.')
-@click.option('--sequences', '-s', default=None,
-              help='CDS sequences file in fasta format.')
-@click.option('--species_prefixes', '-p', default=None,
-              help='Comma-separated species prefixes for one-to-one ortholog '
-                   'distributions (not necessary for whole paranome distributions).')
-@click.option('--output_directory', '-o', default='ks.out',
-              help='Output directory (should not yet exist). (Default = ks.out)')
-@click.option('--protein_sequences', '-ps', default=None,
-              help="Protein sequences fasta file. Optional since by default the CDS file will be translated.")
-@click.option('--tmp_dir', '-tmp', default='./',
-              help="Path to store temporary files. (Default = ./)")
-@click.option('--muscle', '-m', default='muscle',
-              help="Path to muscle executable, not necessary if in PATH environment variable.")
-@click.option('--codeml', '-c', default='codeml',
-              help="Path to codeml executable, not necessary if in PATH environment variable.")
-@click.option('--times', '-t', default=1,
-              help="Number of times to perform ML estimation (for more stable estimates). (Default = 1)")
-@click.option('--ignore_prefixes', is_flag=True,
-              help="Ignore gene ID prefixes (defined by the '|' symbol) in the gene families file.")
-@click.option('--preserve', is_flag=True,
-              help="Keep multiple sequence alignment and codeml output. ")
-@click.option('--no_prompt', is_flag=True,
-              help="Disable prompt for directory clearing.")
+@click.option('--async', is_flag=True, default=True,
+              help="Use asyncio module for parallelization. (Default)")
+@click.option('--joblib', is_flag=True, default=True,
+              help="Use joblib module for parallelization, you might want to set the --n_cores parameter. ")
 @click.option('--n_cores','-n', default=4,
               help="Number of CPU cores to use.")
-def ks3(gene_families, sequences, species_prefixes, output_directory, protein_sequences,
-        tmp_dir, muscle, codeml, times, ignore_prefixes, preserve, no_prompt, n_cores):
+def ks(gene_families, sequences, species_prefixes, output_directory, protein_sequences,
+        tmp_dir, muscle, codeml, times, ignore_prefixes, preserve, no_prompt, async, joblib, n_cores):
     """
     Construct a Ks distribution.
 
@@ -298,12 +217,14 @@ def ks3(gene_families, sequences, species_prefixes, output_directory, protein_se
 
     logging.debug("Constructing KsDistribution object")
 
+    # translate CDS file(s)
     if not protein_sequences:
         logging.info('Translating CDS file')
         protein_seqs = translate_cds(read_fasta(sequences))
         protein_sequences = os.path.join(sequences + '.tfa')
         write_fasta(protein_seqs, protein_sequences)
 
+    # one-vs-one ortholog input
     if species_prefixes:
         sp = species_prefixes.strip().split(',')
         if len(sp) != 2:
@@ -314,143 +235,21 @@ def ks3(gene_families, sequences, species_prefixes, output_directory, protein_se
         ks_analysis_one_vs_one(sequences, protein_sequences, gene_families, s1, s2, tmp_dir,
                                output_directory, muscle, codeml, preserve=preserve, check=False, times=times)
 
+    # whole paranome ks analysis
     else:
-        logging.info('Started whole paranome Ks analysis')
-        ks_analysis_paranome_2(sequences, protein_sequences, gene_families, tmp_dir, output_directory,
-                             muscle, codeml, preserve=preserve, check=False, times=times,
-                             ignore_prefixes=ignore_prefixes, n_cores=n_cores)
+        os.chdir(tmp_dir)  # change directory to the tmp dir, as codeml writes non-unique file names to the working dir
+        if joblib:
+            logging.info('Started whole paranome Ks analysis')
+            ks_analysis_paranome_2(sequences, protein_sequences, gene_families, tmp_dir, output_directory,
+                                 muscle, codeml, preserve=preserve, check=False, times=times,
+                                 ignore_prefixes=ignore_prefixes, n_cores=n_cores)
+        else:
+            logging.info('Started whole paranome Ks analysis')
+            ks_analysis_paranome(sequences, protein_sequences, gene_families, tmp_dir, output_directory,
+                                 muscle, codeml, preserve=preserve, check=False, times=times,
+                                 ignore_prefixes=ignore_prefixes)
 
     logging.info('Done')
-
-
-# Ks ANALYSIS ----------------------------------------------------------------------------------------------------------
-@cli.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.argument('cds_fasta_file', type=click.Path(exists=True))
-@click.argument('output_directory', type=click.Path(exists=False))
-@click.option('--all_vs_all', '-ava', default=None,
-              help="File with all-versus-all Blast results. Will be used for MCL clustering. "
-              "Please format your file as `gene 1 [TAB] gene 2 [TAB] e-value`. "
-              "Note that you can also provide precomputed gene families using the `--gene_families` flag.")
-@click.option('--gene_families', '-gf', default=None,
-              help="File with precomputed gene families, e.g. from MCL clustering of all-vs-all Blast results,"
-              "OrthoMCL, INPARANOID, OrthoFinder etc. Please format your file with one tab separated gene "
-              "family per line. Note that you can also provide raw all-vs-all Blast results using the "
-              "`--all_vs_all` flag.")
-@click.option('--prefix', '-p', default=None,
-              help="Prefix for parsing out the genes of interest, for example 'orysa' for genes named like "
-              "`orysa|OS1G11100`. Note that you can also provide a regex pattern (`--regex`). "
-              "Note that if neither a prefix nor a regex pattern is provided, all genes are assumed "
-              "to be relevant. IMPORTANT, setting a prefix assumes that the sequence IDs in the provided "
-              "fasta files are NOT prefixed. (optional)")
-@click.option('--regex', '-r', default=None,
-              help="Regular expression pattern (Python/Perl type) for parsing out genes of interest. "
-              "Especially useful when multi-species gene families are provided. Note that if neither a prefix "
-              "nor a regex pattern is provided, all genes are assumed to be relevant. IMPORTANT, setting a "
-              "regex assumes that both the genes in the all-vs-all/gene families and sequence input are to be "
-              "matched with the regex. (optional)")
-@click.option('--inflation_factor', '-I', default=2.0,
-              help="Inflation factor for MCL clustering, when blast results provided. (Default = 2)")
-@click.option('--protein_sequences', '-ps', default=None,
-              help="Protein sequences fasta file. Optional since by default the CDS file will be translated.")
-@click.option('--tmp_dir', '-tmp', default='./',
-              help="Path to store temporary files. (Default = ./)")
-@click.option('--muscle', '-m', default='muscle',
-              help="Path to muscle executable, not necessary if in PATH environment variable.")
-@click.option('--codeml', '-c', default='codeml',
-              help="Path to codeml executable, not necessary if in PATH environment variable.")
-@click.option('--times', '-t', default=1,
-              help="Number of times to perform ML estimation (for more stable estimates). (Default = 1)")
-@click.option('--preserve/--no_preserve', default=False,
-              help="Do you want to keep the multiple sequence alignment and codeml output? (Default = False) ")
-@click.option('--prompt/--no_prompt', default=True,
-              help="Prompt for directory clearing? (Default = True) ")
-@click.option('--mixture', '-mix', type=click.Choice(['no', 'bayesian', 'gaussian']), default='bayesian',
-              help="Mixture modeling method (requires sklearn.mixture). Set to no if not desired.")
-@click.option('--kde/--no_kde', default=True,
-              help="Perform mixture modeling (requires sklearn.neighbors.KernelDensity)? (Default = True) ")
-def ks(cds_fasta_file, output_directory, all_vs_all, gene_families, prefix, regex, inflation_factor,
-       protein_sequences, tmp_dir, muscle, codeml, times, preserve, prompt, mixture, kde):
-    """
-    Construct a Ks distribution.
-    Enables running full analysis pipeline for a species of interest.\n
-
-    \b
-    ARGUMENTS (MINIMAL INPUT):
-        - CDS_FASTA_FILE:
-            File with CDS sequences in fasta format.
-        - OUTPUT_DIRECTORY:
-            Output directory name, species name is recommended (for plot titles etc.)
-
-    \b
-    OUTPUT:
-        - csv files and histograms with Ks, Ka and w analysis output
-        - modeling plots (Bayesian Gaussian mixture/kde)
-        - html report
-    """
-    # define important directories
-    tmp_dir = os.path.join(tmp_dir, output_directory + '.tmp')
-    check_dirs(tmp_dir, output_directory, prompt=prompt, preserve=preserve)
-
-    # Basic input checks
-    # No families: perform all-v-all first
-    if not (gene_families or all_vs_all):
-        logging.info("Neither gene families nor all-vs-all Blast results provided, will perform"
-                     "all vs. all Blastp first (output in {}/{}.out.blast)".format(output_directory, cds_fasta_file))
-
-        logging.info('Translating CDS file')
-        if not protein_sequences:
-            protein_seqs = translate_cds(read_fasta(cds_fasta_file))
-            protein_sequences = os.path.join(cds_fasta_file + '.tfa')
-
-            with open(os.path.join(cds_fasta_file + '.tfa'), 'w') as o:
-                for key, val in protein_seqs.items():
-                    o.write('>' + key + '\n')
-                    o.write(val + '\n')
-
-        all_vs_all = all_v_all_blast(protein_sequences, output_directory)
-
-    # gene families input
-    if gene_families and not (prefix or regex):
-        logging.warning("Gene families ({}) provided but no gene pattern, assuming single species gene "
-                        "families".format(gene_families))
-
-    if gene_families and (prefix and not regex):
-        regex = prefix + '.+'
-
-    logging.info("STARTED Ks ANALYSIS PIPELINE")
-
-    # if blast results provided, perform MCL
-    if all_vs_all:
-        if os.path.exists(all_vs_all):
-            logging.debug("Found all-vs-all Blast results")
-        else:
-            raise FileNotFoundError(
-                "Unable to find blast results file {}".format(all_vs_all))
-
-        gene_families = run_mcl_ava(all_vs_all, regex=regex, prefix=prefix, tmp_dir=tmp_dir,
-                                    output_file=os.path.join(
-                                        output_directory, 'gene_families.mcl'),
-                                    inflation=inflation_factor)
-
-    # perform Ks analysis
-    logging.debug("Constructing KsDistribution object")
-    ks_dist = KsDistribution(species=output_directory, gene_pattern=regex, gene_families=gene_families,
-                             nucleotide=cds_fasta_file, protein=protein_sequences,
-                             tmp_dir=tmp_dir, muscle_path=muscle, codeml_path=codeml, output_dir=output_directory)
-
-    logging.info('Started Ks analysis')
-    ks_dist.ks_analysis_parallel(preserve=preserve, check=False, times=times)
-
-    if mixture != 'no':
-        logging.info('Started {} mixture modeling'.format(mixture))
-        ks_dist = ks_dist.mixture_modeling(method=mixture)
-
-    if kde:
-        logging.info("Started kernel density estimation")
-        ks_dist = ks_dist.kernel_density()
-
-    logging.info("Writing html report")
-    ks_dist.write_report(mixture=mixture, kde=kde)
 
 
 # COLLINEARITY ---------------------------------------------------------------------------------------------------------
@@ -518,81 +317,22 @@ def coll(gff_file, families, output_dir, ks_distribution, keyword, id_string):
     logging.info("Done")
 
 
-# POSITIVE SELECTION SCREENING -----------------------------------------------------------------------------------------
-@cli.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.argument('gene_pattern')
-@click.argument('gene_families')
-@click.argument('nucleotide_sequences')
-@click.argument('output_dir')
-@click.option('--job_id', '-i', default='pos',
-              help="ID for directory names etc. (e.g. species name). Optional (default = 'pos')")
-@click.option('--gene_descriptions', '-gd', default=None,
-              help="Gene descriptions to include in data frame. Optional.")
-@click.option('--protein_sequences', '-ps', default=None,
-              help="Protein sequences fasta file. Optional (will by default translate the CDS file)")
-@click.option('--tmp_dir', '-tmp', default='./',
-              help="Path to store temporary files. (Default = ./)")
-@click.option('--muscle', '-m', default='muscle',
-              help="Path to muscle executable, not necessary if in PATH environment variable.")
-@click.option('--codeml', '-c', default='codeml',
-              help="Path to codeml executable, not necessary if in PATH environment variable.")
-@click.option('--times', '-t', default=1,
-              help="Number of times to perform ML estimation (for more stable estimates). (Default = 1)")
-@click.option('--preserve/--no_preserve', default=True,
-              help="Do you want to keep the multiple sequence alignment and codeml output? Default = TRUE. ")
-@click.option('--prompt/--no_prompt', default=True,
-              help="Prompt for directory clearing? Default = TRUE ")
-def pos(gene_pattern, gene_families, protein_sequences, nucleotide_sequences, output_dir,
-        job_id, gene_descriptions, tmp_dir, muscle, codeml, times, preserve, prompt):
-    """
-    Exploratory positive selection analysis.
-    Enables running full analysis pipeline for a species of interest.\n
-
-    ARGUMENTS:\n
-        - gene pattern: regex pattern for parsing out genes for the species of interest (e.g. ath.+ for genes like
-        ath|AT1G00200 or AT.+ for gene IDs like AT1G00200).\n
-        - gene families: gene families (e.g. from OrthoMCL), one tab separated family of genes per line\n
-        - protein_sequences: fasta file with protein sequences\n
-        - nucleotide_sequences: fasta file with corresponding nucleotide sequences\n
-        - output_dir: output directory\n
-
-    OUTPUT:\n
-        - csv file
-    """
-    # define important directories
-    logging.debug("Defining directory names")
-    output_dir = os.path.join(output_dir, '_'.join(job_id.split()))
-    tmp_dir = os.path.join(tmp_dir, '_'.join(job_id.split()) + '.tmp')
-
-    if not os.path.isdir(tmp_dir):
-        os.mkdir(tmp_dir)
-
-    check_dirs(None, output_dir, prompt=prompt, preserve=preserve)
-
-    logging.info('STARTED POSITIVE SELECTION ANALYSIS')
-    pos = PositiveSelection(gene_pattern=gene_pattern, gene_families=gene_families, nucleotide=nucleotide_sequences,
-                            protein=protein_sequences, species=job_id, output_dir=output_dir, tmp_dir=tmp_dir,
-                            muscle_path=muscle, codeml_path=codeml)
-
-    results = pos.positive_selection(
-        check=False, preserve=preserve, prompt=True, times=times)
-
-    logging.info('Writing results to csv')
-    results.to_csv(os.path.join(output_dir, '{}_out.csv'.format(job_id)))
-
-
+# TRANSLATE CDS SEQUENCES ----------------------------------------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option('--fasta_dir', '-d', default=None, help="Directory with fasta files to translate.")
 @click.option('--fasta_file', '-f', default=None, help="Fasta file to translate.")
-def translate(fasta_dir, fasta_file):
+def trans(fasta_dir, fasta_file):
     """
     Translate a CDS fasta file
     """
     fastas = []
+
     if fasta_dir:
         fastas = [os.path.join(fasta_dir, x) for x in os.listdir(fasta_dir)]
+
     elif fasta_file:
         fastas.append(fasta_file)
+
     else:
         logging.error('Neither fasta file nor directory provided!')
 
@@ -603,6 +343,49 @@ def translate(fasta_dir, fasta_file):
         write_fasta(protein_seqs, protein_sequences)
 
     logging.info('DONE')
+
+
+# MIXTURE MODELING -----------------------------------------------------------------------------------------------------
+@cli.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.option('--ks_distribution', '-ks', default=None, help="Ks distribution csv file, as generated with `wgd ks`.")
+@click.option('--method', type=click.Choice(['bgmm', 'gmm', 'both']), default='bgmm',
+              help="Mixture modeling method, default is `bgmm` (Bayesian Gaussian mixture model).")
+@click.option('--n_range', '-n', default='1,4',
+              help='Range of number of components to fit. Default = 1,4')
+@click.option('--ks_range', '-r', default='0.1,3',
+              help='Ks range to use for modeling. Default = 0.1,3')
+@click.option('--output_dir', '-o', default='./mixtures_[TIMESTAMP]', help='Output directory')
+@click.option('--gamma', '-g', default=1,
+              help='Gamma parameter (inverse of regularization strength) for bgmm models. Default = 1')
+@click.option('--sequences', '-s', default=None,
+              help='Corresponding sequence files, if provided then the paralogs corresponding to each component '
+                   'will be in the output.')
+def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences):
+    if output_dir == 'mixtures_[TIMESTAMP]':
+        output_dir = './mixture' + datetime.datetime.now().strftime("%d%m%y_%H%M%S")
+        logging.info('Output will be in {}'.format(output_dir))
+        os.mkdir(output_dir)
+
+    logging.info("Reading Ks distribution")
+    df = pd.read_csv(ks_distribution, index_col=0)
+    ks_range = ks_range.split(',')
+    n_range = n_range.split(',')
+
+    df = df[df['Ks'] < ks_range[1]]
+    df = df[df['Ks'] > ks_range[0]]
+    df = df.drop_duplicates(keep='first')
+    df = df.dropna()
+
+    if method == 'bgmm' or method == 'both':
+        models_bgmm = mixture_model_bgmm(df, n_range=n_range, plot_save=True, output_dir=output_dir,
+                                         output_file='bgmm.mixture.png', Ks_range=ks_range)
+
+    if method == 'gmm' or method == 'both':
+        models_gmm = mixture_model_gmm(df, Ks_range=ks_range, n=n_range[1], output_dir=output_dir,
+                                       output_file='gmm.mixture.png')
+
+    # TODO Add both method with comparison plots (3 panels ~ cedalion)
+    # TODO Get paralogs method (see lore notebook) and finetune plots
 
 
 if __name__ == '__main__':

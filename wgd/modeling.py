@@ -16,6 +16,7 @@ import matplotlib
 if not 'DISPLAY' in pb.local.env:
     matplotlib.use('Agg')  # use this backend when no X server
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 def weighted_to_unweighted(data_frame):
@@ -231,7 +232,7 @@ def mixture_model_bgmm(data_frame, n_range=(1,5), Ks_range=(0.1, 2), gamma=0.01,
         logging.info("Plotting mixture models")
 
         if not fig_size:
-            fig_size = (20, (n_range[1]-n_range[0]+1) * 5)
+            fig_size = (20, (n_range[1]-n_range[0]+1) * 6)
         fig = plt.figure(figsize=fig_size)
 
         for i in range(len(models)):
@@ -243,9 +244,9 @@ def mixture_model_bgmm(data_frame, n_range=(1,5), Ks_range=(0.1, 2), gamma=0.01,
             # plot histogram with fitted components
             ax = fig.add_subplot(n_range[1], 2, 2 * i + 1)
             if log:
-                ax.hist(np.exp(X), Ks_range[1] * 25, normed=True, histtype='stepfilled', color="#82c982", alpha=0.4)
+                ax.hist(np.exp(X), Ks_range[1] * 25, normed=True, rwidth=0.8, color="black", alpha=0.2)
             else:
-                ax.hist(X, Ks_range[1] * 25, normed=True, histtype='stepfilled', color="#82c982", alpha=0.4)
+                ax.hist(X, Ks_range[1] * 25, normed=True, rwidth=0.8, color="black", alpha=0.2)
 
             ax.set_xlim(Ks_range[0], Ks_range[1])
 
@@ -255,10 +256,10 @@ def mixture_model_bgmm(data_frame, n_range=(1,5), Ks_range=(0.1, 2), gamma=0.01,
                 # plot component
                 if log:
                     ax.plot(x, ss.lognorm.pdf(x, np.sqrt(varcs[k]), scale=np.exp(means[k])) * weights[k],
-                            '--k', color='black', alpha=0.3)
+                            '--k', color='black', alpha=0.4)
                 else:
                     ax.plot(x, ss.norm.pdf(x, loc=means[k], scale=np.sqrt(varcs[k])) * weights[k],
-                            '--k', color='black', alpha=0.3)
+                            '--k', color='black', alpha=0.4)
 
                 # add component to mixture
                 if first:
@@ -289,6 +290,7 @@ def mixture_model_bgmm(data_frame, n_range=(1,5), Ks_range=(0.1, 2), gamma=0.01,
                 ax.text(s="{:.2f}".format(means[j][0]), x=means[j], y=y_max - 0.1)
 
             ax.set_title('Fitted components and mixture, $\gamma = {}$'.format(gamma))
+            sns.despine(ax=ax, offset=5, trim=True)
 
             # plot weights and means
             wm = [(weights[j], means[j]) for j in range(len(weights))]
@@ -296,7 +298,7 @@ def mixture_model_bgmm(data_frame, n_range=(1,5), Ks_range=(0.1, 2), gamma=0.01,
 
             ax = fig.add_subplot(n_range[1], 2, 2 * i + 2)
             for m in range(len(wm)):
-                ax.bar(m, wm[m][0], color="#a6d9a6")
+                ax.bar(m, wm[m][0], color="black", alpha=0.2)
                 ax.text(m, wm[m][0], "{0:0.2f}".format(wm[m][1][0]), horizontalalignment='center')
 
             ax.set_ylabel('Weight')
@@ -305,6 +307,7 @@ def mixture_model_bgmm(data_frame, n_range=(1,5), Ks_range=(0.1, 2), gamma=0.01,
             ax.set_xticklabels(list(range(1, models[i].n_components + 1)))
             ax.set_xlabel('Component')
             ax.set_title('Weight and mean of each component')
+            sns.despine(ax=ax, offset=5, trim=True)
 
         if plot_save:
             fig.savefig(os.path.join(output_dir, output_file), bbox_inches='tight')
@@ -358,7 +361,7 @@ def mixture_model_gmm(data_frame, n=4, metric='AIC', Ks_range=(0.1, 2), log=True
         logging.info("Plotting mixture models")
 
         if not fig_size:
-            fig_size = (20, n * 5)
+            fig_size = (20, n * 6)
         fig = plt.figure(figsize=fig_size)
 
         for i in range(len(models)):
@@ -370,9 +373,9 @@ def mixture_model_gmm(data_frame, n=4, metric='AIC', Ks_range=(0.1, 2), log=True
             # plot histogram with fitted components
             ax = fig.add_subplot(n + 1, 2, 2 * i + 1)
             if log:
-                ax.hist(np.exp(X), Ks_range[1] * 25, normed=True, histtype='stepfilled', color="#82c982", alpha=0.4)
+                ax.hist(np.exp(X), Ks_range[1] * 25, normed=True, color="black", alpha=0.2, rwidth=0.8)
             else:
-                ax.hist(X, Ks_range[1] * 25, normed=True, histtype='stepfilled', color="#82c982", alpha=0.4)
+                ax.hist(X, Ks_range[1] * 25, normed=True, color="black", alpha=0.2, rwidth=0.8)
             ax.set_xlim(Ks_range[0], Ks_range[1])
 
             mix = None
@@ -380,10 +383,10 @@ def mixture_model_gmm(data_frame, n=4, metric='AIC', Ks_range=(0.1, 2), log=True
             for k in range(len(means)):
                 if log:
                     ax.plot(x, ss.lognorm.pdf(x, np.sqrt(varcs[k]), scale=np.exp(means[k])) * weights[k],
-                            '--k', color='black', alpha=0.3)
+                            '--k', color='black', alpha=0.4)
                 else:
                     ax.plot(x, ss.norm.pdf(x, loc=means[k], scale=np.sqrt(varcs[k])) * weights[k],
-                            '--k', color='black', alpha=0.3)
+                            '--k', color='black', alpha=0.4)
                 if first:
                     if log:
                         mix = ss.lognorm.pdf(x, np.sqrt(varcs[k]), scale=np.exp(means[k])) * weights[k]
@@ -396,6 +399,7 @@ def mixture_model_gmm(data_frame, n=4, metric='AIC', Ks_range=(0.1, 2), log=True
                     else:
                         mix += ss.norm.pdf(x, loc=means[k], scale=np.sqrt(varcs[k])) * weights[k]
 
+            # plot the mixture
             ax.plot(x, mix, color='black')
 
             ax.set_xlabel('$K_s$')
@@ -410,13 +414,15 @@ def mixture_model_gmm(data_frame, n=4, metric='AIC', Ks_range=(0.1, 2), log=True
             for j in range(len(means)):
                 ax.text(s="{:.2f}".format(means[j][0]), x=means[j], y=y_max - 0.1)
 
+            sns.despine(ax=ax, offset=5, trim=True)
+
             # plot weights and means
             wm = [(weights[j], means[j]) for j in range(len(weights))]
             wm = sorted(wm, key=lambda tup: tup[1])
 
             ax = fig.add_subplot(n + 1, 2, 2 * i + 2)
             for m in range(len(wm)):
-                ax.bar(m, wm[m][0], color="#a6d9a6")
+                ax.bar(m, wm[m][0], color="black", alpha=0.2)
                 ax.text(m, wm[m][0], "{0:0.2f}".format(wm[m][1][0]), horizontalalignment='center')
 
             ax.set_ylabel('Weight')
@@ -425,12 +431,14 @@ def mixture_model_gmm(data_frame, n=4, metric='AIC', Ks_range=(0.1, 2), log=True
             ax.set_xticklabels(list(range(1, models[i].n_components + 1)))
             ax.set_xlabel('Component')
             ax.set_title('Weight and mean of each component')
+            sns.despine(ax=ax, offset=5, trim=True)
 
         ax = fig.add_subplot(n + 1, 2, 2 * i + 3)
-        ax.plot(list(range(1, n + 1)), IC)
+        ax.plot(list(range(1, n + 1)), IC, color='black')
         ax.set_xticks(list(range(1, n + 1)))
         ax.set_xlabel("Number of components")
         ax.set_ylabel(metric)
+        sns.despine(ax=ax, offset=5, trim=True)
 
         if plot_save:
             fig.savefig(os.path.join(output_dir, output_file), bbox_inches='tight')
