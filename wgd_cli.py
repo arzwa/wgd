@@ -425,7 +425,7 @@ def orthoseq(orthogroups, sequences, align, ignore_prefixes, filter1, include_si
             logging.debug('Singleton family {} omitted'.format(family))
             continue
         if filter1:
-            if get_number_of_sp(list(s.keys())) < filter1:
+            if get_number_of_sp(list(s.keys())) < int(filter1):
                 filtered += 1
                 continue
         write_fasta(s, os.path.join(output_dir, family + '.fasta'))
