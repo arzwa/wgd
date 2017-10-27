@@ -17,7 +17,7 @@ from wgd.modeling import mixture_model_bgmm, mixture_model_gmm
 from wgd.ks_distribution_ import ks_analysis_paranome, ks_analysis_one_vs_one, ks_analysis_paranome_2
 from wgd.mcl import run_mcl_ava, all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2, family_stats
 from wgd.utils import check_dirs, translate_cds, read_fasta, write_fasta, prefix_fasta, prefix_multi_fasta, prefix_mcl
-from wgd.utils import process_gene_families, get_sequences
+from wgd.utils import process_gene_families, get_sequences, get_number_of_sp
 from wgd.collinearity import write_families_file, write_gene_lists, write_config_adhore, run_adhore
 from wgd.collinearity import segments_to_chords_table, visualize, get_anchor_pairs, stacked_histogram
 from wgd.gff_parser import Genome
@@ -396,12 +396,14 @@ def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences
               help="Align orthogroups with MUSCLE (Default = False) (NOT YET SUPPORTED)")
 @click.option('--ignore_prefixes', is_flag=True, default=False,
               help="Ignore sequence prefixes (defined by '|') (Default = False)")
+@click.option('--filter1', '-f1', default=None,
+              help="Filter by number of unique species in the orthogroup.")
 @click.option('--include_singletons', is_flag=True, default=False,
               help="Include singleton families (Default = False)")
 @click.option('--muscle', '-m', default='muscle',
               help="Absolute path to muscle executable, not necessary if in PATH environment variable.")
 @click.option('--output_dir', '-o', default='./orthogroups_seqs', help='Output directory')
-def orthoseq(orthogroups, sequences, align, ignore_prefixes, include_singletons, muscle, output_dir):
+def orthoseq(orthogroups, sequences, align, ignore_prefixes, filter1, include_singletons, muscle, output_dir):
     """
     Get sequences from orthogroups
     """
@@ -415,12 +417,21 @@ def orthoseq(orthogroups, sequences, align, ignore_prefixes, include_singletons,
     families = process_gene_families(orthogroups, ignore_prefix=ignore_prefixes)
     sequences = get_sequences(families, seqs)
 
+    singletons = 0
+    filtered = 0
     for family, s in sequences.items():
         if len(list(s.keys())) < 2 and not include_singletons:
-            logging.info('Singleton family {} omitted'.format(family))
+            singletons += 1
+            logging.debug('Singleton family {} omitted'.format(family))
             continue
+        if filter1:
+            if get_number_of_sp(list(s.keys())) < filter1:
+                filtered += 1
+                continue
         write_fasta(s, os.path.join(output_dir, family + '.fasta'))
 
+    logging.info('Skipped {} singeltons'.format(singletons))
+    logging.info('Filtered {} families'.format(filtered))
     logging.info('DONE')
 
 

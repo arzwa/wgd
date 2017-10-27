@@ -64,7 +64,7 @@ def process_gene_families(gene_family_file, ignore_prefix=False):
             if ignore_prefix:
                 if '|' in genes[0]:
                     genes = [gene.split('|')[1] for gene in genes]
-            gene_family_dict["GF_{}".format(ID)] = genes
+            gene_family_dict["GF_{:06d}".format(ID)] = genes
             ID += 1
 
     return gene_family_dict
@@ -263,3 +263,19 @@ def filter_one_vs_one_families(gene_families, s1, s2):
     for k in to_delete:
         del gene_families[k]
     return gene_families
+
+
+def get_number_of_sp(genes):
+    """
+    Get the number of unique species in a list of gene IDs.
+    Will be approximate since it is based on the assumption that
+    the leading non-digit part identifies the species
+    (which is not always the case e.g. mitochondrial genes etc.)
+    """
+    p = re.compile('\D*')
+    gene_set = set()
+    for gene in genes:
+        m = p.match(gene)
+        if m:
+            gene_set.add(m.group())
+    return len(list(gene_set))
