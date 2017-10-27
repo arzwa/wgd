@@ -15,9 +15,9 @@ import datetime
 import pandas as pd
 from wgd.modeling import mixture_model_bgmm, mixture_model_gmm
 from wgd.ks_distribution_ import ks_analysis_paranome, ks_analysis_one_vs_one, ks_analysis_paranome_2
-from wgd.positive_selection import PositiveSelection
 from wgd.mcl import run_mcl_ava, all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2, family_stats
 from wgd.utils import check_dirs, translate_cds, read_fasta, write_fasta, prefix_fasta, prefix_multi_fasta, prefix_mcl
+from wgd.utils import process_gene_families, get_sequences
 from wgd.collinearity import write_families_file, write_gene_lists, write_config_adhore, run_adhore
 from wgd.collinearity import segments_to_chords_table, visualize, get_anchor_pairs, stacked_histogram
 from wgd.gff_parser import Genome
@@ -386,6 +386,37 @@ def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences
 
     # TODO Add both method with comparison plots (3 panels ~ cedalion)
     # TODO Get paralogs method (see lore notebook) and finetune plots
+
+
+# PARSE SEQUENCE FROM ORTHOGROUPS --------------------------------------------------------------------------------------
+@cli.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.option('--orthogroups', '-og', default=None, help="Orthogroups file, plain tsv format.")
+@click.option('--sequences', '-s', default=None, help="Sequences fasta file (all sequences in one file).")
+@click.option('--align', is_flag=True, default=False,
+              help="Align orthogroups with MUSCLE (Default = False) (NOT YET SUPPORTED)")
+@click.option('--ignore_prefixes', is_flag=True, default=False,
+              help="Ignore sequence prefixes (defined by '|') (Default = False)")
+@click.option('--muscle', '-m', default='muscle',
+              help="Absolute path to muscle executable, not necessary if in PATH environment variable.")
+@click.option('--output_dir', '-o', default='./orthogroups_seqs', help='Output directory')
+def orthoseq(orthogroups, sequences, align, ignore_prefixes, muscle, output_dir):
+    """
+    Get sequences from orthogroups
+    """
+    if not os.path.isdir(output_dir):
+        logging.info('Output directory {} not found, will make it'.format(output_dir))
+        os.mkdir(output_dir)
+    else:
+        logging.info('Output directory {} already exists, will possibly overwrite'.format(output_dir))
+
+    seqs = read_fasta(sequences)
+    families = process_gene_families(orthogroups, ignore_prefix=ignore_prefixes)
+    sequences = get_sequences(families, seqs)
+
+    for family, s in sequences.items():
+        write_fasta(s, os.path.join(output_dir, family))
+
+    logging.info('DONE')
 
 
 if __name__ == '__main__':
