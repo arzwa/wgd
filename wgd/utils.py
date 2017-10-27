@@ -279,3 +279,10 @@ def get_number_of_sp(genes):
         if m:
             gene_set.add(m.group())
     return len(list(gene_set))
+
+
+def check_genes(genes, ids):
+    for gene in genes:
+        for id in ids:
+            if gene.startswith(id):
+                return True
