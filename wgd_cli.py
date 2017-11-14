@@ -14,7 +14,7 @@ import re
 import datetime
 import pandas as pd
 from wgd.modeling import mixture_model_bgmm, mixture_model_gmm
-from wgd.ks_distribution_ import ks_analysis_paranome, ks_analysis_one_vs_one, ks_analysis_paranome_2
+from wgd.ks_distribution_ import ks_analysis_paranome, ks_analysis_one_vs_one
 from wgd.mcl import run_mcl_ava, all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2, family_stats
 from wgd.utils import check_dirs, translate_cds, read_fasta, write_fasta, prefix_fasta, prefix_multi_fasta, prefix_mcl
 from wgd.utils import process_gene_families, get_sequences, get_number_of_sp, check_genes, get_one_v_one_orthologs_rbh
