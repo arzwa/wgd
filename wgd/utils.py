@@ -199,49 +199,6 @@ def write_fasta(seq_dict, output_file):
             o.write(val + '\n')
 
 
-def prefix_fasta(prefix, input_file, output_file):
-    d = read_fasta(input_file)
-    with open(output_file, 'w') as o:
-        for key, val in d.items():
-            o.write('>' + prefix + '|' + key + '\n')
-            o.write(val + '\n')
-
-
-def prefix_mcl(prefixes_dict, input_file, output_file):
-    with open(output_file, 'w') as o:
-        with open(input_file, 'r') as f:
-            for line in f:
-                line = line.strip().split('\t')
-                new_line = []
-                for gene in line:
-                    prefix = regex_matcher(gene, prefixes_dict)
-                    if prefix:
-                        new_line.append(prefix + '|' + gene )
-                    else:
-                        logging.warning("No prefix match for gene {}".format(gene))
-                o.write('\t'.join(new_line))
-                o.write('\n')
-
-
-def prefix_multi_fasta(prefixes_dict, input_file, output_file):
-    d = read_fasta(input_file)
-    with open(output_file, 'w') as o:
-        for key, val in d.items():
-            prefix = regex_matcher(key, prefixes_dict)
-            if prefix:
-                o.write('>' + prefix + '|' + key + '\n')
-                o.write(val + '\n')
-            else:
-                logging.warning("No prefix match for gene {}".format(key))
-
-
-def regex_matcher(gene, r_dict):
-    for key in r_dict.keys():
-        if r_dict[key].match(gene):
-            return key
-    return None
-
-
 def filter_one_vs_one_families(gene_families, s1, s2):
     """
     Filter one-vs-one ortholog containing families for two given species.

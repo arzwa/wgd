@@ -10,13 +10,12 @@ import coloredlogs
 import logging
 import sys
 import os
-import re
 import datetime
 import pandas as pd
 from wgd.modeling import mixture_model_bgmm, mixture_model_gmm
 from wgd.ks_distribution_ import ks_analysis_paranome, ks_analysis_one_vs_one
-from wgd.mcl import run_mcl_ava, all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2, family_stats
-from wgd.utils import check_dirs, translate_cds, read_fasta, write_fasta, prefix_fasta, prefix_multi_fasta, prefix_mcl
+from wgd.mcl import all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2
+from wgd.utils import check_dirs, translate_cds, read_fasta, write_fasta
 from wgd.utils import process_gene_families, get_sequences, get_number_of_sp, check_genes, get_one_v_one_orthologs_rbh
 from wgd.collinearity import write_families_file, write_gene_lists, write_config_adhore, run_adhore
 from wgd.collinearity import segments_to_chords_table, visualize, get_anchor_pairs, stacked_histogram
@@ -74,15 +73,15 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
     """
     Perform all-vs.-all Blastp (+ MCL) analysis.
     """
+    if not sequences and not blast_results:
+        logging.error('No sequences nor blast results provided! Please use the --help flag for usage instructions.')
+        return
 
     if not os.path.exists(output_dir):
         logging.info('Output directory: {} does not exist, will make it.'.format(output_dir))
         os.mkdir(output_dir)
 
     if not blast_results:
-        if not sequences:
-            logging.error('No sequences provided (use the -s flag)')
-
         sequence_files = sequences.strip().split(',')
 
         if species_ids:
@@ -120,49 +119,8 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
         mcl_out = run_mcl_ava_2(ava_graph, output_dir=output_dir, output_file='out.mcl',
                                 inflation=inflation_factor)
 
-        # family_stats(mcl_out) # TODO add some statistics from the mcl output
-
     logging.info('Done')
     pass
-
-
-# PREFIX ---------------------------------------------------------------------------------------------------------------
-@cli.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.argument('input_file')
-@click.option('--fasta', is_flag=True, help='Fasta file input')
-@click.option('--mcl', is_flag=True, help='MCL output file input')
-@click.option('--prefixes','-p', default='soi',
-              help="Prefix(es), multiple prefixes should be provided as a comma separated string "
-                   "(don't forget the regexes).")
-@click.option('--regexes','-r', default='.+',
-              help="Regular expressions, comma separated, in the same order as the prefixes.")
-@click.option('--output_file','-o', default=None,
-              help='Output file name')
-def prefix(input_file, fasta, prefixes, regexes, mcl, output_file):
-    """
-    Add prefixes to fasta or gene family data
-    """
-    if not output_file:
-        output_file = input_file + '.prefixed'
-
-    multi_fasta = False
-    if len(prefixes.split(',')) > 1:
-        multi_fasta = True
-
-    prefix_list = prefixes.split(',')
-    regex_list = [re.compile(x) for x in regexes.split(',')]
-    if len(prefix_list) != len(regex_list):
-        logging.error('Number of prefixes is different from number of regular expressions')
-    prefix_dict = {prefix_list[i]: regex_list[i] for i in range(len(regex_list))}
-
-    if fasta and not multi_fasta:
-        prefix_fasta(prefixes, input_file, output_file)
-
-    if fasta and multi_fasta:
-        prefix_multi_fasta(prefix_dict, input_file, output_file)
-
-    if mcl:
-        prefix_mcl(prefix_dict, input_file, output_file)
 
 
 # Ks ANALYSIS USING JOBLIB/ASYNC  --------------------------------------------------------------------------------------

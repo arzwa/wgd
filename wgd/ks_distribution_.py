@@ -8,21 +8,12 @@
 from .codeml import Codeml
 from .alignment import Muscle, multiple_sequence_aligment_nucleotide
 from .utils import read_fasta, check_dirs, process_gene_families, get_sequences
-from .utils import filter_one_vs_one_families
 from joblib import Parallel, delayed
 import pandas as pd
-import numpy as np
 import os
 import fastcluster
 import logging
-import plumbum as pb
 import asyncio
-import matplotlib
-if not 'DISPLAY' in pb.local.env:
-    matplotlib.use('Agg')  # use this backend when no X server
-import matplotlib.pyplot as plt
-from matplotlib import rc
-rc('text', usetex=False)
 
 
 # HELPER FUNCTIONS -----------------------------------------------------------------------------------------------------
