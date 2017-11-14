@@ -17,10 +17,11 @@ from wgd.modeling import mixture_model_bgmm, mixture_model_gmm
 from wgd.ks_distribution_ import ks_analysis_paranome, ks_analysis_one_vs_one, ks_analysis_paranome_2
 from wgd.mcl import run_mcl_ava, all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2, family_stats
 from wgd.utils import check_dirs, translate_cds, read_fasta, write_fasta, prefix_fasta, prefix_multi_fasta, prefix_mcl
-from wgd.utils import process_gene_families, get_sequences, get_number_of_sp, check_genes
+from wgd.utils import process_gene_families, get_sequences, get_number_of_sp, check_genes, get_one_v_one_orthologs_rbh
 from wgd.collinearity import write_families_file, write_gene_lists, write_config_adhore, run_adhore
 from wgd.collinearity import segments_to_chords_table, visualize, get_anchor_pairs, stacked_histogram
 from wgd.gff_parser import Genome
+from wgd.plot import plot_selection
 
 
 # CLI ENTRYPOINT -------------------------------------------------------------------------------------------------------
@@ -47,15 +48,7 @@ def cli(verbose):
     \b
     Arthur Zwaenepoel - 2017
     """
-    coloredlogs.install()
-
-    if verbose == 'debug':
-        logging.basicConfig(format='%(asctime)s: %(levelname)s\t%(message)s', level=logging.DEBUG,
-                            stream=sys.stdout)
-
-    elif verbose == 'info':
-        logging.basicConfig(format='%(asctime)s: %(levelname)s\t%(message)s', level=logging.INFO,
-                            stream=sys.stdout)
+    coloredlogs.install(fmt='%(asctime)s: %(levelname)s\t%(message)s', level=verbose.upper(), stream=sys.stdout)
     pass
 
 
@@ -63,6 +56,7 @@ def cli(verbose):
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option('--cds', is_flag=True, help='Sequences are CDS.')
 @click.option('--mcl', is_flag=True, help='Perform MCL clustering.')
+@click.option('--one_v_one', is_flag=True, help='Get one vs. one orthologs')
 @click.option('--sequences','-s', default=None,
               help='Input fasta files, as a comma separated string (e.g. x.fasta,y.fasta,z.fasta).')
 @click.option('--species_ids','-id', default=None,
@@ -76,7 +70,7 @@ def cli(verbose):
               help="E-value cut-off for Blast results (Default = 1e-10)")
 @click.option('--output_dir','-o', default='wgd.blast.out',
               help='Output directory.')
-def blast(cds, mcl, sequences, species_ids, blast_results, inflation_factor, eval_cutoff, output_dir):
+def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_factor, eval_cutoff, output_dir):
     """
     Perform all-vs.-all Blastp (+ MCL) analysis.
     """
@@ -115,6 +109,10 @@ def blast(cds, mcl, sequences, species_ids, blast_results, inflation_factor, eva
 
         logging.info('Performing all_v_all_blastp (this might take a while)')
         blast_results = all_v_all_blast(os.path.join(output_dir,'seqs.fasta'), output_dir, eval_cutoff=eval_cutoff)
+
+    if one_v_one:
+        logging.info('Retrieving one vs. one orthologs')
+        get_one_v_one_orthologs_rbh(blast_results, output_dir)
 
     if mcl:
         logging.info('Performing MCL clustering (inflation factor = {0})'.format(inflation_factor))
@@ -174,9 +172,6 @@ def prefix(input_file, fasta, prefixes, regexes, mcl, output_file):
                    'family should be provided as a tab separated line of gene IDs.')
 @click.option('--sequences', '-s', default=None,
               help='CDS sequences file in fasta format.')
-@click.option('--species_prefixes', '-p', default=None,
-              help='Comma-separated species prefixes for one-to-one ortholog '
-                   'distributions (not necessary for whole paranome distributions).')
 @click.option('--output_directory', '-o', default='ks.out',
               help='Output directory (should not yet exist). (Default = ks.out)')
 @click.option('--protein_sequences', '-ps', default=None,
@@ -191,29 +186,33 @@ def prefix(input_file, fasta, prefixes, regexes, mcl, output_file):
               help="Number of times to perform ML estimation (for more stable estimates). (Default = 1)")
 @click.option('--ignore_prefixes', is_flag=True,
               help="Ignore gene ID prefixes (defined by the '|' symbol) in the gene families file.")
+@click.option('--one_v_one', is_flag=True,
+              help="One vs one ortholog distribution.")
 @click.option('--preserve', is_flag=True,
               help="Keep multiple sequence alignment and codeml output. ")
 @click.option('--no_prompt', is_flag=True,
               help="Disable prompt for directory clearing.")
-@click.option('--async', is_flag=True, default=True,
-              help="Use asyncio module for parallelization. (Default)")
-@click.option('--joblib', is_flag=True, default=True,
-              help="Use joblib module for parallelization, you might want to set the --n_cores parameter. ")
+@click.option('--async', is_flag=True, default=False,
+              help="Use asyncio module for parallelization. (Default uses joblib)")
 @click.option('--n_cores','-n', default=4,
               help="Number of CPU cores to use.")
-def ks(gene_families, sequences, species_prefixes, output_directory, protein_sequences,
-        tmp_dir, muscle, codeml, times, ignore_prefixes, preserve, no_prompt, async, joblib, n_cores):
+def ks(gene_families, sequences, output_directory, protein_sequences,
+        tmp_dir, muscle, codeml, times, ignore_prefixes, one_v_one, preserve, no_prompt, async, n_cores):
     """
     Construct a Ks distribution.
 
     Ks distribution construction for a set of paralogs or one-to-one orthologs.
-    This implementation uses the joblib library for parallellization.
+    This implementation uses either the joblib or the asyncio library for parallellization.
     """
     if not (gene_families and sequences):
         logging.error('No gene families or no sequences provided.')
 
     tmp_dir = os.path.join(tmp_dir, output_directory + '.tmp')
     check_dirs(tmp_dir, output_directory, prompt=not no_prompt, preserve=preserve)
+    sequences = os.path.abspath(sequences)
+    output_directory = os.path.abspath(output_directory)
+    tmp_dir = os.path.abspath(tmp_dir)
+    gene_families = os.path.abspath(gene_families)
 
     logging.debug("Constructing KsDistribution object")
 
@@ -225,34 +224,31 @@ def ks(gene_families, sequences, species_prefixes, output_directory, protein_seq
         write_fasta(protein_seqs, protein_sequences)
 
     # one-vs-one ortholog input
-    if species_prefixes:
-        sp = species_prefixes.strip().split(',')
-        if len(sp) != 2:
-            logging.error('Number of species prefixes provided differs from 2.')
-        s1, s2 = sp[0], sp[1]
-        logging.info('Species prefixes provided, will calculate a one-vs-one ortholog Ks distribution for'
-                     '{0} vs {1}'.format(s1, s2))
-        ks_analysis_one_vs_one(sequences, protein_sequences, gene_families, s1, s2, tmp_dir,
-                               output_directory, muscle, codeml, preserve=preserve, check=False, times=times)
+    if one_v_one:
+        os.chdir(tmp_dir)
+        logging.info('Started one-vs-one ortholog Ks analysis')
+        results = ks_analysis_one_vs_one(sequences, protein_sequences, gene_families, tmp_dir, output_directory,
+                                         muscle, codeml, async=async, n_cores=n_cores, preserve=preserve, check=False,
+                                         times=times)
+        logging.info('Generating plots')
+        plot_selection(results, output_file=os.path.join(output_directory, '{}.ks.png'.format(os.path.basename(
+            gene_families))), title=os.path.basename(gene_families))
 
     # whole paranome ks analysis
     else:
         os.chdir(tmp_dir)  # change directory to the tmp dir, as codeml writes non-unique file names to the working dir
-        if joblib:
-            logging.info('Started whole paranome Ks analysis')
-            ks_analysis_paranome_2(sequences, protein_sequences, gene_families, tmp_dir, output_directory,
-                                 muscle, codeml, preserve=preserve, check=False, times=times,
-                                 ignore_prefixes=ignore_prefixes, n_cores=n_cores)
-        else:
-            logging.info('Started whole paranome Ks analysis')
-            ks_analysis_paranome(sequences, protein_sequences, gene_families, tmp_dir, output_directory,
-                                 muscle, codeml, preserve=preserve, check=False, times=times,
-                                 ignore_prefixes=ignore_prefixes)
+        logging.info('Started whole paranome Ks analysis')
+        results = ks_analysis_paranome(sequences, protein_sequences, gene_families, tmp_dir, output_directory,
+                                       muscle, codeml, preserve=preserve, check=False, times=times,
+                                       ignore_prefixes=ignore_prefixes, async=async, n_cores=n_cores)
+        logging.info('Generating plots')
+        plot_selection(results, output_file=os.path.join(output_directory, '{}.ks.png'.format(os.path.basename(
+            gene_families))), title=os.path.basename(gene_families))
 
     logging.info('Done')
 
 
-# COLLINEARITY ---------------------------------------------------------------------------------------------------------
+# CO-LINEARITY ---------------------------------------------------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.argument('gff_file')
 @click.argument('families')
