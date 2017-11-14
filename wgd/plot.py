@@ -53,7 +53,7 @@ def plot_selection(dists, output_file=None, alphas=None, ks_range=(0.1, 5), offs
     sns.despine(offset=offset, trim=True)
     ax.set_xlabel('$K_A$')
 
-    # log(ka )
+    # log(ka)
     ax = fig.add_subplot(223)
     # get the bin edges
     bins = np.histogram(np.hstack(tuple([np.log(dist['Ka']) for dist in dists])), bins=40)[1]
@@ -72,7 +72,7 @@ def plot_selection(dists, output_file=None, alphas=None, ks_range=(0.1, 5), offs
                 weights=dists[i]['WeightOutliersIncluded'], **kwargs)
     sns.despine(offset=offset, trim=True)
     ax.set_xlabel('$ln(\omega)$')
-    fig.suptitle('${0}$ ${1}$'.format(title.split()[0], title.split()[1]))
+    fig.suptitle(title)
 
     if output_file:
         fig.savefig(output_file, dpi=300, bbox_inches='tight')

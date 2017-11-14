@@ -22,6 +22,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'click',
+        'seaborn',
         'coloredlogs',
         'fastcluster',
         'peakutils',
