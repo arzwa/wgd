@@ -20,7 +20,7 @@ from wgd.utils import process_gene_families, get_sequences, get_number_of_sp, ch
 from wgd.collinearity import write_families_file, write_gene_lists, write_config_adhore, run_adhore
 from wgd.collinearity import segments_to_chords_table, visualize, get_anchor_pairs, stacked_histogram
 from wgd.gff_parser import Genome
-from wgd.plot import plot_selection
+from wgd.plot import plot_selection, syntenic_dotplot
 
 
 # CLI ENTRYPOINT -------------------------------------------------------------------------------------------------------
@@ -251,13 +251,16 @@ def coll(gff_file, families, output_dir, ks_distribution, keyword, id_string):
     logging.info("Running I-ADHoRe")
     run_adhore(os.path.join(output_dir, 'adhore.conf'))
 
-    logging.info("Generating genome.json")
-    genome.karyotype_json(out_file=os.path.join(output_dir, 'genome.json'))
+    #logging.info("Generating genome.json")
+    #genome.karyotype_json(out_file=os.path.join(output_dir, 'genome.json'))
 
-    logging.info("Generating visualization")
-    segments_to_chords_table(os.path.join(output_dir, 'i-adhore-out', 'segments.txt'),
-                             genome, output_file=os.path.join(output_dir, 'chords.tsv'))
-    visualize(output_dir)
+    #logging.info("Generating visualization")
+    #segments_to_chords_table(os.path.join(output_dir, 'i-adhore-out', 'segments.txt'),
+                             #genome, output_file=os.path.join(output_dir, 'chords.tsv'))
+    #visualize(output_dir)
+    logging.info('Drawing co-linearity dotplot')
+    syntenic_dotplot(pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t'),
+                               output_file=os.path.join(output_dir, 'dotplot.png'))
 
     if ks_distribution:
         logging.info("Constructing Ks distribution for anchors")

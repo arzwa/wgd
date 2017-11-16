@@ -78,3 +78,46 @@ def plot_selection(dists, output_file=None, alphas=None, ks_range=(0.1, 5), offs
         fig.savefig(output_file, dpi=300, bbox_inches='tight')
 
     return fig
+
+
+def syntenic_dotplot(df, output_file=None):
+    """
+    Syntenic dotplot function
+    """
+    genomic_elements = {x: 0 for x in list(set(df['list_x']) | set(df['list_y'])) if type(x) == str}
+
+    fig = plt.figure(figsize=(15,15))
+    ax = fig.add_subplot(111)
+
+    previous = 0
+    for key in sorted(genomic_elements.keys()):
+        length = max(list(df[df['list_x'] == key]['end_x']) + list(df[df['list_y'] == key]['end_y']))
+        genomic_elements[key] = previous
+        previous += length
+
+    x = [genomic_elements[key] for key in sorted(genomic_elements.keys())] + [previous]
+    ax.vlines(ymin=0, ymax=previous, x=x, linestyles='dotted', alpha=0.2)
+    ax.hlines(xmin=0, xmax=previous, y=x, linestyles='dotted', alpha=0.2)
+    ax.plot(x, x, color='k', alpha=0.2)
+    ax.set_xticks(x)
+    ax.set_yticks(x)
+    ax.set_xticklabels(x)
+    ax.set_yticklabels(x)
+
+    for i in range(len(df)):
+        row = df.iloc[i]
+        list_x, list_y = row['list_x'], row['list_y']
+        if type(list_x) != float:
+            curr_list_x = list_x
+        x = [genomic_elements[curr_list_x]+x for x in [row['begin_x'], row['end_x']]]
+        y = [genomic_elements[list_y]+x for x in [row['begin_y'], row['end_y']]]
+        ax.plot(x, y, color='k', alpha=0.5)
+        ax.plot(y,x, color='k', alpha=0.5)
+
+    sns.despine(offset=5, trim=True)
+
+    if output_file:
+        fig.savefig(output_file, dpi=200, bbox_inches='tight')
+
+    else:
+        return fig
