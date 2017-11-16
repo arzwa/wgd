@@ -121,3 +121,56 @@ def syntenic_dotplot(df, output_file=None):
 
     else:
         return fig
+
+
+def syntenic_dotplot_ks_colored(df, an, ks, color_map='binary'):
+    cmap = plt.get_cmap(color_map)
+
+    an['pair'] = an['gene_x'].astype(str) + '-' + an['gene_y']
+    an['pair'] = an['pair'].map(lambda x: '-'.join(sorted(x.split('-'))))
+    genomic_elements = {x: 0 for x in list(set(df['list_x']) | set(df['list_y'])) if type(x) == str}
+    ks_multiplicons = {}
+    all_ks = []
+    for i in range(len(df)):
+        row = df.iloc[i]
+        pairs = an[an['multiplicon'] == row['id']]['pair']
+        mean_ks = np.mean(ks.loc[pairs]['Ks'])
+        ks_multiplicons[row['id']] = mean_ks
+        if mean_ks < 5:
+            all_ks.append(mean_ks)
+    z = [[0, 0], [0, 0]]
+    levels = range(0, 101, 1)
+    tmp = plt.contourf(z, levels, cmap=cmap)
+    plt.clf()
+
+    fig = plt.figure(figsize=(15, 15))
+    ax = fig.add_subplot(111)
+
+    previous = 0
+    for key in sorted(genomic_elements.keys()):
+        length = max(list(df[df['list_x'] == key]['end_x']) + list(df[df['list_y'] == key]['end_y']))
+        genomic_elements[key] = previous
+        previous += length
+
+    x = [genomic_elements[key] for key in sorted(genomic_elements.keys())] + [previous]
+    ax.vlines(ymin=0, ymax=previous, x=x, linestyles='dotted', alpha=0.2)
+    ax.hlines(xmin=0, xmax=previous, y=x, linestyles='dotted', alpha=0.2)
+    ax.plot(x, x, color='k', alpha=0.2)
+    ax.set_xticks(x)
+    ax.set_yticks(x)
+    ax.set_xticklabels(x)
+    ax.set_yticklabels(x)
+
+    for i in range(len(df)):
+        row = df.iloc[i]
+        list_x, list_y = row['list_x'], row['list_y']
+        if type(list_x) != float:
+            curr_list_x = list_x
+        x = [genomic_elements[curr_list_x] + x for x in [row['begin_x'], row['end_x']]]
+        y = [genomic_elements[list_y] + x for x in [row['begin_y'], row['end_y']]]
+        ax.plot(x, y, alpha=0.7, linewidth=3, color=cmap(ks_multiplicons[row['id']] / 5))
+        ax.plot(y, x, alpha=0.7, linewidth=3, color=cmap(ks_multiplicons[row['id']] / 5))
+
+    cbar = plt.colorbar(tmp, fraction=0.02, pad=0.01)
+    cbar.ax.set_yticklabels(['{:.2f}'.format(x) for x in np.linspace(0, 5, 11)])
+    sns.despine(offset=5, trim=True)
