@@ -13,14 +13,13 @@ import os
 import datetime
 import pandas as pd
 from wgd.modeling import mixture_model_bgmm, mixture_model_gmm
-from wgd.ks_distribution_ import ks_analysis_paranome, ks_analysis_one_vs_one
-from wgd.mcl import all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2
-from wgd.utils import check_dirs, translate_cds, read_fasta, write_fasta
-from wgd.utils import process_gene_families, get_sequences, get_number_of_sp, check_genes, get_one_v_one_orthologs_rbh
+from wgd.ks_distribution import ks_analysis_paranome, ks_analysis_one_vs_one
+from wgd.blast_mcl import all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2
+from wgd.utils import check_dirs, translate_cds, read_fasta, write_fasta, get_one_v_one_orthologs_rbh
 from wgd.collinearity import write_families_file, write_gene_lists, write_config_adhore, run_adhore
-from wgd.collinearity import segments_to_chords_table, visualize, get_anchor_pairs, stacked_histogram
+from wgd.collinearity import get_anchor_pairs
 from wgd.gff_parser import Genome
-from wgd.plot import plot_selection, syntenic_dotplot
+from wgd.viz import plot_selection, syntenic_dotplot, syntenic_dotplot_ks_colored
 
 
 # CLI ENTRYPOINT -------------------------------------------------------------------------------------------------------
@@ -223,9 +222,9 @@ def ks(gene_families, sequences, output_directory, protein_sequences,
 
 # CO-LINEARITY ---------------------------------------------------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.argument('gff_file')
-@click.argument('families')
-@click.argument('output_dir')
+@click.option('--gff_file', '-gff', default=None, help='Annotation in gff3 format')
+@click.option('--families', '-gf', default=None, help='Gene families as outline per MCL analysis')
+@click.option('--output_dir', '-o', default='./coll_out', help='Output directory')
 @click.option('--ks_distribution', '-ks', default=None,
               help="Ks distribution for the whole paranome of the species of interest, "
                    "csv file as generated using `wgd ks`.")
@@ -238,6 +237,14 @@ def coll(gff_file, families, output_dir, ks_distribution, keyword, id_string):
     Collinearity analyses.
     Requires I-ADHoRe
     """
+    if not gff_file:
+        logging.error('No gff file provided!')
+        return 1
+
+    if not families:
+        logging.error('No gene families provided!')
+        return 1
+
     if os.path.exists(output_dir):
         logging.warning(
             'Output directory already exists, will possibly overwrite')
@@ -266,16 +273,19 @@ def coll(gff_file, families, output_dir, ks_distribution, keyword, id_string):
     logging.info("Running I-ADHoRe")
     run_adhore(os.path.join(output_dir, 'adhore.conf'))
 
-    #logging.info("Generating genome.json")
-    #genome.karyotype_json(out_file=os.path.join(output_dir, 'genome.json'))
+    # logging.info("Generating genome.json")
+    # genome.karyotype_json(out_file=os.path.join(output_dir, 'genome.json'))
 
-    #logging.info("Generating visualization")
-    #segments_to_chords_table(os.path.join(output_dir, 'i-adhore-out', 'segments.txt'),
+    # logging.info("Generating visualization")
+    # segments_to_chords_table(os.path.join(output_dir, 'i-adhore-out', 'segments.txt'),
                              #genome, output_file=os.path.join(output_dir, 'chords.tsv'))
-    #visualize(output_dir)
+    # visualize(output_dir)
+
     logging.info('Drawing co-linearity dotplot')
     syntenic_dotplot(pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t'),
-                               output_file=os.path.join(output_dir, 'dotplot.png'))
+                     output_file=os.path.join(output_dir, 'dotplot.png'))
+    syntenic_dotplot_ks_colored(pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t'),
+                                output_file=os.path.join(output_dir, 'dotplot.ks.png'))
 
     if ks_distribution:
         logging.info("Constructing Ks distribution for anchors")
@@ -283,38 +293,10 @@ def coll(gff_file, families, output_dir, ks_distribution, keyword, id_string):
                                    out_file=os.path.join(output_dir, 'ks_anchors.csv'))
 
         logging.info("Generating histogram")
-        stacked_histogram(ks_dist=ks, anchors=anchors,
-                          out_file=os.path.join(output_dir, 'histogram.png'))
+        plot_selection([ks, anchors], alphas=[0.2,0.7], output_file=os.path.join(output_dir, '{}.ks.png'.format(
+            os.path.basename(families))), title=os.path.basename(families))
 
     logging.info("Done")
-
-
-# TRANSLATE CDS SEQUENCES ----------------------------------------------------------------------------------------------
-@cli.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.option('--fasta_dir', '-d', default=None, help="Directory with fasta files to translate.")
-@click.option('--fasta_file', '-f', default=None, help="Fasta file to translate.")
-def trans(fasta_dir, fasta_file):
-    """
-    Translate a CDS fasta file
-    """
-    fastas = []
-
-    if fasta_dir:
-        fastas = [os.path.join(fasta_dir, x) for x in os.listdir(fasta_dir)]
-
-    elif fasta_file:
-        fastas.append(fasta_file)
-
-    else:
-        logging.error('Neither fasta file nor directory provided!')
-
-    for ffile in fastas:
-        logging.info('Translating {}'.format(ffile))
-        protein_seqs = translate_cds(read_fasta(ffile))
-        protein_sequences = os.path.join(ffile + '.tfa')
-        write_fasta(protein_seqs, protein_sequences)
-
-    logging.info('DONE')
 
 
 # MIXTURE MODELING -----------------------------------------------------------------------------------------------------
@@ -333,6 +315,9 @@ def trans(fasta_dir, fasta_file):
               help='Corresponding sequence files, if provided then the paralogs corresponding to each component '
                    'will be in the output.')
 def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences):
+    """
+    Mixture modeling of Ks distributions
+    """
     if output_dir == 'mixtures_[TIMESTAMP]':
         output_dir = './mixture' + datetime.datetime.now().strftime("%d%m%y_%H%M%S")
         logging.info('Output will be in {}'.format(output_dir))
@@ -358,61 +343,6 @@ def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences
 
     # TODO Add both method with comparison plots (3 panels ~ cedalion)
     # TODO Get paralogs method (see lore notebook) and finetune plots
-
-
-# PARSE SEQUENCE FROM ORTHOGROUPS --------------------------------------------------------------------------------------
-@cli.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.option('--orthogroups', '-og', default=None, help="Orthogroups file, plain tsv format.")
-@click.option('--sequences', '-s', default=None, help="Sequences fasta file (all sequences in one file).")
-@click.option('--align', is_flag=True, default=False,
-              help="Align orthogroups with MUSCLE (Default = False) (NOT YET SUPPORTED)")
-@click.option('--ignore_prefixes', is_flag=True, default=False,
-              help="Ignore sequence prefixes (defined by '|') (Default = False)")
-@click.option('--filter1', '-f1', default=None,
-              help="Filter by number of unique species in the orthogroup.")
-@click.option('--filter2', '-f2', default=None,
-              help="Filter by a set of species. All orthogroups that include a sequence from one of the species "
-                   "will be included. Provide as a comma separated string of the leading characters of the species "
-                   "gene IDs as identifiers e.g. 'AT,VV,TCA_scaffold_' ")
-@click.option('--include_singletons', is_flag=True, default=False,
-              help="Include singleton families (Default = False)")
-@click.option('--muscle', '-m', default='muscle',
-              help="Absolute path to muscle executable, not necessary if in PATH environment variable.")
-@click.option('--output_dir', '-o', default='./orthogroups_seqs', help='Output directory')
-def orthoseq(orthogroups, sequences, align, ignore_prefixes, filter1, filter2, include_singletons, muscle, output_dir):
-    """
-    Get sequences from orthogroups
-    """
-    if not os.path.isdir(output_dir):
-        logging.info('Output directory {} not found, will make it'.format(output_dir))
-        os.mkdir(output_dir)
-    else:
-        logging.info('Output directory {} already exists, will possibly overwrite'.format(output_dir))
-
-    seqs = read_fasta(sequences)
-    families = process_gene_families(orthogroups, ignore_prefix=ignore_prefixes)
-    sequences = get_sequences(families, seqs)
-
-    singletons = 0
-    filtered = 0
-    for family, s in sequences.items():
-        if len(list(s.keys())) < 2 and not include_singletons:
-            singletons += 1
-            logging.debug('Singleton family {} omitted'.format(family))
-            continue
-        if filter1:
-            if get_number_of_sp(list(s.keys())) < int(filter1):
-                filtered += 1
-                continue
-        if filter2:
-            if not check_genes(list(s.keys()), filter2.split(',')):
-                filtered += 1
-                continue
-        write_fasta(s, os.path.join(output_dir, family + '.fasta'))
-
-    logging.info('Skipped {} singeltons'.format(singletons))
-    logging.info('Filtered {} families'.format(filtered))
-    logging.info('DONE')
 
 
 if __name__ == '__main__':

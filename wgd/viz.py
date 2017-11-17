@@ -5,7 +5,7 @@ Arthur Zwaenepoel - 2017
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
-import pandas as pd
+import os
 
 
 def plot_selection(dists, output_file=None, alphas=None, ks_range=(0.1, 5), offset=5, title='Species genus', **kwargs):
@@ -83,6 +83,10 @@ def plot_selection(dists, output_file=None, alphas=None, ks_range=(0.1, 5), offs
 def syntenic_dotplot(df, output_file=None):
     """
     Syntenic dotplot function
+
+    :param df: multiplicons pandas data frame
+    :param output_file: output file name
+    :return: figure
     """
     genomic_elements = {x: 0 for x in list(set(df['list_x']) | set(df['list_y'])) if type(x) == str}
 
@@ -118,12 +122,23 @@ def syntenic_dotplot(df, output_file=None):
 
     if output_file:
         fig.savefig(output_file, dpi=200, bbox_inches='tight')
+        plt.close()
 
     else:
         return fig
 
 
-def syntenic_dotplot_ks_colored(df, an, ks, color_map='binary'):
+def syntenic_dotplot_ks_colored(df, an, ks, color_map='binary', output_file=None):
+    """
+    Syntenic dotplot with segment colored by mean Ks value
+
+    :param df: multiplicons pandas data frame
+    :param an: anchorpoints pandas data frame
+    :param ks: Ks distribution data frame
+    :param color_map: color map string
+    :param output_file: output file name
+    :return: figure
+    """
     cmap = plt.get_cmap(color_map)
 
     an['pair'] = an['gene_x'].astype(str) + '-' + an['gene_y']
@@ -174,3 +189,195 @@ def syntenic_dotplot_ks_colored(df, an, ks, color_map='binary'):
     cbar = plt.colorbar(tmp, fraction=0.02, pad=0.01)
     cbar.ax.set_yticklabels(['{:.2f}'.format(x) for x in np.linspace(0, 5, 11)])
     sns.despine(offset=5, trim=True)
+
+    if output_file:
+        fig.savefig(output_file, dpi=200, bbox_inches='tight')
+        plt.close()
+
+    else:
+        return fig
+
+
+def visualize_adhore_circos_js(output_dir):
+    """
+    Visualize intragenomic collinearity
+    """
+    with open(os.path.join(output_dir, 'vis.html'), 'w') as f:
+        f.write(wgd_adhore_html)
+
+    with open(os.path.join(output_dir, 'vis.js'), 'w') as o:
+        o.write(circos_js)
+
+
+# HTML/JAVSCRIPT TEMPLATES ---------------------------------------------------------------------------------------------
+
+wgd_adhore_html = """
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+    <script src='https://cdn.rawgit.com/nicgirault/circosJS/v2/dist/circos.js'></script>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css"> 
+    <style>
+        body {
+          font: 10px sans-serif;
+        } 
+        .ticks {
+          font: 10px sans-serif;
+        }
+        .track,
+        .track-inset,
+        .track-overlay {
+          stroke-linecap: round;
+        }
+        .track {
+          stroke: #000;
+          stroke-opacity: 0.3;
+          stroke-width: 10px;
+        }
+        .track-inset {
+          stroke: #ddd;
+          stroke-width: 8px;
+        }
+        .track-overlay {
+          pointer-events: stroke;
+          stroke-width: 50px;
+          stroke: transparent;
+          cursor: crosshair;
+        }
+        .handle {
+          fill: #fff;
+          stroke: #000;
+          stroke-opacity: 0.5;
+          stroke-width: 1.25px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="w3-card-4" style='margin-left:10%;margin-right:40%;margin-bottom:16px;margin-top:16px;'>
+	<header class="w3-container w3-green">
+  		<h1>Intragenomic collinearity</h1>
+	</header>
+
+	<div class="w3-container">
+        <p>
+		Minimum length (bp) <input style="width:100px;" type="range" min="0" max="1000000" step="1000" value="0">
+		</p>
+  		<svg id='chart' width='100%', height='800px'></svg>
+	</div>
+
+	<footer class="w3-container w3-green">
+  		<h5><code>wgd adhore</code> (Arthur Zwaenepoel - 2017)</h5>
+	</footer>
+</div> 
+
+<div class="w3-card-4" style='margin-left:10%;margin-right:40%;margin-bottom:16px;'>                                                        
+    <header class="w3-container w3-green">                                                                               
+        <h1><i>K<sub>S</sub></i> distribution</h1>                                                                              
+    </header>                                                                                                           
+
+    <div class="w3-container w3-margin">                                                                                          
+        <img src='histogram.png' width='100%'>
+	</div>                                                                                                              
+
+    <footer class="w3-container w3-green">                                                                               
+        <h5><code>wgd adhore</code> (Arthur Zwaenepoel - 2017)</h5>                                                       
+    </footer>                                                                                                           
+</div>
+
+
+    <script>
+      var circos = new Circos({
+        container: '#chart'
+      });
+    </script>
+    <script src='vis.js'></script>
+</body>
+</html>
+"""
+
+
+circos_js = """
+var minLength = 0;
+
+var drawCircos = function (error, genome, data) {
+    var width = 700;
+    var circos = new Circos({
+        container: '#chart',
+        width: width,
+        height: width
+    })
+
+    data = data.filter(function (d) {return parseInt(d.source_length) > minLength})
+
+    data = data.map(function (d) {
+        // I think here an if statement can be included for filtering a user defined 
+        // syntenic block length
+            return {
+                source: {
+                    id: d.source_id,
+                    start: parseInt(d.source_1),
+                    end: parseInt(d.source_2),
+                    color: d.color,
+                    label: d.label
+                },
+                target: {
+                    id: d.target_id,
+                    start: parseInt(d.target_1),
+                    end: parseInt(d.target_2),
+                    color: d.color
+                }
+            }
+
+    })
+
+    circos
+        .layout(
+            genome,
+            {
+                innerRadius: width/2 - 80,
+                outerRadius: width/2 - 40,
+                labels: {
+                    radialOffset: 70
+                },
+                ticks: {
+                    display: true,
+                    labelDenominator: 1000000
+                }
+            }
+        )
+        .chords(
+            'l1',
+            data,
+            {
+                opacity: 0.7,
+                color: function (d) {return d.source.color;},
+                tooltipContent: function (d) {
+                    return '<h3>' + d.source.id + ' ➤ ' + d.target.id + ': ' + d.source.label + '</h3><i>(CTRL+C to copy to clipboard)</i>';
+                }
+            }
+        )
+        .render()
+    }
+
+var svg = d3.select('svg');
+
+d3.queue()
+    .defer(d3.json, "genome.json")
+    .defer(d3.tsv, "chords.tsv")
+    .await(drawCircos);
+
+d3.select("input[type=range]")
+    .on("input", inputted);
+
+function inputted() {
+      minLength = parseInt(this.value);
+      console.log(minLength);
+      svg.selectAll("*").remove();
+      d3.queue()
+        .defer(d3.json, "genome.json")
+        .defer(d3.tsv, "chords.tsv")
+        .await(drawCircos);
+}
+"""

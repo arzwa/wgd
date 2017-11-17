@@ -11,7 +11,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-# WRITE FILES AND CONFIG
+# WRITE FILES AND CONFIG -----------------------------------------------------------------------------------------------
 
 def write_gene_lists(genome, output_dir='gene_lists'):
     """
@@ -39,7 +39,10 @@ def write_families_file(families, all_genes, output_file='families.tsv'):
     """
     Write out families file
 
-    :param families: MCL output 
+    :param families:
+    :param all_genes:
+    :param output_file:
+    :return:
     """
     counter = 1
     genes_seen = set()
@@ -67,14 +70,29 @@ def write_config_adhore(gene_lists, families, config_file_name='i-adhore.conf',
                         genome='genome', output_path='i-adhore_out', gap_size=30,
                         cluster_gap=35, q_value=0.75, prob_cutoff=0.01, anchor_points=3,
                         alignment_method='gg2', level_2_only='false', table_type='family',
-                        multiple_hypothesis_correction='FDR', visualizeGHM='false',
-                        visualizeAlignment='true', **kwargs):
+                        multiple_hypothesis_correction='FDR', visualize_ghm='false',
+                        visualize_alignment='true', **kwargs):
     """
     Write out the config file for I-ADHoRe. See I-ADHoRe manual for information on
     parameter settings.
 
     :param gene_lists: directory with gene lists per chromosome
     :param families: file with gene to family mapping
+    :param config_file_name:
+    :param genome:
+    :param output_path:
+    :param gap_size:
+    :param cluster_gap:
+    :param q_value:
+    :param prob_cutoff:
+    :param anchor_points:
+    :param alignment_method:
+    :param level_2_only:
+    :param table_type:
+    :param multiple_hypothesis_correction:
+    :param visualizeGHM:
+    :param visualizeAlignment:
+    :param kwargs:
     :return: configuration file
     """
     with open(config_file_name, 'w') as o:
@@ -97,9 +115,9 @@ def write_config_adhore(gene_lists, families, config_file_name='i-adhore.conf',
         o.write('table_type= {}\n'.format(table_type))
         o.write('multiple_hypothesis_correction= {}\n'.format(
             multiple_hypothesis_correction))
-        o.write('visualizeGHM= {}\n'.format(visualizeGHM))
-        #o.write('visGPairs= {}\n'.format(output_path))
-        o.write('visualizeAlignment= {}\n'.format(visualizeAlignment))
+        o.write('visualizeGHM= {}\n'.format(visualize_ghm))
+        # o.write('visGPairs= {}\n'.format(output_path))
+        o.write('visualizeAlignment= {}\n'.format(visualize_alignment))
 
     return
 
@@ -154,45 +172,6 @@ def get_anchor_pairs(anchors_file, ks_file=None, out_file='anchors_ks.csv', spec
         return anchors
 
 
-# VISUALIZATION
-
-def stacked_histogram(ks_dist, anchors, ks_range=(0.1, 5), title='$K_S$ distribution', out_file=None):
-    """
-    Generate a stacked histogram plot.
-
-    :param ks_dist: Ks analysis data frame
-    :param anchors: Ks analysis data frame (only anchors)
-    :param ks_range:
-    :param title:
-    :param out_file:
-    :return:
-    """
-    X = ks_dist[ks_dist['Ks'] >= ks_range[0]]
-    X = X[X['Ks'] < ks_range[1]]
-    A = anchors[anchors['Ks'] >= ks_range[0]]
-    A = A[A['Ks'] < ks_range[1]]
-
-    # plot
-    plt.figure(figsize=(12, 8))
-    plt.title(title, fontsize=18)
-    plt.xlabel("Binned $K_S$", fontsize=14)
-    plt.hist(X['Ks'], bins=70,
-             weights=X['WeightOutliersIncluded'], histtype='barstacked',
-             color='black', alpha=0.2, rwidth=0.8, label='Whole paranome')
-    plt.hist(A['Ks'], bins=70,
-             weights=A['WeightOutliersIncluded'], histtype='barstacked',
-             color='black', alpha=0.7, rwidth=0.8, label='Anchors')
-    plt.legend(fontsize=12)
-    plt.xlim(0.1, 5)
-    plt.yticks(fontsize=16)
-    plt.xticks(fontsize=16)
-
-    if out_file:
-        plt.savefig(out_file, dpi=400)
-    else:
-        plt.show()
-
-
 def segments_to_chords_table(segments_file, genome, output_file='chords.tsv'):
     """
     Create chords table for visualization in a chord diagram. Uses the segments.txt
@@ -240,18 +219,7 @@ def segments_to_chords_table(segments_file, genome, output_file='chords.tsv'):
     df.to_csv(output_file, sep='\t')
 
 
-def visualize(output_dir):
-    """
-    Visualize intragenomic collinearity
-    """
-    with open(os.path.join(output_dir, 'vis.html'), 'w') as f:
-        f.write(wgd_adhore_html)
-
-    with open(os.path.join(output_dir, 'vis.js'), 'w') as o:
-        o.write(circos_js)
-
-
-# RUNNING EXTERNAL SOFTWARE
+# RUNNING EXTERNAL SOFTWARE --------------------------------------------------------------------------------------------
 
 def run_adhore(config_file):
     """
@@ -264,176 +232,3 @@ def run_adhore(config_file):
     logging.warning(completed.stderr.decode('utf-8'))
     logging.info(completed.stdout.decode('utf-8'))
     return
-
-
-# HTML/JAVSCRIPT TEMPLATES
-
-wgd_adhore_html = """
-<!DOCTYPE html>
-<meta charset="utf-8">
-<head>
-    <script src='https://cdn.rawgit.com/nicgirault/circosJS/v2/dist/circos.js'></script>
-    <script src="https://d3js.org/d3.v4.min.js"></script>
-    <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css"> 
-    <style>
-        body {
-          font: 10px sans-serif;
-        } 
-        .ticks {
-          font: 10px sans-serif;
-        }
-        .track,
-        .track-inset,
-        .track-overlay {
-          stroke-linecap: round;
-        }
-        .track {
-          stroke: #000;
-          stroke-opacity: 0.3;
-          stroke-width: 10px;
-        }
-        .track-inset {
-          stroke: #ddd;
-          stroke-width: 8px;
-        }
-        .track-overlay {
-          pointer-events: stroke;
-          stroke-width: 50px;
-          stroke: transparent;
-          cursor: crosshair;
-        }
-        .handle {
-          fill: #fff;
-          stroke: #000;
-          stroke-opacity: 0.5;
-          stroke-width: 1.25px;
-        }
-    </style>
-</head>
-<body>
-
-<div class="w3-card-4" style='margin-left:10%;margin-right:40%;margin-bottom:16px;margin-top:16px;'>
-	<header class="w3-container w3-green">
-  		<h1>Intragenomic collinearity</h1>
-	</header>
-
-	<div class="w3-container">
-        <p>
-		Minimum length (bp) <input style="width:100px;" type="range" min="0" max="1000000" step="1000" value="0">
-		</p>
-  		<svg id='chart' width='100%', height='800px'></svg>
-	</div>
-
-	<footer class="w3-container w3-green">
-  		<h5><code>wgd adhore</code> (Arthur Zwaenepoel - 2017)</h5>
-	</footer>
-</div> 
-
-<div class="w3-card-4" style='margin-left:10%;margin-right:40%;margin-bottom:16px;'>                                                        
-    <header class="w3-container w3-green">                                                                               
-        <h1><i>K<sub>S</sub></i> distribution</h1>                                                                              
-    </header>                                                                                                           
-                                                                                                                        
-    <div class="w3-container w3-margin">                                                                                          
-        <img src='histogram.png' width='100%'>
-	</div>                                                                                                              
-                                                                                                                        
-    <footer class="w3-container w3-green">                                                                               
-        <h5><code>wgd adhore</code> (Arthur Zwaenepoel - 2017)</h5>                                                       
-    </footer>                                                                                                           
-</div>
-	
-        
-    <script>
-      var circos = new Circos({
-        container: '#chart'
-      });
-    </script>
-    <script src='vis.js'></script>
-</body>
-</html>
-"""
-
-circos_js = """
-var minLength = 0;
-
-var drawCircos = function (error, genome, data) {
-    var width = 700;
-    var circos = new Circos({
-        container: '#chart',
-        width: width,
-        height: width
-    })
-    
-    data = data.filter(function (d) {return parseInt(d.source_length) > minLength})
-
-    data = data.map(function (d) {
-        // I think here an if statement can be included for filtering a user defined 
-        // syntenic block length
-            return {
-                source: {
-                    id: d.source_id,
-                    start: parseInt(d.source_1),
-                    end: parseInt(d.source_2),
-                    color: d.color,
-                    label: d.label
-                },
-                target: {
-                    id: d.target_id,
-                    start: parseInt(d.target_1),
-                    end: parseInt(d.target_2),
-                    color: d.color
-                }
-            }
-        
-    })
-
-    circos
-        .layout(
-            genome,
-            {
-                innerRadius: width/2 - 80,
-                outerRadius: width/2 - 40,
-                labels: {
-                    radialOffset: 70
-                },
-                ticks: {
-                    display: true,
-                    labelDenominator: 1000000
-                }
-            }
-        )
-        .chords(
-            'l1',
-            data,
-            {
-                opacity: 0.7,
-                color: function (d) {return d.source.color;},
-                tooltipContent: function (d) {
-                    return '<h3>' + d.source.id + ' ➤ ' + d.target.id + ': ' + d.source.label + '</h3><i>(CTRL+C to copy to clipboard)</i>';
-                }
-            }
-        )
-        .render()
-    }
-
-var svg = d3.select('svg');
-
-d3.queue()
-    .defer(d3.json, "genome.json")
-    .defer(d3.tsv, "chords.tsv")
-    .await(drawCircos);
-
-d3.select("input[type=range]")
-    .on("input", inputted);
-
-function inputted() {
-      minLength = parseInt(this.value);
-      console.log(minLength);
-      svg.selectAll("*").remove();
-      d3.queue()
-        .defer(d3.json, "genome.json")
-        .defer(d3.tsv, "chords.tsv")
-        .await(drawCircos);
-}
-"""
