@@ -121,7 +121,7 @@ def run_mcl_ava(input_file, regex='.+', prefix=None, tmp_dir='./', output_file='
     return output_file
 
 
-def all_v_all_blast(seq_file, output_directory, eval_cutoff=1e-10):
+def all_v_all_blast(query, db, output_directory, eval_cutoff=1e-10):
     """
     Perform all-versus-all Blastp.
 
@@ -132,18 +132,18 @@ def all_v_all_blast(seq_file, output_directory, eval_cutoff=1e-10):
     """
 
     logging.info("Making Blastdb")
-    subprocess.run(['makeblastdb', '-in', seq_file, '-dbtype', 'prot'])
+    subprocess.run(['makeblastdb', '-in', db, '-dbtype', 'prot'])
 
     logging.info("Running Blastp")
-    outfile = os.path.join(output_directory, os.path.basename(seq_file) + '.out.blast')
-    subprocess.run(['blastp', '-db', seq_file, '-query', seq_file, '-evalue', str(eval_cutoff), '-outfmt', '6',
+    outfile = os.path.join(output_directory, os.path.basename(db) + '.out.blast')
+    subprocess.run(['blastp', '-db', db, '-query', query, '-evalue', str(eval_cutoff), '-outfmt', '6',
                     '-out', outfile])
     logging.info("All versus all Blastp done")
 
     logging.info("Reformatting output")
     os.system(" ".join(['cut', '-f1,2,11', outfile, '> ava.tsv'])) # this did'nt seem to work with suprocess.run ?
     subprocess.run(['mv', 'ava.tsv', outfile])
-    subprocess.run(['rm', seq_file + '.phr', seq_file + '.pin', seq_file + '.psq'])
+    subprocess.run(['rm', db + '.phr', db + '.pin', db + '.psq'])
 
     return outfile
 

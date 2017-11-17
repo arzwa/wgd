@@ -84,6 +84,14 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
     if not blast_results:
         sequence_files = sequences.strip().split(',')
 
+        if len(sequences) != 1 and not one_v_one:
+            logging.error('Please provide only one fasta file for whole paranome all-vs-all blast')
+            return
+
+        if len(sequences) != 2 and one_v_one:
+            logging.error('Please provide only two fasta files for one-vs-one ortholog finding')
+            return
+
         if species_ids:
             ids = species_ids.strip().split(',')
             if len(ids) != len(sequence_files):
@@ -95,19 +103,26 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
         if cds:
             logging.info("CDS sequences provided, will first translate.")
 
-        sequences_dict = {}
+        protein_sequences = []
         for i in range(len(sequence_files)):
             if cds:
                 protein_seqs = translate_cds(read_fasta(sequence_files[i], prefix=ids[i]))
-                sequences_dict.update(protein_seqs)
+                protein_sequences.append(protein_seqs)
             else:
-                sequences_dict.update(read_fasta(sequence_files[i], prefix=ids[i]))
+                protein_sequences.append(read_fasta(sequence_files[i], prefix=ids[i]))
 
-        logging.info('Writing merged sequences file to seqs.fasta.')
-        write_fasta(sequences_dict, os.path.join(output_dir,'seqs.fasta'))
+        logging.info('Writing blastdb sequences to seqs.fasta.')
+        db = os.path.join(output_dir,'seqs.fasta')
+        write_fasta(protein_sequences[0], db)
+        query = db
+
+        if one_v_one:
+            query = os.path.join(output_dir, 'query.fasta')
+            logging.info('Writing query sequences to query.fasta.')
+            write_fasta(protein_sequences[0], query)
 
         logging.info('Performing all_v_all_blastp (this might take a while)')
-        blast_results = all_v_all_blast(os.path.join(output_dir,'seqs.fasta'), output_dir, eval_cutoff=eval_cutoff)
+        blast_results = all_v_all_blast(query, db, output_dir, eval_cutoff=eval_cutoff)
 
     if one_v_one:
         logging.info('Retrieving one vs. one orthologs')
