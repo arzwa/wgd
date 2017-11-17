@@ -119,7 +119,7 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
         if one_v_one:
             query = os.path.join(output_dir, 'query.fasta')
             logging.info('Writing query sequences to query.fasta.')
-            write_fasta(protein_sequences[0], query)
+            write_fasta(protein_sequences[1], query)
 
         logging.info('Performing all_v_all_blastp (this might take a while)')
         blast_results = all_v_all_blast(query, db, output_dir, eval_cutoff=eval_cutoff)
