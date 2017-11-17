@@ -84,12 +84,12 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
     if not blast_results:
         sequence_files = sequences.strip().split(',')
 
-        if len(sequences) != 1 and not one_v_one:
+        if len(sequence_files) != 1 and not one_v_one:
             logging.error('Please provide only one fasta file for whole paranome all-vs-all blast')
             return
 
-        if len(sequences) != 2 and one_v_one:
-            logging.error('Please provide only two fasta files for one-vs-one ortholog finding')
+        if len(sequence_files) != 2 and one_v_one:
+            logging.error('Please provide (only) two fasta files for one-vs-one ortholog finding')
             return
 
         if species_ids:
