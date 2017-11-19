@@ -33,7 +33,7 @@ setup(
         'plumbum',
         'fastcluster',
         'pandas',
-        'ete3',
+        'progressbar2',
         'joblib'
     ],
     entry_points='''

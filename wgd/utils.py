@@ -6,6 +6,7 @@ import os
 import logging
 import re
 import warnings
+from progressbar import ProgressBar
 
 
 def get_gfs_for_species(gene_family_dict, gene_pattern):
@@ -173,15 +174,18 @@ def translate_cds(sequence_dict):
     }
     protein_dict = {}
 
-    for key, val in sequence_dict.items():
-        aa_seq = ''
-
-        for i in range(0,len(val),3):
-            if val[i:i+3] not in aa_dict.keys():
-                logging.warning('Invalid codon {0:>3} in sequence {1}'.format(val[i:i+3], key))
-            else:
-                aa_seq += aa_dict[val[i:i+3]]
-        protein_dict[key] = aa_seq
+    with ProgressBar(max_value=len(sequence_dict.keys())+1) as pb:
+        j = 0
+        for key, val in sequence_dict.items():
+            j += 1
+            aa_seq = ''
+            for i in range(0,len(val),3):
+                if val[i:i+3] not in aa_dict.keys():
+                    logging.debug('Invalid codon {0:>3} in sequence {1}'.format(val[i:i+3], key))
+                else:
+                    aa_seq += aa_dict[val[i:i+3]]
+            protein_dict[key] = aa_seq
+            pb.update(j)
 
     return protein_dict
 

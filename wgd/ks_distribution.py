@@ -129,7 +129,8 @@ def filter_species(results, s1, s2):
     return filtered
 
 
-def analyse_family(family_id, family, nucleotide, tmp='./', muscle='muscle', codeml='codeml', preserve=False, times=1):
+def analyse_family(family_id, family, nucleotide, tmp='./', muscle='muscle', codeml='codeml', preserve=False, times=1,
+                   min_length=100):
     """
     Wrapper function for the analysis of one paralog family. Performs alignment with
     :py:meth:`alignment.Muscle.run_muscle` and codeml analysis with :py:meth:`codeml.Codeml.run_codeml`.
@@ -158,12 +159,13 @@ def analyse_family(family_id, family, nucleotide, tmp='./', muscle='muscle', cod
     codeml = Codeml(codeml=codeml, tmp=tmp, id=family_id)
     muscle = Muscle(muscle=muscle, tmp=tmp)
 
-    logging.debug('Performing multiple sequence analysis (MUSCLE) on gene family {}.'.format(family_id))
+    logging.debug('Performing multiple sequence alignment (MUSCLE) on gene family {}.'.format(family_id))
     msa_path = muscle.run_muscle(family, file=family_id)
-    msa_path = multiple_sequence_aligment_nucleotide(msa_path, nucleotide)
+    msa_path = multiple_sequence_aligment_nucleotide(msa_path, nucleotide, min_length=min_length)
 
     if not msa_path:
-        logging.warning('Did not analyze gene family {}, stripped MSA too short.'.format(family_id))
+        logging.warning('Did not analyze gene family {0}, stripped MSA too short (< {1}).'.format(
+            family_id, min_length))
         return
 
     # Calculate Ks values (codeml)
@@ -179,8 +181,8 @@ def analyse_family(family_id, family, nucleotide, tmp='./', muscle='muscle', cod
         out.to_csv(os.path.join(tmp, family_id + '.Ks'))
 
 
-def analyse_family_ortholog(family_id, family, nucleotide,
-                            tmp='./', muscle='muscle', codeml='codeml', preserve=False, times=1):
+def analyse_family_ortholog(family_id, family, nucleotide, tmp='./', muscle='muscle', codeml='codeml',
+                            preserve=False, times=1, min_length=100):
     """
     Wrapper function for the analysis of one paralog family. Performs alignment with
     :py:meth:`alignment.Muscle.run_muscle` and codeml analysis with :py:meth:`codeml.Codeml.run_codeml`.
@@ -211,10 +213,11 @@ def analyse_family_ortholog(family_id, family, nucleotide,
 
     logging.debug('Performing multiple sequence analysis (MUSCLE) on gene family {}.'.format(family_id))
     msa_path = muscle.run_muscle(family, file=family_id)
-    msa_path = multiple_sequence_aligment_nucleotide(msa_path, nucleotide)
+    msa_path = multiple_sequence_aligment_nucleotide(msa_path, nucleotide, min_length=min_length)
 
     if not msa_path:
-        logging.warning('Did not analyze gene family {}, stripped MSA too short.'.format(family_id))
+        logging.warning('Did not analyze gene family {0}, stripped MSA too short (< {1}).'.format(
+            family_id, min_length))
         return
 
     # Calculate Ks values (codeml)
@@ -233,10 +236,9 @@ def analyse_family_ortholog(family_id, family, nucleotide,
 
 def ks_analysis_one_vs_one(nucleotide_sequences, protein_sequences, gene_families, tmp_dir='./tmp',
                            output_dir='./ks.out', muscle_path='muscle', codeml_path='codeml', check=True,
-                           preserve=True, times=1, n_cores=4, async=False):
+                           preserve=True, times=1, n_cores=4, async=False, min_length=100):
 
     # Filter families with one vs one orthologs for the species of interest.
-    nucleotide = read_fasta(nucleotide_sequences, split_on_pipe=True)
     gene_families = process_gene_families(gene_families, ignore_prefix=False)
     protein = get_sequences(gene_families, protein_sequences)
 
@@ -250,19 +252,24 @@ def ks_analysis_one_vs_one(nucleotide_sequences, protein_sequences, gene_familie
     if async:
         loop = asyncio.get_event_loop()
         tasks = [loop.run_in_executor(None, analyse_family_ortholog, family, protein[family],
-                                      nucleotide, tmp_dir, muscle_path,
-                                      codeml_path, preserve, times) for family in protein.keys()]
+                                      nucleotide_sequences, tmp_dir, muscle_path,
+                                      codeml_path, preserve, times, min_length) for family in protein.keys()]
         loop.run_until_complete(asyncio.gather(*tasks))
 
     else:
         Parallel(n_jobs=n_cores)(delayed(analyse_family)(family, protein[family],
-                                                         nucleotide, tmp_dir, muscle_path,
-                                                         codeml_path, preserve, times) for family in protein.keys())
+                                                         nucleotide_sequences, tmp_dir, muscle_path,
+                                                         codeml_path, preserve, times,
+                                                         min_length) for family in protein.keys())
     logging.info('Analysis done')
 
     # preserve intermediate data if asked
     if preserve:
         logging.info('Moving files (preserve=True)')
+        if not os.path.isdir(os.path.join(output_dir, 'msa')):
+            os.mkdir(os.path.join(output_dir, 'msa'))
+        if not os.path.isdir(os.path.join(output_dir, 'codeml')):
+            os.mkdir(os.path.join(output_dir, 'codeml'))
         os.system(" ".join(['mv', os.path.join(tmp_dir, '*.msa*'), os.path.join(output_dir, 'msa')]))
         os.system(" ".join(['mv', os.path.join(tmp_dir, '*.codeml'), os.path.join(output_dir, 'codeml')]))
 
@@ -286,14 +293,14 @@ def ks_analysis_one_vs_one(nucleotide_sequences, protein_sequences, gene_familie
 
     logging.info('Removing tmp directory')
     os.system('rm -r {}'.format(tmp_dir))
-    results_frame.to_csv(os.path.join(output_dir, 'all.csv'), sep='\t')
+    results_frame.round(5).to_csv(os.path.join(output_dir, 'ortholog_ks_full.tsv'), sep='\t')
 
     return results_frame
 
 
 def ks_analysis_paranome(nucleotide_sequences, protein_sequences, paralogs, tmp_dir='./tmp', output_dir='./ks.out',
                          muscle_path='muscle', codeml_path='codeml', check=True, preserve=True, times=1,
-                         ignore_prefixes=False, n_cores=4, async=False):
+                         ignore_prefixes=False, n_cores=4, async=False, min_length=100):
     """
     Calculate a Ks distribution for a whole paranome. Asyncio version
 
@@ -312,7 +319,6 @@ def ks_analysis_paranome(nucleotide_sequences, protein_sequences, paralogs, tmp_
     """
 
     # ignore prefixes in gene families, since only one species
-    nucleotide = read_fasta(nucleotide_sequences, split_on_pipe=True)
     paralogs = process_gene_families(paralogs, ignore_prefix=ignore_prefixes)
     protein = get_sequences(paralogs, protein_sequences)
     
@@ -322,23 +328,28 @@ def ks_analysis_paranome(nucleotide_sequences, protein_sequences, paralogs, tmp_
         check_dirs(tmp_dir, output_dir, prompt=True, preserve=preserve)
 
     # start analysis
-    logging.info('Started analysis in parallel')
+    logging.info('Started analysis in parallel (n_cores = {})'.format(n_cores))
     if async:
         loop = asyncio.get_event_loop()
         tasks = [loop.run_in_executor(None, analyse_family, family, protein[family],
-                                      nucleotide, tmp_dir, muscle_path,
-                                      codeml_path, preserve, times) for family in protein.keys()]
+                                      nucleotide_sequences, tmp_dir, muscle_path,
+                                      codeml_path, preserve, times, min_length) for family in protein.keys()]
 
         loop.run_until_complete(asyncio.gather(*tasks))
     else:
         Parallel(n_jobs=n_cores)(delayed(analyse_family)(family, protein[family],
-                                                         nucleotide, tmp_dir, muscle_path,
-                                                         codeml_path, preserve, times) for family in protein.keys())
+                                                         nucleotide_sequences, tmp_dir, muscle_path,
+                                                         codeml_path, preserve, times,
+                                                         min_length) for family in protein.keys())
     logging.info('Analysis done')
 
     # preserve intermediate data if asked
     if preserve:
         logging.info('Moving files (preserve=True)')
+        if not os.path.isdir(os.path.join(output_dir, 'msa')):
+            os.mkdir(os.path.join(output_dir, 'msa'))
+        if not os.path.isdir(os.path.join(output_dir, 'codeml')):
+            os.mkdir(os.path.join(output_dir, 'codeml'))
         os.system(" ".join(['mv', os.path.join(tmp_dir, '*.msa*'), os.path.join(output_dir, 'msa')]))
         os.system(" ".join(['mv', os.path.join(tmp_dir, '*.codeml'), os.path.join(output_dir, 'codeml')]))
 
@@ -361,6 +372,6 @@ def ks_analysis_paranome(nucleotide_sequences, protein_sequences, paralogs, tmp_
 
     logging.info('Removing tmp directory')
     os.system('rm -r {}'.format(tmp_dir))
-    results_frame.to_csv(os.path.join(output_dir, 'all.csv'), sep='\t')
+    results_frame.round(5).to_csv(os.path.join(output_dir, 'paranome_ks_full.tsv'), sep='\t')
 
     return results_frame

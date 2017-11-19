@@ -46,32 +46,32 @@ def plot_selection(dists, output_file=None, alphas=None, ks_range=(0.1, 5), offs
     # ka
     ax = fig.add_subplot(222)
     # get the bin edges
-    bins = np.histogram(np.hstack(tuple([dist['Ka'] for dist in dists])), bins=40)[1]
+    bins = np.histogram(np.hstack(tuple([np.log10(dist['Ks']) for dist in dists])), bins=40)[1]
     for i in range(len(dists)):
-        ax.hist(dists[i]['Ka'], bins, alpha=alphas[i], color='black', rwidth=0.8,
+        ax.hist(np.log10(dists[i]['Ks']), bins, alpha=alphas[i], color='black', rwidth=0.8,
                 weights=dists[i]['WeightOutliersIncluded'], **kwargs)
     sns.despine(offset=offset, trim=True)
-    ax.set_xlabel('$K_A$')
+    ax.set_xlabel('$log_{10}(K_s)$')
 
     # log(ka)
     ax = fig.add_subplot(223)
     # get the bin edges
-    bins = np.histogram(np.hstack(tuple([np.log(dist['Ka']) for dist in dists])), bins=40)[1]
+    bins = np.histogram(np.hstack(tuple([np.log10(dist['Ka']) for dist in dists])), bins=40)[1]
     for i in range(len(dists)):
-        ax.hist(np.log(dists[i]['Ka']), bins, alpha=alphas[i], color='black', rwidth=0.8,
+        ax.hist(np.log10(dists[i]['Ka']), bins, alpha=alphas[i], color='black', rwidth=0.8,
                 weights=dists[i]['WeightOutliersIncluded'], **kwargs)
     sns.despine(offset=offset, trim=True)
-    ax.set_xlabel('$ln(K_A)$')
+    ax.set_xlabel('$log_{10}(K_A)$')
 
     # log(w)
     ax = fig.add_subplot(224)
     # get the bin edges
-    bins = np.histogram(np.hstack(tuple([np.log(dist['Omega']) for dist in dists])), bins=40)[1]
+    bins = np.histogram(np.hstack(tuple([np.log10(dist['Omega']) for dist in dists])), bins=40)[1]
     for i in range(len(dists)):
-        ax.hist(np.log(dists[i]['Omega']), bins, alpha=alphas[i], color='black', rwidth=0.8,
+        ax.hist(np.log10(dists[i]['Omega']), bins, alpha=alphas[i], color='black', rwidth=0.8,
                 weights=dists[i]['WeightOutliersIncluded'], **kwargs)
     sns.despine(offset=offset, trim=True)
-    ax.set_xlabel('$ln(\omega)$')
+    ax.set_xlabel('$log_{10}(\omega)$')
     fig.suptitle(title)
 
     if output_file:

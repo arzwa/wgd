@@ -222,14 +222,14 @@ def mixture_model_bgmm(data_frame, n_range=(1,5), Ks_range=(0.1, 2), gamma=0.01,
 
     models = []
     for n in range(n_range[0], n_range[1]+1):
-        logging.debug("Fitting model {}".format(n))
+        logging.info("Fitting BGMM with {} components".format(n))
         models.append(mixture.BayesianGaussianMixture(n_components=n, covariance_type='full',
                                                       weight_concentration_prior=gamma, max_iter=max_iter,
                                                       weight_concentration_prior_type='dirichlet_distribution',
                                                       **kwargs).fit(X))
 
     if plot:
-        logging.info("Plotting mixture models")
+        logging.info("Plotting BGMMs")
 
         if not fig_size:
             fig_size = (20, (n_range[1]-n_range[0]+1) * 6)
@@ -244,9 +244,9 @@ def mixture_model_bgmm(data_frame, n_range=(1,5), Ks_range=(0.1, 2), gamma=0.01,
             # plot histogram with fitted components
             ax = fig.add_subplot(n_range[1], 2, 2 * i + 1)
             if log:
-                ax.hist(np.exp(X), Ks_range[1] * 25, normed=True, rwidth=0.8, color="black", alpha=0.2)
+                ax.hist(np.exp(X), int(Ks_range[1] * 25), normed=True, rwidth=0.8, color="black", alpha=0.2)
             else:
-                ax.hist(X, Ks_range[1] * 25, normed=True, rwidth=0.8, color="black", alpha=0.2)
+                ax.hist(X, int(Ks_range[1] * 25), normed=True, rwidth=0.8, color="black", alpha=0.2)
 
             ax.set_xlim(Ks_range[0], Ks_range[1])
 
@@ -315,7 +315,7 @@ def mixture_model_bgmm(data_frame, n_range=(1,5), Ks_range=(0.1, 2), gamma=0.01,
     return models
 
 
-def mixture_model_gmm(data_frame, n=4, metric='AIC', Ks_range=(0.1, 2), log=True, plot=True,
+def mixture_model_gmm(data_frame, n=4, Ks_range=(0.1, 2), log=True, plot=True,
                       output_dir=None, plot_save=True, output_file='mixture.png', fig_size=None,
                       **kwargs):
     """
@@ -345,23 +345,21 @@ def mixture_model_gmm(data_frame, n=4, metric='AIC', Ks_range=(0.1, 2), log=True
     models = [None for i in range(len(N))]
 
     for i in range(len(N)):
-        logging.debug("Fitting model {}".format(i))
+        logging.info("Fitting GMM with {} components".format(i))
         models[i] = mixture.GaussianMixture(n_components=N[i], covariance_type='full',
                                             max_iter=100, **kwargs).fit(X)
 
     # compute the AIC and the BIC
-    if metric == 'AIC':
-        IC = [m.aic(X) for m in models]
-    else:
-        IC = [m.bic(X) for m in models]
+    aic = [m.aic(X) for m in models]
+    bic = [m.bic(X) for m in models]
 
-    best = models[np.argmin(IC)]
+    best = models[np.argmin(bic)]
 
     if plot:
-        logging.info("Plotting mixture models")
+        logging.info("Plotting GMMs")
 
         if not fig_size:
-            fig_size = (20, n * 6)
+            fig_size = (20, n * 8)
         fig = plt.figure(figsize=fig_size)
 
         for i in range(len(models)):
@@ -373,9 +371,9 @@ def mixture_model_gmm(data_frame, n=4, metric='AIC', Ks_range=(0.1, 2), log=True
             # plot histogram with fitted components
             ax = fig.add_subplot(n + 1, 2, 2 * i + 1)
             if log:
-                ax.hist(np.exp(X), Ks_range[1] * 25, normed=True, color="black", alpha=0.2, rwidth=0.8)
+                ax.hist(np.exp(X), int(Ks_range[1] * 25), normed=True, color="black", alpha=0.2, rwidth=0.8)
             else:
-                ax.hist(X, Ks_range[1] * 25, normed=True, color="black", alpha=0.2, rwidth=0.8)
+                ax.hist(X, int(Ks_range[1] * 25), normed=True, color="black", alpha=0.2, rwidth=0.8)
             ax.set_xlim(Ks_range[0], Ks_range[1])
 
             mix = None
@@ -434,13 +432,18 @@ def mixture_model_gmm(data_frame, n=4, metric='AIC', Ks_range=(0.1, 2), log=True
             sns.despine(ax=ax, offset=5, trim=True)
 
         ax = fig.add_subplot(n + 1, 2, 2 * i + 3)
-        ax.plot(list(range(1, n + 1)), IC, color='black')
+        ax.plot(list(range(1, n + 1)), aic, color='black')
         ax.set_xticks(list(range(1, n + 1)))
         ax.set_xlabel("Number of components")
-        ax.set_ylabel(metric)
-        sns.despine(ax=ax, offset=5, trim=True)
+        ax.set_ylabel("AIC")
+
+        ax = fig.add_subplot(n + 1, 2, 2 * i + 4)
+        ax.plot(list(range(1, n + 1)), bic, color='black')
+        ax.set_xticks(list(range(1, n + 1)))
+        ax.set_xlabel("Number of components")
+        ax.set_ylabel("BIC")
 
         if plot_save:
             fig.savefig(os.path.join(output_dir, output_file), bbox_inches='tight')
 
-    return models, IC, best
+    return models, bic, aic, best

@@ -12,7 +12,6 @@ import os
 import subprocess
 import re
 import logging
-from ete3 import EvolTree
 
 
 def _write_control(f, control_dict):
@@ -236,7 +235,7 @@ class Codeml:
         logging.debug("Performing codeml {} times".format(times))
 
         for i in range(times):
-            # logging.debug("\t--> iteration {}".format(str(i+1)))
+            logging.debug("Codeml iteration {0} for {1}".format(str(i+1), msa))
             subprocess.run([self.codeml, self.control_file], stdout=subprocess.PIPE)
             subprocess.run(['rm', '2ML.dN', '2ML.dS', '2ML.t', '2NG.dN', '2NG.dS', '2NG.t', 'rst', 'rst1', 'rub'],
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)

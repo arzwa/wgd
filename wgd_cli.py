@@ -12,10 +12,11 @@ import sys
 import os
 import datetime
 import pandas as pd
+import uuid
 from wgd.modeling import mixture_model_bgmm, mixture_model_gmm
 from wgd.ks_distribution import ks_analysis_paranome, ks_analysis_one_vs_one
 from wgd.blast_mcl import all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2
-from wgd.utils import check_dirs, translate_cds, read_fasta, write_fasta, get_one_v_one_orthologs_rbh
+from wgd.utils import translate_cds, read_fasta, write_fasta, get_one_v_one_orthologs_rbh
 from wgd.collinearity import write_families_file, write_gene_lists, write_config_adhore, run_adhore
 from wgd.collinearity import get_anchor_pairs
 from wgd.gff_parser import Genome
@@ -141,67 +142,93 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option('--gene_families', '-gf', default=None,
               help='Gene families (paralogs or one-to-one orthologs). Every '
-                   'family should be provided as a tab separated line of gene IDs.')
+                   'family should be provided as a tab separated line of gene IDs. See also `wgd blast`.')
 @click.option('--sequences', '-s', default=None,
-              help='CDS sequences file in fasta format.')
+              help='CDS sequences file in fasta format. Multiple files should be specified separated by commas.')
 @click.option('--output_directory', '-o', default='ks.out',
-              help='Output directory (should not yet exist). (Default = ks.out)')
+              help='Output directory. (Default = ks.out)')
 @click.option('--protein_sequences', '-ps', default=None,
-              help="Protein sequences fasta file. Optional since by default the CDS file will be translated.")
-@click.option('--tmp_dir', '-tmp', default='./',
-              help="Path to store temporary files. (Default = ./)")
+              help="Protein sequences fasta file. Optional since by default the CDS file will be translated (universal"
+                   "genetic code, with no ambiguous nucleotides). Multiple files should be specified separated by "
+                   "commas.")
+@click.option('--tmp_dir', '-tmp', default=None,
+              help="Path to store temporary files. (Default = automatically generated unique id)")
 @click.option('--muscle', '-m', default='muscle',
               help="Absolute path to muscle executable, not necessary if in PATH environment variable.")
 @click.option('--codeml', '-c', default='codeml',
               help="Absolute path to codeml executable, not necessary if in PATH environment variable.")
 @click.option('--times', '-t', default=1,
               help="Number of times to perform ML estimation (for more stable estimates). (Default = 1)")
+@click.option('--min_msa_length', '-mml', default=100,
+              help="Minimum MSA length for Ks analysis. (Default = 100)")
 @click.option('--ignore_prefixes', is_flag=True,
               help="Ignore gene ID prefixes (defined by the '|' symbol) in the gene families file.")
 @click.option('--one_v_one', is_flag=True,
               help="One vs one ortholog distribution.")
 @click.option('--preserve', is_flag=True,
               help="Keep multiple sequence alignment and codeml output. ")
-@click.option('--no_prompt', is_flag=True,
-              help="Disable prompt for directory clearing.")
 @click.option('--async', is_flag=True, default=False,
               help="Use asyncio module for parallelization. (Default uses joblib)")
 @click.option('--n_cores','-n', default=4,
               help="Number of CPU cores to use.")
 def ks(gene_families, sequences, output_directory, protein_sequences,
-        tmp_dir, muscle, codeml, times, ignore_prefixes, one_v_one, preserve, no_prompt, async, n_cores):
+        tmp_dir, muscle, codeml, times, min_msa_length, ignore_prefixes, one_v_one, preserve, async, n_cores):
     """
     Construct a Ks distribution.
 
     Ks distribution construction for a set of paralogs or one-to-one orthologs.
     This implementation uses either the joblib or the asyncio library for parallellization.
     """
+    # input check
     if not (gene_families and sequences):
         logging.error('No gene families or no sequences provided.')
+        return 1
 
-    tmp_dir = os.path.join(tmp_dir, output_directory + '.tmp')
-    check_dirs(tmp_dir, output_directory, prompt=not no_prompt, preserve=preserve)
-    sequences = os.path.abspath(sequences)
+    if not tmp_dir:
+        tmp_dir = os.path.join('.', str(uuid.uuid4()))
+
     output_directory = os.path.abspath(output_directory)
     tmp_dir = os.path.abspath(tmp_dir)
     gene_families = os.path.abspath(gene_families)
 
-    logging.debug("Constructing KsDistribution object")
+    if os.path.exists(output_directory):
+        logging.warning(
+            'Output directory already exists, will possibly overwrite')
+    else:
+        os.mkdir(output_directory)
+
+    if os.path.exists(tmp_dir):
+        logging.warning(
+            'tmp directory already exists, be sure not to run two analyses simultaneously '
+            'in the same tmp directory as this will mess up the results!')
+    else:
+        os.mkdir(tmp_dir)
+
+    logging.debug('Reading CDS sequences')
+    seq_list = [os.path.abspath(x) for x in sequences.strip().split(',')]
+    cds_seqs = {}
+    for seq_file in seq_list:
+        cds_seqs.update(read_fasta(seq_file))
 
     # translate CDS file(s)
     if not protein_sequences:
         logging.info('Translating CDS file')
-        protein_seqs = translate_cds(read_fasta(sequences))
-        protein_sequences = os.path.join(sequences + '.tfa')
-        write_fasta(protein_seqs, protein_sequences)
+        protein_seqs = translate_cds(cds_seqs)
+
+    else:
+        logging.debug('Reading protein sequences')
+        seq_list = [os.path.abspath(x) for x in protein_sequences.strip().split(',')]
+        protein_seqs = {}
+        for seq_file in seq_list:
+            protein_seqs.update(read_fasta(seq_file))
 
     # one-vs-one ortholog input
     if one_v_one:
         os.chdir(tmp_dir)
         logging.info('Started one-vs-one ortholog Ks analysis')
-        results = ks_analysis_one_vs_one(sequences, protein_sequences, gene_families, tmp_dir, output_directory,
+        results = ks_analysis_one_vs_one(cds_seqs, protein_seqs, gene_families, tmp_dir, output_directory,
                                          muscle, codeml, async=async, n_cores=n_cores, preserve=preserve, check=False,
-                                         times=times)
+                                         times=times, min_length=min_msa_length)
         logging.info('Generating plots')
         plot_selection(results, output_file=os.path.join(output_directory, '{}.ks.png'.format(os.path.basename(
             gene_families))), title=os.path.basename(gene_families))
@@ -210,9 +237,10 @@ def ks(gene_families, sequences, output_directory, protein_sequences,
     else:
         os.chdir(tmp_dir)  # change directory to the tmp dir, as codeml writes non-unique file names to the working dir
         logging.info('Started whole paranome Ks analysis')
-        results = ks_analysis_paranome(sequences, protein_sequences, gene_families, tmp_dir, output_directory,
+        results = ks_analysis_paranome(cds_seqs, protein_seqs, gene_families, tmp_dir, output_directory,
                                        muscle, codeml, preserve=preserve, check=False, times=times,
-                                       ignore_prefixes=ignore_prefixes, async=async, n_cores=n_cores)
+                                       ignore_prefixes=ignore_prefixes, async=async, n_cores=n_cores,
+                                       min_length=min_msa_length)
         logging.info('Generating plots')
         plot_selection(results, output_file=os.path.join(output_directory, '{}.ks.png'.format(os.path.basename(
             gene_families))), title=os.path.basename(gene_families))
@@ -232,17 +260,17 @@ def ks(gene_families, sequences, output_directory, protein_sequences,
               help="Keyword for parsing the genes from the GFF file (column 3). (Default = 'mRNA').")
 @click.option('--id_string', '-id', default='ID',
               help="Keyword for parsing the gene IDs from the GFF file (column 9). (Default = 'ID').")
-def coll(gff_file, families, output_dir, ks_distribution, keyword, id_string):
+def syn(gff_file, families, output_dir, ks_distribution, keyword, id_string):
     """
-    Collinearity analyses.
+    Co-linearity analyses.
     Requires I-ADHoRe
     """
     if not gff_file:
-        logging.error('No gff file provided!')
+        logging.error('No gff file provided! Run `wgd syn --help` for usage instructions.')
         return 1
 
     if not families:
-        logging.error('No gene families provided!')
+        logging.error('No gene families provided! Run `wgd syn --help` for usage instructions.')
         return 1
 
     if os.path.exists(output_dir):
@@ -273,19 +301,12 @@ def coll(gff_file, families, output_dir, ks_distribution, keyword, id_string):
     logging.info("Running I-ADHoRe")
     run_adhore(os.path.join(output_dir, 'adhore.conf'))
 
-    # logging.info("Generating genome.json")
-    # genome.karyotype_json(out_file=os.path.join(output_dir, 'genome.json'))
-
-    # logging.info("Generating visualization")
-    # segments_to_chords_table(os.path.join(output_dir, 'i-adhore-out', 'segments.txt'),
-                             #genome, output_file=os.path.join(output_dir, 'chords.tsv'))
-    # visualize(output_dir)
-
     logging.info('Drawing co-linearity dotplot')
     syntenic_dotplot(pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t'),
                      output_file=os.path.join(output_dir, 'dotplot.png'))
     syntenic_dotplot_ks_colored(pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t'),
-                                output_file=os.path.join(output_dir, 'dotplot.ks.png'))
+                                pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'anchorpoints.txt'), sep='\t'),
+                                pd.read_csv(ks_distribution), output_file=os.path.join(output_dir, 'dotplot.ks.png'))
 
     if ks_distribution:
         logging.info("Constructing Ks distribution for anchors")
@@ -308,7 +329,7 @@ def coll(gff_file, families, output_dir, ks_distribution, keyword, id_string):
               help='Range of number of components to fit. Default = 1,4')
 @click.option('--ks_range', '-r', default='0.1,3',
               help='Ks range to use for modeling. Default = 0.1,3')
-@click.option('--output_dir', '-o', default='./mixtures_[TIMESTAMP]', help='Output directory')
+@click.option('--output_dir', '-o', default=None, help='Output directory')
 @click.option('--gamma', '-g', default=1,
               help='Gamma parameter (inverse of regularization strength) for bgmm models. Default = 1')
 @click.option('--sequences', '-s', default=None,
@@ -318,15 +339,19 @@ def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences
     """
     Mixture modeling of Ks distributions
     """
-    if output_dir == 'mixtures_[TIMESTAMP]':
-        output_dir = './mixture' + datetime.datetime.now().strftime("%d%m%y_%H%M%S")
+    if not ks_distribution:
+        logging.error('No Ks distribution provided! Run `wgd mix --help` for usage instructions.')
+        return 1
+
+    if not output_dir:
+        output_dir = './{0}_mixture_{1}'.format(method, datetime.datetime.now().strftime("%d%m%y_%H%M%S"))
         logging.info('Output will be in {}'.format(output_dir))
         os.mkdir(output_dir)
 
     logging.info("Reading Ks distribution")
-    df = pd.read_csv(ks_distribution, index_col=0)
-    ks_range = ks_range.split(',')
-    n_range = n_range.split(',')
+    df = pd.read_csv(ks_distribution, index_col=0, sep='\t')
+    ks_range = [float(x) for x in ks_range.strip().split(',')]
+    n_range = [int(x) for x in n_range.strip().split(',')]
 
     df = df[df['Ks'] < ks_range[1]]
     df = df[df['Ks'] > ks_range[0]]
@@ -334,15 +359,38 @@ def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences
     df = df.dropna()
 
     if method == 'bgmm' or method == 'both':
+        logging.info('Started Bayesian Gaussian Mixture modeling (BGMM)')
         models_bgmm = mixture_model_bgmm(df, n_range=n_range, plot_save=True, output_dir=output_dir,
-                                         output_file='bgmm.mixture.png', Ks_range=ks_range)
+                                         output_file='bgmm.mixture.png', Ks_range=ks_range, gamma=gamma)
 
     if method == 'gmm' or method == 'both':
-        models_gmm = mixture_model_gmm(df, Ks_range=ks_range, n=n_range[1], output_dir=output_dir,
-                                       output_file='gmm.mixture.png')
+        logging.info('Started Gaussian Mixture modeling (GMM)')
+        models_gmm, bic, aic, best = mixture_model_gmm(df, Ks_range=ks_range, n=n_range[1], output_dir=output_dir,
+                                                       output_file='gmm.mixture.png')
 
     # TODO Add both method with comparison plots (3 panels ~ cedalion)
     # TODO Get paralogs method (see lore notebook) and finetune plots
+
+
+@cli.command(context_settings={'help_option_names': ['-h', '--help']})
+def hist():
+    """ Method to generate overlays of an arbitrary number of distributions with different styles """
+    # TODO
+    pass
+
+
+@cli.command(context_settings={'help_option_names': ['-h', '--help']})
+def pipeline_1(sequences, gff_file, output_dir):
+    """ Standard workflow whole paranome Ks. """
+    # TODO
+    pass
+
+
+@cli.command(context_settings={'help_option_names': ['-h', '--help']})
+def pipeline_2(sequences, output_dir):
+    """ Standard workflow one-vs-one ortholog Ks."""
+    # TODO
+    pass
 
 
 if __name__ == '__main__':

@@ -80,7 +80,7 @@ def _strip_gaps(msa_dict):
     return msa_dict
 
 
-def multiple_sequence_aligment_nucleotide(msa_protein, nucleotide_sequences):
+def multiple_sequence_aligment_nucleotide(msa_protein, nucleotide_sequences, min_length=100):
     """
     Make a nucleotide multiple sequence alignment based on a protein alignment
 
@@ -98,7 +98,7 @@ def multiple_sequence_aligment_nucleotide(msa_protein, nucleotide_sequences):
     if nucleotide_msa is None:
         return None
 
-    elif len(list(nucleotide_msa.values())[0]) < 100:
+    elif len(list(nucleotide_msa.values())[0]) < min_length:
         return None
 
     msa_nuc = msa_protein + '.nuc'
