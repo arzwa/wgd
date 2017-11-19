@@ -215,10 +215,9 @@ p.admonition-title:after {
  
 pre {
     padding: 10px;
-    background-color: White;
+    background-color: #ecf0f3;
     color: #222;
     line-height: 1.2em;
-    border: 1px solid #C6C9CB;
     font-size: 1em;
     margin: 1.5em 0 1.5em 0;
     -webkit-box-shadow: 1px 1px 1px #d8d8d8;
