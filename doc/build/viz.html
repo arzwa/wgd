@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Visualization module &mdash; wgd 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="wgd 0.0.1 documentation" href="index.html" />
+    <link rel="prev" title="Various utilities" href="utils.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="utils.html" title="Various utilities"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-wgd.viz">
+<span id="visualization-module"></span><h1>Visualization module<a class="headerlink" href="#module-wgd.viz" title="Permalink to this headline">¶</a></h1>
+<p>Plotting utilities for wgd
+Arthur Zwaenepoel - 2017</p>
+<dl class="function">
+<dt id="wgd.viz.plot_selection">
+<code class="descclassname">wgd.viz.</code><code class="descname">plot_selection</code><span class="sig-paren">(</span><em>dists</em>, <em>output_file=None</em>, <em>alphas=None</em>, <em>ks_range=(0.1</em>, <em>5)</em>, <em>offset=5</em>, <em>title='Species genus'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.viz.plot_selection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a panel from the <cite>all.csv</cite> output from the Ks analysis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dists</strong> &#8211; distribution(s), if multiple provide as list</li>
+<li><strong>alphas</strong> &#8211; alpha values for the different distributions (will assign automatically if not provided)</li>
+<li><strong>ks_range</strong> &#8211; Ks range to include for plotting</li>
+<li><strong>offset</strong> &#8211; offset of axis</li>
+<li><strong>title</strong> &#8211; panel title</li>
+<li><strong>kwargs</strong> &#8211; keyword arguments for <code class="xref py py-func docutils literal"><span class="pre">matplotlib.pyplot.hist()</span></code></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><code class="xref py py-class docutils literal"><span class="pre">matplotlib.pyplot.Figure</span></code> object</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.viz.syntenic_dotplot">
+<code class="descclassname">wgd.viz.</code><code class="descname">syntenic_dotplot</code><span class="sig-paren">(</span><em>df</em>, <em>output_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.viz.syntenic_dotplot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Syntenic dotplot function</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>df</strong> &#8211; multiplicons pandas data frame</li>
+<li><strong>output_file</strong> &#8211; output file name</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.viz.syntenic_dotplot_ks_colored">
+<code class="descclassname">wgd.viz.</code><code class="descname">syntenic_dotplot_ks_colored</code><span class="sig-paren">(</span><em>df</em>, <em>an</em>, <em>ks</em>, <em>color_map='binary'</em>, <em>output_file=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.viz.syntenic_dotplot_ks_colored" title="Permalink to this definition">¶</a></dt>
+<dd><p>Syntenic dotplot with segment colored by mean Ks value</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>df</strong> &#8211; multiplicons pandas data frame</li>
+<li><strong>an</strong> &#8211; anchorpoints pandas data frame</li>
+<li><strong>ks</strong> &#8211; Ks distribution data frame</li>
+<li><strong>color_map</strong> &#8211; color map string</li>
+<li><strong>output_file</strong> &#8211; output file name</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">figure</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.viz.visualize_adhore_circos_js">
+<code class="descclassname">wgd.viz.</code><code class="descname">visualize_adhore_circos_js</code><span class="sig-paren">(</span><em>output_dir</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.viz.visualize_adhore_circos_js" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visualize intragenomic collinearity</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="utils.html"
+                        title="previous chapter">Various utilities</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/viz.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="utils.html" title="Various utilities"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2017, Arthur Zwaenepoel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
+    </div>
+  </body>
+</html>

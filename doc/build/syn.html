@@ -1,0 +1,255 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Co-linearity analyses module &mdash; wgd 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="wgd 0.0.1 documentation" href="index.html" />
+    <link rel="next" title="Various utilities" href="utils.html" />
+    <link rel="prev" title="Mixture modeling" href="mix.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="utils.html" title="Various utilities"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="mix.html" title="Mixture modeling"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-wgd.collinearity">
+<span id="co-linearity-analyses-module"></span><h1>Co-linearity analyses module<a class="headerlink" href="#module-wgd.collinearity" title="Permalink to this headline">¶</a></h1>
+<p>Arthur Zwaenepoel</p>
+<dl class="function">
+<dt id="wgd.collinearity.get_anchor_pairs">
+<code class="descclassname">wgd.collinearity.</code><code class="descname">get_anchor_pairs</code><span class="sig-paren">(</span><em>anchors_file</em>, <em>ks_file=None</em>, <em>out_file='anchors_ks.csv'</em>, <em>species='SOI'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.collinearity.get_anchor_pairs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get anchor pairs and their corresponding Ks values (if provided)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>anchors_file</strong> &#8211; anchorpoints.txt output from I-ADHoRe 3.0</li>
+<li><strong>ks_file</strong> &#8211; Ks calculations file from wgd toolkit (all.csv)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">pandas dataframe(s): anchors and data frame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.collinearity.run_adhore">
+<code class="descclassname">wgd.collinearity.</code><code class="descname">run_adhore</code><span class="sig-paren">(</span><em>config_file</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.collinearity.run_adhore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run I-ADHoRe for a given config file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config_file</strong> &#8211; path to I-ADHoRe configuration file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.collinearity.segments_to_chords_table">
+<code class="descclassname">wgd.collinearity.</code><code class="descname">segments_to_chords_table</code><span class="sig-paren">(</span><em>segments_file</em>, <em>genome</em>, <em>output_file='chords.tsv'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.collinearity.segments_to_chords_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create chords table for visualization in a chord diagram. Uses the segments.txt
+output of I-ADHoRe. Chords are defined by a source chromosome and a target 
+chromosome and begin and end coordinates for each chromosome respectively.</p>
+<p>TODO: the length of each syntenic block should be included in the table as well
+with length defined as number of genes, not physical length.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>segments_file</strong> &#8211; pat to the I-ADHoRe segments.txt output file</li>
+<li><strong>genome</strong> &#8211; a <code class="xref py py-func docutils literal"><span class="pre">gff_parser.Genome</span> <span class="pre">object()</span></code></li>
+<li><strong>output_file</strong> &#8211; output file name</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.collinearity.write_config_adhore">
+<code class="descclassname">wgd.collinearity.</code><code class="descname">write_config_adhore</code><span class="sig-paren">(</span><em>gene_lists</em>, <em>families</em>, <em>config_file_name='i-adhore.conf'</em>, <em>genome='genome'</em>, <em>output_path='i-adhore_out'</em>, <em>gap_size=30</em>, <em>cluster_gap=35</em>, <em>q_value=0.75</em>, <em>prob_cutoff=0.01</em>, <em>anchor_points=3</em>, <em>alignment_method='gg2'</em>, <em>level_2_only='false'</em>, <em>table_type='family'</em>, <em>multiple_hypothesis_correction='FDR'</em>, <em>visualize_ghm='false'</em>, <em>visualize_alignment='true'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.collinearity.write_config_adhore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write out the config file for I-ADHoRe. See I-ADHoRe manual for information on
+parameter settings.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>gene_lists</strong> &#8211; directory with gene lists per chromosome</li>
+<li><strong>families</strong> &#8211; file with gene to family mapping</li>
+<li><strong>config_file_name</strong> &#8211; </li>
+<li><strong>genome</strong> &#8211; </li>
+<li><strong>output_path</strong> &#8211; </li>
+<li><strong>gap_size</strong> &#8211; </li>
+<li><strong>cluster_gap</strong> &#8211; </li>
+<li><strong>q_value</strong> &#8211; </li>
+<li><strong>prob_cutoff</strong> &#8211; </li>
+<li><strong>anchor_points</strong> &#8211; </li>
+<li><strong>alignment_method</strong> &#8211; </li>
+<li><strong>level_2_only</strong> &#8211; </li>
+<li><strong>table_type</strong> &#8211; </li>
+<li><strong>multiple_hypothesis_correction</strong> &#8211; </li>
+<li><strong>visualizeGHM</strong> &#8211; </li>
+<li><strong>visualizeAlignment</strong> &#8211; </li>
+<li><strong>kwargs</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">configuration file</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.collinearity.write_families_file">
+<code class="descclassname">wgd.collinearity.</code><code class="descname">write_families_file</code><span class="sig-paren">(</span><em>families</em>, <em>all_genes</em>, <em>output_file='families.tsv'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.collinearity.write_families_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write out families file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>families</strong> &#8211; </li>
+<li><strong>all_genes</strong> &#8211; </li>
+<li><strong>output_file</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.collinearity.write_gene_lists">
+<code class="descclassname">wgd.collinearity.</code><code class="descname">write_gene_lists</code><span class="sig-paren">(</span><em>genome</em>, <em>output_dir='gene_lists'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.collinearity.write_gene_lists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write out the gene lists</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>genome</strong> &#8211; Genome object</li>
+<li><strong>output_dir</strong> &#8211; output directory</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="mix.html"
+                        title="previous chapter">Mixture modeling</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="utils.html"
+                        title="next chapter">Various utilities</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/syn.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="utils.html" title="Various utilities"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="mix.html" title="Mixture modeling"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2017, Arthur Zwaenepoel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
+    </div>
+  </body>
+</html>

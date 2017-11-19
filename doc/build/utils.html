@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Various utilities &mdash; wgd 0.0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="wgd 0.0.1 documentation" href="index.html" />
+    <link rel="next" title="Visualization module" href="viz.html" />
+    <link rel="prev" title="Co-linearity analyses module" href="syn.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="viz.html" title="Visualization module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="syn.html" title="Co-linearity analyses module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="various-utilities">
+<h1>Various utilities<a class="headerlink" href="#various-utilities" title="Permalink to this headline">¶</a></h1>
+<p>Probably not of specific interest.</p>
+<span class="target" id="module-wgd.utils"></span><p>Arthur Zwaenepoel</p>
+<dl class="function">
+<dt id="wgd.utils.check_dirs">
+<code class="descclassname">wgd.utils.</code><code class="descname">check_dirs</code><span class="sig-paren">(</span><em>tmp_dir</em>, <em>output_dir</em>, <em>prompt</em>, <em>preserve</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.check_dirs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check directories needed
+:param tmp_dir: tmp directory
+:param output_dir: output directory
+:param prompt: prompt for overwrites (boolean)?
+:param preserve: preserve MSA files (boolean)?
+:return: nothing</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.utils.filter_one_vs_one_families">
+<code class="descclassname">wgd.utils.</code><code class="descname">filter_one_vs_one_families</code><span class="sig-paren">(</span><em>gene_families</em>, <em>s1</em>, <em>s2</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.filter_one_vs_one_families" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter one-vs-one ortholog containing families for two given species.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>gene_families</strong> &#8211; </li>
+<li><strong>s1</strong> &#8211; </li>
+<li><strong>s2</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.utils.get_gfs_for_species">
+<code class="descclassname">wgd.utils.</code><code class="descname">get_gfs_for_species</code><span class="sig-paren">(</span><em>gene_family_dict</em>, <em>gene_pattern</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.get_gfs_for_species" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get non-singleton gene families for a species of interest
+:param gene_family_dict: gene family dictionary
+:param species: species of interest
+:return: dictionairy with gene families</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.utils.get_number_of_sp">
+<code class="descclassname">wgd.utils.</code><code class="descname">get_number_of_sp</code><span class="sig-paren">(</span><em>genes</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.get_number_of_sp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the number of unique species in a list of gene IDs.
+Will be approximate since it is based on the assumption that
+the leading non-digit part identifies the species
+(which is not always the case e.g. mitochondrial genes etc.)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.utils.get_one_v_one_orthologs_rbh">
+<code class="descclassname">wgd.utils.</code><code class="descname">get_one_v_one_orthologs_rbh</code><span class="sig-paren">(</span><em>blast_file</em>, <em>output_dir</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.get_one_v_one_orthologs_rbh" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get one-vs-one orthologs (using RBHs)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.utils.get_sequences">
+<code class="descclassname">wgd.utils.</code><code class="descname">get_sequences</code><span class="sig-paren">(</span><em>paralog_dict</em>, <em>sequences</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.get_sequences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch sequences from a fasta file or sequence dict and put them in a two level dictionairy
+{gene_family: {gene: seq, gene: seq, ...}, ...}
+:param paralog_dict:
+:return: two-level dictionairy</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.utils.process_gene_families">
+<code class="descclassname">wgd.utils.</code><code class="descname">process_gene_families</code><span class="sig-paren">(</span><em>gene_family_file</em>, <em>ignore_prefix=False</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.process_gene_families" title="Permalink to this definition">¶</a></dt>
+<dd><p>Processes a raw gene family file as e.g. from OrthoMCL into a generic dictionary structure
+OrthoMCL raw file consists of one gene family per line, including tab separated gene IDs,
+without gene family ID.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.utils.read_fasta">
+<code class="descclassname">wgd.utils.</code><code class="descname">read_fasta</code><span class="sig-paren">(</span><em>fasta_file</em>, <em>prefix=None</em>, <em>split_on_pipe=True</em>, <em>split_on_whitespace=True</em>, <em>raw=False</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.read_fasta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generic fastafile reader
+Returns a dictionairy {ID: sequence, ID: sequence, ...}.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.utils.translate_cds">
+<code class="descclassname">wgd.utils.</code><code class="descname">translate_cds</code><span class="sig-paren">(</span><em>sequence_dict</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.translate_cds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Just another CDS to protein translater</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sequence_dict</strong> &#8211; dictionary with gene IDs and CDS sequences</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">dictionary with gene IDs and proteins sequences</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.utils.write_fasta">
+<code class="descclassname">wgd.utils.</code><code class="descname">write_fasta</code><span class="sig-paren">(</span><em>seq_dict</em>, <em>output_file</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.write_fasta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a sequence dictionary to a fasta file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>seq_dict</strong> &#8211; </li>
+<li><strong>output_file</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="syn.html"
+                        title="previous chapter">Co-linearity analyses module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="viz.html"
+                        title="next chapter">Visualization module</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/utils.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="viz.html" title="Visualization module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="syn.html" title="Co-linearity analyses module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2017, Arthur Zwaenepoel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
+    </div>
+  </body>
+</html>

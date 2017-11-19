@@ -16,10 +16,9 @@ import uuid
 from wgd.modeling import mixture_model_bgmm, mixture_model_gmm
 from wgd.ks_distribution import ks_analysis_paranome, ks_analysis_one_vs_one
 from wgd.blast_mcl import all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2
-from wgd.utils import translate_cds, read_fasta, write_fasta, get_one_v_one_orthologs_rbh
+from wgd.utils import translate_cds, read_fasta, write_fasta, get_one_v_one_orthologs_rbh, Genome
 from wgd.collinearity import write_families_file, write_gene_lists, write_config_adhore, run_adhore
 from wgd.collinearity import get_anchor_pairs
-from wgd.gff_parser import Genome
 from wgd.viz import plot_selection, syntenic_dotplot, syntenic_dotplot_ks_colored
 
 
