@@ -6,24 +6,18 @@ Arthur Zwaenepoel
 # TODO: this can than also include a mixture model + peak based paralog extraction tool?
 
 import click
-import coloredlogs
 import logging
 import sys
 import os
 import datetime
 import pandas as pd
 import uuid
-from wgd.modeling import mixture_model_bgmm, mixture_model_gmm
-from wgd.ks_distribution import ks_analysis_paranome, ks_analysis_one_vs_one
-from wgd.blast_mcl import all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2
+import coloredlogs
 from wgd.utils import translate_cds, read_fasta, write_fasta, get_one_v_one_orthologs_rbh, Genome
-from wgd.collinearity import write_families_file, write_gene_lists, write_config_adhore, run_adhore
-from wgd.collinearity import get_anchor_pairs
-from wgd.viz import plot_selection, syntenic_dotplot, syntenic_dotplot_ks_colored
 
 
 # CLI ENTRYPOINT -------------------------------------------------------------------------------------------------------
-@click.group()
+@click.group(context_settings={'help_option_names': ['-h', '--help']})
 @click.option('--verbose', type=click.Choice(['silent', 'info', 'debug']),
               default='info', help="Verbosity level, default = info.")
 def cli(verbose):
@@ -71,7 +65,18 @@ def cli(verbose):
 def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_factor, eval_cutoff, output_dir):
     """
     Perform all-vs.-all Blastp (+ MCL) analysis.
+
+    Example 1 - whole paranome delineation:
+
+        wgd blast --cds --mcl -s thorny_devil.fasta -o thorny_devil_blast_out
+
+    Example 2 - one vs. one ortholog delineation:
+
+        wgd blast --cds --one_v_one -s equus_ferus.fasta,ursus_arctos.fasta -id horse,bear -e 1e-8 -o bear_horse_out
     """
+    # lazy imports
+    from wgd.blast_mcl import all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2
+
     if not sequences and not blast_results:
         logging.error('No sequences nor blast results provided! Please use the --help flag for usage instructions.')
         return
@@ -177,7 +182,19 @@ def ks(gene_families, sequences, output_directory, protein_sequences,
 
     Ks distribution construction for a set of paralogs or one-to-one orthologs.
     This implementation uses either the joblib or the asyncio library for parallellization.
+
+    Example 1 - whole paranome Ks distribution:
+
+        wgd ks -gf fringilla_coelebs.mcl -s fringilla_coelebs.cds.fasta -o finch_ks_out --n_cores 8
+
+    Example 2 - one vs. one ortholog Ks distribution:
+
+        wgd ks -gf beaver_eagle -s castor_fiber.cds.fasta,aquila_chrysaetos.cds.fasta -o beaver_eagle_ks_out
     """
+    # lazy imports
+    from wgd.ks_distribution import ks_analysis_paranome, ks_analysis_one_vs_one
+    from wgd.viz import plot_selection, syntenic_dotplot, syntenic_dotplot_ks_colored
+
     # input check
     if not (gene_families and sequences):
         logging.error('No gene families or no sequences provided.')
@@ -264,6 +281,12 @@ def syn(gff_file, families, output_dir, ks_distribution, keyword, id_string):
     Co-linearity analyses.
     Requires I-ADHoRe
     """
+    # lazy imports
+    from wgd.collinearity import write_families_file, write_gene_lists, write_config_adhore, run_adhore
+    from wgd.collinearity import get_anchor_pairs
+    from wgd.viz import plot_selection, syntenic_dotplot, syntenic_dotplot_ks_colored
+
+    # input check
     if not gff_file:
         logging.error('No gff file provided! Run `wgd syn --help` for usage instructions.')
         return 1
@@ -339,6 +362,9 @@ def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences
     """
     Mixture modeling of Ks distributions
     """
+    # lazy imports
+    from wgd.modeling import mixture_model_bgmm, mixture_model_gmm
+
     if not ks_distribution:
         logging.error('No Ks distribution provided! Run `wgd mix --help` for usage instructions.')
         return 1
@@ -381,7 +407,7 @@ def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences
               help="Comma-separated colors, optional.")
 @click.option('--labels', '-l', default=None,
               help="Comma-separated labels (for legend), optional.")
-@click.option('--hist_type', '-h', default='barstacked', type=click.Choice(['barstacked', 'step', 'stepfilled']),
+@click.option('--hist_type', '-ht', default='barstacked', type=click.Choice(['barstacked', 'step', 'stepfilled']),
               help="Histogram type.")
 @click.option('--title', '-t', default='WGD histogram',
               help="Plot title.")
