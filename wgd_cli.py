@@ -310,7 +310,7 @@ def syn(gff_file, families, output_dir, ks_distribution, keyword, id_string):
     if ks_distribution:
         logging.info("Constructing Ks distribution for anchors")
         ks, anchors = get_anchor_pairs(os.path.join(output_dir, 'i-adhore-out', 'anchorpoints.txt'), ks_distribution,
-                                   out_file=os.path.join(output_dir, 'ks_anchors.csv'))
+                                       out_file=os.path.join(output_dir, 'ks_anchors.csv'))
 
         logging.info("Generating histogram")
         plot_selection([ks, anchors], alphas=[0.2,0.7], output_file=os.path.join(output_dir, '{}.ks.png'.format(
@@ -372,9 +372,34 @@ def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences
 
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
-def hist():
-    """ Method to generate overlays of an arbitrary number of distributions with different styles """
-    # TODO
+@click.option('--ks_distributions', '-ks', default=None,
+              help="Comma-separated Ks distribution csv files, as generated with `wgd ks`.")
+@click.option('--alpha_values', '-a', default=None,
+              help="Comma-separated alpha values, optional.")
+@click.option('--colors', '-c', default=None,
+              help="Comma-separated colors, optional.")
+@click.option('--labels', '-l', default=None,
+              help="Comma-separated labels (for legend), optional.")
+@click.option('--hist_type', '-h', default='barstacked', type=click.Choice(['barstacked', 'step', 'stepfilled']),
+              help="Histogram type.")
+@click.option('--title', '-t', default='WGD histogram',
+              help="Plot title.")
+@click.option('--output_file', '-o', default='wgd_hist.png',
+              help="Output file, default='wgd_hist.png'.")
+def hist(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file):
+    """ Plot (stacked) histograms """
+    dists = [pd.read_csv(x, sep='\t') for x in ks_distributions.split(',')]
+    if alpha_values:
+        alpha_values = [float(x) for x in alpha_values.split(',')]
+    if colors:
+        colors = [x for x in colors.split(',')]
+    if not labels:
+        labels = [x for x in ks_distributions.split(',')]
+    else:
+        labels = labels.split(',')
+
+    plot_selection(dists, alphas=alpha_values, colors=colors, labels=labels, output_file=output_file,
+                   title=title, histtype=hist_type)
     pass
 
 

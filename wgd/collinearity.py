@@ -149,7 +149,7 @@ def get_anchor_pairs(anchors_file, ks_file=None, out_file='anchors_ks.csv', spec
         else:
             logging.info('Ks values file found.')
 
-        ks = pd.read_csv(ks_file, index_col=0)
+        ks = pd.read_csv(ks_file, index_col=0, sep='\t')
 
         # reindex by pair ID
         # TODO: the pair ID  (GENE1-GENE2) should be already assigned in the main Ks program
@@ -161,13 +161,13 @@ def get_anchor_pairs(anchors_file, ks_file=None, out_file='anchors_ks.csv', spec
         ks_anchors = ks.ix[anchors['pair_id']]
 
         if out_file:
-            ks_anchors.to_csv(out_file)
+            ks_anchors.to_csv(out_file, sep='\t')
 
         return ks, ks_anchors
 
     else:
         if out_file:
-            anchors.to_csv(out_file)
+            anchors.to_csv(out_file, sep='\t')
 
         return anchors
 

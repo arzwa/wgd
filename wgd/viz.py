@@ -8,7 +8,8 @@ import seaborn as sns
 import os
 
 
-def plot_selection(dists, output_file=None, alphas=None, ks_range=(0.1, 5), offset=5, title='Species genus', **kwargs):
+def plot_selection(dists, output_file=None, alphas=None, colors=None, labels=None, ks_range=(0.1, 5), offset=5,
+                   title='Species genus', **kwargs):
     """
     Plot a panel from the `all.csv` output from the Ks analysis.
 
@@ -29,6 +30,12 @@ def plot_selection(dists, output_file=None, alphas=None, ks_range=(0.1, 5), offs
     if not alphas or not alphas[0]:
         alphas = list(np.linspace(0.2, 1, len(dists)))
 
+    if not colors or not colors[0]:
+        colors = ['black']*len(dists)
+
+    if not labels or not labels[0]:
+        labels = [None] * len(dists)
+
     for i in range(len(dists)):
         dists[i] = dists[i][dists[i]['Ks'] > ks_range[0]]
         dists[i] = dists[i][dists[i]['Ks'] < ks_range[1]]
@@ -38,8 +45,8 @@ def plot_selection(dists, output_file=None, alphas=None, ks_range=(0.1, 5), offs
     # get the bin edges
     bins = np.histogram(np.hstack(tuple([dist['Ks'] for dist in dists])), bins=40)[1]
     for i in range(len(dists)):
-        ax.hist(dists[i]['Ks'], bins, alpha=alphas[i], color='black', rwidth=0.8,
-                weights=dists[i]['WeightOutliersIncluded'], **kwargs)
+        ax.hist(dists[i]['Ks'], bins, alpha=alphas[i], color=colors[i], rwidth=0.8,
+                weights=dists[i]['WeightOutliersIncluded'], label=labels[i], **kwargs)
     sns.despine(offset=offset, trim=True)
     ax.set_xlabel('$K_S$')
 
@@ -48,8 +55,8 @@ def plot_selection(dists, output_file=None, alphas=None, ks_range=(0.1, 5), offs
     # get the bin edges
     bins = np.histogram(np.hstack(tuple([np.log10(dist['Ks']) for dist in dists])), bins=40)[1]
     for i in range(len(dists)):
-        ax.hist(np.log10(dists[i]['Ks']), bins, alpha=alphas[i], color='black', rwidth=0.8,
-                weights=dists[i]['WeightOutliersIncluded'], **kwargs)
+        ax.hist(np.log10(dists[i]['Ks']), bins, alpha=alphas[i], color=colors[i], rwidth=0.8,
+                weights=dists[i]['WeightOutliersIncluded'], label=labels[i], **kwargs)
     sns.despine(offset=offset, trim=True)
     ax.set_xlabel('$log_{10}(K_s)$')
 
@@ -58,8 +65,8 @@ def plot_selection(dists, output_file=None, alphas=None, ks_range=(0.1, 5), offs
     # get the bin edges
     bins = np.histogram(np.hstack(tuple([np.log10(dist['Ka']) for dist in dists])), bins=40)[1]
     for i in range(len(dists)):
-        ax.hist(np.log10(dists[i]['Ka']), bins, alpha=alphas[i], color='black', rwidth=0.8,
-                weights=dists[i]['WeightOutliersIncluded'], **kwargs)
+        ax.hist(np.log10(dists[i]['Ka']), bins, alpha=alphas[i], color=colors[i], rwidth=0.8,
+                weights=dists[i]['WeightOutliersIncluded'], label=labels[i],**kwargs)
     sns.despine(offset=offset, trim=True)
     ax.set_xlabel('$log_{10}(K_A)$')
 
@@ -68,10 +75,14 @@ def plot_selection(dists, output_file=None, alphas=None, ks_range=(0.1, 5), offs
     # get the bin edges
     bins = np.histogram(np.hstack(tuple([np.log10(dist['Omega']) for dist in dists])), bins=40)[1]
     for i in range(len(dists)):
-        ax.hist(np.log10(dists[i]['Omega']), bins, alpha=alphas[i], color='black', rwidth=0.8,
-                weights=dists[i]['WeightOutliersIncluded'], **kwargs)
+        ax.hist(np.log10(dists[i]['Omega']), bins, alpha=alphas[i], color=colors[i], rwidth=0.8,
+                weights=dists[i]['WeightOutliersIncluded'], label=labels[i],**kwargs)
     sns.despine(offset=offset, trim=True)
     ax.set_xlabel('$log_{10}(\omega)$')
+
+    if labels[0]:
+        plt.legend()
+
     fig.suptitle(title)
 
     if output_file:
