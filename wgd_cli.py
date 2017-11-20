@@ -311,7 +311,7 @@ def syn(gff_file, families, output_dir, ks_distribution, keyword, id_string):
 
         syntenic_dotplot_ks_colored(pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t'),
                                     pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'anchorpoints.txt'), sep='\t'),
-                                    ks, output_file=os.path.join(output_dir, 'dotplot.ks.png'))
+                                    anchors, output_file=os.path.join(output_dir, 'dotplot.ks.png'))
 
         logging.info("Generating histogram")
         plot_selection([ks, anchors], alphas=[0.2,0.7], output_file=os.path.join(output_dir, '{}.ks.png'.format(

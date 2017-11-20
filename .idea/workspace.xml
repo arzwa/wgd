@@ -17,8 +17,8 @@
       <file leaf-file-name="wgd_cli.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wgd_cli.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="732">
-              <caret line="313" column="40" lean-forward="false" selection-start-line="313" selection-start-column="40" selection-end-line="313" selection-end-column="40" />
+            <state relative-caret-position="690">
+              <caret line="310" column="0" lean-forward="true" selection-start-line="310" selection-start-column="0" selection-end-line="310" selection-end-column="0" />
               <folding>
                 <element signature="e#206#218#0" expanded="true" />
               </folding>
@@ -52,8 +52,8 @@
       <file leaf-file-name="collinearity.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/collinearity.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="504">
-              <caret line="162" column="14" lean-forward="false" selection-start-line="162" selection-start-column="14" selection-end-line="162" selection-end-column="14" />
+            <state relative-caret-position="200">
+              <caret line="137" column="83" lean-forward="true" selection-start-line="137" selection-start-column="83" selection-end-line="137" selection-end-column="83" />
               <folding>
                 <element signature="e#400#962#0" expanded="false" />
                 <element signature="e#1043#1906#0" expanded="false" />
@@ -67,8 +67,8 @@
       <file leaf-file-name="viz.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/viz.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="562">
-              <caret line="162" column="46" lean-forward="true" selection-start-line="162" selection-start-column="46" selection-end-line="162" selection-end-column="46" />
+            <state relative-caret-position="478">
+              <caret line="162" column="46" lean-forward="false" selection-start-line="162" selection-start-column="46" selection-end-line="162" selection-end-column="46" />
               <folding>
                 <element signature="e#60#91#0" expanded="true" />
                 <element signature="e#7508#7747#0" expanded="false" />
@@ -580,6 +580,14 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/wgd/blast_mcl.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="872">
+          <caret line="145" column="54" lean-forward="false" selection-start-line="145" selection-start-column="54" selection-end-line="145" selection-end-column="54" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/wgd/modeling.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="872">
@@ -594,8 +602,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/wgd/viz.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="562">
-          <caret line="162" column="46" lean-forward="true" selection-start-line="162" selection-start-column="46" selection-end-line="162" selection-end-column="46" />
+        <state relative-caret-position="478">
+          <caret line="162" column="46" lean-forward="false" selection-start-line="162" selection-start-column="46" selection-end-line="162" selection-end-column="46" />
           <folding>
             <element signature="e#60#91#0" expanded="true" />
             <element signature="e#7508#7747#0" expanded="false" />
@@ -607,8 +615,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/wgd/collinearity.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="504">
-          <caret line="162" column="14" lean-forward="false" selection-start-line="162" selection-start-column="14" selection-end-line="162" selection-end-column="14" />
+        <state relative-caret-position="200">
+          <caret line="137" column="83" lean-forward="true" selection-start-line="137" selection-start-column="83" selection-end-line="137" selection-end-column="83" />
           <folding>
             <element signature="e#400#962#0" expanded="false" />
             <element signature="e#1043#1906#0" expanded="false" />
@@ -618,18 +626,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wgd/blast_mcl.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="872">
-          <caret line="145" column="54" lean-forward="false" selection-start-line="145" selection-start-column="54" selection-end-line="145" selection-end-column="54" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wgd_cli.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="732">
-          <caret line="313" column="40" lean-forward="false" selection-start-line="313" selection-start-column="40" selection-end-line="313" selection-end-column="40" />
+        <state relative-caret-position="690">
+          <caret line="310" column="0" lean-forward="true" selection-start-line="310" selection-start-column="0" selection-end-line="310" selection-end-column="0" />
           <folding>
             <element signature="e#206#218#0" expanded="true" />
           </folding>
