@@ -288,18 +288,16 @@ def ks_analysis_one_vs_one(nucleotide_sequences, protein_sequences, gene_familie
             counts += 1
             df = pd.read_csv(os.path.join(tmp_dir, f), index_col=0)
             results_frame = pd.concat([results_frame, df])
-    counts = counts
     results_frame.index = list(range(len(results_frame.index)))
 
     logging.info('Removing tmp directory')
     os.system('rm -r {}'.format(tmp_dir))
-    results_frame.round(5).to_csv(os.path.join(output_dir, 'ortholog_ks_full.tsv'), sep='\t')
 
     return results_frame
 
 
 def ks_analysis_paranome(nucleotide_sequences, protein_sequences, paralogs, tmp_dir='./tmp', output_dir='./ks.out',
-                         muscle_path='muscle', codeml_path='codeml', check=True, preserve=True, times=1,
+                         muscle_path='muscle', codeml_path='codeml', preserve=True, times=1,
                          ignore_prefixes=False, n_cores=4, async=False, min_length=100):
     """
     Calculate a Ks distribution for a whole paranome. Asyncio version
@@ -311,7 +309,6 @@ def ks_analysis_paranome(nucleotide_sequences, protein_sequences, paralogs, tmp_
     :param output_dir: output directory
     :param muscle_path: path to muscle executable
     :param codeml_path: path to codeml executable
-    :param check: check directories before proceeding (safer)
     :param preserve: preserve intermediate results (muscle, codeml)
     :param times: number of times to perform codeml analysis
     :param ignore_prefixes: ignore prefixes in paralog/gene family file (e.g. in ath|AT1G45000, ath| will be ignored)
@@ -321,11 +318,6 @@ def ks_analysis_paranome(nucleotide_sequences, protein_sequences, paralogs, tmp_
     # ignore prefixes in gene families, since only one species
     paralogs = process_gene_families(paralogs, ignore_prefix=ignore_prefixes)
     protein = get_sequences(paralogs, protein_sequences)
-    
-    # check directories
-    if check:
-        logging.debug('Checking directories (tmp, output)')
-        check_dirs(tmp_dir, output_dir, prompt=True, preserve=preserve)
 
     # start analysis
     logging.info('Started analysis in parallel (n_cores = {})'.format(n_cores))
@@ -372,6 +364,5 @@ def ks_analysis_paranome(nucleotide_sequences, protein_sequences, paralogs, tmp_
 
     logging.info('Removing tmp directory')
     os.system('rm -r {}'.format(tmp_dir))
-    results_frame.round(5).to_csv(os.path.join(output_dir, 'paranome_ks_full.tsv'), sep='\t')
 
     return results_frame

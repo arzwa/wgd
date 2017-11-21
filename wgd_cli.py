@@ -245,6 +245,8 @@ def ks(gene_families, sequences, output_directory, protein_sequences,
         results = ks_analysis_one_vs_one(cds_seqs, protein_seqs, gene_families, tmp_dir, output_directory,
                                          muscle, codeml, async=async, n_cores=n_cores, preserve=preserve, check=False,
                                          times=times, min_length=min_msa_length)
+        results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(gene_families)), sep='\t')
+
         logging.info('Generating plots')
         plot_selection(results, output_file=os.path.join(output_directory, '{}.ks.png'.format(os.path.basename(
             gene_families))), title=os.path.basename(gene_families))
@@ -257,6 +259,8 @@ def ks(gene_families, sequences, output_directory, protein_sequences,
                                        muscle, codeml, preserve=preserve, check=False, times=times,
                                        ignore_prefixes=ignore_prefixes, async=async, n_cores=n_cores,
                                        min_length=min_msa_length)
+        results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(gene_families)), sep='\t')
+
         logging.info('Generating plots')
         plot_selection(results, output_file=os.path.join(output_directory, '{}.ks.png'.format(os.path.basename(
             gene_families))), title=os.path.basename(gene_families))
@@ -324,17 +328,22 @@ def syn(gff_file, families, output_dir, ks_distribution, keyword, id_string):
     run_adhore(os.path.join(output_dir, 'adhore.conf'))
 
     logging.info('Drawing co-linearity dotplot')
-    syntenic_dotplot(pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t'),
-                     output_file=os.path.join(output_dir, 'dotplot.png'))
+    syntenic_dotplot(
+        pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t'),
+        output_file=os.path.join(output_dir, '{}.dotplot.png'.format(os.path.basename(families))))
 
     if ks_distribution:
         logging.info("Constructing Ks distribution for anchors")
-        ks, anchors = get_anchor_pairs(os.path.join(output_dir, 'i-adhore-out', 'anchorpoints.txt'), ks_distribution,
-                                       out_file=os.path.join(output_dir, 'ks_anchors.csv'))
+        ks, anchors = get_anchor_pairs(
+            os.path.join(output_dir, 'i-adhore-out', 'anchorpoints.txt'), ks_distribution,
+            out_file=os.path.join(output_dir, '{}.ks_anchors.tsv'.format(os.path.basename(families)))
+        )
 
-        syntenic_dotplot_ks_colored(pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t'),
-                                    pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'anchorpoints.txt'), sep='\t'),
-                                    anchors, output_file=os.path.join(output_dir, 'dotplot.ks.png'))
+        syntenic_dotplot_ks_colored(
+            pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t'),
+            pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'anchorpoints.txt'), sep='\t'),
+            anchors, output_file=os.path.join(output_dir, '{}.dotplot.ks.png'.format(os.path.basename(families)))
+        )
 
         logging.info("Generating histogram")
         plot_selection([ks, anchors], alphas=[0.2,0.7], output_file=os.path.join(output_dir, '{}.ks.png'.format(
