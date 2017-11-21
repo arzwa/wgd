@@ -143,7 +143,7 @@ def syntenic_dotplot(df, output_file=None):
         return fig
 
 
-def syntenic_dotplot_ks_colored(df, an, ks, color_map='binary', output_file=None):
+def syntenic_dotplot_ks_colored(df, an, ks, color_map='magma', output_file=None):
     """
     Syntenic dotplot with segment colored by mean Ks value
 

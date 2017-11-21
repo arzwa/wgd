@@ -135,7 +135,7 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
     if mcl:
         logging.info('Performing MCL clustering (inflation factor = {0})'.format(inflation_factor))
         ava_graph = ava_blast_to_abc_2(blast_results)
-        mcl_out = run_mcl_ava_2(ava_graph, output_dir=output_dir, output_file='out.mcl',
+        mcl_out = run_mcl_ava_2(ava_graph, output_dir=output_dir, output_file='{}.paranome.mcl'.format(sequences),
                                 inflation=inflation_factor)
 
     logging.info('Done')
