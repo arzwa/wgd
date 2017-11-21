@@ -103,16 +103,21 @@ def syntenic_dotplot(df, output_file=None):
     :param output_file: output file name
     :return: figure
     """
-    genomic_elements = {x: 0 for x in list(set(df['list_x']) | set(df['list_y'])) if type(x) == str}
+    genomic_elements_ = {x: 0 for x in list(set(df['list_x']) | set(df['list_y'])) if type(x) == str}
 
     fig = plt.figure(figsize=(15,15))
     ax = fig.add_subplot(111)
 
-    previous = 0
-    for key in sorted(genomic_elements.keys()):
+    for key in sorted(genomic_elements_.keys()):
         length = max(list(df[df['list_x'] == key]['end_x']) + list(df[df['list_y'] == key]['end_y']))
-        genomic_elements[key] = previous
-        previous += length
+        genomic_elements_[key] = length
+
+    previous = 0
+    genomic_elements = {}
+    sorted_ge = sorted(genomic_elements_.items(), key=lambda x: x[1], reverse=True)
+    for kv in sorted_ge:
+        genomic_elements[kv[0]] = previous
+        previous += kv[1]
 
     x = [genomic_elements[key] for key in sorted(genomic_elements.keys())] + [previous]
     ax.vlines(ymin=0, ymax=previous, x=x, linestyles='dotted', alpha=0.2)
@@ -143,7 +148,7 @@ def syntenic_dotplot(df, output_file=None):
         return fig
 
 
-def syntenic_dotplot_ks_colored(df, an, ks, color_map='magma', output_file=None):
+def syntenic_dotplot_ks_colored(df, an, ks, color_map='Spectral', output_file=None):
     """
     Syntenic dotplot with segment colored by mean Ks value
 
@@ -158,7 +163,7 @@ def syntenic_dotplot_ks_colored(df, an, ks, color_map='magma', output_file=None)
 
     an['pair'] = an['gene_x'].astype(str) + '-' + an['gene_y']
     an['pair'] = an['pair'].map(lambda x: '-'.join(sorted(x.split('-'))))
-    genomic_elements = {x: 0 for x in list(set(df['list_x']) | set(df['list_y'])) if type(x) == str}
+    genomic_elements_ = {x: 0 for x in list(set(df['list_x']) | set(df['list_y'])) if type(x) == str}
     ks_multiplicons = {}
     all_ks = []
     for i in range(len(df)):
@@ -173,14 +178,19 @@ def syntenic_dotplot_ks_colored(df, an, ks, color_map='magma', output_file=None)
     tmp = plt.contourf(z, levels, cmap=cmap)
     plt.clf()
 
-    fig = plt.figure(figsize=(15, 15))
+    fig = plt.figure(figsize=(15,15))
     ax = fig.add_subplot(111)
 
-    previous = 0
-    for key in sorted(genomic_elements.keys()):
+    for key in sorted(genomic_elements_.keys()):
         length = max(list(df[df['list_x'] == key]['end_x']) + list(df[df['list_y'] == key]['end_y']))
-        genomic_elements[key] = previous
-        previous += length
+        genomic_elements_[key] = length
+
+    previous = 0
+    genomic_elements = {}
+    sorted_ge = sorted(genomic_elements_.items(), key=lambda x: x[1], reverse=True)
+    for kv in sorted_ge:
+        genomic_elements[kv[0]] = previous
+        previous += kv[1]
 
     x = [genomic_elements[key] for key in sorted(genomic_elements.keys())] + [previous]
     ax.vlines(ymin=0, ymax=previous, x=x, linestyles='dotted', alpha=0.2)
