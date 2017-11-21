@@ -327,6 +327,8 @@ class Genome:
 
         with open(gff_file, 'r') as f:
             for line in f:
+                if line.startswith('#'):
+                    continue
                 line = line.strip().split('\t')
 
                 if line[2] == keyword:
