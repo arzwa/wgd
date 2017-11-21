@@ -2,6 +2,10 @@
 Plotting utilities for wgd
 Arthur Zwaenepoel - 2017
 """
+import plumbum as pb
+import matplotlib
+if not 'DISPLAY' in pb.local.env:
+    matplotlib.use('Agg')  # use this backend when no X server
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns

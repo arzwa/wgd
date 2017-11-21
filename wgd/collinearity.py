@@ -8,7 +8,6 @@ import os
 import subprocess
 import logging
 import pandas as pd
-import matplotlib.pyplot as plt
 
 
 # WRITE FILES AND CONFIG -----------------------------------------------------------------------------------------------

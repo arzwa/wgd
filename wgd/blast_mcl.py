@@ -5,13 +5,11 @@ Arthur Zwaenepoel
 Markov clustering (MCL) related functions
 """
 
-from .utils import process_gene_families, translate_cds, read_fasta
+from .utils import process_gene_families
 import os
 import subprocess
 import re
 import logging
-import pandas as pd
-import numpy as np
 
 
 def _ava_blast_to_abc(ava_file, regex='.+', prefix=None, col_1=0, col_2=1, col_3=2):
