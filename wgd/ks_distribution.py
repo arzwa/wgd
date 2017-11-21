@@ -235,17 +235,12 @@ def analyse_family_ortholog(family_id, family, nucleotide, tmp='./', muscle='mus
 
 
 def ks_analysis_one_vs_one(nucleotide_sequences, protein_sequences, gene_families, tmp_dir='./tmp',
-                           output_dir='./ks.out', muscle_path='muscle', codeml_path='codeml', check=True,
+                           output_dir='./ks.out', muscle_path='muscle', codeml_path='codeml',
                            preserve=True, times=1, n_cores=4, async=False, min_length=100):
 
     # Filter families with one vs one orthologs for the species of interest.
     gene_families = process_gene_families(gene_families, ignore_prefix=False)
     protein = get_sequences(gene_families, protein_sequences)
-
-    # check directories
-    if check:
-        logging.debug('Checking directories (tmp, output)')
-        check_dirs(tmp_dir, output_dir, prompt=True, preserve=preserve)
 
     # start analysis
     logging.info('Started analysis in parallel')
