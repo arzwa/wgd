@@ -458,6 +458,8 @@ def pipeline_1(sequences, gff_file, output_dir):
     from wgd.collinearity import run_adhore, get_anchor_pairs
     from wgd.viz import plot_selection, syntenic_dotplot, syntenic_dotplot_ks_colored
 
+    wd = os.getcwd()
+
     if not os.path.exists(output_dir):
         logging.info('Output directory: {} does not exist, will make it.'.format(output_dir))
         os.mkdir(output_dir)
@@ -491,6 +493,7 @@ def pipeline_1(sequences, gff_file, output_dir):
     results = ks_analysis_paranome(read_fasta(sequences), protein_sequences, gene_families, tmp_dir, output_directory)
     results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(
         os.path.basename(gene_families))), sep='\t')
+    os.chdir(wd)
 
     logging.info('Generating plots')
     plot_selection(results, output_file=os.path.join(output_directory, '{}.ks.png'.format(os.path.basename(
