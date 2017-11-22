@@ -481,6 +481,7 @@ def pipeline_1(sequences, gff_file, output_dir):
 
     logging.info('Making tmp directory fo Ks analysis')
     tmp_dir = os.path.abspath(os.path.join('.', 'ks_tmp.' + str(uuid.uuid4())))
+    os.mkdir(tmp_dir)
     output_directory = os.path.abspath(output_dir)
     gene_families = os.path.abspath(mcl_out)
 
