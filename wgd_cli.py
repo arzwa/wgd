@@ -484,6 +484,7 @@ def pipeline_1(sequences, gff_file, output_dir):
     os.mkdir(tmp_dir)
     output_directory = os.path.abspath(output_dir)
     gene_families = os.path.abspath(mcl_out)
+    sequences = os.path.abspath(sequences)
 
     os.chdir(tmp_dir)  # change directory to the tmp dir, as codeml writes non-unique file names to the working dir
     logging.info('Started whole paranome Ks analysis')
