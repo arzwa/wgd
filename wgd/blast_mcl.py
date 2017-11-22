@@ -104,16 +104,11 @@ def run_mcl_ava(input_file, regex='.+', prefix=None, tmp_dir='./', output_file='
 
     # remove temporary files
     if not preserve:
-        os.system("rm {}*".format(tmp_file))
+        os.system("rm {0} {1}.tab {2}.mci {3}.mci.I".format(tmp_file, tmp_file, tmp_file, tmp_file))
 
     # return output as desired
     if return_dict:
         results = process_gene_families(output_file)
-
-        # if dict asked and no output file given by user, remove output file
-        if output_file == 'mcl.out':
-            os.remove(output_file)
-
         return results
 
     return output_file
