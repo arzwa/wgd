@@ -471,11 +471,13 @@ def pipeline_1(sequences, gff_file, output_dir):
     query = db
 
     logging.info('Performing all_v_all_blastp (this might take a while)')
-    blast_results = all_v_all_blast(query, db, output_dir, output_file='{}.blast.tsv'.format(sequences))
+    blast_results = all_v_all_blast(query, db, output_dir, output_file='{}.blast.tsv'.format(
+        os.path.basename(sequences)))
 
     logging.info('Performing MCL clustering')
     ava_graph = ava_blast_to_abc_2(blast_results)
-    mcl_out = run_mcl_ava_2(ava_graph, output_dir=output_dir, output_file='{}.paranome.mcl'.format(sequences))
+    mcl_out = run_mcl_ava_2(ava_graph, output_dir=output_dir, output_file='{}.paranome.mcl'.format(
+        os.path.basename(sequences)))
 
     logging.info('Making tmp directory fo Ks analysis')
     tmp_dir = os.path.abspath(os.path.join('.', 'ks_tmp.' + str(uuid.uuid4())))
@@ -485,7 +487,8 @@ def pipeline_1(sequences, gff_file, output_dir):
     os.chdir(tmp_dir)  # change directory to the tmp dir, as codeml writes non-unique file names to the working dir
     logging.info('Started whole paranome Ks analysis')
     results = ks_analysis_paranome(read_fasta(sequences), protein_sequences, gene_families, tmp_dir, output_directory)
-    results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(gene_families)), sep='\t')
+    results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(
+        os.path.basename(gene_families))), sep='\t')
 
     logging.info('Generating plots')
     plot_selection(results, output_file=os.path.join(output_directory, '{}.ks.png'.format(os.path.basename(
