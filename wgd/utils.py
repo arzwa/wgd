@@ -329,7 +329,6 @@ class Genome:
             for line in f:
                 if line.startswith('#'):
                     continue
-
                 line = line.strip().split('\t')
 
                 if line[2] == keyword:

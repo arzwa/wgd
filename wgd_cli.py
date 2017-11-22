@@ -243,7 +243,7 @@ def ks(gene_families, sequences, output_directory, protein_sequences,
         os.chdir(tmp_dir)
         logging.info('Started one-vs-one ortholog Ks analysis')
         results = ks_analysis_one_vs_one(cds_seqs, protein_seqs, gene_families, tmp_dir, output_directory,
-                                         muscle, codeml, async=async, n_cores=n_cores, preserve=preserve, check=False,
+                                         muscle, codeml, async=async, n_cores=n_cores, preserve=preserve,
                                          times=times, min_length=min_msa_length)
         results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(gene_families)), sep='\t')
 
@@ -256,7 +256,7 @@ def ks(gene_families, sequences, output_directory, protein_sequences,
         os.chdir(tmp_dir)  # change directory to the tmp dir, as codeml writes non-unique file names to the working dir
         logging.info('Started whole paranome Ks analysis')
         results = ks_analysis_paranome(cds_seqs, protein_seqs, gene_families, tmp_dir, output_directory,
-                                       muscle, codeml, preserve=preserve, check=False, times=times,
+                                       muscle, codeml, preserve=preserve, times=times,
                                        ignore_prefixes=ignore_prefixes, async=async, n_cores=n_cores,
                                        min_length=min_msa_length)
         results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(gene_families)), sep='\t')
