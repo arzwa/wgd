@@ -115,8 +115,8 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
             else:
                 protein_sequences.append(read_fasta(sequence_files[i], prefix=ids[i]))
 
-        logging.info('Writing blastdb sequences to seqs.fasta.')
-        db = os.path.join(output_dir,'seqs.fasta')
+        logging.info('Writing blastdb sequences to db.fasta.')
+        db = os.path.join(output_dir, 'db.fasta')
         write_fasta(protein_sequences[0], db)
         query = db
 
@@ -126,7 +126,8 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
             write_fasta(protein_sequences[1], query)
 
         logging.info('Performing all_v_all_blastp (this might take a while)')
-        blast_results = all_v_all_blast(query, db, output_dir, eval_cutoff=eval_cutoff)
+        blast_results = all_v_all_blast(query, db, output_dir, output_file='{}.blast.tsv'.format(sequences),
+                                        eval_cutoff=eval_cutoff)
 
     if one_v_one:
         logging.info('Retrieving one vs. one orthologs')
@@ -193,7 +194,7 @@ def ks(gene_families, sequences, output_directory, protein_sequences,
     """
     # lazy imports
     from wgd.ks_distribution import ks_analysis_paranome, ks_analysis_one_vs_one
-    from wgd.viz import plot_selection, syntenic_dotplot, syntenic_dotplot_ks_colored
+    from wgd.viz import plot_selection
 
     # input check
     if not (gene_families and sequences):
@@ -201,7 +202,7 @@ def ks(gene_families, sequences, output_directory, protein_sequences,
         return 1
 
     if not tmp_dir:
-        tmp_dir = os.path.join('.', str(uuid.uuid4()))
+        tmp_dir = os.path.join('.', 'ks_tmp.' + str(uuid.uuid4()))
 
     output_directory = os.path.abspath(output_directory)
     tmp_dir = os.path.abspath(tmp_dir)
@@ -424,6 +425,8 @@ def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences
               help="Output file, default='wgd_hist.png'.")
 def hist(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file):
     """ Plot (stacked) histograms """
+    from wgd.viz import plot_selection
+
     dists = [pd.read_csv(x, sep='\t') for x in ks_distributions.split(',')]
     if alpha_values:
         alpha_values = [float(x) for x in alpha_values.split(',')]
@@ -440,10 +443,96 @@ def hist(ks_distributions, alpha_values, colors, labels, hist_type, title, outpu
 
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.argument('sequences', default=None)
+@click.argument('gff_file', default=None)
+@click.argument('output_dir', default=None)
 def pipeline_1(sequences, gff_file, output_dir):
-    """ Standard workflow whole paranome Ks. """
-    # TODO
-    pass
+    """
+    Standard workflow whole paranome Ks.
+    """
+    # TODO: Test
+    # lazy loading
+    from wgd.blast_mcl import all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2
+    from wgd.ks_distribution import ks_analysis_paranome, ks_analysis_one_vs_one
+    from wgd.collinearity import write_families_file, write_gene_lists, write_config_adhore
+    from wgd.collinearity import run_adhore, get_anchor_pairs
+    from wgd.viz import plot_selection, syntenic_dotplot, syntenic_dotplot_ks_colored
+
+    if not os.path.exists(output_dir):
+        logging.info('Output directory: {} does not exist, will make it.'.format(output_dir))
+        os.mkdir(output_dir)
+
+    logging.info("Translating CDS")
+    protein_sequences = translate_cds(read_fasta(sequences))
+
+    logging.info('Writing blastdb sequences to db.fasta.')
+    db = os.path.join(output_dir, 'db.fasta')
+    write_fasta(protein_sequences, db)
+    query = db
+
+    logging.info('Performing all_v_all_blastp (this might take a while)')
+    blast_results = all_v_all_blast(query, db, output_dir, output_file='{}.blast.tsv'.format(sequences))
+
+    logging.info('Performing MCL clustering')
+    ava_graph = ava_blast_to_abc_2(blast_results)
+    mcl_out = run_mcl_ava_2(ava_graph, output_dir=output_dir, output_file='{}.paranome.mcl'.format(sequences))
+
+    logging.info('Making tmp directory fo Ks analysis')
+    tmp_dir = os.path.abspath(os.path.join('.', 'ks_tmp.' + str(uuid.uuid4())))
+    output_directory = os.path.abspath(output_dir)
+    gene_families = os.path.abspath(mcl_out)
+
+    os.chdir(tmp_dir)  # change directory to the tmp dir, as codeml writes non-unique file names to the working dir
+    logging.info('Started whole paranome Ks analysis')
+    results = ks_analysis_paranome(read_fasta(sequences), protein_sequences, gene_families, tmp_dir, output_directory)
+    results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(gene_families)), sep='\t')
+
+    logging.info('Generating plots')
+    plot_selection(results, output_file=os.path.join(output_directory, '{}.ks.png'.format(os.path.basename(
+        gene_families))), title=os.path.basename(gene_families))
+
+    logging.info("Parsing GFF file")
+    genome = Genome()
+    genome.parse_plaza_gff(gff_file)
+
+    logging.info("Writing gene lists")
+    all_genes = write_gene_lists(
+        genome, os.path.join(output_dir, 'gene_lists'))
+
+    logging.info("Writing families file")
+    write_families_file(gene_families, all_genes,
+                        os.path.join(output_dir, 'families.tsv'))
+
+    logging.info("Writing configuration file")
+    write_config_adhore(os.path.join(output_dir, 'gene_lists'), os.path.join(output_dir, 'families.tsv'),
+                        config_file_name=os.path.join(output_dir, 'adhore.conf'),
+                        output_path=os.path.join(output_dir, 'i-adhore-out'))
+
+    logging.info("Running I-ADHoRe")
+    run_adhore(os.path.join(output_dir, 'adhore.conf'))
+
+    logging.info('Drawing co-linearity dotplot')
+    syntenic_dotplot(
+        pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t'),
+        output_file=os.path.join(output_dir, '{}.dotplot.png'.format(os.path.basename(gene_families))))
+
+    logging.info("Constructing Ks distribution for anchors")
+    ks, anchors = get_anchor_pairs(
+        os.path.join(output_dir, 'i-adhore-out', 'anchorpoints.txt'), results,
+        out_file=os.path.join(output_dir, '{}.ks_anchors.tsv'.format(os.path.basename(gene_families)))
+    )
+
+    syntenic_dotplot_ks_colored(
+        pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t'),
+        pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'anchorpoints.txt'), sep='\t'),
+        anchors, output_file=os.path.join(output_dir, '{}.dotplot.ks.png'.format(os.path.basename(gene_families)))
+    )
+
+    logging.info("Generating histogram")
+    plot_selection([ks, anchors], alphas=[0.2, 0.7], output_file=os.path.join(output_dir, '{}.ks.png'.format(
+        os.path.basename(gene_families))), title=os.path.basename(gene_families))
+
+    logging.info("Done")
 
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})

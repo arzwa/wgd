@@ -114,31 +114,31 @@ def run_mcl_ava(input_file, regex='.+', prefix=None, tmp_dir='./', output_file='
     return output_file
 
 
-def all_v_all_blast(query, db, output_directory, eval_cutoff=1e-10):
+def all_v_all_blast(query, db, output_directory, output_file='blast.tsv', eval_cutoff=1e-10):
     """
     Perform all-versus-all Blastp.
 
-    :param seq_file: fasta file with protein sequences
-    :param output_directory: output directory
-    :param eval_cutoff: e-value cut off for Blastp results
-    :return: all-`versus`-all Blastp results
+    :param query:
+    :param db:
+    :param output_directory:
+    :param output_file:
+    :param eval_cutoff:
+    :return:
     """
-
     logging.info("Making Blastdb")
     subprocess.run(['makeblastdb', '-in', db, '-dbtype', 'prot'])
 
     logging.info("Running Blastp")
-    outfile = os.path.join(output_directory, os.path.basename(db) + '.out.blast')
     subprocess.run(['blastp', '-db', db, '-query', query, '-evalue', str(eval_cutoff), '-outfmt', '6',
-                    '-out', outfile])
+                    '-out', os.path.join(output_directory, output_file)])
     logging.info("All versus all Blastp done")
 
     logging.info("Reformatting output")
-    os.system(" ".join(['cut', '-f1,2,11', outfile, '> ava.tsv'])) # this did'nt seem to work with suprocess.run ?
-    subprocess.run(['mv', 'ava.tsv', outfile])
+    os.system(" ".join(['cut', '-f1,2,11', os.path.join(output_directory, output_file), '> ava.tsv'])) # this did'nt seem to work with suprocess.run ?
+    subprocess.run(['mv', 'ava.tsv', os.path.join(output_directory, output_file)])
     subprocess.run(['rm', db + '.phr', db + '.pin', db + '.psq'])
 
-    return outfile
+    return os.path.join(output_directory, output_file)
 
 
 # REWRITE: MAINTAIN BOTH IN ORDER TO PREVENT BROKEN STUFF --------------------------------------------------------------

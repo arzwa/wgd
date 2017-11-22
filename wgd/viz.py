@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 import os
+import matplotlib.patheffects as pe
 
 
 def plot_selection(dists, output_file=None, alphas=None, colors=None, labels=None, ks_range=(0.1, 5), offset=5,
@@ -25,7 +26,7 @@ def plot_selection(dists, output_file=None, alphas=None, colors=None, labels=Non
     :param kwargs: keyword arguments for :py:func:`matplotlib.pyplot.hist`
     :return: :py:class:`matplotlib.pyplot.Figure` object
     """
-    fig = plt.figure(figsize=(12, 12))
+    fig = plt.figure(figsize=(12, 10))
 
     if type(dists) != list:
         dists = [dists]
@@ -178,7 +179,7 @@ def syntenic_dotplot_ks_colored(df, an, ks, color_map='Spectral', output_file=No
     tmp = plt.contourf(z, levels, cmap=cmap)
     plt.clf()
 
-    fig = plt.figure(figsize=(15,15))
+    fig = plt.figure(figsize=(16,15))
     ax = fig.add_subplot(111)
 
     for key in sorted(genomic_elements_.keys()):
@@ -208,8 +209,10 @@ def syntenic_dotplot_ks_colored(df, an, ks, color_map='Spectral', output_file=No
             curr_list_x = list_x
         x = [genomic_elements[curr_list_x] + x for x in [row['begin_x'], row['end_x']]]
         y = [genomic_elements[list_y] + x for x in [row['begin_y'], row['end_y']]]
-        ax.plot(x, y, alpha=0.7, linewidth=3, color=cmap(ks_multiplicons[row['id']] / 5))
-        ax.plot(y, x, alpha=0.7, linewidth=3, color=cmap(ks_multiplicons[row['id']] / 5))
+        ax.plot(x, y, alpha=0.7, linewidth=3, color=cmap(ks_multiplicons[row['id']] / 5),
+                path_effects=[pe.Stroke(linewidth=4, foreground='k'), pe.Normal()])
+        ax.plot(y, x, alpha=0.7, linewidth=3, color=cmap(ks_multiplicons[row['id']] / 5),
+                path_effects=[pe.Stroke(linewidth=4, foreground='k'), pe.Normal()])
 
     cbar = plt.colorbar(tmp, fraction=0.02, pad=0.01)
     cbar.ax.set_yticklabels(['{:.2f}'.format(x) for x in np.linspace(0, 5, 11)])
