@@ -336,7 +336,8 @@ def syn(gff_file, families, output_dir, ks_distribution, keyword, id_string):
     if ks_distribution:
         logging.info("Constructing Ks distribution for anchors")
         ks, anchors = get_anchor_pairs(
-            os.path.join(output_dir, 'i-adhore-out', 'anchorpoints.txt'), ks_distribution,
+            os.path.join(output_dir, 'i-adhore-out', 'anchorpoints.txt'),
+            pd.read_csv(ks_distribution, index_col=0, sep='\t'),
             out_file=os.path.join(output_dir, '{}.ks_anchors.tsv'.format(os.path.basename(families)))
         )
 

@@ -121,12 +121,12 @@ def write_config_adhore(gene_lists, families, config_file_name='i-adhore.conf',
     return
 
 
-def get_anchor_pairs(anchors_file, ks_file=None, out_file='anchors_ks.csv', species='SOI'):
+def get_anchor_pairs(anchors_file, ks_distribution=None, out_file='anchors_ks.csv'):
     """
     Get anchor pairs and their corresponding Ks values (if provided)
 
     :param anchors_file: anchorpoints.txt output from I-ADHoRe 3.0
-    :param ks_file: Ks calculations file from wgd toolkit (all.csv)
+    :param ks_file: Ks calculations file from wgd toolkit
     :return: pandas dataframe(s): anchors and data frame
     """
     if not os.path.exists(anchors_file):
@@ -142,27 +142,19 @@ def get_anchor_pairs(anchors_file, ks_file=None, out_file='anchors_ks.csv', spec
         ids.append("-".join(sorted([anchors.loc[x]['gene_x'], anchors.loc[x]['gene_y']])))
     anchors['pair_id'] = ids
 
-    if ks_file:
-        if not os.path.exists(ks_file):
-            logging.error('Ks values file: `{}` not found'.format(ks_file))
-        else:
-            logging.info('Ks values file found.')
-
-        ks = pd.read_csv(ks_file, index_col=0, sep='\t')
-
-        # reindex by pair ID
-        # TODO: the pair ID  (GENE1-GENE2) should be already assigned in the main Ks program
+    if type(ks_distribution) == pd.DataFrame:
         ids_ = []
-        for x in ks.index:
-            ids_.append("-".join(sorted([ks.loc[x]['Paralog1'], ks.loc[x]['Paralog2']])))
+        for x in ks_distribution.index:
+            ids_.append("-".join(sorted(
+                [ks_distribution.loc[x]['Paralog1'], ks_distribution.loc[x]['Paralog2']])))
 
-        ks.index = ids_
-        ks_anchors = ks.ix[anchors['pair_id']]
+        ks_distribution.index = ids_
+        ks_anchors = ks_distribution.ix[anchors['pair_id']]
 
         if out_file:
             ks_anchors.to_csv(out_file, sep='\t')
 
-        return ks, ks_anchors
+        return ks_distribution, ks_anchors
 
     else:
         if out_file:
