@@ -348,7 +348,7 @@ def syn(gff_file, families, output_dir, ks_distribution, keyword, id_string):
         )
 
         logging.info("Generating histogram")
-        plot_selection([ks, anchors], alphas=[0.2,0.7], output_file=os.path.join(output_dir, '{}.ks.png'.format(
+        plot_selection([ks, anchors], alphas=[0.2,0.7], output_file=os.path.join(output_dir, '{}.ks_anchors.png'.format(
             os.path.basename(families))), title=os.path.basename(families))
 
     logging.info("Done")
@@ -538,7 +538,7 @@ def pipeline_1(sequences, gff_file, output_dir):
     )
 
     logging.info("Generating histogram")
-    plot_selection([ks, anchors], alphas=[0.2, 0.7], output_file=os.path.join(output_dir, '{}.ks.png'.format(
+    plot_selection([ks, anchors], alphas=[0.2, 0.7], output_file=os.path.join(output_dir, '{}.ks_anchors.png'.format(
         os.path.basename(gene_families))), title=os.path.basename(gene_families))
 
     logging.info("Done")

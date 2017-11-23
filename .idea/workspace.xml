@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="821fa536-1b70-4930-9299-1d4345685448" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/source/index.rst" afterPath="$PROJECT_DIR$/doc/source/index.rst" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd_cli.py" afterPath="$PROJECT_DIR$/wgd_cli.py" />
     </list>
     <ignored path="$PROJECT_DIR$/.idea/" />
@@ -17,8 +18,8 @@
       <file leaf-file-name="wgd_cli.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wgd_cli.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="588">
-              <caret line="409" column="33" lean-forward="false" selection-start-line="409" selection-start-column="33" selection-end-line="409" selection-end-column="33" />
+            <state relative-caret-position="1054">
+              <caret line="350" column="107" lean-forward="false" selection-start-line="350" selection-start-column="107" selection-end-line="350" selection-end-column="107" />
               <folding>
                 <element signature="e#206#218#0" expanded="true" />
               </folding>
@@ -28,15 +29,13 @@
       </file>
       <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/README.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
               <first_editor relative-caret-position="0">
                 <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
                 <folding />
               </first_editor>
-              <second_editor>
-                <js_state />
-              </second_editor>
+              <second_editor />
             </state>
           </provider>
         </entry>
@@ -44,7 +43,7 @@
       <file leaf-file-name="blast_mcl.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/blast_mcl.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2919">
+            <state relative-caret-position="1974">
               <caret line="145" column="54" lean-forward="false" selection-start-line="145" selection-start-column="54" selection-end-line="145" selection-end-column="54" />
               <folding />
             </state>
@@ -54,25 +53,9 @@
       <file leaf-file-name="collinearity.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/collinearity.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="798">
-              <caret line="137" column="83" lean-forward="false" selection-start-line="137" selection-start-column="83" selection-end-line="137" selection-end-column="83" />
-              <folding>
-                <element signature="e#400#962#0" expanded="false" />
-                <element signature="e#1043#1906#0" expanded="false" />
-                <element signature="e#2403#4183#0" expanded="false" />
-                <marker date="1511200964717" expanded="true" signature="4277:5811" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="5037:5264" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="5786:5811" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="5892:8162" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="5897:6468" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                <marker date="1511200964717" expanded="true" signature="6771:8081" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="6816:8081" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="6872:8081" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="7269:8081" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="7295:8043" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="8315:8664" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="8320:8433" ph="&quot;&quot;&quot;Run I-ADHoRe for a given config file...&quot;&quot;&quot;" />
-              </folding>
+            <state relative-caret-position="1876">
+              <caret line="137" column="0" lean-forward="false" selection-start-line="137" selection-start-column="0" selection-end-line="137" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -80,26 +63,9 @@
       <file leaf-file-name="viz.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/viz.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3339">
+            <state relative-caret-position="2408">
               <caret line="173" column="0" lean-forward="false" selection-start-line="173" selection-start-column="0" selection-end-line="173" selection-end-column="0" />
-              <folding>
-                <element signature="e#60#91#0" expanded="true" />
-                <marker date="1511200964717" expanded="true" signature="3155:3279" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="3325:4858" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="3330:3479" ph="&quot;&quot;&quot;Syntenic dotplot function...&quot;&quot;&quot;" />
-                <marker date="1511200964717" expanded="true" signature="3715:3885" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="4286:4686" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="4745:4828" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="4943:7457" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="4948:5253" ph="&quot;&quot;&quot;Syntenic dotplot with segment colored by mean Ks value...&quot;&quot;&quot;" />
-                <marker date="1511200964717" expanded="true" signature="5597:5832" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="6082:6252" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="6653:7150" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="7344:7427" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="7503:7744" ph="..." />
-                <marker date="1511200964717" expanded="true" signature="7508:7559" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                <marker date="1511200964717" expanded="true" signature="7887:10789" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
@@ -107,7 +73,7 @@
       <file leaf-file-name="modeling.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/modeling.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4305">
+            <state relative-caret-position="2870">
               <caret line="319" column="32" lean-forward="false" selection-start-line="319" selection-start-column="32" selection-end-line="319" selection-end-column="32" />
               <folding>
                 <element signature="e#504#1205#0" expanded="false" />
@@ -121,7 +87,7 @@
       <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4704">
+            <state relative-caret-position="3136">
               <caret line="230" column="28" lean-forward="false" selection-start-line="230" selection-start-column="28" selection-end-line="230" selection-end-column="28" />
               <folding />
             </state>
@@ -131,7 +97,7 @@
       <file leaf-file-name="setup.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/setup.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="504">
+            <state relative-caret-position="336">
               <caret line="24" column="18" lean-forward="false" selection-start-line="24" selection-start-column="18" selection-end-line="24" selection-end-column="18" />
               <folding />
             </state>
@@ -190,10 +156,10 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="39" />
-    <option name="y" value="27" />
-    <option name="width" value="921" />
+    <option name="y" value="25" />
+    <option name="width" value="941" />
     <option name="height" value="1053" />
   </component>
   <component name="ProjectView">
@@ -211,9 +177,9 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
       <pane id="Scope" />
       <pane id="ProjectPane" />
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -246,30 +212,30 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="47" y="-4" width="2513" height="1444" extended-state="6" />
+    <frame x="39" y="25" width="1881" height="1055" extended-state="7" />
     <editor active="true" />
     <layout>
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21477938" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug Logs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Execute Anonymous" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.21528055" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24932493" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Salesforce" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug Logs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Execute Anonymous" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32912722" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Salesforce" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="UnknownFeatures">
@@ -440,7 +406,7 @@
     <entry file="file://$PROJECT_DIR$/wgd/positive_selection.py" />
     <entry file="file://$PROJECT_DIR$/setup.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="504">
+        <state relative-caret-position="336">
           <caret line="24" column="18" lean-forward="false" selection-start-line="24" selection-start-column="18" selection-end-line="24" selection-end-column="18" />
           <folding />
         </state>
@@ -481,15 +447,13 @@
           <folding />
         </state>
       </provider>
-      <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
           <first_editor relative-caret-position="0">
             <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
             <folding />
           </first_editor>
-          <second_editor>
-            <js_state />
-          </second_editor>
+          <second_editor />
         </state>
       </provider>
     </entry>
@@ -601,7 +565,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/wgd/utils.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4704">
+        <state relative-caret-position="3136">
           <caret line="230" column="28" lean-forward="false" selection-start-line="230" selection-start-column="28" selection-end-line="230" selection-end-column="28" />
           <folding />
         </state>
@@ -609,7 +573,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/wgd/blast_mcl.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2919">
+        <state relative-caret-position="1974">
           <caret line="145" column="54" lean-forward="false" selection-start-line="145" selection-start-column="54" selection-end-line="145" selection-end-column="54" />
           <folding />
         </state>
@@ -617,7 +581,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/wgd/modeling.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4305">
+        <state relative-caret-position="2870">
           <caret line="319" column="32" lean-forward="false" selection-start-line="319" selection-start-column="32" selection-end-line="319" selection-end-column="32" />
           <folding>
             <element signature="e#504#1205#0" expanded="false" />
@@ -629,57 +593,24 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/wgd/viz.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3339">
+        <state relative-caret-position="2408">
           <caret line="173" column="0" lean-forward="false" selection-start-line="173" selection-start-column="0" selection-end-line="173" selection-end-column="0" />
-          <folding>
-            <element signature="e#60#91#0" expanded="true" />
-            <marker date="1511200964717" expanded="true" signature="3155:3279" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="3325:4858" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="3330:3479" ph="&quot;&quot;&quot;Syntenic dotplot function...&quot;&quot;&quot;" />
-            <marker date="1511200964717" expanded="true" signature="3715:3885" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="4286:4686" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="4745:4828" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="4943:7457" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="4948:5253" ph="&quot;&quot;&quot;Syntenic dotplot with segment colored by mean Ks value...&quot;&quot;&quot;" />
-            <marker date="1511200964717" expanded="true" signature="5597:5832" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="6082:6252" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="6653:7150" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="7344:7427" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="7503:7744" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="7508:7559" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1511200964717" expanded="true" signature="7887:10789" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/wgd/collinearity.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="798">
-          <caret line="137" column="83" lean-forward="false" selection-start-line="137" selection-start-column="83" selection-end-line="137" selection-end-column="83" />
-          <folding>
-            <element signature="e#400#962#0" expanded="false" />
-            <element signature="e#1043#1906#0" expanded="false" />
-            <element signature="e#2403#4183#0" expanded="false" />
-            <marker date="1511200964717" expanded="true" signature="4277:5811" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="5037:5264" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="5786:5811" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="5892:8162" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="5897:6468" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1511200964717" expanded="true" signature="6771:8081" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="6816:8081" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="6872:8081" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="7269:8081" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="7295:8043" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="8315:8664" ph="..." />
-            <marker date="1511200964717" expanded="true" signature="8320:8433" ph="&quot;&quot;&quot;Run I-ADHoRe for a given config file...&quot;&quot;&quot;" />
-          </folding>
+        <state relative-caret-position="1876">
+          <caret line="137" column="0" lean-forward="false" selection-start-line="137" selection-start-column="0" selection-end-line="137" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/wgd_cli.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="588">
-          <caret line="409" column="33" lean-forward="false" selection-start-line="409" selection-start-column="33" selection-end-line="409" selection-end-column="33" />
+        <state relative-caret-position="1054">
+          <caret line="350" column="107" lean-forward="false" selection-start-line="350" selection-start-column="107" selection-end-line="350" selection-end-column="107" />
           <folding>
             <element signature="e#206#218#0" expanded="true" />
           </folding>
