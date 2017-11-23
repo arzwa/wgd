@@ -130,7 +130,7 @@ def all_v_all_blast(query, db, output_directory, output_file='blast.tsv', eval_c
 
     logging.info("Running Blastp")
     subprocess.run(['blastp', '-db', db, '-query', query, '-evalue', str(eval_cutoff), '-outfmt', '6',
-                    '-num_threads', n_threads, '-out', os.path.join(output_directory, output_file)])
+                    '-num_threads', str(n_threads), '-out', os.path.join(output_directory, output_file)])
     logging.info("All versus all Blastp done")
 
     logging.info("Reformatting output")
