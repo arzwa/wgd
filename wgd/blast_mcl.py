@@ -114,7 +114,7 @@ def run_mcl_ava(input_file, regex='.+', prefix=None, tmp_dir='./', output_file='
     return output_file
 
 
-def all_v_all_blast(query, db, output_directory, output_file='blast.tsv', eval_cutoff=1e-10):
+def all_v_all_blast(query, db, output_directory, output_file='blast.tsv', eval_cutoff=1e-10, n_threads=4):
     """
     Perform all-versus-all Blastp.
 
@@ -130,7 +130,7 @@ def all_v_all_blast(query, db, output_directory, output_file='blast.tsv', eval_c
 
     logging.info("Running Blastp")
     subprocess.run(['blastp', '-db', db, '-query', query, '-evalue', str(eval_cutoff), '-outfmt', '6',
-                    '-out', os.path.join(output_directory, output_file)])
+                    '-num_threads', n_threads, '-out', os.path.join(output_directory, output_file)])
     logging.info("All versus all Blastp done")
 
     logging.info("Reformatting output")

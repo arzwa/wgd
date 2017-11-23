@@ -62,7 +62,10 @@ def cli(verbose):
               help="E-value cut-off for Blast results (Default = 1e-10)")
 @click.option('--output_dir','-o', default='wgd.blast.out',
               help='Output directory.')
-def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_factor, eval_cutoff, output_dir):
+@click.option('--n_threads','-n', default=4,
+              help='Number of threads used by blastp.')
+def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_factor, eval_cutoff, output_dir,
+          n_threads):
     """
     Perform all-vs.-all Blastp (+ MCL) analysis.
 
@@ -127,7 +130,7 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
 
         logging.info('Performing all_v_all_blastp (this might take a while)')
         blast_results = all_v_all_blast(query, db, output_dir, output_file='{}.blast.tsv'.format(sequences),
-                                        eval_cutoff=eval_cutoff)
+                                        eval_cutoff=eval_cutoff, n_threads=n_threads)
 
     if one_v_one:
         logging.info('Retrieving one vs. one orthologs')
@@ -174,10 +177,10 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
               help="Keep multiple sequence alignment and codeml output. ")
 @click.option('--async', is_flag=True, default=False,
               help="Use asyncio module for parallelization. (Default uses joblib)")
-@click.option('--n_cores','-n', default=4,
-              help="Number of CPU cores to use.")
+@click.option('--n_threads','-n', default=4,
+              help="Number of threads to use.")
 def ks(gene_families, sequences, output_directory, protein_sequences,
-        tmp_dir, muscle, codeml, times, min_msa_length, ignore_prefixes, one_v_one, preserve, async, n_cores):
+        tmp_dir, muscle, codeml, times, min_msa_length, ignore_prefixes, one_v_one, preserve, async, n_threads):
     """
     Construct a Ks distribution.
 
@@ -244,7 +247,7 @@ def ks(gene_families, sequences, output_directory, protein_sequences,
         os.chdir(tmp_dir)
         logging.info('Started one-vs-one ortholog Ks analysis')
         results = ks_analysis_one_vs_one(cds_seqs, protein_seqs, gene_families, tmp_dir, output_directory,
-                                         muscle, codeml, async=async, n_cores=n_cores, preserve=preserve,
+                                         muscle, codeml, async=async, n_cores=n_threads, preserve=preserve,
                                          times=times, min_length=min_msa_length)
         results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(gene_families)), sep='\t')
 
@@ -258,7 +261,7 @@ def ks(gene_families, sequences, output_directory, protein_sequences,
         logging.info('Started whole paranome Ks analysis')
         results = ks_analysis_paranome(cds_seqs, protein_seqs, gene_families, tmp_dir, output_directory,
                                        muscle, codeml, preserve=preserve, times=times,
-                                       ignore_prefixes=ignore_prefixes, async=async, n_cores=n_cores,
+                                       ignore_prefixes=ignore_prefixes, async=async, n_cores=n_threads,
                                        min_length=min_msa_length)
         results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(gene_families)), sep='\t')
 
@@ -447,7 +450,9 @@ def hist(ks_distributions, alpha_values, colors, labels, hist_type, title, outpu
 @click.argument('sequences', default=None)
 @click.argument('gff_file', default=None)
 @click.argument('output_dir', default=None)
-def pipeline_1(sequences, gff_file, output_dir):
+@click.option('--n_threads','-n', default=4,
+              help="Number of threads to use.")
+def pipeline_1(sequences, gff_file, output_dir, n_threads):
     """
     Standard workflow whole paranome Ks.
     """
@@ -475,7 +480,7 @@ def pipeline_1(sequences, gff_file, output_dir):
 
     logging.info('Performing all_v_all_blastp (this might take a while)')
     blast_results = all_v_all_blast(query, db, output_dir, output_file='{}.blast.tsv'.format(
-        os.path.basename(sequences)))
+        os.path.basename(sequences)), n_threads=n_threads)
 
     logging.info('Performing MCL clustering')
     ava_graph = ava_blast_to_abc_2(blast_results)
@@ -491,7 +496,8 @@ def pipeline_1(sequences, gff_file, output_dir):
 
     os.chdir(tmp_dir)  # change directory to the tmp dir, as codeml writes non-unique file names to the working dir
     logging.info('Started whole paranome Ks analysis')
-    results = ks_analysis_paranome(read_fasta(sequences), protein_sequences, gene_families, tmp_dir, output_directory)
+    results = ks_analysis_paranome(read_fasta(sequences), protein_sequences, gene_families,
+                                   tmp_dir, output_directory, n_cores=n_threads)
     results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(
         os.path.basename(gene_families))), sep='\t')
     os.chdir(wd)
