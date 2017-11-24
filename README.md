@@ -1,10 +1,14 @@
 # Whole genome duplication analysis
 
-Python (3.5) package and command line interface (CLI) for the analysis
-of whole genome duplications (WGDs).
+Python package and command line interface (CLI) for the analysis
+of whole genome duplications (WGDs). Tested with Python3.5 & Python3.6
+on Linux Ubuntu. If you don't have python or pip installed a simple
+`sudo apt-get install python3-pip` will do on Ubuntu, Debian or Linux Mint.
 
-To install: clone the repo, navigate to it and type
+To install: clone the repo, navigate to it and install it with pip
 
+    $ git clone https://gitlab.psb.ugent.be/arzwa/wgd.git
+    $ cd wgd
     $ pip install .
 
 For the command line interface, upon installation run
@@ -25,32 +29,15 @@ directory or at https://arzwa.github.io/wgd/index.html.
 `wgd` requires the following third party software (preferably these
 should also be in the `PATH` environment variable):
 
-- `blast`, from which it uses the `blastp` and `makeblastdb` commands,
+- `blast` (Altschul _et al._ 2008), from which it uses the `blastp` and `makeblastdb` commands,
 `sudo apt-get install ncbi-blast+` will often suffice for installation
-- `muscle` [Edgar2004] for multiple sequence alignment. `muscle` can be \
+- `muscle` (Edgar 2004) for multiple sequence alignment. `muscle` can be \
 retrieved from http://www.drive5.com/muscle/.
-- `codeml` from the PAML software package [Yang]. PAML can be downloaded
+- `codeml` from the PAML software package (Yang 1997). PAML can be downloaded
 from the following link: http://abacus.gene.ucl.ac.uk/software/paml.html
-- `I-ADHoRe 3.0` [Proost2012] for co-linearity analysis. `I-ADHoRe 3.0`
+- `I-ADHoRe 3.0` (Proost _et al._ 2012) for co-linearity analysis. `I-ADHoRe 3.0`
 can be obtained from http://bioinformatics.psb.ugent.be/beg/tools/i-adhore30
 
-## Example: K<sub>S</sub> distribution from CDS input
-
-First we infer paralogous families using all-vs-all `blastp` and `mcl`:
-
-    $ wgd blast --cds --mcl -s aptenodytes_patagonicus.cds.fasta -o ./penguin.wgd_out
-
-Then we can construct a K<sub>S</sub> distribution using `codeml`:
-
-    $ wgd ks -gf penguin.wgd_out/out.mcl -s aptenodytes_patagonicus.cds.fasta -o ./penguin.wgd_out
-
-If we have structural annotation data available, we can look for acnhor
-pairs and make a K<sub>S</sub> distribution for the obtained co-linear
-gene pairs:
-
-    $ wgd coll -ks penguin.wgd_out/all.csv -gff annotation.gff -gf penguin.wgd_out/out.mcl -o ./penguin.wgd_out
-
-That's it! Quite easy no?
 
 
 

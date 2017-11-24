@@ -55,6 +55,7 @@
             
   <div class="section" id="module-wgd.ks_distribution">
 <span id="ks-distribution-module"></span><h1>Ks distribution module<a class="headerlink" href="#module-wgd.ks_distribution" title="Permalink to this headline">¶</a></h1>
+<p>Arthur Zwaenepoel - 2017</p>
 <dl class="function">
 <dt id="wgd.ks_distribution._average_linkage_clustering">
 <code class="descclassname">wgd.ks_distribution.</code><code class="descname">_average_linkage_clustering</code><span class="sig-paren">(</span><em>pairwise_estimates</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution._average_linkage_clustering" title="Permalink to this definition">¶</a></dt>
@@ -117,6 +118,8 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
 <li><strong>muscle</strong> &#8211; muscle path</li>
 <li><strong>codeml</strong> &#8211; codeml path</li>
 <li><strong>preserve</strong> &#8211; preserve intermediate files</li>
+<li><strong>times</strong> &#8211; number of times to perform ML estimation of Ks, Ka and omega values</li>
+<li><strong>min_length</strong> &#8211; minimum length of the stripped multiple sequence alignment</li>
 </ul>
 </td>
 </tr>
@@ -146,6 +149,8 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
 <li><strong>muscle</strong> &#8211; muscle path</li>
 <li><strong>codeml</strong> &#8211; codeml path</li>
 <li><strong>preserve</strong> &#8211; preserve intermediate files</li>
+<li><strong>times</strong> &#8211; number of times to perform ML estimation of Ks, Ka and omega values</li>
+<li><strong>min_length</strong> &#8211; minimum length of the stripped multiple sequence alignment</li>
 </ul>
 </td>
 </tr>
@@ -157,21 +162,30 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
 </dd></dl>
 
 <dl class="function">
-<dt id="wgd.ks_distribution.filter_species">
-<code class="descclassname">wgd.ks_distribution.</code><code class="descname">filter_species</code><span class="sig-paren">(</span><em>results</em>, <em>s1</em>, <em>s2</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.filter_species" title="Permalink to this definition">¶</a></dt>
-<dd><p>Filter out one vs one orthologs from codeml results for two species</p>
+<dt id="wgd.ks_distribution.ks_analysis_one_vs_one">
+<code class="descclassname">wgd.ks_distribution.</code><code class="descname">ks_analysis_one_vs_one</code><span class="sig-paren">(</span><em>nucleotide_sequences</em>, <em>protein_sequences</em>, <em>gene_families</em>, <em>tmp_dir='./tmp'</em>, <em>output_dir='./ks.out'</em>, <em>muscle_path='muscle'</em>, <em>codeml_path='codeml'</em>, <em>preserve=True</em>, <em>times=1</em>, <em>n_cores=4</em>, <em>async=False</em>, <em>min_length=100</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.ks_analysis_one_vs_one" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate a Ks distribution for one vs. one orthologs.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>results</strong> &#8211; </li>
-<li><strong>s1</strong> &#8211; </li>
-<li><strong>s2</strong> &#8211; </li>
+<li><strong>nucleotide_sequences</strong> &#8211; sequence dictionary</li>
+<li><strong>protein_sequences</strong> &#8211; protein sequence dictionary</li>
+<li><strong>paralogs</strong> &#8211; file with paralog families</li>
+<li><strong>tmp_dir</strong> &#8211; tmp directory</li>
+<li><strong>output_dir</strong> &#8211; output directory</li>
+<li><strong>muscle_path</strong> &#8211; path to muscle executable</li>
+<li><strong>codeml_path</strong> &#8211; path to codeml executable</li>
+<li><strong>preserve</strong> &#8211; preserve intermediate results (muscle, codeml)</li>
+<li><strong>times</strong> &#8211; number of times to perform codeml analysis</li>
+<li><strong>ignore_prefixes</strong> &#8211; ignore prefixes in paralog/gene family file (e.g. in ath|AT1G45000, ath| will be ignored)</li>
+<li><strong>async</strong> &#8211; use asyncio library for parallelization</li>
+<li><strong>min_length</strong> &#8211; minimum MSA length</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">data frame</p>
 </td>
 </tr>
 </tbody>
@@ -180,28 +194,29 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
 
 <dl class="function">
 <dt id="wgd.ks_distribution.ks_analysis_paranome">
-<code class="descclassname">wgd.ks_distribution.</code><code class="descname">ks_analysis_paranome</code><span class="sig-paren">(</span><em>nucleotide_sequences</em>, <em>protein_sequences</em>, <em>paralogs</em>, <em>tmp_dir='./tmp'</em>, <em>output_dir='./ks.out'</em>, <em>muscle_path='muscle'</em>, <em>codeml_path='codeml'</em>, <em>check=True</em>, <em>preserve=True</em>, <em>times=1</em>, <em>ignore_prefixes=False</em>, <em>n_cores=4</em>, <em>async=False</em>, <em>min_length=100</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.ks_analysis_paranome" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate a Ks distribution for a whole paranome. Asyncio version</p>
+<code class="descclassname">wgd.ks_distribution.</code><code class="descname">ks_analysis_paranome</code><span class="sig-paren">(</span><em>nucleotide_sequences</em>, <em>protein_sequences</em>, <em>paralogs</em>, <em>tmp_dir='./tmp'</em>, <em>output_dir='./ks.out'</em>, <em>muscle_path='muscle'</em>, <em>codeml_path='codeml'</em>, <em>preserve=True</em>, <em>times=1</em>, <em>ignore_prefixes=False</em>, <em>n_cores=4</em>, <em>async=False</em>, <em>min_length=100</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.ks_analysis_paranome" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate a Ks distribution for a whole paranome.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>nucleotide_sequences</strong> &#8211; CDS fasta file</li>
-<li><strong>protein_sequences</strong> &#8211; protein fasta file</li>
+<li><strong>nucleotide_sequences</strong> &#8211; sequence dictionary</li>
+<li><strong>protein_sequences</strong> &#8211; protein sequence dictionary</li>
 <li><strong>paralogs</strong> &#8211; file with paralog families</li>
 <li><strong>tmp_dir</strong> &#8211; tmp directory</li>
 <li><strong>output_dir</strong> &#8211; output directory</li>
 <li><strong>muscle_path</strong> &#8211; path to muscle executable</li>
 <li><strong>codeml_path</strong> &#8211; path to codeml executable</li>
-<li><strong>check</strong> &#8211; check directories before proceeding (safer)</li>
 <li><strong>preserve</strong> &#8211; preserve intermediate results (muscle, codeml)</li>
 <li><strong>times</strong> &#8211; number of times to perform codeml analysis</li>
 <li><strong>ignore_prefixes</strong> &#8211; ignore prefixes in paralog/gene family file (e.g. in ath|AT1G45000, ath| will be ignored)</li>
+<li><strong>async</strong> &#8211; use asyncio library for parallelization</li>
+<li><strong>min_length</strong> &#8211; minimum MSA length</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">some files and plots in the chosen output directory</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">data frame</p>
 </td>
 </tr>
 </tbody>

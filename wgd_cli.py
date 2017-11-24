@@ -67,7 +67,9 @@ def cli(verbose):
 def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_factor, eval_cutoff, output_dir,
           n_threads):
     """
-    Perform all-vs.-all Blastp (+ MCL) analysis.
+    All-vs.-all blastp (+ MCL) analysis.
+
+    Requires ``blastp``, ``makeblastdb`` (ncbi-blast+ suite) and ``mcl``
 
     Example 1 - whole paranome delineation:
 
@@ -85,13 +87,14 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
 def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None, blast_results=None,
            inflation_factor=2.0, eval_cutoff=1e-10, output_dir='wgd.blast.out', n_threads=4):
     """
-    All vs. all Blast pipeline. For usage in the ``wgd`` CLI.
+    All vs. all Blast pipeline
+    For usage in the ``wgd`` CLI.
 
     :param cds: boolean, provided sequences are CDS
     :param mcl: boolean, perform MCL clustering
     :param one_v_one: boolean, identify one vs. one orthologs (reciprocal best hits)
     :param sequences: CDS fasta files, if multiple (for one vs. one ortholog identification), then as a comma-separated
-    string e.g. ath.fasta,aly.fasta
+        string e.g. ath.fasta,aly.fasta
     :param species_ids: comma-separated species ids, optional for one-vs-one ortholog delineation
     :param blast_results: precomputed blast results (tab separated blast output style)
     :param inflation_factor: inflation factor for MCL clustering
@@ -127,7 +130,7 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
                 logging.error('Number of species identifiers ({0}) does not match number of provided sequence '
                               'files ({1}).'.format(len(ids), len(sequence_files)))
         elif one_v_one:
-            ids = sequence_files
+            ids = [os.path.basename(x) for x in sequence_files]
         else:
             ids = [''] * len(sequence_files)
 
@@ -209,10 +212,11 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
 def ks(gene_families, sequences, output_directory, protein_sequences,
         tmp_dir, muscle, codeml, times, min_msa_length, ignore_prefixes, one_v_one, preserve, async, n_threads):
     """
-    Construct a Ks distribution.
+    Ks distribution construction.
 
     Ks distribution construction for a set of paralogs or one-to-one orthologs.
     This implementation uses either the joblib or the asyncio library for parallellization.
+    Requires both ``codeml`` and ``muscle``.
 
     Example 1 - whole paranome Ks distribution:
 
@@ -345,15 +349,21 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None, tmp_
               help="Keyword for parsing the gene IDs from the GFF file (column 9). (Default = 'ID').")
 def syn(gff_file, gene_families, output_dir, ks_distribution, keyword, id_string):
     """
-    Co-linearity analyses
-    Requires I-ADHoRe 3.0
+    Co-linearity analyses.
+
+    Requires I-ADHoRe 3.0.
+
+    Example:
+
+        wgd syn -gff ailuropoda.gff -gf ailuropoda.paranome.mcl -ks panda.ks -o panda.anchors_out
     """
     syn_(gff_file, gene_families, output_dir, ks_distribution, keyword, id_string)
 
 
 def syn_(gff_file, families, output_dir, ks_distribution, keyword='mRNA', id_string='Parent'):
     """
-    Co-linearity analysis with I-ADHoRe 3.0. For usage in the ``wgd`` CLI.
+    Co-linearity analysis with I-ADHoRe 3.0
+    For usage in the ``wgd`` CLI.
 
     :param gff_file: GFF annotation file
     :param families: gene families as tab seperated gene IDs, see :py:func:`blast_`
@@ -448,7 +458,7 @@ def syn_(gff_file, families, output_dir, ks_distribution, keyword='mRNA', id_str
                    'will be in the output.')
 def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences):
     """
-    Mixture modeling of Ks distributions
+    Mixture modeling of Ks distributions.
     """
     mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences)
 
@@ -518,7 +528,7 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequence
 @click.option('--output_file', '-o', default='wgd_hist.png',
               help="Output file, default='wgd_hist.png'.")
 def hist(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file):
-    """ Plot (stacked) histograms """
+    """ Plot (stacked) histograms. """
     hist_(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file)
 
 
@@ -542,7 +552,7 @@ def hist_(ks_distributions, alpha_values, colors, labels, hist_type, title, outp
     logging.info('Plotting Ks distributions overlay')
     plot_selection(dists, alphas=alpha_values, colors=colors, labels=labels, output_file=output_file,
                    title=title, histtype=hist_type)
-    pass
+    return
 
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
@@ -569,7 +579,7 @@ def pipeline_1(sequences, output_dir, gff_file, n_threads):
 def pipeline_2(sequences, output_dir, n_threads):
     """ Standard workflow one-vs-one ortholog Ks."""
     ovo_out = blast_(cds=True, one_v_one=True, mcl=False, sequences=sequences, n_threads=n_threads,
-                     output_dir=output_dir, species_ids=sequences)
+                     output_dir=output_dir)
     ks_(gene_families=ovo_out, sequences=sequences, n_threads=n_threads, output_directory=output_dir, one_v_one=True)
     pass
 

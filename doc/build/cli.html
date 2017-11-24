@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="wgd 0.0.1 documentation" href="index.html" />
-    <link rel="next" title="Markov clustering related functions" href="blast_mcl.html" />
+    <link rel="next" title="wgd_cli" href="wgd_cli.html" />
     <link rel="prev" title="wgd: Whole genome duplication analysis in Python" href="index.html" /> 
   </head>
   <body role="document">
@@ -39,7 +39,7 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="blast_mcl.html" title="Markov clustering related functions"
+          <a href="wgd_cli.html" title="wgd_cli"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="wgd: Whole genome duplication analysis in Python"
@@ -58,6 +58,38 @@
 <p>The command line interface (CLI) and all command line utilities are written in python3.5 using the click library.
 Upon installation, all available command line utilities bundled in the CLI can be listed by running:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>$ wgd --help
+
+Usage: wgd [OPTIONS] COMMAND [ARGS]...
+
+  Welcome to the wgd command line interface!
+
+                         _______
+                         \  ___ `&#39;.
+         _     _ .--./)   &#39; |--.\  \
+   /\    \\   ///.&#39;&#39;\\    | |    \  &#39;
+   `\\  //\\ //| |  | |   | |     |  &#39;
+     \`//  \&#39;/  \`-&#39; /    | |     |  |
+      \|   |/   /(&quot;&#39;`     | |     &#39; .&#39;
+       &#39;        \ &#39;---.   | |___.&#39; /&#39;
+                 /&#39;&quot;&quot;&#39;.\ /_______.&#39;/
+                ||     ||\_______|/
+                \&#39;. __//
+                 `&#39;---&#39;
+
+  Arthur Zwaenepoel - 2017
+
+Options:
+  --verbose [silent|info|debug]  Verbosity level, default = info.
+  -h, --help                     Show this message and exit.
+
+Commands:
+  blast       All-vs.-all blastp (+ MCL) analysis.
+  hist        Plot (stacked) histograms.
+  ks          Ks distribution construction.
+  mix         Mixture modeling of Ks distributions.
+  pipeline_1  Standard workflow whole paranome Ks.
+  pipeline_2  Standard workflow one-vs-one ortholog Ks.
+  syn         Co-linearity analyses.
 </pre></div>
 </div>
 <p>Note that the verbose flag can be set before the subcommands:</p>
@@ -65,23 +97,47 @@ Upon installation, all available command line utilities bundled in the CLI can b
 </pre></div>
 </div>
 <p>Which sets the verbosity for the logging.</p>
-<div class="section" id="ks-distribution-analysis-from-a-cds-fasta-file-example">
-<h2>Ks distribution analysis from a CDS fasta file - example<a class="headerlink" href="#ks-distribution-analysis-from-a-cds-fasta-file-example" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="examples">
+<h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="whole-paranome-ks-distribution-construction">
+<h2>Whole paranome K<sub>S</sub> distribution construction<a class="headerlink" href="#whole-paranome-ks-distribution-construction" title="Permalink to this headline">¶</a></h2>
+<p>Here  recipe is shown for K<sub>S</sub> distribution construction using the provided commands in th <code class="docutils literal"><span class="pre">wgd</span></code>
+command line interface. For this analysis we could also use the provided pipeline <code class="docutils literal"><span class="pre">wgd</span> <span class="pre">pipeline_1</span></code>
+command, which provides less control, but is quite convenient in usage for this standard workflow.</p>
+<div class="section" id="full-control">
+<h3>1) Full control<a class="headerlink" href="#full-control" title="Permalink to this headline">¶</a></h3>
 <p>First we infer paralogous families using all-vs-all <cite>blastp</cite> and <cite>mcl</cite>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>$ wgd blast --cds --mcl -s aptenodytes_patagonicus.cds.fasta -o ./penguin.wgd_out
 </pre></div>
 </div>
-<p>Then we can construct a K&lt;sub&gt;S&lt;/sub&gt; distribution using <cite>codeml</cite>:</p>
+<p>Then we can construct a K<sub>S</sub> distribution using <cite>codeml</cite>:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>$ wgd ks -gf penguin.wgd_out/out.mcl -s aptenodytes_patagonicus.cds.fasta -o ./penguin.wgd_out
 </pre></div>
 </div>
-<p>If we have structural annotation data available, we can look for acnhor
-pairs and make a K&lt;sub&gt;S&lt;/sub&gt; distribution for the obtained co-linear
+<p>If we have adequate structural annotation data available, we can look for anchor
+pairs and make a K<sub>S</sub> distribution for the obtained co-linear
 gene pairs:</p>
 <div class="highlight-python"><div class="highlight"><pre><span></span>$ wgd coll -ks penguin.wgd_out/all.csv -gff annotation.gff -gf penguin.wgd_out/out.mcl -o ./penguin.wgd_out
 </pre></div>
 </div>
 <p>That&#8217;s it! Quite easy no?</p>
+</div>
+<div class="section" id="pipeline">
+<h3>2) Pipeline<a class="headerlink" href="#pipeline" title="Permalink to this headline">¶</a></h3>
+<p>The same cn be accomplished using the <code class="docutils literal"><span class="pre">pipeline_1</span></code> command:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ wgd pipeline_1 -gff annotation.gff aptenodytes_patagonicus.cds.fasta penguin.wgd_out
+</pre></div>
+</div>
+<p>However this dos not provide any further control, as opposed to the subcommands listed above.
+Note that this ability to for more detailed control was not illustrated above.</p>
+<p>More detailed documentation of the main <code class="docutils literal"><span class="pre">wgd</span></code> commands can be obtained here:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="wgd_cli.html">wgd_cli</a></li>
+</ul>
+</div>
+</div>
 </div>
 </div>
 
@@ -93,8 +149,13 @@ gene pairs:</p>
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Command line interface</a><ul>
-<li><a class="reference internal" href="#ks-distribution-analysis-from-a-cds-fasta-file-example">Ks distribution analysis from a CDS fasta file - example</a></li>
+<li><a class="reference internal" href="#">Command line interface</a></li>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#whole-paranome-ks-distribution-construction">Whole paranome K<sub>S</sub> distribution construction</a><ul>
+<li><a class="reference internal" href="#full-control">1) Full control</a></li>
+<li><a class="reference internal" href="#pipeline">2) Pipeline</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -103,8 +164,8 @@ gene pairs:</p>
   <p class="topless"><a href="index.html"
                         title="previous chapter">wgd: Whole genome duplication analysis in Python</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="blast_mcl.html"
-                        title="next chapter">Markov clustering related functions</a></p>
+  <p class="topless"><a href="wgd_cli.html"
+                        title="next chapter">wgd_cli</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -139,7 +200,7 @@ gene pairs:</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="blast_mcl.html" title="Markov clustering related functions"
+          <a href="wgd_cli.html" title="wgd_cli"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="wgd: Whole genome duplication analysis in Python"

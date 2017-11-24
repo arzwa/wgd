@@ -1,6 +1,8 @@
 #!/usr/bin/python3.5
 """
-Arthur Zwaenepoel
+Arthur Zwaenepoel - 2017
+
+Alignment related tools
 """
 from .utils import read_fasta
 import os

@@ -1,8 +1,6 @@
-# Rewrite of the Ks distribution construction part of wgd
-# Goals:
-# 1. Simpler, assume standard data inputs generated with subtools of the wgd CLI.
-# 2. One-to-one ortholog Ks distributions
-# 3. No classes
+"""
+Arthur Zwaenepoel - 2017
+"""
 
 # IMPORTS
 from .codeml import Codeml

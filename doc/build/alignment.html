@@ -55,7 +55,8 @@
             
   <div class="section" id="module-wgd.alignment">
 <span id="alignment-tools"></span><h1>Alignment tools<a class="headerlink" href="#module-wgd.alignment" title="Permalink to this headline">¶</a></h1>
-<p>Arthur Zwaenepoel</p>
+<p>Arthur Zwaenepoel - 2017</p>
+<p>Alignment related tools</p>
 <dl class="class">
 <dt id="wgd.alignment.Muscle">
 <em class="property">class </em><code class="descclassname">wgd.alignment.</code><code class="descname">Muscle</code><span class="sig-paren">(</span><em>muscle='muscle'</em>, <em>tmp='./tmp'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.alignment.Muscle" title="Permalink to this definition">¶</a></dt>
@@ -76,15 +77,15 @@ Currently only runs with default settings.</p>
 <p>Usage examples</p>
 <ul>
 <li><p class="first">Sequences in dictionary, output as dictionary:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sequences</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;bear_gene&#39;</span><span class="p">:</span> <span class="s1">&#39;BEAR&#39;</span><span class="p">,</span> <span class="s1">&#39;hare_gene&#39;</span><span class="p">:</span> <span class="s1">&#39;HARE&#39;</span><span class="p">,</span> <span class="s1">&#39;yeast_gene&#39;</span><span class="p">:</span> <span class="s1">&#39;BEER&#39;</span><span class="p">}</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">msa</span> <span class="o">=</span> <span class="n">Muscle</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">msa</span><span class="o">.</span><span class="n">run_muscle</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span>&gt;&gt; sequences = {&#39;bear_gene&#39;: &#39;BEAR&#39;, &#39;hare_gene&#39;: &#39;HARE&#39;, &#39;yeast_gene&#39;: &#39;BEER&#39;}
+&gt;&gt; msa = Muscle()
+&gt;&gt; msa.run_muscle(sequences)
 </pre></div>
 </div>
 </li>
 <li><p class="first">Sequences in fasta file, output as fasta file <code class="docutils literal"><span class="pre">(msa.fasta)</span></code>:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">msa</span> <span class="o">=</span> <span class="n">Muscle</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">msa</span><span class="o">.</span><span class="n">run_muscle</span><span class="p">(</span><span class="s1">&#39;./sequences.fasta&#39;</span><span class="p">,</span> <span class="s1">&#39;./msa.fasta&#39;</span><span class="p">)</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span>&gt;&gt; msa = Muscle()
+&gt;&gt; msa.run_muscle(&#39;./sequences.fasta&#39;, &#39;./msa.fasta&#39;)
 </pre></div>
 </div>
 </li>

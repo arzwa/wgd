@@ -1,5 +1,4 @@
 """
-Plotting utilities for wgd
 Arthur Zwaenepoel - 2017
 """
 import plumbum as pb

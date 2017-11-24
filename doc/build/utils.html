@@ -56,7 +56,53 @@
   <div class="section" id="various-utilities">
 <h1>Various utilities<a class="headerlink" href="#various-utilities" title="Permalink to this headline">¶</a></h1>
 <p>Probably not of specific interest.</p>
-<span class="target" id="module-wgd.utils"></span><p>Arthur Zwaenepoel</p>
+<span class="target" id="module-wgd.utils"></span><p>Arthur Zwaenepoel - 2017</p>
+<dl class="class">
+<dt id="wgd.utils.Genome">
+<em class="property">class </em><code class="descclassname">wgd.utils.</code><code class="descname">Genome</code><a class="headerlink" href="#wgd.utils.Genome" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class that represents a structural annotation.
+Collects several nice data structures for a genome and parsers for various
+genomic data file formats (e.g. gff, fasta, ...)</p>
+<dl class="method">
+<dt id="wgd.utils.Genome.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.Genome.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Genome.genome: dictionary with a full representation
+Genome.gene_lists: dictionary with ordered lists of genes per
+chromosome (as for I-ADHoRe)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wgd.utils.Genome.karyotype_json">
+<code class="descname">karyotype_json</code><span class="sig-paren">(</span><em>out_file='genome.json'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.Genome.karyotype_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate karyotype data file in json format (as per Circos.js/d3.js)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wgd.utils.Genome.parse_plaza_gff">
+<code class="descname">parse_plaza_gff</code><span class="sig-paren">(</span><em>gff_file</em>, <em>keyword='mRNA'</em>, <em>id_string='Parent'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.Genome.parse_plaza_gff" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse a PLAZA annotation file into a genome dictionary</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>gff_file</strong> &#8211; input gff (PLAZA style)</li>
+<li><strong>keyword</strong> &#8211; keyword for elements to parse out</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.utils._random_color">
+<code class="descclassname">wgd.utils.</code><code class="descname">_random_color</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils._random_color" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate a random hex color</p>
+</dd></dl>
+
 <dl class="function">
 <dt id="wgd.utils.check_dirs">
 <code class="descclassname">wgd.utils.</code><code class="descname">check_dirs</code><span class="sig-paren">(</span><em>tmp_dir</em>, <em>output_dir</em>, <em>prompt</em>, <em>preserve</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.check_dirs" title="Permalink to this definition">¶</a></dt>
@@ -106,12 +152,6 @@
 Will be approximate since it is based on the assumption that
 the leading non-digit part identifies the species
 (which is not always the case e.g. mitochondrial genes etc.)</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="wgd.utils.get_one_v_one_orthologs_rbh">
-<code class="descclassname">wgd.utils.</code><code class="descname">get_one_v_one_orthologs_rbh</code><span class="sig-paren">(</span><em>blast_file</em>, <em>output_dir</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.get_one_v_one_orthologs_rbh" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get one-vs-one orthologs (using RBHs)</p>
 </dd></dl>
 
 <dl class="function">

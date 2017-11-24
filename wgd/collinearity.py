@@ -1,6 +1,6 @@
 #!/usr/bin/python3.5
 """
-Arthur Zwaenepoel
+Arthur Zwaenepoel - 2017
 """
 # TODO: multiple genomes
 

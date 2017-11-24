@@ -20,8 +20,11 @@ For full functionality, make sure you have the following external software tools
 
 1. ``codeml`` from the PAML package (http://abacus.gene.ucl.ac.uk/software/paml.html)
 2. ``muscle`` for multiple sequence alignment (http://www.drive5.com/muscle/)
-3. ``mcl`` (https://micans.org/mcl/index.html)
-4. ``blastp`` and ``makeblastdb`` from the Blast+ suite (https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download)
+3. ``mcl`` (https://micans.org/mcl/index.html). On Ubuntu, Debian and Linux Mint a simple
+``sudo apt-get install mcl`` will suffice
+4. ``blastp`` and ``makeblastdb`` from the Blast+ suite (https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download).
+Again, on Ubuntu, Debian and Linux Mint a simple ``sudo apt-get install ncbi-blast+``
+will suffice
 5. ``i-adhore`` from the I-ADHoRe 3.0 suite (http://bioinformatics.psb.ugent.be/beg/tools/i-adhore30)
 
 Of course, you don't need all of these tools installed for each feature of ``wgd``.

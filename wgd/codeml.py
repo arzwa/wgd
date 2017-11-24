@@ -1,6 +1,6 @@
 #!/usr/bin/python3.5
 """
-Arthur Zwaenepoel (2017)
+Arthur Zwaenepoel - 2017
 
 A python wrapper for codeml (PAML package, Yang 2007)
 """

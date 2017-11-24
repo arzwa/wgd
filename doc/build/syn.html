@@ -55,10 +55,10 @@
             
   <div class="section" id="module-wgd.collinearity">
 <span id="co-linearity-analyses-module"></span><h1>Co-linearity analyses module<a class="headerlink" href="#module-wgd.collinearity" title="Permalink to this headline">¶</a></h1>
-<p>Arthur Zwaenepoel</p>
+<p>Arthur Zwaenepoel - 2017</p>
 <dl class="function">
 <dt id="wgd.collinearity.get_anchor_pairs">
-<code class="descclassname">wgd.collinearity.</code><code class="descname">get_anchor_pairs</code><span class="sig-paren">(</span><em>anchors_file</em>, <em>ks_file=None</em>, <em>out_file='anchors_ks.csv'</em>, <em>species='SOI'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.collinearity.get_anchor_pairs" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">wgd.collinearity.</code><code class="descname">get_anchor_pairs</code><span class="sig-paren">(</span><em>anchors_file</em>, <em>ks_distribution=None</em>, <em>out_file='anchors_ks.csv'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.collinearity.get_anchor_pairs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get anchor pairs and their corresponding Ks values (if provided)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -66,7 +66,7 @@
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>anchors_file</strong> &#8211; anchorpoints.txt output from I-ADHoRe 3.0</li>
-<li><strong>ks_file</strong> &#8211; Ks calculations file from wgd toolkit (all.csv)</li>
+<li><strong>ks_distribution</strong> &#8211; Ks distribution dataf rame</li>
 </ul>
 </td>
 </tr>
@@ -116,7 +116,7 @@ with length defined as number of genes, not physical length.</p>
 
 <dl class="function">
 <dt id="wgd.collinearity.write_config_adhore">
-<code class="descclassname">wgd.collinearity.</code><code class="descname">write_config_adhore</code><span class="sig-paren">(</span><em>gene_lists</em>, <em>families</em>, <em>config_file_name='i-adhore.conf'</em>, <em>genome='genome'</em>, <em>output_path='i-adhore_out'</em>, <em>gap_size=30</em>, <em>cluster_gap=35</em>, <em>q_value=0.75</em>, <em>prob_cutoff=0.01</em>, <em>anchor_points=3</em>, <em>alignment_method='gg2'</em>, <em>level_2_only='false'</em>, <em>table_type='family'</em>, <em>multiple_hypothesis_correction='FDR'</em>, <em>visualize_ghm='false'</em>, <em>visualize_alignment='true'</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.collinearity.write_config_adhore" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">wgd.collinearity.</code><code class="descname">write_config_adhore</code><span class="sig-paren">(</span><em>gene_lists</em>, <em>families</em>, <em>config_file_name='i-adhore.conf'</em>, <em>genome='genome'</em>, <em>output_path='i-adhore_out'</em>, <em>gap_size=30</em>, <em>cluster_gap=35</em>, <em>q_value=0.75</em>, <em>prob_cutoff=0.01</em>, <em>anchor_points=3</em>, <em>alignment_method='gg2'</em>, <em>level_2_only='false'</em>, <em>table_type='family'</em>, <em>multiple_hypothesis_correction='FDR'</em>, <em>visualize_ghm='false'</em>, <em>visualize_alignment='true'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.collinearity.write_config_adhore" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write out the config file for I-ADHoRe. See I-ADHoRe manual for information on
 parameter settings.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -126,25 +126,24 @@ parameter settings.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>gene_lists</strong> &#8211; directory with gene lists per chromosome</li>
 <li><strong>families</strong> &#8211; file with gene to family mapping</li>
-<li><strong>config_file_name</strong> &#8211; </li>
-<li><strong>genome</strong> &#8211; </li>
-<li><strong>output_path</strong> &#8211; </li>
-<li><strong>gap_size</strong> &#8211; </li>
-<li><strong>cluster_gap</strong> &#8211; </li>
-<li><strong>q_value</strong> &#8211; </li>
-<li><strong>prob_cutoff</strong> &#8211; </li>
-<li><strong>anchor_points</strong> &#8211; </li>
-<li><strong>alignment_method</strong> &#8211; </li>
-<li><strong>level_2_only</strong> &#8211; </li>
-<li><strong>table_type</strong> &#8211; </li>
-<li><strong>multiple_hypothesis_correction</strong> &#8211; </li>
-<li><strong>visualizeGHM</strong> &#8211; </li>
-<li><strong>visualizeAlignment</strong> &#8211; </li>
-<li><strong>kwargs</strong> &#8211; </li>
+<li><strong>config_file_name</strong> &#8211; name for the config file</li>
+<li><strong>genome</strong> &#8211; genome name</li>
+<li><strong>output_path</strong> &#8211; output path name</li>
+<li><strong>gap_size</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
+<li><strong>cluster_gap</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
+<li><strong>q_value</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
+<li><strong>prob_cutoff</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
+<li><strong>anchor_points</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
+<li><strong>alignment_method</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
+<li><strong>level_2_only</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
+<li><strong>table_type</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
+<li><strong>multiple_hypothesis_correction</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
+<li><strong>visualize_ghm</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
+<li><strong>visualize_alignment</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">configuration file</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">configuration file see I-ADHoRe 3.0 documentation</p>
 </td>
 </tr>
 </tbody>
@@ -160,13 +159,13 @@ parameter settings.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>families</strong> &#8211; </li>
-<li><strong>all_genes</strong> &#8211; </li>
-<li><strong>output_file</strong> &#8211; </li>
+<li><strong>families</strong> &#8211; gene families</li>
+<li><strong>all_genes</strong> &#8211; set object with all genes for the species of interest</li>
+<li><strong>output_file</strong> &#8211; output file name</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">nada</p>
 </td>
 </tr>
 </tbody>

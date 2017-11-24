@@ -57,10 +57,10 @@
 <h1>Mixture modeling<a class="headerlink" href="#mixture-modeling" title="Permalink to this headline">¶</a></h1>
 <p>The mixture modeling features of <cite>wgd</cite> use the <code class="docutils literal"><span class="pre">sci-kit</span> <span class="pre">learn</span></code>
 (better known as <code class="docutils literal"><span class="pre">sklearn</span></code> library).</p>
-<span class="target" id="module-wgd.modeling"></span><p>Arthur Zwaenepoel</p>
+<span class="target" id="module-wgd.modeling"></span><p>Arthur Zwaenepoel - 2017</p>
 <dl class="function">
 <dt id="wgd.modeling.kernel_density_estimation">
-<code class="descclassname">wgd.modeling.</code><code class="descname">kernel_density_estimation</code><span class="sig-paren">(</span><em>data_frame, bandwidths=[0.01, 0.05, 0.1, 0.15, 0.2], kernel='gaussian', output_dir=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.modeling.kernel_density_estimation" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">wgd.modeling.</code><code class="descname">kernel_density_estimation</code><span class="sig-paren">(</span><em>data_frame</em>, <em>bandwidths=(0.01</em>, <em>0.05</em>, <em>0.1</em>, <em>0.15</em>, <em>0.2)</em>, <em>kernel='gaussian'</em>, <em>output_dir=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.modeling.kernel_density_estimation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Kernel density estimation (KDE) for Ks distribution</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -112,32 +112,6 @@
 </dd></dl>
 
 <dl class="function">
-<dt id="wgd.modeling.mixture_model_bgmm_">
-<code class="descclassname">wgd.modeling.</code><code class="descname">mixture_model_bgmm_</code><span class="sig-paren">(</span><em>data_frame</em>, <em>n_range=(1</em>, <em>5)</em>, <em>Ks_range=(0.1</em>, <em>2)</em>, <em>gamma=0.01</em>, <em>max_iter=1000</em>, <em>plot=True</em>, <em>output_dir=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.modeling.mixture_model_bgmm_" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fit a Bayesian Gaussian mixture model and make some plots</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data_frame</strong> &#8211; pandas dataframe from Ks analysis</li>
-<li><strong>n_range</strong> &#8211; range of numbers of components</li>
-<li><strong>Ks_range</strong> &#8211; Ks value interval to model</li>
-<li><strong>gamma</strong> &#8211; gamma hyperparameter for sklearn.mixture.BayesianGaussianMixture</li>
-<li><strong>max_iter</strong> &#8211; maximum number of iterations</li>
-<li><strong>plot</strong> &#8211; make plots (boolean)</li>
-<li><strong>output_dir</strong> &#8211; output directory</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">mixture models</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
 <dt id="wgd.modeling.mixture_model_gmm">
 <code class="descclassname">wgd.modeling.</code><code class="descname">mixture_model_gmm</code><span class="sig-paren">(</span><em>data_frame</em>, <em>n=4</em>, <em>Ks_range=(0.1</em>, <em>2)</em>, <em>log=True</em>, <em>plot=True</em>, <em>output_dir=None</em>, <em>plot_save=True</em>, <em>output_file='mixture.png'</em>, <em>fig_size=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.modeling.mixture_model_gmm" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fit mixture models using Gaussian Mixture Modeling for different numbers of components and choose best one.</p>
@@ -148,7 +122,6 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>data_frame</strong> &#8211; pandas data frame from Ks analysis</li>
 <li><strong>n</strong> &#8211; max number of components</li>
-<li><strong>metric</strong> &#8211; information criterion to use (<code class="docutils literal"><span class="pre">'AIC'</span></code> or <code class="docutils literal"><span class="pre">'BIC'</span></code>)</li>
 <li><strong>Ks_range</strong> &#8211; Ks range to model</li>
 <li><strong>log</strong> &#8211; fit log-normal components</li>
 <li><strong>plot</strong> &#8211; make plots</li>
