@@ -165,8 +165,8 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
     if mcl:
         logging.info('Performing MCL clustering (inflation factor = {0})'.format(inflation_factor))
         ava_graph = ava_blast_to_abc_2(blast_results)
-        mcl_out = run_mcl_ava_2(ava_graph, output_dir=output_dir, output_file='{}.paranome.mcl'.format(sequences),
-                                inflation=inflation_factor)
+        mcl_out = run_mcl_ava_2(ava_graph, output_dir=output_dir, output_file='{}.mcl'.format(
+            os.path.basename(blast_results)), inflation=inflation_factor)
         logging.info('Done')
         return mcl_out
 
@@ -459,7 +459,7 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequence
 
     :param ks_distribution: Ks distribution tsv file
     :param method: mixture modeling method, either 'bgmm', 'gmm' or 'both'
-    :param n_range: 
+    :param n_range:
     :param ks_range:
     :param output_dir:
     :param gamma:

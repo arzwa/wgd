@@ -53,67 +53,6 @@ def _ava_blast_to_abc(ava_file, regex='.+', prefix=None, col_1=0, col_2=1, col_3
     return graph
 
 
-def run_mcl_ava(input_file, regex='.+', prefix=None, tmp_dir='./', output_file='mcl.out', inflation=2,
-                return_dict=False, preserve=True, **kwargs):
-    """
-    Run ``mcl`` on all-vs-all Blast results for a species of interest.
-    Note if the parameter ``output_file`` is not given and the parameter ``return_dict`` is set to True,
-    only a python dictionary is returned and no file is written.
-
-    :param prefix: prefix for genes of interest (optional), e.g. 'arat' for 'arat|AT1G001290'.
-    :param regex: regular expression for parsing genes of interest (optional), e.g. 'AT.+' for 'AT1G001290'.
-    :param input_file: all-vs-all Blast input file
-    :param tmp_dir: directory to store temporary/intermediate files
-    :param output_file: output_file (optional)
-    :param inflation: inflation factor for ``mcl``
-    :param return_dict: boolean, return results as dictionary?
-    :param preserve: boolean, preserve tmp/intermediate files?
-    :param kwargs: other arguments for :py:func:`_ava_blast_to_abc`
-    :return: results as output file or as gene family dictionary
-    """
-    # get all-vs-all results in abc format graph for mcl
-    logging.info('Making input graph for mcl')
-    graph = _ava_blast_to_abc(input_file, regex=regex, prefix=prefix, **kwargs)
-
-    tmp_file = os.path.basename(input_file) + '.abc'
-    tmp_file = os.path.join(tmp_dir, tmp_file)
-
-    with open(tmp_file, 'w') as o:
-        o.write("\n".join(["\t".join(x) for x in graph]))
-
-    # configuration
-
-    # run mcl pipeline
-    logging.info('Started MCL clustering (mcl)')
-    command = ['mcxload', '-abc', tmp_file, '--stream-mirror', '--stream-neg-log10',
-               '-o', tmp_file + '.mci', '-write-tab', tmp_file + '.tab']
-    logging.debug(" ".join(command))
-    completed = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    logging.debug(completed.stderr.decode('utf-8'))
-
-    command = ['mcl', tmp_file + '.mci', '-I', str(inflation), '-o', tmp_file + '.mci.I' + str(inflation*10)]
-    logging.debug(" ".join(command))
-    completed = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    logging.debug(completed.stderr.decode('utf-8'))
-
-    command = ['mcxdump', '-icl', tmp_file + '.mci.I' + str(inflation*10), '-tabr', tmp_file + '.tab',
-               '-o', output_file]
-    logging.debug(" ".join(command))
-    completed = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    logging.debug(completed.stderr.decode('utf-8'))
-
-    # remove temporary files
-    if not preserve:
-        os.system("rm {0} {1}.tab {2}.mci {3}.mci.I".format(tmp_file, tmp_file, tmp_file, tmp_file))
-
-    # return output as desired
-    if return_dict:
-        results = process_gene_families(output_file)
-        return results
-
-    return output_file
-
-
 def all_v_all_blast(query, db, output_directory, output_file='blast.tsv', eval_cutoff=1e-10, n_threads=4):
     """
     Perform all-versus-all Blastp.

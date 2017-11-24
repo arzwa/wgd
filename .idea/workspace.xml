@@ -2,12 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="821fa536-1b70-4930-9299-1d4345685448" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/blast_mcl.py" afterPath="$PROJECT_DIR$/wgd/blast_mcl.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/collinearity.py" afterPath="$PROJECT_DIR$/wgd/collinearity.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/ks_distribution.py" afterPath="$PROJECT_DIR$/wgd/ks_distribution.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/modeling.py" afterPath="$PROJECT_DIR$/wgd/modeling.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/viz.py" afterPath="$PROJECT_DIR$/wgd/viz.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd_cli.py" afterPath="$PROJECT_DIR$/wgd_cli.py" />
     </list>
     <ignored path="$PROJECT_DIR$/.idea/" />
@@ -23,19 +18,17 @@
       <file leaf-file-name="wgd_cli.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wgd_cli.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-153">
-              <caret line="461" column="20" lean-forward="false" selection-start-line="461" selection-start-column="20" selection-end-line="461" selection-end-column="20" />
+            <state relative-caret-position="1122">
+              <caret line="168" column="46" lean-forward="false" selection-start-line="168" selection-start-column="46" selection-end-line="168" selection-end-column="46" />
               <folding>
                 <element signature="e#206#218#0" expanded="true" />
                 <element signature="e#2917#3425#0" expanded="false" />
-                <element signature="e#3628#7532#0" expanded="false" />
-                <element signature="e#10091#10806#0" expanded="false" />
-                <element signature="e#11065#15766#0" expanded="false" />
-                <element signature="e#16830#16976#0" expanded="false" />
-                <element signature="e#21787#21922#0" expanded="false" />
-                <element signature="e#24914#25036#0" expanded="false" />
-                <element signature="e#25133#25972#0" expanded="false" />
-                <element signature="e#26384#26775#0" expanded="false" />
+                <element signature="e#10085#10800#0" expanded="false" />
+                <element signature="e#11059#15760#0" expanded="false" />
+                <element signature="e#16824#16970#0" expanded="false" />
+                <element signature="e#21781#21916#0" expanded="false" />
+                <element signature="e#24907#25029#0" expanded="false" />
+                <element signature="e#25126#25965#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -79,8 +72,8 @@
       <file leaf-file-name="blast_mcl.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/blast_mcl.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="372">
-              <caret line="127" column="32" lean-forward="false" selection-start-line="127" selection-start-column="32" selection-end-line="127" selection-end-column="32" />
+            <state relative-caret-position="99">
+              <caret line="52" column="16" lean-forward="false" selection-start-line="52" selection-start-column="16" selection-end-line="52" selection-end-column="16" />
               <folding />
             </state>
           </provider>
@@ -187,12 +180,12 @@
         <option value="$PROJECT_DIR$/doc/source/ks.rst" />
         <option value="$PROJECT_DIR$/doc/source/index.rst" />
         <option value="$PROJECT_DIR$/wgd/utils.py" />
-        <option value="$PROJECT_DIR$/wgd/blast_mcl.py" />
         <option value="$PROJECT_DIR$/wgd/ks_distribution.py" />
         <option value="$PROJECT_DIR$/wgd/collinearity.py" />
         <option value="$PROJECT_DIR$/wgd/viz.py" />
         <option value="$PROJECT_DIR$/wgd/modeling.py" />
         <option value="$PROJECT_DIR$/wgd_cli.py" />
+        <option value="$PROJECT_DIR$/wgd/blast_mcl.py" />
       </list>
     </option>
   </component>
@@ -377,14 +370,12 @@
           <folding>
             <element signature="e#206#218#0" expanded="true" />
             <element signature="e#2917#3425#0" expanded="false" />
-            <element signature="e#3628#7532#0" expanded="false" />
-            <element signature="e#10091#10806#0" expanded="false" />
-            <element signature="e#11065#15766#0" expanded="false" />
-            <element signature="e#16830#16976#0" expanded="false" />
-            <element signature="e#21787#21922#0" expanded="false" />
-            <element signature="e#24914#25036#0" expanded="false" />
-            <element signature="e#25133#25972#0" expanded="false" />
-            <element signature="e#26384#26775#0" expanded="false" />
+            <element signature="e#10085#10800#0" expanded="false" />
+            <element signature="e#11059#15760#0" expanded="false" />
+            <element signature="e#16824#16970#0" expanded="false" />
+            <element signature="e#21781#21916#0" expanded="false" />
+            <element signature="e#24907#25029#0" expanded="false" />
+            <element signature="e#25126#25965#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -431,14 +422,12 @@
           <folding>
             <element signature="e#206#218#0" expanded="true" />
             <element signature="e#2917#3425#0" expanded="false" />
-            <element signature="e#3628#7532#0" expanded="false" />
-            <element signature="e#10091#10806#0" expanded="false" />
-            <element signature="e#11065#15766#0" expanded="false" />
-            <element signature="e#16830#16976#0" expanded="false" />
-            <element signature="e#21787#21922#0" expanded="false" />
-            <element signature="e#24914#25036#0" expanded="false" />
-            <element signature="e#25133#25972#0" expanded="false" />
-            <element signature="e#26384#26775#0" expanded="false" />
+            <element signature="e#10085#10800#0" expanded="false" />
+            <element signature="e#11059#15760#0" expanded="false" />
+            <element signature="e#16824#16970#0" expanded="false" />
+            <element signature="e#21781#21916#0" expanded="false" />
+            <element signature="e#24907#25029#0" expanded="false" />
+            <element signature="e#25126#25965#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -457,14 +446,12 @@
           <folding>
             <element signature="e#206#218#0" expanded="true" />
             <element signature="e#2917#3425#0" expanded="false" />
-            <element signature="e#3628#7532#0" expanded="false" />
-            <element signature="e#10091#10806#0" expanded="false" />
-            <element signature="e#11065#15766#0" expanded="false" />
-            <element signature="e#16830#16976#0" expanded="false" />
-            <element signature="e#21787#21922#0" expanded="false" />
-            <element signature="e#24914#25036#0" expanded="false" />
-            <element signature="e#25133#25972#0" expanded="false" />
-            <element signature="e#26384#26775#0" expanded="false" />
+            <element signature="e#10085#10800#0" expanded="false" />
+            <element signature="e#11059#15760#0" expanded="false" />
+            <element signature="e#16824#16970#0" expanded="false" />
+            <element signature="e#21781#21916#0" expanded="false" />
+            <element signature="e#24907#25029#0" expanded="false" />
+            <element signature="e#25126#25965#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -641,14 +628,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wgd/blast_mcl.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="372">
-          <caret line="127" column="32" lean-forward="false" selection-start-line="127" selection-start-column="32" selection-end-line="127" selection-end-column="32" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/wgd/ks_distribution.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="215">
@@ -696,21 +675,27 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/wgd/blast_mcl.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="99">
+          <caret line="52" column="16" lean-forward="false" selection-start-line="52" selection-start-column="16" selection-end-line="52" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/wgd_cli.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-153">
-          <caret line="461" column="20" lean-forward="false" selection-start-line="461" selection-start-column="20" selection-end-line="461" selection-end-column="20" />
+        <state relative-caret-position="1122">
+          <caret line="168" column="46" lean-forward="false" selection-start-line="168" selection-start-column="46" selection-end-line="168" selection-end-column="46" />
           <folding>
             <element signature="e#206#218#0" expanded="true" />
             <element signature="e#2917#3425#0" expanded="false" />
-            <element signature="e#3628#7532#0" expanded="false" />
-            <element signature="e#10091#10806#0" expanded="false" />
-            <element signature="e#11065#15766#0" expanded="false" />
-            <element signature="e#16830#16976#0" expanded="false" />
-            <element signature="e#21787#21922#0" expanded="false" />
-            <element signature="e#24914#25036#0" expanded="false" />
-            <element signature="e#25133#25972#0" expanded="false" />
-            <element signature="e#26384#26775#0" expanded="false" />
+            <element signature="e#10085#10800#0" expanded="false" />
+            <element signature="e#11059#15760#0" expanded="false" />
+            <element signature="e#16824#16970#0" expanded="false" />
+            <element signature="e#21781#21916#0" expanded="false" />
+            <element signature="e#24907#25029#0" expanded="false" />
+            <element signature="e#25126#25965#0" expanded="false" />
           </folding>
         </state>
       </provider>
