@@ -13,7 +13,7 @@ import datetime
 import pandas as pd
 import uuid
 import coloredlogs
-from wgd.utils import translate_cds, read_fasta, write_fasta, get_one_v_one_orthologs_rbh, Genome
+from wgd.utils import translate_cds, read_fasta, write_fasta, Genome
 
 
 # CLI ENTRYPOINT -------------------------------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
         wgd blast --cds --one_v_one -s equus_ferus.fasta,ursus_arctos.fasta -id horse,bear -e 1e-8 -o bear_horse_out
     """
     # lazy imports
-    from wgd.blast_mcl import all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2
+    from wgd.blast_mcl import all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2, get_one_v_one_orthologs_rbh
 
     if not sequences and not blast_results:
         logging.error('No sequences nor blast results provided! Please use the --help flag for usage instructions.')
@@ -129,12 +129,12 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
             write_fasta(protein_sequences[1], query)
 
         logging.info('Performing all_v_all_blastp (this might take a while)')
-        blast_results = all_v_all_blast(query, db, output_dir, output_file='{}.blast.tsv'.format(sequences),
-                                        eval_cutoff=eval_cutoff, n_threads=n_threads)
+        blast_results = all_v_all_blast(query, db, output_dir, output_file='{}.blast.tsv'.format(
+            '_'.join([os.path.basename(x) for x in sequence_files])), eval_cutoff=eval_cutoff, n_threads=n_threads)
 
     if one_v_one:
         logging.info('Retrieving one vs. one orthologs')
-        get_one_v_one_orthologs_rbh(blast_results, output_dir)
+        one_v_one_out = get_one_v_one_orthologs_rbh(blast_results, output_dir)
 
     if mcl:
         logging.info('Performing MCL clustering (inflation factor = {0})'.format(inflation_factor))
@@ -328,7 +328,7 @@ def syn(gff_file, families, output_dir, ks_distribution, keyword, id_string):
                         config_file_name=os.path.join(output_dir, 'adhore.conf'),
                         output_path=os.path.join(output_dir, 'i-adhore-out'))
 
-    logging.info("Running I-ADHoRe")
+    logging.info("Running I-ADHoRe 3.0")
     run_adhore(os.path.join(output_dir, 'adhore.conf'))
 
     logging.info('Drawing co-linearity dotplot')
@@ -352,7 +352,7 @@ def syn(gff_file, families, output_dir, ks_distribution, keyword, id_string):
 
         logging.info("Generating histogram")
         plot_selection([ks, anchors], alphas=[0.2,0.7], output_file=os.path.join(output_dir, '{}.ks_anchors.png'.format(
-            os.path.basename(families))), title=os.path.basename(families))
+            os.path.basename(families))), title=os.path.basename(families), labels=['Whole paranome', 'Anchors'])
 
     logging.info("Done")
 
@@ -535,7 +535,7 @@ def pipeline_1(sequences, gff_file, output_dir, n_threads):
                         config_file_name=os.path.join(output_dir, 'adhore.conf'),
                         output_path=os.path.join(output_dir, 'i-adhore-out'))
 
-    logging.info("Running I-ADHoRe")
+    logging.info("Running I-ADHoRe 3.0")
     run_adhore(os.path.join(output_dir, 'adhore.conf'))
 
     logging.info('Drawing co-linearity dotplot')
@@ -557,7 +557,7 @@ def pipeline_1(sequences, gff_file, output_dir, n_threads):
 
     logging.info("Generating histogram")
     plot_selection([ks, anchors], alphas=[0.2, 0.7], output_file=os.path.join(output_dir, '{}.ks_anchors.png'.format(
-        os.path.basename(gene_families))), title=os.path.basename(gene_families))
+        os.path.basename(gene_families))), title=os.path.basename(gene_families), labels=['Whole paranome', 'Anchors'])
 
     logging.info("Done")
 

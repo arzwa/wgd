@@ -141,6 +141,47 @@ def all_v_all_blast(query, db, output_directory, output_file='blast.tsv', eval_c
     return os.path.join(output_directory, output_file)
 
 
+def get_one_v_one_orthologs_rbh(blast_file, output_dir):
+    """ Get one-vs-one orthologs (using RBHs) """
+    one_v_one_orthologs = {}
+    with open(blast_file, 'r') as f:
+        for line in f:
+            line = line.strip().split('\t')
+            sp_1, gene_1 = line[0].split('|')
+            sp_2, gene_2 = line[1].split('|')
+            e = float(line[2])
+
+            if sp_1 == sp_2:  # putative paralog
+                continue
+
+            comb = '_'.join(sorted([sp_1, sp_2]))
+            if comb not in one_v_one_orthologs.keys():
+                one_v_one_orthologs[comb] = {}
+
+            if gene_1 not in one_v_one_orthologs[comb].keys():
+                one_v_one_orthologs[comb][gene_1] = (gene_2, e)
+            elif e < one_v_one_orthologs[comb][gene_1][1]:
+                one_v_one_orthologs[comb][gene_1] = (gene_2, e)
+
+            if gene_2 not in one_v_one_orthologs[comb].keys():
+                one_v_one_orthologs[comb][gene_2] = (gene_1, e)
+            elif e < one_v_one_orthologs[comb][gene_2][1]:
+                one_v_one_orthologs[comb][gene_2] = (gene_1, e)
+
+    for comb, d in one_v_one_orthologs.items():
+        logging.info('Writing one vs one orthologs to {}.tsv'.format(comb))
+        with open(os.path.join(output_dir, '{}.ovo.tsv'.format(comb)), 'w') as o:
+            for key, val in d.items():
+                if val[0] not in d.keys():
+                    logging.warning('Gene {} not found in dictionary strangely enough?'.format(val[0]))
+                if key == d[val[0]][0]:  # RBH
+                    o.write('{0}\t{1}\n'.format(key, val[0]))
+                else:
+                    logging.debug('Best hit for {0} is {1} but for {1} is {2}'.format(key, val, d[val[0]][0]))
+        last = os.path.join(output_dir, '{}.txt'.format(comb))
+    return last
+
+
 # REWRITE: MAINTAIN BOTH IN ORDER TO PREVENT BROKEN STUFF --------------------------------------------------------------
 
 def ava_blast_to_abc_2(ava_file, col_1=0, col_2=1, col_3=2):
