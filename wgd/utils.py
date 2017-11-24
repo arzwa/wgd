@@ -337,7 +337,7 @@ class Genome:
                     stop = line[4]
                     orientation = line[6]
                     gene_l = line[8].split(';')
-                    gene_dict = {x.split('=')[0]: x.split('=')[1] for x in gene_l}
+                    gene_dict = {x.split('=')[0]: x.split('=')[1] for x in gene_l if len(x.split('=')) == 2}
 
                     if chromosome not in self.genome:
                         self.genome[chromosome] = {}

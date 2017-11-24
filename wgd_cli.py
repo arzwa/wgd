@@ -360,8 +360,8 @@ def syn(gff_file, families, output_dir, ks_distribution, keyword, id_string):
 # MIXTURE MODELING -----------------------------------------------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option('--ks_distribution', '-ks', default=None, help="Ks distribution csv file, as generated with `wgd ks`.")
-@click.option('--method', type=click.Choice(['bgmm', 'gmm', 'both']), default='bgmm',
-              help="Mixture modeling method, default is `bgmm` (Bayesian Gaussian mixture model).")
+@click.option('--method', type=click.Choice(['bgmm', 'gmm', 'both']), default='gmm',
+              help="Mixture modeling method, default is `gmm` (Gaussian mixture model).")
 @click.option('--n_range', '-n', default='1,4',
               help='Range of number of components to fit. Default = 1,4')
 @click.option('--ks_range', '-r', default='0.1,3',
@@ -431,6 +431,10 @@ def hist(ks_distributions, alpha_values, colors, labels, hist_type, title, outpu
     """ Plot (stacked) histograms """
     from wgd.viz import plot_selection
 
+    if not ks_distributions:
+        logging.error('No Ks distributions provided, run `wgd hist -h` for usage instructions')
+        logging.info('You have to provide one or more computed Ks distributions! See for example `wgd ks -h`')
+
     dists = [pd.read_csv(x, sep='\t') for x in ks_distributions.split(',')]
     if alpha_values:
         alpha_values = [float(x) for x in alpha_values.split(',')]
@@ -441,6 +445,7 @@ def hist(ks_distributions, alpha_values, colors, labels, hist_type, title, outpu
     else:
         labels = labels.split(',')
 
+    logging.info('Plotting Ks distributions overlay')
     plot_selection(dists, alphas=alpha_values, colors=colors, labels=labels, output_file=output_file,
                    title=title, histtype=hist_type)
     pass
@@ -465,6 +470,9 @@ def pipeline_1(sequences, gff_file, output_dir, n_threads):
     from wgd.viz import plot_selection, syntenic_dotplot, syntenic_dotplot_ks_colored
 
     wd = os.getcwd()
+
+    if not sequences:
+        logging.error('Please provide CDS sequences as a fasta file (minimal input)!')
 
     if not os.path.exists(output_dir):
         logging.info('Output directory: {} does not exist, will make it.'.format(output_dir))
@@ -505,6 +513,10 @@ def pipeline_1(sequences, gff_file, output_dir, n_threads):
     logging.info('Generating plots')
     plot_selection(results, output_file=os.path.join(output_directory, '{}.ks.png'.format(os.path.basename(
         gene_families))), title=os.path.basename(gene_families))
+
+    if not gff_file:
+        logging.warning('No GFF file provided, will stop here.')
+        return
 
     logging.info("Parsing GFF file")
     genome = Genome()
