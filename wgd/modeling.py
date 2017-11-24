@@ -42,73 +42,7 @@ def weighted_to_unweighted(data_frame):
     return np.array(l).reshape((-1,1))
 
 
-def mixture_model_bgmm_(data_frame, n_range=(1,5), Ks_range=(0.1, 2), gamma=0.01, max_iter=1000,
-                        plot=True, output_dir=None):
-    """
-    Fit a Bayesian Gaussian mixture model and make some plots
-
-    :param data_frame: pandas dataframe from Ks analysis
-    :param n_range: range of numbers of components
-    :param Ks_range: Ks value interval to model
-    :param gamma: gamma hyperparameter for sklearn.mixture.BayesianGaussianMixture
-    :param max_iter: maximum number of iterations
-    :param plot: make plots (boolean)
-    :param output_dir: output directory
-    :return: mixture models
-    """
-    X = weighted_to_unweighted(data_frame)
-
-    X = X[X < Ks_range[1]].reshape((-1, 1))
-    X = X[X > Ks_range[0]].reshape((-1, 1))
-
-    models = []
-    for n in range(n_range[0], n_range[1]):
-        models.append(mixture.BayesianGaussianMixture(n_components=n, covariance_type='full',
-                                                      weight_concentration_prior=gamma, max_iter=max_iter).fit(X))
-
-    if plot:
-        fig = plt.figure(figsize=(20, n_range[1] * 5))
-
-        for i in range(len(models)):
-            x = np.linspace(Ks_range[0], Ks_range[1], 1000).reshape((-1, 1))
-            log_prob = models[i].score_samples(x)
-            probabilities = models[i].predict_proba(x)
-            pdf = np.exp(log_prob)
-            pdf_i = probabilities * pdf[:, np.newaxis]
-
-            # plot histogram with fitted components
-            ax = fig.add_subplot(n_range[1]-1,2,2*i+1)
-            ax.hist(X, Ks_range[1] * 25, normed=True, histtype='stepfilled', color="#82c982", alpha=0.4)
-            ax.plot(x, pdf, '-k', color='#4b9b4b')
-            ax.plot(x, pdf_i, '--k', color='#5eba5e')
-            ax.set_xlabel('$K_s$')
-            y_min, y_max = ax.get_ylim()
-            ax.vlines(models[i].means_, linestyles='dashed', ymin=y_min, ymax=y_max-0.1,
-                      label=models[i].weights_, alpha=0.7)
-            for j in range(len(models[i].means_)):
-                ax.text(s="{:.2f}".format(sorted(models[i].means_)[j][0]), x=sorted(models[i].means_)[j], y=y_max-0.1)
-            ax.set_title('Fitted components and mixture, $\gamma = {}$'.format(gamma))
-
-            # plot weights and means
-            wm = [(models[i].weights_[j], models[i].means_[j][0]) for j in range(len(models[i].weights_))]
-            wm = sorted(wm, key=lambda tup: tup[1])
-            ax = fig.add_subplot(n_range[1]-1,2,2*i+2)
-            for i in range(len(wm)):
-                ax.bar(i, wm[i][0], color="#a6d9a6")
-                ax.text(i, wm[i][0], "{0:0.2f}".format(wm[i][1]), horizontalalignment='center')
-            ax.set_ylabel('Weight')
-            ax.set_ylim(0, 1.05)
-            ax.set_xticks(list(range(models[i].n_components)))
-            ax.set_xticklabels(list(range(1, models[i].n_components + 1)))
-            ax.set_xlabel('Component')
-            ax.set_title('Weight and mean of each component')
-
-        fig.savefig(os.path.join(output_dir, 'mixture.png'), bbox_inches='tight')
-
-    return models
-
-
-def kernel_density_estimation(data_frame, bandwidths=[0.01, 0.05, 0.1, 0.15, 0.2], kernel='gaussian', output_dir=None):
+def kernel_density_estimation(data_frame, bandwidths=(0.01, 0.05, 0.1, 0.15, 0.2), kernel='gaussian', output_dir=None):
     """
     Kernel density estimation (KDE) for Ks distribution
 
@@ -323,7 +257,6 @@ def mixture_model_gmm(data_frame, n=4, Ks_range=(0.1, 2), log=True, plot=True,
 
     :param data_frame: pandas data frame from Ks analysis
     :param n: max number of components
-    :param metric: information criterion to use (``'AIC'`` or ``'BIC'``)
     :param Ks_range: Ks range to model
     :param log: fit log-normal components
     :param plot: make plots

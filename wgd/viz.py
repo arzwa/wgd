@@ -382,7 +382,7 @@ var drawCircos = function (error, genome, data) {
                 opacity: 0.7,
                 color: function (d) {return d.source.color;},
                 tooltipContent: function (d) {
-                    return '<h3>' + d.source.id + ' ➤ ' + d.target.id + ': ' + d.source.label + '</h3><i>(CTRL+C to copy to clipboard)</i>';
+                    return '<h3>' + d.source.id + ' > ' + d.target.id + ': ' + d.source.label + '</h3><i>(CTRL+C to copy to clipboard)</i>';
                 }
             }
         )

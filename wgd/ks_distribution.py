@@ -110,25 +110,6 @@ def _calculate_weighted_ks(clustering, pairwise_estimates, family_id=None):
     return data_frame
 
 
-def filter_species(results, s1, s2):
-    """
-    Filter out one vs one orthologs from codeml results for two species
-
-    :param results:
-    :param s1:
-    :param s2:
-    :return:
-    """
-    filtered = {}
-    for key, val in results.items():
-        for i in val.index:
-            if not (i.split('|')[0] == s1 or i.split('|')[0] == s2):
-                val = val.drop(i)
-                val = val.drop(i, axis=1)
-        filtered[key] = val
-    return filtered
-
-
 def analyse_family(family_id, family, nucleotide, tmp='./', muscle='muscle', codeml='codeml', preserve=False, times=1,
                    min_length=100):
     """
@@ -144,6 +125,8 @@ def analyse_family(family_id, family, nucleotide, tmp='./', muscle='muscle', cod
     :param muscle: muscle path
     :param codeml: codeml path
     :param preserve: preserve intermediate files
+    :param times: number of times to perform ML estimation of Ks, Ka and omega values
+    :param min_length: minimum length of the stripped multiple sequence alignment
     :return: ``csv`` file with results for the paralog family of interest
     """
     if os.path.isfile(os.path.join(tmp, family_id + '.Ks')):
@@ -151,7 +134,7 @@ def analyse_family(family_id, family, nucleotide, tmp='./', muscle='muscle', cod
         return
 
     if len(list(family.keys())) < 2:
-        logging.info("Skipping singleton gene family {}.".format(family_id))
+        logging.debug("Skipping singleton gene family {}.".format(family_id))
         return
 
     logging.info('Performing analysis on gene family {}'.format(family_id))
@@ -196,6 +179,8 @@ def analyse_family_ortholog(family_id, family, nucleotide, tmp='./', muscle='mus
     :param muscle: muscle path
     :param codeml: codeml path
     :param preserve: preserve intermediate files
+    :param times: number of times to perform ML estimation of Ks, Ka and omega values
+    :param min_length: minimum length of the stripped multiple sequence alignment
     :return: ``csv`` file with results for the paralog family of interest
     """
     if os.path.isfile(os.path.join(tmp, family_id + '.Ks')):
@@ -237,7 +222,23 @@ def analyse_family_ortholog(family_id, family, nucleotide, tmp='./', muscle='mus
 def ks_analysis_one_vs_one(nucleotide_sequences, protein_sequences, gene_families, tmp_dir='./tmp',
                            output_dir='./ks.out', muscle_path='muscle', codeml_path='codeml',
                            preserve=True, times=1, n_cores=4, async=False, min_length=100):
+    """
+    Calculate a Ks distribution for one vs. one orthologs.
 
+    :param nucleotide_sequences: sequence dictionary
+    :param protein_sequences: protein sequence dictionary
+    :param paralogs: file with paralog families
+    :param tmp_dir: tmp directory
+    :param output_dir: output directory
+    :param muscle_path: path to muscle executable
+    :param codeml_path: path to codeml executable
+    :param preserve: preserve intermediate results (muscle, codeml)
+    :param times: number of times to perform codeml analysis
+    :param ignore_prefixes: ignore prefixes in paralog/gene family file (e.g. in ath|AT1G45000, ath| will be ignored)
+    :param async: use asyncio library for parallelization
+    :param min_length: minimum MSA length
+    :return: data frame
+    """
     # Filter families with one vs one orthologs for the species of interest.
     gene_families = process_gene_families(gene_families, ignore_prefix=False)
     protein = get_sequences(gene_families, protein_sequences)
@@ -295,10 +296,10 @@ def ks_analysis_paranome(nucleotide_sequences, protein_sequences, paralogs, tmp_
                          muscle_path='muscle', codeml_path='codeml', preserve=True, times=1,
                          ignore_prefixes=False, n_cores=4, async=False, min_length=100):
     """
-    Calculate a Ks distribution for a whole paranome. Asyncio version
+    Calculate a Ks distribution for a whole paranome.
 
-    :param nucleotide_sequences: CDS fasta file
-    :param protein_sequences: protein fasta file
+    :param nucleotide_sequences: sequence dictionary
+    :param protein_sequences: protein sequence dictionary
     :param paralogs: file with paralog families
     :param tmp_dir: tmp directory
     :param output_dir: output directory
@@ -307,7 +308,9 @@ def ks_analysis_paranome(nucleotide_sequences, protein_sequences, paralogs, tmp_
     :param preserve: preserve intermediate results (muscle, codeml)
     :param times: number of times to perform codeml analysis
     :param ignore_prefixes: ignore prefixes in paralog/gene family file (e.g. in ath|AT1G45000, ath| will be ignored)
-    :return: some files and plots in the chosen output directory
+    :param async: use asyncio library for parallelization
+    :param min_length: minimum MSA length
+    :return: data frame
     """
 
     # ignore prefixes in gene families, since only one species

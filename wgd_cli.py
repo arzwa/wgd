@@ -78,6 +78,28 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
         wgd blast --cds --one_v_one -s equus_ferus.fasta,ursus_arctos.fasta -id horse,bear -e 1e-8 -o bear_horse_out
     """
     # lazy imports
+    blast_(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_factor, eval_cutoff, output_dir,
+           n_threads)
+
+
+def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None, blast_results=None,
+           inflation_factor=2.0, eval_cutoff=1e-10, output_dir='wgd.blast.out', n_threads=4):
+    """
+    All vs. all Blast pipeline. For usage in the ``wgd`` CLI.
+
+    :param cds: boolean, provided sequences are CDS
+    :param mcl: boolean, perform MCL clustering
+    :param one_v_one: boolean, identify one vs. one orthologs (reciprocal best hits)
+    :param sequences: CDS fasta files, if multiple (for one vs. one ortholog identification), then as a comma-separated
+    string e.g. ath.fasta,aly.fasta
+    :param species_ids: comma-separated species ids, optional for one-vs-one ortholog delineation
+    :param blast_results: precomputed blast results (tab separated blast output style)
+    :param inflation_factor: inflation factor for MCL clustering
+    :param eval_cutoff: e-value cut off for blastp analysis
+    :param output_dir: output directory
+    :param n_threads: number of CPU threads to use
+    :return: output file name
+    """
     from wgd.blast_mcl import all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2, get_one_v_one_orthologs_rbh
 
     if not sequences and not blast_results:
@@ -104,6 +126,8 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
             if len(ids) != len(sequence_files):
                 logging.error('Number of species identifiers ({0}) does not match number of provided sequence '
                               'files ({1}).'.format(len(ids), len(sequence_files)))
+        elif one_v_one:
+            ids = sequence_files
         else:
             ids = [''] * len(sequence_files)
 
@@ -135,15 +159,18 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
     if one_v_one:
         logging.info('Retrieving one vs. one orthologs')
         one_v_one_out = get_one_v_one_orthologs_rbh(blast_results, output_dir)
+        logging.info('Done')
+        return one_v_one_out
 
     if mcl:
         logging.info('Performing MCL clustering (inflation factor = {0})'.format(inflation_factor))
         ava_graph = ava_blast_to_abc_2(blast_results)
         mcl_out = run_mcl_ava_2(ava_graph, output_dir=output_dir, output_file='{}.paranome.mcl'.format(sequences),
                                 inflation=inflation_factor)
+        logging.info('Done')
+        return mcl_out
 
-    logging.info('Done')
-    pass
+    return blast_results
 
 
 # Ks ANALYSIS USING JOBLIB/ASYNC  --------------------------------------------------------------------------------------
@@ -194,6 +221,32 @@ def ks(gene_families, sequences, output_directory, protein_sequences,
     Example 2 - one vs. one ortholog Ks distribution:
 
         wgd ks -gf beaver_eagle -s castor_fiber.cds.fasta,aquila_chrysaetos.cds.fasta -o beaver_eagle_ks_out
+    """
+    ks_(gene_families, sequences, output_directory, protein_sequences, tmp_dir, muscle, codeml, times, min_msa_length,
+        ignore_prefixes, one_v_one, preserve, async, n_threads)
+
+
+def ks_(gene_families, sequences, output_directory, protein_sequences=None, tmp_dir=None, muscle='muscle',
+        codeml='codeml', times=1, min_msa_length=100, ignore_prefixes=False, one_v_one=False, preserve=False,
+        async=False, n_threads=4):
+    """
+    Ks distribution construction pipeline. For usage in the ``wgd`` CLI.
+
+    :param gene_families: gene families, i.e. tab separated paralogs or one-vs-one orthologs (see :py:func:`blast_`)
+    :param sequences: CDS fasta files, if multiple (one-vs.-one ortholog distribution) then as a comma separated string
+    :param output_directory: output directory
+    :param protein_sequences: potein sequences (optional)
+    :param tmp_dir: tmp directory name (optional)
+    :param muscle: path to MUSCLE executable
+    :param codeml: path to codeml executable
+    :param times: number of times to iteratively perform ML estimation of Ks, Ka and omega values.
+    :param min_msa_length: minimum multiple sequence alignment length
+    :param ignore_prefixes: ignore prefixes defined by '|' in gene IDs
+    :param one_v_one: boolean, one-vs.-one ortholog analysis
+    :param preserve: boolean, preserve codeml output files and multiple sequence alignments?
+    :param async: use the async library for parallelliztion
+    :param n_threads: number of CPU threads to use
+    :return: output file name
     """
     # lazy imports
     from wgd.ks_distribution import ks_analysis_paranome, ks_analysis_one_vs_one
@@ -249,11 +302,15 @@ def ks(gene_families, sequences, output_directory, protein_sequences,
         results = ks_analysis_one_vs_one(cds_seqs, protein_seqs, gene_families, tmp_dir, output_directory,
                                          muscle, codeml, async=async, n_cores=n_threads, preserve=preserve,
                                          times=times, min_length=min_msa_length)
-        results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(gene_families)), sep='\t')
+        results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(
+            os.path.basename(gene_families))), sep='\t')
 
         logging.info('Generating plots')
         plot_selection(results, output_file=os.path.join(output_directory, '{}.ks.png'.format(os.path.basename(
             gene_families))), title=os.path.basename(gene_families))
+
+        logging.info('Done')
+        return os.path.join(output_directory, '{}.ks.tsv'.format(os.path.basename(gene_families)))
 
     # whole paranome ks analysis
     else:
@@ -263,31 +320,48 @@ def ks(gene_families, sequences, output_directory, protein_sequences,
                                        muscle, codeml, preserve=preserve, times=times,
                                        ignore_prefixes=ignore_prefixes, async=async, n_cores=n_threads,
                                        min_length=min_msa_length)
-        results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(gene_families)), sep='\t')
+        results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(
+            os.path.basename(gene_families))), sep='\t')
 
         logging.info('Generating plots')
         plot_selection(results, output_file=os.path.join(output_directory, '{}.ks.png'.format(os.path.basename(
             gene_families))), title=os.path.basename(gene_families))
 
-    logging.info('Done')
+        logging.info('Done')
+        return os.path.join(output_directory, '{}.ks.tsv'.format(os.path.basename(gene_families)))
 
 
 # CO-LINEARITY ---------------------------------------------------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option('--gff_file', '-gff', default=None, help='Annotation in gff3 format')
-@click.option('--families', '-gf', default=None, help='Gene families as outline per MCL analysis')
+@click.option('--gene_families', '-gf', default=None, help='Gene families as outline per MCL analysis')
 @click.option('--output_dir', '-o', default='./coll_out', help='Output directory')
 @click.option('--ks_distribution', '-ks', default=None,
               help="Ks distribution for the whole paranome of the species of interest, "
                    "csv file as generated using `wgd ks`.")
 @click.option('--keyword', '-kw', default='mRNA',
               help="Keyword for parsing the genes from the GFF file (column 3). (Default = 'mRNA').")
-@click.option('--id_string', '-id', default='ID',
+@click.option('--id_string', '-id', default='Parent',
               help="Keyword for parsing the gene IDs from the GFF file (column 9). (Default = 'ID').")
-def syn(gff_file, families, output_dir, ks_distribution, keyword, id_string):
+def syn(gff_file, gene_families, output_dir, ks_distribution, keyword, id_string):
     """
-    Co-linearity analyses.
-    Requires I-ADHoRe
+    Co-linearity analyses
+    Requires I-ADHoRe 3.0
+    """
+    syn_(gff_file, gene_families, output_dir, ks_distribution, keyword, id_string)
+
+
+def syn_(gff_file, families, output_dir, ks_distribution, keyword='mRNA', id_string='Parent'):
+    """
+    Co-linearity analysis with I-ADHoRe 3.0. For usage in the ``wgd`` CLI.
+
+    :param gff_file: GFF annotation file
+    :param families: gene families as tab seperated gene IDs, see :py:func:`blast_`
+    :param output_dir: output directory
+    :param ks_distribution: Ks distribution tsv file, see :py:func:`ks_`
+    :param keyword: keyword for entities of interest in the GFF file, e.g. 'CDS' or 'mRNA'
+    :param id_string: ID string for the gene ID in the GFF (9th column), e.g. 'ID' or 'Parent'
+    :return: nothing at all
     """
     # lazy imports
     from wgd.collinearity import write_families_file, write_gene_lists, write_config_adhore, run_adhore
@@ -376,6 +450,22 @@ def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences
     """
     Mixture modeling of Ks distributions
     """
+    mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences)
+
+
+def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences):
+    """
+    Mixture modeling using sklearn
+
+    :param ks_distribution: Ks distribution tsv file
+    :param method: mixture modeling method, either 'bgmm', 'gmm' or 'both'
+    :param n_range: 
+    :param ks_range:
+    :param output_dir:
+    :param gamma:
+    :param sequences:
+    :return:
+    """
     # lazy imports
     from wgd.modeling import mixture_model_bgmm, mixture_model_gmm
 
@@ -429,6 +519,10 @@ def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences
               help="Output file, default='wgd_hist.png'.")
 def hist(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file):
     """ Plot (stacked) histograms """
+    hist_(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file)
+
+
+def hist_(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file):
     from wgd.viz import plot_selection
 
     if not ks_distributions:
@@ -453,119 +547,30 @@ def hist(ks_distributions, alpha_values, colors, labels, hist_type, title, outpu
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.argument('sequences', default=None)
-@click.argument('gff_file', default=None)
 @click.argument('output_dir', default=None)
+@click.option('--gff_file', '-gff', default=None, help="GFF file for co-linearity analysis.")
 @click.option('--n_threads','-n', default=4,
               help="Number of threads to use.")
-def pipeline_1(sequences, gff_file, output_dir, n_threads):
+def pipeline_1(sequences, output_dir, gff_file, n_threads):
     """
     Standard workflow whole paranome Ks.
     """
-    # TODO: Test
-    # lazy loading
-    from wgd.blast_mcl import all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2
-    from wgd.ks_distribution import ks_analysis_paranome, ks_analysis_one_vs_one
-    from wgd.collinearity import write_families_file, write_gene_lists, write_config_adhore
-    from wgd.collinearity import run_adhore, get_anchor_pairs
-    from wgd.viz import plot_selection, syntenic_dotplot, syntenic_dotplot_ks_colored
-
-    wd = os.getcwd()
-
-    if not sequences:
-        logging.error('Please provide CDS sequences as a fasta file (minimal input)!')
-
-    if not os.path.exists(output_dir):
-        logging.info('Output directory: {} does not exist, will make it.'.format(output_dir))
-        os.mkdir(output_dir)
-
-    logging.info("Translating CDS")
-    protein_sequences = translate_cds(read_fasta(sequences))
-
-    logging.info('Writing blastdb sequences to db.fasta.')
-    db = os.path.join(output_dir, 'db.fasta')
-    write_fasta(protein_sequences, db)
-    query = db
-
-    logging.info('Performing all_v_all_blastp (this might take a while)')
-    blast_results = all_v_all_blast(query, db, output_dir, output_file='{}.blast.tsv'.format(
-        os.path.basename(sequences)), n_threads=n_threads)
-
-    logging.info('Performing MCL clustering')
-    ava_graph = ava_blast_to_abc_2(blast_results)
-    mcl_out = run_mcl_ava_2(ava_graph, output_dir=output_dir, output_file='{}.paranome.mcl'.format(
-        os.path.basename(sequences)))
-
-    logging.info('Making tmp directory fo Ks analysis')
-    tmp_dir = os.path.abspath(os.path.join('.', 'ks_tmp.' + str(uuid.uuid4())))
-    os.mkdir(tmp_dir)
-    output_directory = os.path.abspath(output_dir)
-    gene_families = os.path.abspath(mcl_out)
-    sequences = os.path.abspath(sequences)
-
-    os.chdir(tmp_dir)  # change directory to the tmp dir, as codeml writes non-unique file names to the working dir
-    logging.info('Started whole paranome Ks analysis')
-    results = ks_analysis_paranome(read_fasta(sequences), protein_sequences, gene_families,
-                                   tmp_dir, output_directory, n_cores=n_threads)
-    results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(
-        os.path.basename(gene_families))), sep='\t')
-    os.chdir(wd)
-
-    logging.info('Generating plots')
-    plot_selection(results, output_file=os.path.join(output_directory, '{}.ks.png'.format(os.path.basename(
-        gene_families))), title=os.path.basename(gene_families))
-
-    if not gff_file:
-        logging.warning('No GFF file provided, will stop here.')
-        return
-
-    logging.info("Parsing GFF file")
-    genome = Genome()
-    genome.parse_plaza_gff(gff_file)
-
-    logging.info("Writing gene lists")
-    all_genes = write_gene_lists(
-        genome, os.path.join(output_dir, 'gene_lists'))
-
-    logging.info("Writing families file")
-    write_families_file(gene_families, all_genes,
-                        os.path.join(output_dir, 'families.tsv'))
-
-    logging.info("Writing configuration file")
-    write_config_adhore(os.path.join(output_dir, 'gene_lists'), os.path.join(output_dir, 'families.tsv'),
-                        config_file_name=os.path.join(output_dir, 'adhore.conf'),
-                        output_path=os.path.join(output_dir, 'i-adhore-out'))
-
-    logging.info("Running I-ADHoRe 3.0")
-    run_adhore(os.path.join(output_dir, 'adhore.conf'))
-
-    logging.info('Drawing co-linearity dotplot')
-    syntenic_dotplot(
-        pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t'),
-        output_file=os.path.join(output_dir, '{}.dotplot.png'.format(os.path.basename(gene_families))))
-
-    logging.info("Constructing Ks distribution for anchors")
-    ks, anchors = get_anchor_pairs(
-        os.path.join(output_dir, 'i-adhore-out', 'anchorpoints.txt'), results,
-        out_file=os.path.join(output_dir, '{}.ks_anchors.tsv'.format(os.path.basename(gene_families)))
-    )
-
-    syntenic_dotplot_ks_colored(
-        pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t'),
-        pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'anchorpoints.txt'), sep='\t'),
-        anchors, output_file=os.path.join(output_dir, '{}.dotplot.ks.png'.format(os.path.basename(gene_families)))
-    )
-
-    logging.info("Generating histogram")
-    plot_selection([ks, anchors], alphas=[0.2, 0.7], output_file=os.path.join(output_dir, '{}.ks_anchors.png'.format(
-        os.path.basename(gene_families))), title=os.path.basename(gene_families), labels=['Whole paranome', 'Anchors'])
-
-    logging.info("Done")
+    mcl_out = blast_(cds=True, mcl=True, sequences=sequences, n_threads=n_threads, output_dir=output_dir)
+    ks_results = ks_(gene_families=mcl_out, sequences=sequences, n_threads=n_threads, output_directory=output_dir)
+    if gff_file:
+        syn_(gff_file=gff_file, families=mcl_out, output_dir=output_dir, ks_distribution=ks_results)
 
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
-def pipeline_2(sequences, output_dir):
+@click.argument('sequences', default=None)
+@click.argument('output_dir', default=None)
+@click.option('--n_threads','-n', default=4,
+              help="Number of threads to use.")
+def pipeline_2(sequences, output_dir, n_threads):
     """ Standard workflow one-vs-one ortholog Ks."""
-    # TODO
+    ovo_out = blast_(cds=True, one_v_one=True, mcl=False, sequences=sequences, n_threads=n_threads,
+                     output_dir=output_dir, species_ids=sequences)
+    ks_(gene_families=ovo_out, sequences=sequences, n_threads=n_threads, output_directory=output_dir, one_v_one=True)
     pass
 
 

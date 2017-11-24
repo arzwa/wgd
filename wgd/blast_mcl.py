@@ -178,7 +178,7 @@ def get_one_v_one_orthologs_rbh(blast_file, output_dir):
                     o.write('{0}\t{1}\n'.format(key, val[0]))
                 else:
                     logging.debug('Best hit for {0} is {1} but for {1} is {2}'.format(key, val, d[val[0]][0]))
-        last = os.path.join(output_dir, '{}.txt'.format(comb))
+        last = os.path.join(output_dir, '{}.ovo.tsv'.format(comb))
     return last
 
 

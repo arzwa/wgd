@@ -2,7 +2,7 @@
 """
 Arthur Zwaenepoel
 """
-# TODO: This should be adapted such that multiple genomes can be compared
+# TODO: multiple genomes
 
 import os
 import subprocess
@@ -38,10 +38,10 @@ def write_families_file(families, all_genes, output_file='families.tsv'):
     """
     Write out families file
 
-    :param families:
-    :param all_genes:
-    :param output_file:
-    :return:
+    :param families: gene families
+    :param all_genes: set object with all genes for the species of interest
+    :param output_file: output file name
+    :return: nada
     """
     counter = 1
     genes_seen = set()
@@ -70,29 +70,28 @@ def write_config_adhore(gene_lists, families, config_file_name='i-adhore.conf',
                         cluster_gap=35, q_value=0.75, prob_cutoff=0.01, anchor_points=3,
                         alignment_method='gg2', level_2_only='false', table_type='family',
                         multiple_hypothesis_correction='FDR', visualize_ghm='false',
-                        visualize_alignment='true', **kwargs):
+                        visualize_alignment='true'):
     """
     Write out the config file for I-ADHoRe. See I-ADHoRe manual for information on
     parameter settings.
 
     :param gene_lists: directory with gene lists per chromosome
     :param families: file with gene to family mapping
-    :param config_file_name:
-    :param genome:
-    :param output_path:
-    :param gap_size:
-    :param cluster_gap:
-    :param q_value:
-    :param prob_cutoff:
-    :param anchor_points:
-    :param alignment_method:
-    :param level_2_only:
-    :param table_type:
-    :param multiple_hypothesis_correction:
-    :param visualizeGHM:
-    :param visualizeAlignment:
-    :param kwargs:
-    :return: configuration file
+    :param config_file_name: name for the config file
+    :param genome: genome name
+    :param output_path: output path name
+    :param gap_size: see I-ADHoRe 3.0 documentation
+    :param cluster_gap: see I-ADHoRe 3.0 documentation
+    :param q_value: see I-ADHoRe 3.0 documentation
+    :param prob_cutoff: see I-ADHoRe 3.0 documentation
+    :param anchor_points: see I-ADHoRe 3.0 documentation
+    :param alignment_method: see I-ADHoRe 3.0 documentation
+    :param level_2_only: see I-ADHoRe 3.0 documentation
+    :param table_type: see I-ADHoRe 3.0 documentation
+    :param multiple_hypothesis_correction: see I-ADHoRe 3.0 documentation
+    :param visualize_ghm: see I-ADHoRe 3.0 documentation
+    :param visualize_alignment: see I-ADHoRe 3.0 documentation
+    :return: configuration file see I-ADHoRe 3.0 documentation
     """
     with open(config_file_name, 'w') as o:
         o.write('genome= {}\n'.format(genome))
@@ -126,7 +125,7 @@ def get_anchor_pairs(anchors_file, ks_distribution=None, out_file='anchors_ks.cs
     Get anchor pairs and their corresponding Ks values (if provided)
 
     :param anchors_file: anchorpoints.txt output from I-ADHoRe 3.0
-    :param ks_file: Ks calculations file from wgd toolkit
+    :param ks_distribution: Ks distribution dataf rame
     :return: pandas dataframe(s): anchors and data frame
     """
     if not os.path.exists(anchors_file):
