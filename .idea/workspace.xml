@@ -2,44 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="821fa536-1b70-4930-9299-1d4345685448" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/doc/source/wgd_cli.rst" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/alignment.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/alignment.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/blast_mcl.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/blast_mcl.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/cli.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/cli.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/codeml.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/codeml.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/environment.pickle" afterPath="$PROJECT_DIR$/doc/build/.doctrees/environment.pickle" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/index.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/index.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/ks.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/ks.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/mix.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/mix.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/syn.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/syn.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/utils.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/utils.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/viz.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/viz.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/objects.inv" afterPath="$PROJECT_DIR$/doc/build/objects.inv" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/wgd.iml" afterPath="$PROJECT_DIR$/.idea/wgd.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_sources/cli.txt" afterPath="$PROJECT_DIR$/doc/build/_sources/cli.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_sources/index.txt" afterPath="$PROJECT_DIR$/doc/build/_sources/index.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/alignment.html" afterPath="$PROJECT_DIR$/doc/build/alignment.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/blast_mcl.html" afterPath="$PROJECT_DIR$/doc/build/blast_mcl.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/cli.html" afterPath="$PROJECT_DIR$/doc/build/cli.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/codeml.html" afterPath="$PROJECT_DIR$/doc/build/codeml.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/genindex.html" afterPath="$PROJECT_DIR$/doc/build/genindex.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/index.html" afterPath="$PROJECT_DIR$/doc/build/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/ks.html" afterPath="$PROJECT_DIR$/doc/build/ks.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/mix.html" afterPath="$PROJECT_DIR$/doc/build/mix.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/py-modindex.html" afterPath="$PROJECT_DIR$/doc/build/py-modindex.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/searchindex.js" afterPath="$PROJECT_DIR$/doc/build/searchindex.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/syn.html" afterPath="$PROJECT_DIR$/doc/build/syn.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/utils.html" afterPath="$PROJECT_DIR$/doc/build/utils.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/viz.html" afterPath="$PROJECT_DIR$/doc/build/viz.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/source/cli.rst" afterPath="$PROJECT_DIR$/doc/source/cli.rst" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/alignment.py" afterPath="$PROJECT_DIR$/wgd/alignment.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/blast_mcl.py" afterPath="$PROJECT_DIR$/wgd/blast_mcl.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/codeml.py" afterPath="$PROJECT_DIR$/wgd/codeml.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/collinearity.py" afterPath="$PROJECT_DIR$/wgd/collinearity.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/ks_distribution.py" afterPath="$PROJECT_DIR$/wgd/ks_distribution.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/modeling.py" afterPath="$PROJECT_DIR$/wgd/modeling.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/utils.py" afterPath="$PROJECT_DIR$/wgd/utils.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/viz.py" afterPath="$PROJECT_DIR$/wgd/viz.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd_cli.py" afterPath="$PROJECT_DIR$/wgd_cli.py" />
     </list>
@@ -66,7 +31,7 @@
       <file leaf-file-name="collinearity.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/collinearity.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="42">
+            <state relative-caret-position="21">
               <caret line="2" column="24" lean-forward="false" selection-start-line="2" selection-start-column="24" selection-end-line="2" selection-end-column="24" />
               <folding>
                 <element signature="e#80#89#0" expanded="true" />
@@ -78,28 +43,30 @@
       <file leaf-file-name="ks_distribution.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/ks_distribution.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="21">
+            <state relative-caret-position="-420">
               <caret line="1" column="24" lean-forward="false" selection-start-line="1" selection-start-column="24" selection-end-line="1" selection-end-column="24" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="viz.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="viz.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wgd/viz.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="3" lean-forward="false" selection-start-line="0" selection-start-column="3" selection-end-line="0" selection-end-column="3" />
-              <folding />
+            <state relative-caret-position="205">
+              <caret line="325" column="38" lean-forward="false" selection-start-line="325" selection-start-column="38" selection-end-line="325" selection-end-column="38" />
+              <folding>
+                <element signature="e#33#53#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="wgd_cli.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="wgd_cli.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd_cli.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="798">
-              <caret line="131" column="23" lean-forward="true" selection-start-line="131" selection-start-column="23" selection-end-line="131" selection-end-column="23" />
+            <state relative-caret-position="21">
+              <caret line="15" column="68" lean-forward="true" selection-start-line="15" selection-start-column="68" selection-end-line="15" selection-end-column="68" />
               <folding>
                 <element signature="e#206#218#0" expanded="true" />
               </folding>
@@ -120,11 +87,9 @@
       <file leaf-file-name="modeling.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/modeling.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="84">
-              <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+            <state relative-caret-position="-1027">
+              <caret line="33" column="15" lean-forward="true" selection-start-line="33" selection-start-column="15" selection-end-line="33" selection-end-column="15" />
               <folding>
-                <element signature="e#511#1212#0" expanded="false" />
-                <element signature="e#1339#4874#0" expanded="false" />
                 <element signature="e#5130#10010#0" expanded="false" />
                 <element signature="e#10226#15220#0" expanded="false" />
               </folding>
@@ -213,12 +178,12 @@
         <option value="$PROJECT_DIR$/wgd/ks_distribution.py" />
         <option value="$PROJECT_DIR$/wgd/modeling.py" />
         <option value="$PROJECT_DIR$/wgd/utils.py" />
-        <option value="$PROJECT_DIR$/wgd/viz.py" />
         <option value="$PROJECT_DIR$/wgd_cli.py" />
+        <option value="$PROJECT_DIR$/wgd/viz.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="4">
     <option name="x" value="1303" />
     <option name="y" value="24" />
     <option name="width" value="1257" />
@@ -239,8 +204,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -268,11 +231,13 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scratches" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../eco_evo" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -300,7 +265,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="47" y="-4" width="2513" height="1444" extended-state="6" />
+    <frame x="1303" y="24" width="1257" height="1416" extended-state="4" />
     <editor active="true" />
     <layout>
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -311,7 +276,7 @@
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Execute Anonymous" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.08038201" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.16070008" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24932493" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -626,23 +591,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="63">
           <caret line="3" column="0" lean-forward="false" selection-start-line="3" selection-start-column="0" selection-end-line="8" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wgd/blast_mcl.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="42">
-          <caret line="2" column="24" lean-forward="false" selection-start-line="2" selection-start-column="24" selection-end-line="2" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wgd/alignment.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
-          <caret line="4" column="23" lean-forward="false" selection-start-line="4" selection-start-column="23" selection-end-line="4" selection-end-column="23" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -651,37 +599,6 @@
         <state relative-caret-position="42">
           <caret line="2" column="24" lean-forward="false" selection-start-line="2" selection-start-column="24" selection-end-line="2" selection-end-column="24" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wgd/collinearity.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="42">
-          <caret line="2" column="24" lean-forward="false" selection-start-line="2" selection-start-column="24" selection-end-line="2" selection-end-column="24" />
-          <folding>
-            <element signature="e#80#89#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wgd/ks_distribution.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="21">
-          <caret line="1" column="24" lean-forward="false" selection-start-line="1" selection-start-column="24" selection-end-line="1" selection-end-column="24" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wgd/modeling.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
-          <caret line="4" column="0" lean-forward="false" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
-          <folding>
-            <element signature="e#511#1212#0" expanded="false" />
-            <element signature="e#1339#4874#0" expanded="false" />
-            <element signature="e#5130#10010#0" expanded="false" />
-            <element signature="e#10226#15220#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -703,20 +620,67 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wgd/viz.py">
+    <entry file="file://$PROJECT_DIR$/wgd/blast_mcl.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="3" lean-forward="false" selection-start-line="0" selection-start-column="3" selection-end-line="0" selection-end-column="3" />
+        <state relative-caret-position="42">
+          <caret line="2" column="24" lean-forward="false" selection-start-line="2" selection-start-column="24" selection-end-line="2" selection-end-column="24" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wgd/alignment.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="84">
+          <caret line="4" column="23" lean-forward="false" selection-start-line="4" selection-start-column="23" selection-end-line="4" selection-end-column="23" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wgd/collinearity.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="21">
+          <caret line="2" column="24" lean-forward="false" selection-start-line="2" selection-start-column="24" selection-end-line="2" selection-end-column="24" />
+          <folding>
+            <element signature="e#80#89#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wgd/ks_distribution.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-420">
+          <caret line="1" column="24" lean-forward="false" selection-start-line="1" selection-start-column="24" selection-end-line="1" selection-end-column="24" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/wgd_cli.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="798">
-          <caret line="131" column="23" lean-forward="true" selection-start-line="131" selection-start-column="23" selection-end-line="131" selection-end-column="23" />
+        <state relative-caret-position="21">
+          <caret line="15" column="68" lean-forward="true" selection-start-line="15" selection-start-column="68" selection-end-line="15" selection-end-column="68" />
           <folding>
             <element signature="e#206#218#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wgd/modeling.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1027">
+          <caret line="33" column="15" lean-forward="true" selection-start-line="33" selection-start-column="15" selection-end-line="33" selection-end-column="15" />
+          <folding>
+            <element signature="e#5130#10010#0" expanded="false" />
+            <element signature="e#10226#15220#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wgd/viz.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="205">
+          <caret line="325" column="38" lean-forward="false" selection-start-line="325" selection-start-column="38" selection-end-line="325" selection-end-column="38" />
+          <folding>
+            <element signature="e#33#53#0" expanded="true" />
           </folding>
         </state>
       </provider>

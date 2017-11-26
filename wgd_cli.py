@@ -527,19 +527,40 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequence
               help="Plot title.")
 @click.option('--output_file', '-o', default='wgd_hist.png',
               help="Output file, default='wgd_hist.png'.")
-def hist(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file):
+@click.option('--interactive', is_flag=True,
+              help="Interactive visualization with bokeh.")
+def hist(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file, interactive):
     """ Plot (stacked) histograms. """
-    hist_(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file)
+    hist_(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file, interactive)
 
 
-def hist_(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file):
+def hist_(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file, interactive=False):
     from wgd.viz import plot_selection
 
     if not ks_distributions:
         logging.error('No Ks distributions provided, run `wgd hist -h` for usage instructions')
         logging.info('You have to provide one or more computed Ks distributions! See for example `wgd ks -h`')
 
+    if interactive:
+        from wgd.viz import histogram_bokeh
+        #os.system('bokeh serve &')
+        if os.path.isdir(ks_distributions):
+            dists = []
+            for i in os.listdir(ks_distributions):
+                try:
+                    d = pd.read_csv(os.path.join(ks_distributions, i), sep='\t', index_col=0)
+                    _ = d[['Ks', 'WeightOutliersExcluded']]
+                    dists.append(os.path.join(ks_distributions, i))
+                except:
+                    logging.info('Not a Ks distribution: {}'.format(i))
+            labels = None
+        else:
+            dists = ks_distributions.split(',')
+        histogram_bokeh(dists, labels)
+        return
+
     dists = [pd.read_csv(x, sep='\t') for x in ks_distributions.split(',')]
+
     if alpha_values:
         alpha_values = [float(x) for x in alpha_values.split(',')]
     if colors:

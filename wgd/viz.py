@@ -6,10 +6,14 @@ import matplotlib
 if not 'DISPLAY' in pb.local.env:
     matplotlib.use('Agg')  # use this backend when no X server
 import matplotlib.pyplot as plt
+import matplotlib
 import numpy as np
 import seaborn as sns
 import os
 import matplotlib.patheffects as pe
+import pandas as pd
+import random
+from .modeling import weighted_to_unweighted
 
 
 def plot_selection(dists, output_file=None, alphas=None, colors=None, labels=None, ks_range=(0.1, 5), offset=5,
@@ -223,6 +227,157 @@ def syntenic_dotplot_ks_colored(df, an, ks, color_map='Spectral', output_file=No
 
     else:
         return fig
+
+
+def histogram_bokeh(ks_distributions, labels):
+    # TODO
+    from bokeh.io import curdoc
+    from bokeh.layouts import row, column
+    from bokeh.models import ColumnDataSource
+    from bokeh.models.widgets import PreText, Select, TextInput, MultiSelect, Slider
+    from bokeh.plotting import figure
+    from bokeh.client import push_session
+    from pylab import cm, colors
+    from scipy.stats import gaussian_kde as kde
+
+    def get_colors(cmap_choice='hsv'):
+        cmap = cm.get_cmap(cmap_choice, len(ks_distributions))
+        if cmap_choice == 'binary':
+            cmap = cm.get_cmap(cmap_choice, len(ks_distributions)*2)
+        c = []
+        for i in range(cmap.N):
+            rgb = cmap(i)[:3]  # will return rgba, we take only first 3 so we get rgb
+            c.append(matplotlib.colors.rgb2hex(rgb))
+        if cmap_choice == 'binary':
+            c = c[len(ks_distributions):]
+        return c
+
+    def get_data(df, var, scale, r1, r2):
+        df = df[df[var] > r1]
+        df = df[df[var] < r2]
+        data = df[var].dropna()
+        if scale == 'log10':
+            data = np.log10(data)
+        weights = df['WeightOutliersIncluded']
+        return data, weights, df
+
+    dists = [pd.read_csv(x, sep='\t') for x in ks_distributions]
+    if labels:
+        labels = labels.split(',')
+    else:
+        labels= ks_distributions
+    dist_ids = {ks_distributions[i]: i for i in range(len(ks_distributions))}
+    df = dists[0]
+    c = get_colors()
+    print(c)
+    variables = ['Ks', 'Ka', 'Omega']
+    scales = ['Normal', 'log10']
+
+    stats = PreText(text='', width=500)
+    var = Select(title='Variable', value='Ks', options=variables)
+    scale = Select(title='Scale', value='Normal', options=scales)
+    r1 = TextInput(title="Minimum", value='0.1')
+    r2 = TextInput(title="Maximum", value='5')
+    bins = TextInput(title="Bins", value='50')
+    line = Slider(title="Lines", start=0, end=1, value=0.3, step=0.1)
+    density = Slider(title="Kernel density", start=0, end=1, value=0, step=1)
+    selected_dists = MultiSelect(title='Distributions', options=ks_distributions, value=[ks_distributions[0]])
+    color_choice = Select(options=['binary', 'hsv', 'hot', 'magma', 'viridis', 'Greens'],
+                          value='hsv', title='Color map')
+
+    data, weights, df = get_data(df, var.value, scale.value, float(r1.value), float(r2.value))
+    all_data = [data]
+
+    p1 = figure(plot_width=1000, plot_height=700, tools='pan,wheel_zoom,box_select,reset')
+    p1.xgrid.grid_line_color = None
+    p1.ygrid.grid_line_color = None
+    p1.border_fill_color = 'white'
+    p1.outline_line_color = None
+    p1.yaxis.axis_label = '# paralogs'
+    p1.xaxis.axis_label = 'Ks'
+
+    hist, edges = np.histogram(data, bins=int(bins.value), weights=weights)
+    hist_dict = {0: p1.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], fill_color=c[0],
+                            line_color=c[0], fill_alpha=0.4, line_alpha=line.value, legend=labels[0])}
+    p1.legend.label_text_font_style = "italic"
+    density_dict = {}
+    # set up callbacks
+
+    def update(selected=None):
+        all_data = []
+        c = get_colors(color_choice.value)
+        for f in selected_dists.value:
+            i = dist_ids[f]
+            df = dists[i]
+            data, weights, df = get_data(df, var.value, scale.value, float(r1.value), float(r2.value))
+            hist, edges = np.histogram(data, bins=int(bins.value), weights=weights)
+            if i in hist_dict:
+                remove_plot(hist_dict, i)
+            hist_dict[i] = p1.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], fill_color=c[i],
+                                       line_color=c[i], fill_alpha=0.4, line_alpha=line.value,
+                                       legend=labels[i])
+
+            if density.value == 1:
+                dw = [x[0] for x in weighted_to_unweighted(df)]
+                data_weighed = np.random.choice(dw, 10000)
+                dens= kde(data_weighed)
+                xs = np.arange(float(r1.value), float(r2.value), 0.01)
+                ys = dens(xs)
+                conv_factor = min(hist)/min(ys)
+                ys *= conv_factor
+                density_dict[i] = p1.line(xs, ys, color=c[i])
+
+            x_label = var.value
+            if scale.value == 'log10':
+                x_label = 'log10(' + var.value + ')'
+            p1.xaxis.axis_label = x_label
+
+            all_data.append(data)
+
+        for d in dist_ids:
+            i = dist_ids[d]
+            if d not in selected_dists.value and i in hist_dict.keys():
+                print('updating {}'.format(i))
+                remove_plot(hist_dict, i)
+                #hist_dict[i].data_source.data['line_alpha'] = []
+
+        update_stats(all_data)
+
+    def update_stats(data):
+        df = pd.concat(data, axis=1)
+        stats.text = str(df.describe())
+
+    def remove_plot(hist_dict, i):
+        hist_dict[i].data_source.data["top"] = []
+        hist_dict[i].data_source.data["left"] = []
+        hist_dict[i].data_source.data["right"] = []
+
+    def change_update(attrname, old, new):
+        update()
+
+    var.on_change('value', change_update)
+    scale.on_change('value', change_update)
+    r1.on_change('value', change_update)
+    r2.on_change('value', change_update)
+    line.on_change('value', change_update)
+    bins.on_change('value', change_update)
+    color_choice.on_change('value', change_update)
+    density.on_change('value', change_update)
+    selected_dists.on_change('value', change_update)
+
+    # set up layout
+    widgets1 = column(selected_dists, var, scale, r1, r2, bins, line, density, color_choice, stats)
+    main_row = row(p1, widgets1)
+    layout = column(main_row)
+
+    # initialize
+    session = push_session(curdoc())
+    #update()
+    curdoc().add_root(layout)
+    #curdoc().add_periodic_callback(update, 50)
+    session.show(layout)  # open the document in a browser
+    session.loop_until_closed()  # run forever
+    pass
 
 
 def visualize_adhore_circos_js(output_dir):
