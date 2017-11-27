@@ -9,6 +9,7 @@ import warnings
 import random
 import json
 from progressbar import ProgressBar
+from numpy import mean, std
 
 
 def get_gfs_for_species(gene_family_dict, gene_pattern):
@@ -147,6 +148,29 @@ def read_fasta(fasta_file, prefix=None, split_on_pipe=True, split_on_whitespace=
     if '' in sequence_dict.keys():
         del sequence_dict['']
     return sequence_dict
+
+
+def get_paralogs_fasta(input_fasta, selected_paralogs, output_fasta):
+    """
+    Get the fasta file associated with the paralogs in a slice from a Ks distribution data frame
+
+    :param input_fasta: fasta file
+    :param selected_paralogs: Data frame (slice)
+    :param output_fasta: output fasta file
+    :return: nada
+    """
+    seqs = read_fasta(input_fasta)
+    genes = set(selected_paralogs['Paralog1']) | set(selected_paralogs['Paralog2'])
+    with open(output_fasta, 'w') as f:
+        for gene in list(genes):
+            ks_values = list(selected_paralogs[selected_paralogs['Paralog1'] == gene]['Ks'])
+            ks_values += list(selected_paralogs[selected_paralogs['Paralog2'] == gene]['Ks'])
+            ks_value, var = mean(ks_values), std(ks_values)
+            if gene in seqs.keys():
+                f.write('>{0} mean(Ks)={1:.5f};std(Ks)={2:.5f}\n{3}\n'.format(
+                    gene, float(ks_value), float(var), seqs[gene]))
+            else:
+                logging.warning('gene {} not found in fasta file!'.format(gene))
 
 
 def translate_cds(sequence_dict):

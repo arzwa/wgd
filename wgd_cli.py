@@ -456,19 +456,22 @@ def syn_(gff_file, families, output_dir, ks_distribution, keyword='mRNA', id_str
 @click.option('--sequences', '-s', default=None,
               help='Corresponding sequence files, if provided then the paralogs corresponding to each component '
                    'will be in the output.')
-def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences):
+@click.option('--cut_off', '-c', default=0.95,
+              help='Minimum probability to belong to a particular component for selected sequence files. '
+                   'Default = 0.95')
+def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences, cut_off):
     """
     Mixture modeling of Ks distributions.
     """
-    mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences)
+    mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences, cut_off)
 
 
-def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences):
+def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences, cut_off=0.95):
     """
     Mixture modeling using sklearn
 
     :param ks_distribution: Ks distribution tsv file
-    :param method: mixture modeling method, either 'bgmm', 'gmm' or 'both'
+    :param method: mixture modeling method, either 'bgmm' or 'gmm'
     :param n_range:
     :param ks_range:
     :param output_dir:
@@ -477,7 +480,8 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequence
     :return:
     """
     # lazy imports
-    from wgd.modeling import mixture_model_bgmm, mixture_model_gmm
+    from wgd.modeling import mixture_model_bgmm, mixture_model_gmm, get_component_probabilities
+    from wgd.utils import get_paralogs_fasta
 
     if not ks_distribution:
         logging.error('No Ks distribution provided! Run `wgd mix --help` for usage instructions.')
@@ -486,6 +490,9 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequence
     if not output_dir:
         output_dir = './{0}_mixture_{1}'.format(method, datetime.datetime.now().strftime("%d%m%y_%H%M%S"))
         logging.info('Output will be in {}'.format(output_dir))
+        os.mkdir(output_dir)
+
+    elif not os.path.isdir(output_dir):
         os.mkdir(output_dir)
 
     logging.info("Reading Ks distribution")
@@ -498,15 +505,29 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequence
     df = df.drop_duplicates(keep='first')
     df = df.dropna()
 
-    if method == 'bgmm' or method == 'both':
+    if method == 'bgmm':
         logging.info('Started Bayesian Gaussian Mixture modeling (BGMM)')
         models_bgmm = mixture_model_bgmm(df, n_range=n_range, plot_save=True, output_dir=output_dir,
                                          output_file='bgmm.mixture.png', Ks_range=ks_range, gamma=gamma)
+        best = models_bgmm[-1]
+        logging.info('Bayesian Gaussian mixture option, will take the highest number of ')
+        logging.info('components as best model under assumption of sufficient regularization.')
 
-    if method == 'gmm' or method == 'both':
+    else:
         logging.info('Started Gaussian Mixture modeling (GMM)')
         models_gmm, bic, aic, best = mixture_model_gmm(df, Ks_range=ks_range, n=n_range[1], output_dir=output_dir,
                                                        output_file='gmm.mixture.png')
+
+    logging.info('Saving data frame with probabilities for each component to {}'.format(
+        os.path.join(output_dir, '{}.{}.tsv'.format(ks_distribution, method))))
+    df = get_component_probabilities(df, best)
+    df.to_csv(os.path.join(output_dir, '{}.{}.tsv'.format(ks_distribution, method)), sep='\t')
+
+    logging.info('Saving fasta file for each component')
+    if sequences:
+        for i in range(best.n_components):
+            selected = df[df['p_component{}'.format(i+1)] >= cut_off]
+            get_paralogs_fasta(sequences, selected, os.path.join(output_dir, 'component{}.fasta'.format(i+1)))
 
     # TODO Add both method with comparison plots (3 panels ~ cedalion)
     # TODO Get paralogs method (see lore notebook) and finetune plots
@@ -543,7 +564,6 @@ def hist_(ks_distributions, alpha_values, colors, labels, hist_type, title, outp
 
     if interactive:
         from wgd.viz import histogram_bokeh
-        #os.system('bokeh serve &')
         if os.path.isdir(ks_distributions):
             dists = []
             for i in os.listdir(ks_distributions):

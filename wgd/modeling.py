@@ -166,7 +166,7 @@ def mixture_model_bgmm(data_frame, n_range=(1,5), Ks_range=(0.1, 2), gamma=0.01,
         logging.info("Plotting BGMMs")
 
         if not fig_size:
-            fig_size = (20, (n_range[1]-n_range[0]+1) * 6)
+            fig_size = (18, (n_range[1]-n_range[0]+1) * 6)
         fig = plt.figure(figsize=fig_size)
 
         for i in range(len(models)):
@@ -288,6 +288,13 @@ def mixture_model_gmm(data_frame, n=4, Ks_range=(0.1, 2), log=True, plot=True,
 
     best = models[np.argmin(bic)]
 
+    logging.info('-' * 24)
+    logging.info('{0:<4}{1:>10}{2:>10}'.format('n', 'AIC', 'BIC'))
+    logging.info('-' * 24)
+    for i in range(n):
+        logging.info('{0:<4}{1:^10.2f}{2:>10.2f}'.format(i + 1, aic[i], bic[i]))
+    logging.info('-' * 24)
+
     if plot:
         logging.info("Plotting GMMs")
 
@@ -378,5 +385,40 @@ def mixture_model_gmm(data_frame, n=4, Ks_range=(0.1, 2), log=True, plot=True,
 
         if plot_save:
             fig.savefig(os.path.join(output_dir, output_file), bbox_inches='tight')
+            plt.close()
 
     return models, bic, aic, best
+
+
+def get_component_probabilities(df, model):
+    """
+    Get paralogs from a mixture model component.
+
+    :param df:
+    :param model:
+    :param component:
+    :param cut_off:
+    :param ks_cut_off_low:
+    :param ks_cut_off_high:
+    :return:
+    """
+    df = df.dropna()
+    df = df.drop_duplicates(keep='first')
+    df['log(Ks)'] = np.log(df['Ks'])
+    df = df.replace([np.inf, -np.inf], np.nan)
+    df = df.dropna()
+
+    p = model.predict_proba(np.array(df['log(Ks)']).reshape(-1,1))
+    means = []
+    for c in range(len(p[0])):
+        col = 'tmp' + str(c + 1)
+        df[col] = p[:,c]
+        means.append((df[df[col] > 0.95]['Ks'].mean(), col))
+
+    # rename the columns so that components are sorted by mean Ks value
+    new_cols = {}
+    means = sorted(means)
+    for i in range(len(means)):
+        new_cols[means[i][1]] = 'p_component{}'.format(i+1)
+
+    return df.rename(columns=new_cols)
