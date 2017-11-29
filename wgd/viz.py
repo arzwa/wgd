@@ -310,51 +310,70 @@ def histogram_bokeh(ks_distributions, labels):
     # draw initial plot
     hist_dict = {}
     density_dict = {}
+    all_data = []
+    all_weights = []
+
+    """
+    for df in dists:
+        d, w, _ = get_data(df, var.value, scale.value, float(r1.value), float(r2.value))
+        all_data.append(d)
+        all_weights.append(w)
+
     edges = np.histogram(np.hstack(tuple([dist[var.value] for dist in dists])), bins=int(bins.value))[1]
     for i in range(len(dists)):
-        df = dists[i]
-        data, weights, df = get_data(df, var.value, scale.value, float(r1.value), float(r2.value))
-        hist = np.histogram(data, bins=int(bins.value), weights=weights)[0]
+        hist = np.histogram(all_data[i], bins=int(bins.value), weights=all_weights[i])[0]
         hist_dict[i] = p1.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], fill_color=c[i],
                                 line_color=c[i], fill_alpha=0.3, line_alpha=line.value, legend=labels[i])
         p1.legend.label_text_font_style = "italic"
         p1.legend.click_policy = "hide"
         p1.legend.inactive_fill_alpha = 0.6
+    """
 
     # set up callbacks
-    def update(selected=None, edges=edges):
-        redraw_plots(edges=edges)
+    def update(selected=None):
+        redraw_plots()
 
-    def redraw_plots(edges=edges):
+    def redraw_plots():
         c = get_colors(color_choice.value)
         p1.legend.items = []
+
+        all_data = []
+        all_weights = []
         for i in range(len(dists)):
             df = dists[i]
             data, weights, df = get_data(df, var.value, scale.value, float(r1.value), float(r2.value))
-            hist = np.histogram(data, bins=int(bins.value), weights=weights)[0]
+            all_data.append(data)
+            all_weights.append(weights)
+        edges = np.histogram(np.hstack(tuple(all_data)), bins=int(bins.value))[1]
 
-            if i in hist_dict:
-                remove_plot(hist_dict, i)
+        for i in range(len(dists)):
+            if density.value == 0:
+                hist = np.histogram(all_data[i], bins=int(bins.value), weights=all_weights[i])[0]
+            else:
+                hist = np.histogram(all_data[i], bins=int(bins.value), weights=all_weights[i], density=True)[0]
+
             if i in density_dict:
                 density_dict[i].data_source.data['x'] = []
                 density_dict[i].data_source.data['y'] = []
 
-            if density.value == 1 or density.value == 0:
-                hist_dict[i] = p1.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], fill_color=c[i],
-                                       line_color=c[i], fill_alpha=hist_alpha.value, line_alpha=line.value,
-                                       legend=labels[i])
-
             if density.value == 1 or density.value == 2:
-                kde = gaussian_kde(np.array(data), weights=np.array(weights), bw_method='scott')
+                kde = gaussian_kde(np.array(all_data[i]), weights=np.array(all_weights[i]), bw_method='scott')
                 x = np.linspace(float(r1.value), float(r2.value), 1000)
                 if scale.value == 'log10':
                     x = np.log10(x)
                 pdf = list(kde(x))
                 pdf[0] = 0
                 pdf[-1] = 0
-                conv = max(hist)/max(pdf)
-                density_dict[i] = p1.patch(x=x, y=np.array(pdf) * conv, fill_color=c[i], line_width=2, line_color=c[i],
+                density_dict[i] = p1.patch(x=x, y=pdf, fill_color=c[i], line_width=2, line_color=c[i],
                                            alpha=density_alpha.value, legend=labels[i])
+
+            if i in hist_dict:
+                remove_plot(hist_dict, i)
+
+            if density.value == 1 or density.value == 0:
+                hist_dict[i] = p1.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], fill_color=c[i],
+                                       line_color=c[i], fill_alpha=hist_alpha.value, line_alpha=line.value,
+                                       legend=labels[i])
 
             p1.legend.label_text_font_style = "italic"
             p1.legend.click_policy = "hide"
@@ -385,13 +404,7 @@ def histogram_bokeh(ks_distributions, labels):
             d.glyph.line_alpha = line.value
 
     def bins_update(attrname, old, new):
-        all_data = []
-        for i in range(len(dists)):
-            df = dists[i]
-            data, weights, df = get_data(df, var.value, scale.value, float(r1.value), float(r2.value))
-            all_data.append(data)
-        edges = np.histogram(np.hstack(tuple(all_data)), bins=int(bins.value))[1]
-        update(edges=edges)
+        update()
 
     var.on_change('value', bins_update)
     scale.on_change('value', bins_update)
@@ -400,7 +413,7 @@ def histogram_bokeh(ks_distributions, labels):
     line.on_change('value', feat_change)
     bins.on_change('value', bins_update)
     color_choice.on_change('value', feat_change)
-    density.on_change('value', change_update)
+    density.on_change('value', bins_update)
     density_alpha.on_change('value', feat_change)
     hist_alpha.on_change('value', feat_change)
 
@@ -413,6 +426,7 @@ def histogram_bokeh(ks_distributions, labels):
     ], sizing_mode='fixed')
 
     # initialize
+    update()
     session = push_session(curdoc())
     curdoc().add_root(l)
     session.show(l)  # open the document in a browser
