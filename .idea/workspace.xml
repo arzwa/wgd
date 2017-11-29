@@ -2,11 +2,54 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="821fa536-1b70-4930-9299-1d4345685448" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/wgd.iml" afterPath="$PROJECT_DIR$/.idea/wgd.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/alignment.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/alignment.doctree" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/blast_mcl.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/blast_mcl.doctree" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/cli.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/cli.doctree" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/codeml.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/codeml.doctree" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/environment.pickle" afterPath="$PROJECT_DIR$/doc/build/.doctrees/environment.pickle" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/index.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/index.doctree" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/ks.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/ks.doctree" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/mix.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/mix.doctree" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/syn.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/syn.doctree" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/utils.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/utils.doctree" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/viz.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/viz.doctree" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/wgd_cli.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/wgd_cli.doctree" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/comment-bright.png" afterPath="$PROJECT_DIR$/doc/build/_static/comment-bright.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/comment-close.png" afterPath="$PROJECT_DIR$/doc/build/_static/comment-close.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/comment.png" afterPath="$PROJECT_DIR$/doc/build/_static/comment.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/down-pressed.png" afterPath="$PROJECT_DIR$/doc/build/_static/down-pressed.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/down.png" afterPath="$PROJECT_DIR$/doc/build/_static/down.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/file.png" afterPath="$PROJECT_DIR$/doc/build/_static/file.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/minus.png" afterPath="$PROJECT_DIR$/doc/build/_static/minus.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/plus.png" afterPath="$PROJECT_DIR$/doc/build/_static/plus.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/up-pressed.png" afterPath="$PROJECT_DIR$/doc/build/_static/up-pressed.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/up.png" afterPath="$PROJECT_DIR$/doc/build/_static/up.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/objects.inv" afterPath="$PROJECT_DIR$/doc/build/objects.inv" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/modeling.py" afterPath="$PROJECT_DIR$/wgd/modeling.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/basic.css" afterPath="$PROJECT_DIR$/doc/build/_static/basic.css" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/doctools.js" afterPath="$PROJECT_DIR$/doc/build/_static/doctools.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/jquery.js" afterPath="$PROJECT_DIR$/doc/build/_static/jquery.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/searchtools.js" afterPath="$PROJECT_DIR$/doc/build/_static/searchtools.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/underscore.js" afterPath="$PROJECT_DIR$/doc/build/_static/underscore.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/websupport.js" afterPath="$PROJECT_DIR$/doc/build/_static/websupport.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/alignment.html" afterPath="$PROJECT_DIR$/doc/build/alignment.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/blast_mcl.html" afterPath="$PROJECT_DIR$/doc/build/blast_mcl.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/cli.html" afterPath="$PROJECT_DIR$/doc/build/cli.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/codeml.html" afterPath="$PROJECT_DIR$/doc/build/codeml.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/genindex.html" afterPath="$PROJECT_DIR$/doc/build/genindex.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/index.html" afterPath="$PROJECT_DIR$/doc/build/index.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/ks.html" afterPath="$PROJECT_DIR$/doc/build/ks.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/mix.html" afterPath="$PROJECT_DIR$/doc/build/mix.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/py-modindex.html" afterPath="$PROJECT_DIR$/doc/build/py-modindex.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/search.html" afterPath="$PROJECT_DIR$/doc/build/search.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/searchindex.js" afterPath="$PROJECT_DIR$/doc/build/searchindex.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/syn.html" afterPath="$PROJECT_DIR$/doc/build/syn.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/utils.html" afterPath="$PROJECT_DIR$/doc/build/utils.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/viz.html" afterPath="$PROJECT_DIR$/doc/build/viz.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/wgd_cli.html" afterPath="$PROJECT_DIR$/doc/build/wgd_cli.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/source/index.rst" afterPath="$PROJECT_DIR$/doc/source/index.rst" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/utils.py" afterPath="$PROJECT_DIR$/wgd/utils.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/viz.py" afterPath="$PROJECT_DIR$/wgd/viz.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd_cli.py" afterPath="$PROJECT_DIR$/wgd_cli.py" />
     </list>
     <ignored path="$PROJECT_DIR$/.idea/" />
@@ -19,11 +62,23 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="wgd_cli.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/wgd_cli.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="3416">
+              <caret line="421" column="94" lean-forward="false" selection-start-line="421" selection-start-column="86" selection-end-line="421" selection-end-column="94" />
+              <folding>
+                <element signature="e#206#218#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="blast_mcl.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/blast_mcl.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="28">
-              <caret line="2" column="17" lean-forward="false" selection-start-line="2" selection-start-column="17" selection-end-line="2" selection-end-column="17" />
+            <state relative-caret-position="802">
+              <caret line="196" column="22" lean-forward="false" selection-start-line="196" selection-start-column="11" selection-end-line="196" selection-end-column="22" />
               <folding />
             </state>
           </provider>
@@ -32,24 +87,11 @@
       <file leaf-file-name="collinearity.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/collinearity.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="28">
+            <state relative-caret-position="-1326">
               <caret line="2" column="17" lean-forward="false" selection-start-line="2" selection-start-column="17" selection-end-line="2" selection-end-column="17" />
               <folding>
                 <marker date="1511774728079" expanded="true" signature="21:42" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
                 <marker date="1511774728079" expanded="true" signature="4885:4950" ph="&quot;&quot;&quot;Get anchor pairs and their corresponding Ks values (if provided)...&quot;&quot;&quot;" />
-                <marker date="1511774728079" expanded="true" signature="4885:5970" ph="..." />
-                <marker date="1511774728079" expanded="true" signature="5462:5867" ph="..." />
-                <marker date="1511774728079" expanded="true" signature="5520:5653" ph="..." />
-                <marker date="1511774728079" expanded="true" signature="5878:5970" ph="..." />
-                <marker date="1511774728079" expanded="true" signature="6051:8321" ph="..." />
-                <marker date="1511774728079" expanded="true" signature="6056:6627" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-                <marker date="1511774728079" expanded="true" signature="6930:8240" ph="..." />
-                <marker date="1511774728079" expanded="true" signature="6975:8240" ph="..." />
-                <marker date="1511774728079" expanded="true" signature="7031:8240" ph="..." />
-                <marker date="1511774728079" expanded="true" signature="7428:8240" ph="..." />
-                <marker date="1511774728079" expanded="true" signature="7454:8202" ph="..." />
-                <marker date="1511774728079" expanded="true" signature="8474:8823" ph="..." />
-                <marker date="1511774728079" expanded="true" signature="8479:8592" ph="&quot;&quot;&quot;Run I-ADHoRe for a given config file...&quot;&quot;&quot;" />
               </folding>
             </state>
           </provider>
@@ -58,31 +100,29 @@
       <file leaf-file-name="ks_distribution.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/ks_distribution.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="14">
+            <state relative-caret-position="-196">
               <caret line="1" column="8" lean-forward="false" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="8" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="viz.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="viz.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wgd/viz.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="177">
-              <caret line="370" column="29" lean-forward="false" selection-start-line="370" selection-start-column="29" selection-end-line="370" selection-end-column="29" />
+            <state relative-caret-position="210">
+              <caret line="247" column="45" lean-forward="false" selection-start-line="247" selection-start-column="45" selection-end-line="247" selection-end-column="45" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="wgd_cli.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/wgd_cli.py">
+      <file leaf-file-name="index.rst" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/doc/source/index.rst">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="329">
-              <caret line="565" column="43" lean-forward="false" selection-start-line="565" selection-start-column="43" selection-end-line="565" selection-end-column="43" />
-              <folding>
-                <element signature="e#206#218#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="232">
+              <caret line="26" column="81" lean-forward="false" selection-start-line="26" selection-start-column="81" selection-end-line="26" selection-end-column="81" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -90,9 +130,11 @@
       <file leaf-file-name="alignment.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/alignment.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="84">
-              <caret line="6" column="23" lean-forward="false" selection-start-line="6" selection-start-column="23" selection-end-line="6" selection-end-column="23" />
-              <folding />
+            <state relative-caret-position="-1120">
+              <caret line="25" column="27" lean-forward="false" selection-start-line="25" selection-start-column="27" selection-end-line="25" selection-end-column="27" />
+              <folding>
+                <element signature="e#79#108#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -100,18 +142,8 @@
       <file leaf-file-name="modeling.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/modeling.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="326">
-              <caret line="152" column="43" lean-forward="true" selection-start-line="152" selection-start-column="43" selection-end-line="152" selection-end-column="43" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="phylogenomics.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wgd/phylogenomics.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="336">
-              <caret line="27" column="0" lean-forward="false" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
+            <state relative-caret-position="-659">
+              <caret line="10" column="37" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -130,8 +162,8 @@
       <file leaf-file-name="utils.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/utils.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="641">
-              <caret line="169" column="47" lean-forward="false" selection-start-line="169" selection-start-column="47" selection-end-line="169" selection-end-column="47" />
+            <state relative-caret-position="382">
+              <caret line="364" column="10" lean-forward="false" selection-start-line="364" selection-start-column="10" selection-end-line="364" selection-end-column="10" />
               <folding>
                 <element signature="e#54#63#0" expanded="true" />
               </folding>
@@ -177,7 +209,6 @@
         <option value="$PROJECT_DIR$/doc/source/utils.rst" />
         <option value="$PROJECT_DIR$/doc/source/syn.rst" />
         <option value="$PROJECT_DIR$/doc/source/ks.rst" />
-        <option value="$PROJECT_DIR$/doc/source/index.rst" />
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/doc/source/cli.rst" />
         <option value="$PROJECT_DIR$/doc/source/wgd_cli.rst" />
@@ -186,10 +217,11 @@
         <option value="$PROJECT_DIR$/wgd/codeml.py" />
         <option value="$PROJECT_DIR$/wgd/collinearity.py" />
         <option value="$PROJECT_DIR$/wgd/ks_distribution.py" />
-        <option value="$PROJECT_DIR$/wgd/viz.py" />
-        <option value="$PROJECT_DIR$/wgd/utils.py" />
         <option value="$PROJECT_DIR$/wgd/modeling.py" />
+        <option value="$PROJECT_DIR$/wgd/utils.py" />
         <option value="$PROJECT_DIR$/wgd_cli.py" />
+        <option value="$PROJECT_DIR$/doc/source/index.rst" />
+        <option value="$PROJECT_DIR$/wgd/viz.py" />
       </list>
     </option>
   </component>
@@ -214,6 +246,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -242,11 +275,10 @@
         </subPane>
       </pane>
       <pane id="Scratches" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../eco-evo/eco_evo" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunDashboard">
@@ -278,7 +310,7 @@
     <frame x="39" y="25" width="1881" height="1055" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.16070008" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1605529" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -314,11 +346,6 @@
           <url>file://$PROJECT_DIR$/wgd/blast_mcl.py</url>
           <line>7</line>
           <option name="timeStamp" value="6" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/wgd_cli.py</url>
-          <line>349</line>
-          <option name="timeStamp" value="9" />
         </line-breakpoint>
       </breakpoints>
       <option name="time" value="10" />
@@ -543,13 +570,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/doc/source/index.rst">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="414">
-          <caret line="48" column="0" lean-forward="false" selection-start-line="48" selection-start-column="0" selection-end-line="51" selection-end-column="31" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/doc/source/wgd_cli.rst" />
     <entry file="file://$PROJECT_DIR$/doc/source/codeml.rst">
       <provider selected="true" editor-type-id="text-editor">
@@ -586,43 +606,47 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wgd/collinearity.py">
+    <entry file="file://$PROJECT_DIR$/wgd/phylogenomics.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="28">
-          <caret line="2" column="17" lean-forward="false" selection-start-line="2" selection-start-column="17" selection-end-line="2" selection-end-column="17" />
-          <folding>
-            <marker date="1511774728079" expanded="true" signature="21:42" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1511774728079" expanded="true" signature="4885:4950" ph="&quot;&quot;&quot;Get anchor pairs and their corresponding Ks values (if provided)...&quot;&quot;&quot;" />
-            <marker date="1511774728079" expanded="true" signature="4885:5970" ph="..." />
-            <marker date="1511774728079" expanded="true" signature="5462:5867" ph="..." />
-            <marker date="1511774728079" expanded="true" signature="5520:5653" ph="..." />
-            <marker date="1511774728079" expanded="true" signature="5878:5970" ph="..." />
-            <marker date="1511774728079" expanded="true" signature="6051:8321" ph="..." />
-            <marker date="1511774728079" expanded="true" signature="6056:6627" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
-            <marker date="1511774728079" expanded="true" signature="6930:8240" ph="..." />
-            <marker date="1511774728079" expanded="true" signature="6975:8240" ph="..." />
-            <marker date="1511774728079" expanded="true" signature="7031:8240" ph="..." />
-            <marker date="1511774728079" expanded="true" signature="7428:8240" ph="..." />
-            <marker date="1511774728079" expanded="true" signature="7454:8202" ph="..." />
-            <marker date="1511774728079" expanded="true" signature="8474:8823" ph="..." />
-            <marker date="1511774728079" expanded="true" signature="8479:8592" ph="&quot;&quot;&quot;Run I-ADHoRe for a given config file...&quot;&quot;&quot;" />
-          </folding>
+        <state relative-caret-position="336">
+          <caret line="27" column="0" lean-forward="false" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wgd/viz.py">
+    <entry file="file://$PROJECT_DIR$/wgd/blast_mcl.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="177">
-          <caret line="370" column="29" lean-forward="false" selection-start-line="370" selection-start-column="29" selection-end-line="370" selection-end-column="29" />
+        <state relative-caret-position="802">
+          <caret line="196" column="22" lean-forward="false" selection-start-line="196" selection-start-column="11" selection-end-line="196" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wgd/modeling.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-659">
+          <caret line="10" column="37" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/wgd/alignment.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="84">
-          <caret line="6" column="23" lean-forward="false" selection-start-line="6" selection-start-column="23" selection-end-line="6" selection-end-column="23" />
-          <folding />
+        <state relative-caret-position="-1120">
+          <caret line="25" column="27" lean-forward="false" selection-start-line="25" selection-start-column="27" selection-end-line="25" selection-end-column="27" />
+          <folding>
+            <element signature="e#79#108#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wgd/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="382">
+          <caret line="364" column="10" lean-forward="false" selection-start-line="364" selection-start-column="10" selection-end-line="364" selection-end-column="10" />
+          <folding>
+            <element signature="e#54#63#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -634,55 +658,48 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wgd/phylogenomics.py">
+    <entry file="file://$PROJECT_DIR$/wgd/collinearity.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="336">
-          <caret line="27" column="0" lean-forward="false" selection-start-line="27" selection-start-column="0" selection-end-line="27" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wgd/utils.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="641">
-          <caret line="169" column="47" lean-forward="false" selection-start-line="169" selection-start-column="47" selection-end-line="169" selection-end-column="47" />
-          <folding>
-            <element signature="e#54#63#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wgd/modeling.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="326">
-          <caret line="152" column="43" lean-forward="true" selection-start-line="152" selection-start-column="43" selection-end-line="152" selection-end-column="43" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wgd/blast_mcl.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="28">
+        <state relative-caret-position="-1326">
           <caret line="2" column="17" lean-forward="false" selection-start-line="2" selection-start-column="17" selection-end-line="2" selection-end-column="17" />
-          <folding />
+          <folding>
+            <marker date="1511774728079" expanded="true" signature="21:42" ph="&quot;&quot;&quot;...&quot;&quot;&quot;" />
+            <marker date="1511774728079" expanded="true" signature="4885:4950" ph="&quot;&quot;&quot;Get anchor pairs and their corresponding Ks values (if provided)...&quot;&quot;&quot;" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/wgd/ks_distribution.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="14">
+        <state relative-caret-position="-196">
           <caret line="1" column="8" lean-forward="false" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/doc/source/index.rst">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="232">
+          <caret line="26" column="81" lean-forward="false" selection-start-line="26" selection-start-column="81" selection-end-line="26" selection-end-column="81" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/wgd_cli.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="329">
-          <caret line="565" column="43" lean-forward="false" selection-start-line="565" selection-start-column="43" selection-end-line="565" selection-end-column="43" />
+        <state relative-caret-position="3416">
+          <caret line="421" column="94" lean-forward="false" selection-start-line="421" selection-start-column="86" selection-end-line="421" selection-end-column="94" />
           <folding>
             <element signature="e#206#218#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wgd/viz.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="247" column="45" lean-forward="false" selection-start-line="247" selection-start-column="45" selection-end-line="247" selection-end-column="45" />
+          <folding />
         </state>
       </provider>
     </entry>

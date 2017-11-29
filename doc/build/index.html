@@ -1,33 +1,32 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>wgd: Whole genome duplication analysis in Python &mdash; wgd 0.0.1 documentation</title>
-    
+    <title>wgd: Whole genome duplication analysis in Python &#8212; wgd 0.0.1 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="wgd 0.0.1 documentation" href="#" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Command line interface" href="cli.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -40,7 +39,7 @@
         <li class="right" >
           <a href="cli.html" title="Command line interface"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">wgd 0.0.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">wgd 0.0.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -62,14 +61,11 @@ utilities bundled in the <code class="docutils literal"><span class="pre">wgd</s
 <ol class="arabic simple">
 <li><code class="docutils literal"><span class="pre">codeml</span></code> from the PAML package (<a class="reference external" href="http://abacus.gene.ucl.ac.uk/software/paml.html">http://abacus.gene.ucl.ac.uk/software/paml.html</a>)</li>
 <li><code class="docutils literal"><span class="pre">muscle</span></code> for multiple sequence alignment (<a class="reference external" href="http://www.drive5.com/muscle/">http://www.drive5.com/muscle/</a>)</li>
+<li><code class="docutils literal"><span class="pre">mcl</span></code> (<a class="reference external" href="https://micans.org/mcl/index.html">https://micans.org/mcl/index.html</a>). On Ubuntu, Debian and Linux Mint a simple <code class="docutils literal"><span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">mcl</span></code> will suffice</li>
+<li><code class="docutils literal"><span class="pre">blastp</span></code> and <code class="docutils literal"><span class="pre">makeblastdb</span></code> from the Blast+ suite (<a class="reference external" href="https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&amp;PAGE_TYPE=BlastDocs&amp;DOC_TYPE=Download">https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&amp;PAGE_TYPE=BlastDocs&amp;DOC_TYPE=Download</a>). Again, on Ubuntu, Debian and Linux Mint a simple <code class="docutils literal"><span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">ncbi-blast+</span></code> will suffice</li>
+<li><code class="docutils literal"><span class="pre">i-adhore</span></code> from the I-ADHoRe 3.0 suite (<a class="reference external" href="http://bioinformatics.psb.ugent.be/beg/tools/i-adhore30">http://bioinformatics.psb.ugent.be/beg/tools/i-adhore30</a>)</li>
 </ol>
-<p>3. <code class="docutils literal"><span class="pre">mcl</span></code> (<a class="reference external" href="https://micans.org/mcl/index.html">https://micans.org/mcl/index.html</a>). On Ubuntu, Debian and Linux Mint a simple
-<code class="docutils literal"><span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">mcl</span></code> will suffice
-4. <code class="docutils literal"><span class="pre">blastp</span></code> and <code class="docutils literal"><span class="pre">makeblastdb</span></code> from the Blast+ suite (<a class="reference external" href="https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&amp;PAGE_TYPE=BlastDocs&amp;DOC_TYPE=Download">https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&amp;PAGE_TYPE=BlastDocs&amp;DOC_TYPE=Download</a>).
-Again, on Ubuntu, Debian and Linux Mint a simple <code class="docutils literal"><span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">ncbi-blast+</span></code>
-will suffice
-5. <code class="docutils literal"><span class="pre">i-adhore</span></code> from the I-ADHoRe 3.0 suite (<a class="reference external" href="http://bioinformatics.psb.ugent.be/beg/tools/i-adhore30">http://bioinformatics.psb.ugent.be/beg/tools/i-adhore30</a>)</p>
-<p>Of course, you don&#8217;t need all of these tools installed for each feature of <code class="docutils literal"><span class="pre">wgd</span></code>.
+<p>Of course, you don’t need all of these tools installed for each feature of <code class="docutils literal"><span class="pre">wgd</span></code>.
 Please put these tools in your PATH environment variable as well, it makes life easier.</p>
 </div>
 <div class="section" id="command-line-tools">
@@ -113,9 +109,9 @@ analyses:</p>
 <div class="section" id="indices-and-tables">
 <h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span>Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span>Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span>Search Page</span></a></li>
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
 </ul>
 </div>
 </div>
@@ -143,21 +139,18 @@ analyses:</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/index.txt"
+      <li><a href="_sources/index.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -176,12 +169,12 @@ analyses:</p>
         <li class="right" >
           <a href="cli.html" title="Command line interface"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">wgd 0.0.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">wgd 0.0.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2017, Arthur Zwaenepoel.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
+        &#169; Copyright 2017, Arthur Zwaenepoel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>

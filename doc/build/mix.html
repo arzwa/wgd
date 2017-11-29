@@ -1,34 +1,33 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Mixture modeling &mdash; wgd 0.0.1 documentation</title>
-    
+    <title>Mixture modeling &#8212; wgd 0.0.1 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="wgd 0.0.1 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Co-linearity analyses module" href="syn.html" />
     <link rel="prev" title="Ks distribution module" href="ks.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -44,7 +43,7 @@
         <li class="right" >
           <a href="ks.html" title="Ks distribution module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -59,6 +58,31 @@
 (better known as <code class="docutils literal"><span class="pre">sklearn</span></code> library).</p>
 <span class="target" id="module-wgd.modeling"></span><p>Arthur Zwaenepoel - 2017</p>
 <dl class="function">
+<dt id="wgd.modeling.get_component_probabilities">
+<code class="descclassname">wgd.modeling.</code><code class="descname">get_component_probabilities</code><span class="sig-paren">(</span><em>df</em>, <em>model</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.modeling.get_component_probabilities" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get paralogs from a mixture model component.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>df</strong> – </li>
+<li><strong>model</strong> – </li>
+<li><strong>component</strong> – </li>
+<li><strong>cut_off</strong> – </li>
+<li><strong>ks_cut_off_low</strong> – </li>
+<li><strong>ks_cut_off_high</strong> – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="wgd.modeling.kernel_density_estimation">
 <code class="descclassname">wgd.modeling.</code><code class="descname">kernel_density_estimation</code><span class="sig-paren">(</span><em>data_frame</em>, <em>bandwidths=(0.01</em>, <em>0.05</em>, <em>0.1</em>, <em>0.15</em>, <em>0.2)</em>, <em>kernel='gaussian'</em>, <em>output_dir=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.modeling.kernel_density_estimation" title="Permalink to this definition">¶</a></dt>
 <dd><p>Kernel density estimation (KDE) for Ks distribution</p>
@@ -67,10 +91,10 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data_frame</strong> &#8211; pandas data frame with Ks analysis results</li>
-<li><strong>bandwidths</strong> &#8211; the bandwidths to apply in the KDE</li>
-<li><strong>kernel</strong> &#8211; kernel to aply in the KDE (gaussian, epachenikov, top_hat)</li>
-<li><strong>output_dir</strong> &#8211; output directory</li>
+<li><strong>data_frame</strong> – pandas data frame with Ks analysis results</li>
+<li><strong>bandwidths</strong> – the bandwidths to apply in the KDE</li>
+<li><strong>kernel</strong> – kernel to aply in the KDE (gaussian, epachenikov, top_hat)</li>
+<li><strong>output_dir</strong> – output directory</li>
 </ul>
 </td>
 </tr>
@@ -90,17 +114,17 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data_frame</strong> &#8211; pandas data frame from Ks analysis</li>
-<li><strong>n_range</strong> &#8211; range of numbers of components</li>
-<li><strong>Ks_range</strong> &#8211; Ks value interval to model</li>
-<li><strong>gamma</strong> &#8211; gamma hyperparameter for sklearn.mixture.BayesianGaussianMixture</li>
-<li><strong>max_iter</strong> &#8211; maximum number of iterations</li>
-<li><strong>plot</strong> &#8211; make plots (boolean)</li>
-<li><strong>log</strong> &#8211; fit log-normal components rather than Normal</li>
-<li><strong>output_dir</strong> &#8211; output directory</li>
-<li><strong>plot_save</strong> &#8211; save the plot</li>
-<li><strong>output_file</strong> &#8211; output file name</li>
-<li><strong>kwargs</strong> &#8211; other keyword arguments for <code class="xref py py-func docutils literal"><span class="pre">sklearn.mixture.BayesianGaussianMixture()</span></code></li>
+<li><strong>data_frame</strong> – pandas data frame from Ks analysis</li>
+<li><strong>n_range</strong> – range of numbers of components</li>
+<li><strong>Ks_range</strong> – Ks value interval to model</li>
+<li><strong>gamma</strong> – gamma hyperparameter for sklearn.mixture.BayesianGaussianMixture</li>
+<li><strong>max_iter</strong> – maximum number of iterations</li>
+<li><strong>plot</strong> – make plots (boolean)</li>
+<li><strong>log</strong> – fit log-normal components rather than Normal</li>
+<li><strong>output_dir</strong> – output directory</li>
+<li><strong>plot_save</strong> – save the plot</li>
+<li><strong>output_file</strong> – output file name</li>
+<li><strong>kwargs</strong> – other keyword arguments for <code class="xref py py-func docutils literal"><span class="pre">sklearn.mixture.BayesianGaussianMixture()</span></code></li>
 </ul>
 </td>
 </tr>
@@ -120,15 +144,15 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data_frame</strong> &#8211; pandas data frame from Ks analysis</li>
-<li><strong>n</strong> &#8211; max number of components</li>
-<li><strong>Ks_range</strong> &#8211; Ks range to model</li>
-<li><strong>log</strong> &#8211; fit log-normal components</li>
-<li><strong>plot</strong> &#8211; make plots</li>
-<li><strong>output_dir</strong> &#8211; output directory for plots</li>
-<li><strong>plot_save</strong> &#8211; save plots</li>
-<li><strong>output_file</strong> &#8211; output file name</li>
-<li><strong>kwargs</strong> &#8211; other keyword arguments for <code class="docutils literal"><span class="pre">mixture.GaussianMixture</span></code></li>
+<li><strong>data_frame</strong> – pandas data frame from Ks analysis</li>
+<li><strong>n</strong> – max number of components</li>
+<li><strong>Ks_range</strong> – Ks range to model</li>
+<li><strong>log</strong> – fit log-normal components</li>
+<li><strong>plot</strong> – make plots</li>
+<li><strong>output_dir</strong> – output directory for plots</li>
+<li><strong>plot_save</strong> – save plots</li>
+<li><strong>output_file</strong> – output file name</li>
+<li><strong>kwargs</strong> – other keyword arguments for <code class="docutils literal"><span class="pre">mixture.GaussianMixture</span></code></li>
 </ul>
 </td>
 </tr>
@@ -147,7 +171,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_frame</strong> &#8211; Ks distribution data frame</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_frame</strong> – Ks distribution data frame</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">reweighted Ks distribution</td>
 </tr>
@@ -172,21 +196,18 @@
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/mix.txt"
+      <li><a href="_sources/mix.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -208,12 +229,12 @@
         <li class="right" >
           <a href="ks.html" title="Ks distribution module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2017, Arthur Zwaenepoel.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
+        &#169; Copyright 2017, Arthur Zwaenepoel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>

@@ -299,6 +299,9 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None, tmp_
         for seq_file in seq_list:
             protein_seqs.update(read_fasta(seq_file))
 
+    # define a base name for the output files
+    base = '_'.join([os.path.basename(x) for x in seq_list])
+
     # one-vs-one ortholog input
     if one_v_one:
         os.chdir(tmp_dir)
@@ -306,15 +309,14 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None, tmp_
         results = ks_analysis_one_vs_one(cds_seqs, protein_seqs, gene_families, tmp_dir, output_directory,
                                          muscle, codeml, async=async, n_cores=n_threads, preserve=preserve,
                                          times=times, min_length=min_msa_length)
-        results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(
-            os.path.basename(gene_families))), sep='\t')
+        results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(base)), sep='\t')
 
         logging.info('Generating plots')
-        plot_selection(results, output_file=os.path.join(output_directory, '{}.ks.png'.format(os.path.basename(
-            gene_families))), title=os.path.basename(gene_families))
+        plot_selection(results, output_file=os.path.join(output_directory, '{}.ks.png'.format(base)),
+                       title=os.path.basename(gene_families))
 
         logging.info('Done')
-        return os.path.join(output_directory, '{}.ks.tsv'.format(os.path.basename(gene_families)))
+        return os.path.join(output_directory, '{}.ks.tsv'.format(base))
 
     # whole paranome ks analysis
     else:
@@ -324,15 +326,14 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None, tmp_
                                        muscle, codeml, preserve=preserve, times=times,
                                        ignore_prefixes=ignore_prefixes, async=async, n_cores=n_threads,
                                        min_length=min_msa_length)
-        results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(
-            os.path.basename(gene_families))), sep='\t')
+        results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(base)), sep='\t')
 
         logging.info('Generating plots')
-        plot_selection(results, output_file=os.path.join(output_directory, '{}.ks.png'.format(os.path.basename(
-            gene_families))), title=os.path.basename(gene_families))
+        plot_selection(results, output_file=os.path.join(output_directory, '{}.ks.png'.format(base)),
+                       title=os.path.basename(gene_families))
 
         logging.info('Done')
-        return os.path.join(output_directory, '{}.ks.tsv'.format(os.path.basename(gene_families)))
+        return os.path.join(output_directory, '{}.ks.tsv'.format(base))
 
 
 # CO-LINEARITY ---------------------------------------------------------------------------------------------------------
@@ -550,17 +551,18 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequence
               help="Output file, default='wgd_hist.png'.")
 @click.option('--interactive', is_flag=True,
               help="Interactive visualization with bokeh.")
-def hist(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file, interactive):
+def viz(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file, interactive):
     """ Plot (stacked) histograms. """
-    hist_(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file, interactive)
+    viz_(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file, interactive)
 
 
-def hist_(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file, interactive=False):
+def viz_(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file, interactive=False):
     from wgd.viz import plot_selection
 
     if not ks_distributions:
-        logging.error('No Ks distributions provided, run `wgd hist -h` for usage instructions')
-        logging.info('You have to provide one or more computed Ks distributions! See for example `wgd ks -h`')
+        logging.error('No Ks distributions provided, run `wgd viz -h` for usage instructions')
+        logging.error('You have to provide one or more computed Ks distributions! See for example `wgd ks -h`')
+        return 1
 
     if interactive:
         from wgd.viz import histogram_bokeh
@@ -573,7 +575,6 @@ def hist_(ks_distributions, alpha_values, colors, labels, hist_type, title, outp
                     dists.append(os.path.join(ks_distributions, i))
                 except:
                     logging.info('Not a Ks distribution: {}'.format(i))
-            labels = None
         else:
             dists = ks_distributions.split(',')
         histogram_bokeh(dists, labels)
@@ -606,10 +607,23 @@ def pipeline_1(sequences, output_dir, gff_file, n_threads):
     """
     Standard workflow whole paranome Ks.
     """
-    mcl_out = blast_(cds=True, mcl=True, sequences=sequences, n_threads=n_threads, output_dir=output_dir)
-    ks_results = ks_(gene_families=mcl_out, sequences=sequences, n_threads=n_threads, output_directory=output_dir)
+    if not os.path.isdir(output_dir):
+        os.mkdir(output_dir)
+
+    # wgd blast
+    blast_dir = os.path.join(output_dir, 'wgd_blast')
+    mcl_out = blast_(cds=True, mcl=True, sequences=sequences, n_threads=n_threads, output_dir=blast_dir)
+
+    # wgd ks
+    ks_dir = os.path.join(output_dir, 'wgd_ks')
+    ks_results = ks_(gene_families=mcl_out, sequences=sequences, n_threads=n_threads, output_directory=ks_dir)
+
+    # wgd syn
     if gff_file:
-        syn_(gff_file=gff_file, families=mcl_out, output_dir=output_dir, ks_distribution=ks_results)
+        syn_dir = os.path.join(output_dir, 'wgd_syn')
+        syn_(gff_file=gff_file, families=mcl_out, output_dir=syn_dir, ks_distribution=ks_results)
+
+    return
 
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
@@ -618,11 +632,22 @@ def pipeline_1(sequences, output_dir, gff_file, n_threads):
 @click.option('--n_threads','-n', default=4,
               help="Number of threads to use.")
 def pipeline_2(sequences, output_dir, n_threads):
-    """ Standard workflow one-vs-one ortholog Ks."""
+    """
+    Standard workflow one-vs-one ortholog Ks.
+    """
+    if not os.path.isdir(output_dir):
+        os.mkdir(output_dir)
+
+    # wgd blast
+    blast_dir = os.path.join(output_dir, 'wgd_blast')
     ovo_out = blast_(cds=True, one_v_one=True, mcl=False, sequences=sequences, n_threads=n_threads,
-                     output_dir=output_dir)
+                     output_dir=blast_dir)
+
+    # wgd ks
+    ks_dir = os.path.join(output_dir, 'wgd_ks')
     ks_(gene_families=ovo_out, sequences=sequences, n_threads=n_threads, output_directory=output_dir, one_v_one=True)
-    pass
+
+    return
 
 
 if __name__ == '__main__':

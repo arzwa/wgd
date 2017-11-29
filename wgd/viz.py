@@ -230,26 +230,34 @@ def syntenic_dotplot_ks_colored(df, an, ks, color_map='Spectral', output_file=No
 
 
 def histogram_bokeh(ks_distributions, labels):
-    # TODO
+    """
+    Run an interactive bokeh instance
+    """
     from bokeh.io import curdoc
-    from bokeh.layouts import row, column
-    from bokeh.models import ColumnDataSource
-    from bokeh.models.widgets import PreText, Select, TextInput, MultiSelect, Slider
-    from bokeh.plotting import figure
+    from bokeh.layouts import widgetbox, layout
+    from bokeh.models.widgets import Select, TextInput, Slider, Div
+    from bokeh.plotting import figure, output_file, show
     from bokeh.client import push_session
     from pylab import cm, colors
-    from scipy.stats import gaussian_kde as kde
+    import datetime
+    from .utils import gaussian_kde
 
-    def get_colors(cmap_choice='hsv'):
+    # helper functions
+    def get_colors(cmap_choice='binary'):
+        too_light = ['binary', 'hot', 'copper', 'pink', 'summer', 'bone', 'Pastel1', 'Pastel2', 'gist_ncar',
+                     'nipy_spectral', 'Greens']
         cmap = cm.get_cmap(cmap_choice, len(ks_distributions))
-        if cmap_choice == 'binary':
-            cmap = cm.get_cmap(cmap_choice, len(ks_distributions)*2)
+        if cmap_choice in too_light:
+            cmap = cm.get_cmap(cmap_choice, len(ks_distributions)*4)
         c = []
         for i in range(cmap.N):
             rgb = cmap(i)[:3]  # will return rgba, we take only first 3 so we get rgb
             c.append(matplotlib.colors.rgb2hex(rgb))
-        if cmap_choice == 'binary':
-            c = c[len(ks_distributions):]
+        if cmap_choice in too_light:
+            if len(ks_distributions) > 1:
+                c = c[2:-2]
+            else:
+                c = [c[-1]]
         return c
 
     def get_data(df, var, scale, r1, r2):
@@ -261,34 +269,37 @@ def histogram_bokeh(ks_distributions, labels):
         weights = df['WeightOutliersIncluded']
         return data, weights, df
 
+    # get the distributions
     dists = [pd.read_csv(x, sep='\t') for x in ks_distributions]
     if labels:
         labels = labels.split(',')
     else:
-        labels= ks_distributions
-    dist_ids = {ks_distributions[i]: i for i in range(len(ks_distributions))}
-    df = dists[0]
+        labels = ks_distributions
+
+    # basics
     c = get_colors()
-    print(c)
     variables = ['Ks', 'Ka', 'Omega']
     scales = ['Normal', 'log10']
 
-    stats = PreText(text='', width=500)
+    # set up widgets
+    div = Div(text=BOKEH_APP_DIV, width=800)
     var = Select(title='Variable', value='Ks', options=variables)
     scale = Select(title='Scale', value='Normal', options=scales)
     r1 = TextInput(title="Minimum", value='0.1')
     r2 = TextInput(title="Maximum", value='5')
     bins = TextInput(title="Bins", value='50')
     line = Slider(title="Lines", start=0, end=1, value=0.3, step=0.1)
-    density = Slider(title="Kernel density", start=0, end=1, value=0, step=1)
-    selected_dists = MultiSelect(title='Distributions', options=ks_distributions, value=[ks_distributions[0]])
-    color_choice = Select(options=['binary', 'hsv', 'hot', 'magma', 'viridis', 'Greens'],
-                          value='hsv', title='Color map')
+    density = Slider(title="Kernel density", start=0, end=2, value=0, step=1)
+    density_alpha = Slider(title="Density alpha value", start=0, end=1, value=0.6, step=0.1)
+    hist_alpha = Slider(title="Histogram alpha value", start=0, end=1, value=0.6, step=0.1)
+    color_choice = Select(options=['binary', 'hsv', 'hot', 'magma', 'viridis', 'Greens', 'spring', 'autumn',
+                                   'copper', 'cool', 'winter', 'pink', 'summer', 'bone', 'RdBu', 'RdYlGn',
+                                   'coolwarm', 'inferno', 'Pastel1', 'Pastel2', 'tab10', 'gnuplot', 'brg',
+                                   'gist_ncar', 'jet', 'rainbow', 'nipy_spectral', 'ocean', 'cubehelix'],
+                          value='binary', title='Color map')
 
-    data, weights, df = get_data(df, var.value, scale.value, float(r1.value), float(r2.value))
-    all_data = [data]
-
-    p1 = figure(plot_width=1000, plot_height=700, tools='pan,wheel_zoom,box_select,reset')
+    # set up figure
+    p1 = figure(plot_width=1000, plot_height=700, tools='pan,wheel_zoom,xwheel_zoom,ywheel_zoom,save')
     p1.xgrid.grid_line_color = None
     p1.ygrid.grid_line_color = None
     p1.border_fill_color = 'white'
@@ -296,56 +307,62 @@ def histogram_bokeh(ks_distributions, labels):
     p1.yaxis.axis_label = '# paralogs'
     p1.xaxis.axis_label = 'Ks'
 
-    hist, edges = np.histogram(data, bins=int(bins.value), weights=weights)
-    hist_dict = {0: p1.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], fill_color=c[0],
-                            line_color=c[0], fill_alpha=0.4, line_alpha=line.value, legend=labels[0])}
-    p1.legend.label_text_font_style = "italic"
+    # draw initial plot
+    hist_dict = {}
     density_dict = {}
-    # set up callbacks
+    edges = np.histogram(np.hstack(tuple([dist[var.value] for dist in dists])), bins=int(bins.value))[1]
+    for i in range(len(dists)):
+        df = dists[i]
+        data, weights, df = get_data(df, var.value, scale.value, float(r1.value), float(r2.value))
+        hist = np.histogram(data, bins=int(bins.value), weights=weights)[0]
+        hist_dict[i] = p1.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], fill_color=c[i],
+                                line_color=c[i], fill_alpha=0.3, line_alpha=line.value, legend=labels[i])
+        p1.legend.label_text_font_style = "italic"
+        p1.legend.click_policy = "hide"
+        p1.legend.inactive_fill_alpha = 0.6
 
-    def update(selected=None):
-        all_data = []
+    # set up callbacks
+    def update(selected=None, edges=edges):
+        redraw_plots(edges=edges)
+
+    def redraw_plots(edges=edges):
         c = get_colors(color_choice.value)
-        for f in selected_dists.value:
-            i = dist_ids[f]
+        p1.legend.items = []
+        for i in range(len(dists)):
             df = dists[i]
             data, weights, df = get_data(df, var.value, scale.value, float(r1.value), float(r2.value))
-            hist, edges = np.histogram(data, bins=int(bins.value), weights=weights)
+            hist = np.histogram(data, bins=int(bins.value), weights=weights)[0]
+
             if i in hist_dict:
                 remove_plot(hist_dict, i)
-            hist_dict[i] = p1.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], fill_color=c[i],
-                                       line_color=c[i], fill_alpha=0.4, line_alpha=line.value,
+            if i in density_dict:
+                density_dict[i].data_source.data['x'] = []
+                density_dict[i].data_source.data['y'] = []
+
+            if density.value == 1 or density.value == 0:
+                hist_dict[i] = p1.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], fill_color=c[i],
+                                       line_color=c[i], fill_alpha=hist_alpha.value, line_alpha=line.value,
                                        legend=labels[i])
 
-            if density.value == 1:
-                dw = [x[0] for x in weighted_to_unweighted(df)]
-                data_weighed = np.random.choice(dw, 10000)
-                dens= kde(data_weighed)
-                xs = np.arange(float(r1.value), float(r2.value), 0.01)
-                ys = dens(xs)
-                conv_factor = min(hist)/min(ys)
-                ys *= conv_factor
-                density_dict[i] = p1.line(xs, ys, color=c[i])
+            if density.value == 1 or density.value == 2:
+                kde = gaussian_kde(np.array(data), weights=np.array(weights), bw_method='scott')
+                x = np.linspace(float(r1.value), float(r2.value), 1000)
+                if scale.value == 'log10':
+                    x = np.log10(x)
+                pdf = list(kde(x))
+                pdf[0] = 0
+                pdf[-1] = 0
+                conv = max(hist)/max(pdf)
+                density_dict[i] = p1.patch(x=x, y=np.array(pdf) * conv, fill_color=c[i], line_width=2, line_color=c[i],
+                                           alpha=density_alpha.value, legend=labels[i])
 
-            x_label = var.value
+            p1.legend.label_text_font_style = "italic"
+            p1.legend.click_policy = "hide"
+            p1.legend.inactive_fill_alpha = 0.6
+            v = var.value
             if scale.value == 'log10':
-                x_label = 'log10(' + var.value + ')'
-            p1.xaxis.axis_label = x_label
-
-            all_data.append(data)
-
-        for d in dist_ids:
-            i = dist_ids[d]
-            if d not in selected_dists.value and i in hist_dict.keys():
-                print('updating {}'.format(i))
-                remove_plot(hist_dict, i)
-                #hist_dict[i].data_source.data['line_alpha'] = []
-
-        update_stats(all_data)
-
-    def update_stats(data):
-        df = pd.concat(data, axis=1)
-        stats.text = str(df.describe())
+                v = 'log10(' + v + ')'
+            p1.xaxis.axis_label = v
 
     def remove_plot(hist_dict, i):
         hist_dict[i].data_source.data["top"] = []
@@ -355,29 +372,54 @@ def histogram_bokeh(ks_distributions, labels):
     def change_update(attrname, old, new):
         update()
 
-    var.on_change('value', change_update)
-    scale.on_change('value', change_update)
-    r1.on_change('value', change_update)
-    r2.on_change('value', change_update)
-    line.on_change('value', change_update)
-    bins.on_change('value', change_update)
-    color_choice.on_change('value', change_update)
+    def feat_change(attrname, old, new):
+        c = get_colors(color_choice.value)
+        for i, d in density_dict.items():
+            d.glyph.fill_color = c[i]
+            d.glyph.line_color = c[i]
+            d.glyph.fill_alpha = density_alpha.value
+        for i, d in hist_dict.items():
+            d.glyph.fill_color = c[i]
+            d.glyph.line_color = c[i]
+            d.glyph.fill_alpha = hist_alpha.value
+            d.glyph.line_alpha = line.value
+
+    def bins_update(attrname, old, new):
+        all_data = []
+        for i in range(len(dists)):
+            df = dists[i]
+            data, weights, df = get_data(df, var.value, scale.value, float(r1.value), float(r2.value))
+            all_data.append(data)
+        edges = np.histogram(np.hstack(tuple(all_data)), bins=int(bins.value))[1]
+        update(edges=edges)
+
+    var.on_change('value', bins_update)
+    scale.on_change('value', bins_update)
+    r1.on_change('value', bins_update)
+    r2.on_change('value', bins_update)
+    line.on_change('value', feat_change)
+    bins.on_change('value', bins_update)
+    color_choice.on_change('value', feat_change)
     density.on_change('value', change_update)
-    selected_dists.on_change('value', change_update)
+    density_alpha.on_change('value', feat_change)
+    hist_alpha.on_change('value', feat_change)
 
     # set up layout
-    widgets1 = column(selected_dists, var, scale, r1, r2, bins, line, density, color_choice, stats)
-    main_row = row(p1, widgets1)
-    layout = column(main_row)
+    widgets1 = widgetbox(var, scale, color_choice, line, density, hist_alpha, density_alpha, r1, r2, bins,
+                         sizing_mode='fixed')
+    l = layout([
+        [div],
+        [widgets1, p1],
+    ], sizing_mode='fixed')
 
     # initialize
     session = push_session(curdoc())
-    #update()
-    curdoc().add_root(layout)
-    #curdoc().add_periodic_callback(update, 50)
-    session.show(layout)  # open the document in a browser
+    curdoc().add_root(l)
+    session.show(l)  # open the document in a browser
     session.loop_until_closed()  # run forever
-    pass
+
+    # bokeh_html(c, )
+    return #  show(p1)
 
 
 def visualize_adhore_circos_js(output_dir):
@@ -562,4 +604,17 @@ function inputted() {
         .defer(d3.tsv, "chords.tsv")
         .await(drawCircos);
 }
+"""
+
+
+BOKEH_APP_DIV = """
+<div>
+    <h1><i>K<sub>S</sub> distribution visualization</i></h1>
+    <p> 
+        Use the widgets on the right to tune the plot in accordance with your desires.
+        You can click on the legend names to hide/show the relevant distribution.
+        Note that for more sensible legend names (by default the file names are used),
+        the <code>--label / -l</code> flag can come in handy. 
+    </p>
+</div>
 """
