@@ -2,55 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="821fa536-1b70-4930-9299-1d4345685448" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/alignment.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/alignment.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/blast_mcl.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/blast_mcl.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/cli.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/cli.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/codeml.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/codeml.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/environment.pickle" afterPath="$PROJECT_DIR$/doc/build/.doctrees/environment.pickle" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/index.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/index.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/ks.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/ks.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/mix.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/mix.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/syn.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/syn.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/utils.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/utils.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/viz.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/viz.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/.doctrees/wgd_cli.doctree" afterPath="$PROJECT_DIR$/doc/build/.doctrees/wgd_cli.doctree" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/comment-bright.png" afterPath="$PROJECT_DIR$/doc/build/_static/comment-bright.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/comment-close.png" afterPath="$PROJECT_DIR$/doc/build/_static/comment-close.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/comment.png" afterPath="$PROJECT_DIR$/doc/build/_static/comment.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/down-pressed.png" afterPath="$PROJECT_DIR$/doc/build/_static/down-pressed.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/down.png" afterPath="$PROJECT_DIR$/doc/build/_static/down.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/file.png" afterPath="$PROJECT_DIR$/doc/build/_static/file.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/minus.png" afterPath="$PROJECT_DIR$/doc/build/_static/minus.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/plus.png" afterPath="$PROJECT_DIR$/doc/build/_static/plus.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/up-pressed.png" afterPath="$PROJECT_DIR$/doc/build/_static/up-pressed.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/up.png" afterPath="$PROJECT_DIR$/doc/build/_static/up.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/objects.inv" afterPath="$PROJECT_DIR$/doc/build/objects.inv" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/basic.css" afterPath="$PROJECT_DIR$/doc/build/_static/basic.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/doctools.js" afterPath="$PROJECT_DIR$/doc/build/_static/doctools.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/jquery.js" afterPath="$PROJECT_DIR$/doc/build/_static/jquery.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/searchtools.js" afterPath="$PROJECT_DIR$/doc/build/_static/searchtools.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/underscore.js" afterPath="$PROJECT_DIR$/doc/build/_static/underscore.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/_static/websupport.js" afterPath="$PROJECT_DIR$/doc/build/_static/websupport.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/alignment.html" afterPath="$PROJECT_DIR$/doc/build/alignment.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/blast_mcl.html" afterPath="$PROJECT_DIR$/doc/build/blast_mcl.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/cli.html" afterPath="$PROJECT_DIR$/doc/build/cli.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/codeml.html" afterPath="$PROJECT_DIR$/doc/build/codeml.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/genindex.html" afterPath="$PROJECT_DIR$/doc/build/genindex.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/index.html" afterPath="$PROJECT_DIR$/doc/build/index.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/ks.html" afterPath="$PROJECT_DIR$/doc/build/ks.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/mix.html" afterPath="$PROJECT_DIR$/doc/build/mix.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/py-modindex.html" afterPath="$PROJECT_DIR$/doc/build/py-modindex.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/search.html" afterPath="$PROJECT_DIR$/doc/build/search.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/searchindex.js" afterPath="$PROJECT_DIR$/doc/build/searchindex.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/syn.html" afterPath="$PROJECT_DIR$/doc/build/syn.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/utils.html" afterPath="$PROJECT_DIR$/doc/build/utils.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/viz.html" afterPath="$PROJECT_DIR$/doc/build/viz.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/build/wgd_cli.html" afterPath="$PROJECT_DIR$/doc/build/wgd_cli.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/doc/source/index.rst" afterPath="$PROJECT_DIR$/doc/source/index.rst" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/utils.py" afterPath="$PROJECT_DIR$/wgd/utils.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd/viz.py" afterPath="$PROJECT_DIR$/wgd/viz.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wgd_cli.py" afterPath="$PROJECT_DIR$/wgd_cli.py" />
     </list>
     <ignored path="$PROJECT_DIR$/.idea/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -62,10 +14,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="wgd_cli.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="wgd_cli.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wgd_cli.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3416">
+            <state relative-caret-position="-1603">
               <caret line="421" column="94" lean-forward="false" selection-start-line="421" selection-start-column="86" selection-end-line="421" selection-end-column="94" />
               <folding>
                 <element signature="e#206#218#0" expanded="true" />
@@ -107,11 +59,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="viz.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="viz.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wgd/viz.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="247" column="45" lean-forward="false" selection-start-line="247" selection-start-column="45" selection-end-line="247" selection-end-column="45" />
+            <state relative-caret-position="42">
+              <caret line="379" column="52" lean-forward="true" selection-start-line="379" selection-start-column="52" selection-end-line="379" selection-end-column="52" />
               <folding />
             </state>
           </provider>
@@ -685,21 +637,21 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/wgd/viz.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="42">
+          <caret line="379" column="52" lean-forward="true" selection-start-line="379" selection-start-column="52" selection-end-line="379" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/wgd_cli.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3416">
+        <state relative-caret-position="-1603">
           <caret line="421" column="94" lean-forward="false" selection-start-line="421" selection-start-column="86" selection-end-line="421" selection-end-column="94" />
           <folding>
             <element signature="e#206#218#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/wgd/viz.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="247" column="45" lean-forward="false" selection-start-line="247" selection-start-column="45" selection-end-line="247" selection-end-column="45" />
-          <folding />
         </state>
       </provider>
     </entry>
