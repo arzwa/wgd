@@ -11,3 +11,4 @@ pages:
     - public
   only:
   - master
+baseurl: '/doc/build'
