@@ -55,7 +55,9 @@
             
   <div class="section" id="module-wgd_cli">
 <span id="wgd-cli"></span><h1>wgd_cli<a class="headerlink" href="#module-wgd_cli" title="Permalink to this headline">¶</a></h1>
-<p>Arthur Zwaenepoel</p>
+<p>Arthur Zwaenepoel - 2017</p>
+<p>The idea behind the wgd CLI is to provide script-like programs bundled under one command (<cite>wgd</cite>)
+for common WGD analyses for which the wgd package provides the underlying modular functionalities.</p>
 <dl class="function">
 <dt id="wgd_cli.blast_">
 <code class="descclassname">wgd_cli.</code><code class="descname">blast_</code><span class="sig-paren">(</span><em>cds=True</em>, <em>mcl=True</em>, <em>one_v_one=False</em>, <em>sequences=None</em>, <em>species_ids=None</em>, <em>blast_results=None</em>, <em>inflation_factor=2.0</em>, <em>eval_cutoff=1e-10</em>, <em>output_dir='wgd.blast.out'</em>, <em>n_threads=4</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd_cli.blast_" title="Permalink to this definition">¶</a></dt>
@@ -131,15 +133,15 @@ string e.g. ath.fasta,aly.fasta</li>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
 <li><strong>ks_distribution</strong> – Ks distribution tsv file</li>
 <li><strong>method</strong> – mixture modeling method, either ‘bgmm’ or ‘gmm’</li>
-<li><strong>n_range</strong> – </li>
-<li><strong>ks_range</strong> – </li>
-<li><strong>output_dir</strong> – </li>
-<li><strong>gamma</strong> – </li>
-<li><strong>sequences</strong> – </li>
+<li><strong>n_range</strong> – range of number of components to fit</li>
+<li><strong>ks_range</strong> – range of Ks values to fit model to</li>
+<li><strong>output_dir</strong> – output directory</li>
+<li><strong>gamma</strong> – gamma parameter for regulaization in BGMM (lower, stronger regularization)</li>
+<li><strong>sequences</strong> – fasta file (if provided will write component-wise fasta files)</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">nada</p>
 </td>
 </tr>
 </tbody>
@@ -166,6 +168,36 @@ For usage in the <code class="docutils literal"><span class="pre">wgd</span></co
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">nothing at all</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd_cli.viz_">
+<code class="descclassname">wgd_cli.</code><code class="descname">viz_</code><span class="sig-paren">(</span><em>ks_distributions</em>, <em>alpha_values</em>, <em>colors</em>, <em>labels</em>, <em>hist_type</em>, <em>title</em>, <em>output_file</em>, <em>interactive=False</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd_cli.viz_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot (stacked) histograms (interactively)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ks_distributions</strong> – a directory with ks distributions (other files are ignored)
+or a comma-separated string of file names</li>
+<li><strong>alpha_values</strong> – alpha values for the different distributions (in the same order).
+Only relevant for non-interactive visualization.</li>
+<li><strong>colors</strong> – as in <code class="docutils literal"><span class="pre">alpha_values</span></code> but for colors</li>
+<li><strong>labels</strong> – as in <code class="docutils literal"><span class="pre">alpha_values</span></code> but for legend labels (by default the file names are used),
+this is also relevant for the interactive bokeh visualization (as opposed to <code class="docutils literal"><span class="pre">alpha_values</span></code> and <code class="docutils literal"><span class="pre">colors</span></code>.</li>
+<li><strong>hist_type</strong> – histogram type (matplotlib), either ‘barstacked’, ‘step’ or ‘stepfilled’.</li>
+<li><strong>title</strong> – plot title</li>
+<li><strong>output_file</strong> – output file name</li>
+<li><strong>interactive</strong> – render an interactive bokeh plot. This makes some of the above arguments redundant</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">nada</p>
 </td>
 </tr>
 </tbody>

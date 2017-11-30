@@ -107,17 +107,18 @@ command, which provides less control, but is quite convenient in usage for this 
 <div class="section" id="full-control">
 <h3>1) Full control<a class="headerlink" href="#full-control" title="Permalink to this headline">¶</a></h3>
 <p>First we infer paralogous families using all-vs-all <cite>blastp</cite> and <cite>mcl</cite>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd blast --cds --mcl -s aptenodytes_patagonicus.cds.fasta -o ./penguin.wgd_out
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd blast --cds --mcl -s penguin.cds.fasta -o ./
 </pre></div>
 </div>
-<p>Then we can construct a K<sub>S</sub> distribution using <cite>codeml</cite>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd ks -gf penguin.wgd_out/out.mcl -s aptenodytes_patagonicus.cds.fasta -o ./penguin.wgd_out
+<p>Then we can construct a K<sub>S</sub> distribution for the paranome we just generated
+in the file <code class="docutils literal"><span class="pre">penguin.cds.fasta.mcl</span></code> using <cite>wgd ks</cite>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd ks -gf penguin.cds.fasta.mcl -s penguin.cds.fasta -o ./
 </pre></div>
 </div>
 <p>If we have adequate structural annotation data available, we can look for anchor
 pairs and make a K<sub>S</sub> distribution for the obtained co-linear
 gene pairs:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd coll -ks penguin.wgd_out/all.csv -gff annotation.gff -gf penguin.wgd_out/out.mcl -o ./penguin.wgd_out
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd coll -ks penguin.cds.fasta.ks.tsv -gff annotation.gff -gf penguin.cds.fasta.mcl -o ./
 </pre></div>
 </div>
 <p>That’s it! Quite easy no?</p>
@@ -125,7 +126,7 @@ gene pairs:</p>
 <div class="section" id="pipeline">
 <h3>2) Pipeline<a class="headerlink" href="#pipeline" title="Permalink to this headline">¶</a></h3>
 <p>The same cn be accomplished using the <code class="docutils literal"><span class="pre">pipeline_1</span></code> command:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd pipeline_1 -gff annotation.gff aptenodytes_patagonicus.cds.fasta penguin.wgd_out
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd pipeline_1 -gff annotation.gff penguin.cds.fasta penguin.wgd_out
 </pre></div>
 </div>
 <p>However this dos not provide any further control, as opposed to the subcommands listed above.

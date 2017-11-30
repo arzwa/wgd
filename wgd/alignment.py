@@ -126,14 +126,14 @@ class Muscle:
 
     * Sequences in dictionary, output as dictionary::
 
-        >> sequences = {'bear_gene': 'BEAR', 'hare_gene': 'HARE', 'yeast_gene': 'BEER'}
-        >> msa = Muscle()
-        >> msa.run_muscle(sequences)
+        >>> sequences = {'bear_gene': 'BEAR', 'hare_gene': 'HARE', 'yeast_gene': 'BEER'}
+        >>> msa = Muscle()
+        >>> msa.run_muscle(sequences)
 
     * Sequences in fasta file, output as fasta file ``(msa.fasta)``::
 
-        >> msa = Muscle()
-        >> msa.run_muscle('./sequences.fasta', './msa.fasta')
+        >>> msa = Muscle()
+        >>> msa.run_muscle('./sequences.fasta', './msa.fasta')
 
     """
 

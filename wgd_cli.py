@@ -1,10 +1,12 @@
 #!/usr/bin/python3.5
 """
-Arthur Zwaenepoel
-"""
-# TODO: separate subcommand for mixture modeling of Ks distributions
-# TODO: this can than also include a mixture model + peak based paralog extraction tool?
+Arthur Zwaenepoel - 2017
 
+The idea behind the wgd CLI is to provide script-like programs bundled under one command (`wgd`)
+for common WGD analyses for which the wgd package provides the underlying modular functionalities.
+"""
+
+# keep these imports to a minimum tos peed up initial CLI loading
 import click
 import logging
 import sys
@@ -16,7 +18,7 @@ import coloredlogs
 from wgd.utils import translate_cds, read_fasta, write_fasta, Genome
 
 
-# CLI ENTRYPOINT -------------------------------------------------------------------------------------------------------
+# CLI ENTRY POINT ------------------------------------------------------------------------------------------------------
 @click.group(context_settings={'help_option_names': ['-h', '--help']})
 @click.option('--verbose', type=click.Choice(['silent', 'info', 'debug']),
               default='info', help="Verbosity level, default = info.")
@@ -39,6 +41,7 @@ def cli(verbose):
                    `'---'
     \b
     Arthur Zwaenepoel - 2017
+    (arzwa@psb.vib-ugent.be)
     """
     coloredlogs.install(fmt='%(asctime)s: %(levelname)s\t%(message)s', level=verbose.upper(), stream=sys.stdout)
     pass
@@ -69,7 +72,7 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
     """
     All-vs.-all blastp (+ MCL) analysis.
 
-    Requires ``blastp``, ``makeblastdb`` (ncbi-blast+ suite) and ``mcl``
+    Requires ``blastp``, ``makeblastdb`` (ncbi-blast+ suite) and ``mcl``.
 
     Example 1 - whole paranome delineation:
 
@@ -103,8 +106,10 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
     :param n_threads: number of CPU threads to use
     :return: output file name
     """
+    # lazy imports
     from wgd.blast_mcl import all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2, get_one_v_one_orthologs_rbh
 
+    # input checks
     if not sequences and not blast_results:
         logging.error('No sequences nor blast results provided! Please use the --help flag for usage instructions.')
         return
@@ -113,9 +118,11 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
         logging.info('Output directory: {} does not exist, will make it.'.format(output_dir))
         os.mkdir(output_dir)
 
+    # all vs. all blast
     if not blast_results:
         sequence_files = sequences.strip().split(',')
 
+        # input checks
         if len(sequence_files) != 1 and not one_v_one:
             logging.error('Please provide only one fasta file for whole paranome all-vs-all blast')
             return
@@ -129,11 +136,13 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
             if len(ids) != len(sequence_files):
                 logging.error('Number of species identifiers ({0}) does not match number of provided sequence '
                               'files ({1}).'.format(len(ids), len(sequence_files)))
+                return
         elif one_v_one:
             ids = [os.path.basename(x) for x in sequence_files]
         else:
             ids = [''] * len(sequence_files)
 
+        # get protein sequences
         if cds:
             logging.info("CDS sequences provided, will first translate.")
 
@@ -145,6 +154,7 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
             else:
                 protein_sequences.append(read_fasta(sequence_files[i], prefix=ids[i]))
 
+        # blast
         logging.info('Writing blastdb sequences to db.fasta.')
         db = os.path.join(output_dir, 'db.fasta')
         write_fasta(protein_sequences[0], db)
@@ -159,12 +169,14 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
         blast_results = all_v_all_blast(query, db, output_dir, output_file='{}.blast.tsv'.format(
             '_'.join([os.path.basename(x) for x in sequence_files])), eval_cutoff=eval_cutoff, n_threads=n_threads)
 
+    # get one-vs-one orthologs (RBHs)
     if one_v_one:
         logging.info('Retrieving one vs. one orthologs')
         one_v_one_out = get_one_v_one_orthologs_rbh(blast_results, output_dir)
         logging.info('Done')
         return one_v_one_out
 
+    # get paranome (MCL)
     if mcl:
         logging.info('Performing MCL clustering (inflation factor = {0})'.format(inflation_factor))
         ava_graph = ava_blast_to_abc_2(blast_results)
@@ -262,8 +274,9 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None, tmp_
         return 1
 
     if not tmp_dir:
-        tmp_dir = os.path.join('.', 'ks_tmp.' + str(uuid.uuid4()))
+        tmp_dir = os.path.join('.', 'ks_tmp.' + str(uuid.uuid4()))  # unique tmp directory
 
+    # get absolute paths before changing dir
     output_directory = os.path.abspath(output_directory)
     tmp_dir = os.path.abspath(tmp_dir)
     gene_families = os.path.abspath(gene_families)
@@ -304,7 +317,7 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None, tmp_
 
     # one-vs-one ortholog input
     if one_v_one:
-        os.chdir(tmp_dir)
+        os.chdir(tmp_dir)  # chdir is necessary because codeml produces these rub, rst and rst1 files
         logging.info('Started one-vs-one ortholog Ks analysis')
         results = ks_analysis_one_vs_one(cds_seqs, protein_seqs, gene_families, tmp_dir, output_directory,
                                          muscle, codeml, async=async, n_cores=n_threads, preserve=preserve,
@@ -396,10 +409,18 @@ def syn_(gff_file, families, output_dir, ks_distribution, keyword='mRNA', id_str
         os.mkdir(output_dir)
         logging.info('Made output directory {0}'.format(output_dir))
 
+    # parse the gff
     logging.info("Parsing GFF file")
     genome = Genome()
-    genome.parse_plaza_gff(gff_file, keyword=keyword, id_string=id_string)
+    try:
+        genome.parse_plaza_gff(gff_file, keyword=keyword, id_string=id_string)
+    except:
+        logging.error('Invalid GFF file, be sure to have 9 columns, with your features of interest marked by the ')
+        logging.error('keyword {0} (set with the -kw option) in the third column and the gene too which it refers ')
+        logging.error('identified by {1}=gene in the ; separated string in the last column. ')
+        return
 
+    # generate necessary files for i-adhore
     logging.info("Writing gene lists")
     all_genes = write_gene_lists(
         genome, os.path.join(output_dir, 'gene_lists'))
@@ -413,14 +434,17 @@ def syn_(gff_file, families, output_dir, ks_distribution, keyword='mRNA', id_str
                         config_file_name=os.path.join(output_dir, 'adhore.conf'),
                         output_path=os.path.join(output_dir, 'i-adhore-out'))
 
+    # run i-adhore
     logging.info("Running I-ADHoRe 3.0")
     run_adhore(os.path.join(output_dir, 'adhore.conf'))
 
+    # dotplot
     logging.info('Drawing co-linearity dotplot')
     syntenic_dotplot(
         pd.read_csv(os.path.join(output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t'),
         output_file=os.path.join(output_dir, '{}.dotplot.png'.format(os.path.basename(families))))
 
+    # Ks distribution for acnhors and Ks colored dotplot
     if ks_distribution:
         logging.info("Constructing Ks distribution for anchors")
         ks, anchors = get_anchor_pairs(
@@ -463,6 +487,10 @@ def syn_(gff_file, families, output_dir, ks_distribution, keyword='mRNA', id_str
 def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences, cut_off):
     """
     Mixture modeling of Ks distributions.
+
+    Example:
+
+        wgd mix -ks lama.ks.tsv --method gmm -n 2,5
     """
     mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences, cut_off)
 
@@ -473,12 +501,12 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequence
 
     :param ks_distribution: Ks distribution tsv file
     :param method: mixture modeling method, either 'bgmm' or 'gmm'
-    :param n_range:
-    :param ks_range:
-    :param output_dir:
-    :param gamma:
-    :param sequences:
-    :return:
+    :param n_range: range of number of components to fit
+    :param ks_range: range of Ks values to fit model to
+    :param output_dir: output directory
+    :param gamma: gamma parameter for regulaization in BGMM (lower, stronger regularization)
+    :param sequences: fasta file (if provided will write component-wise fasta files)
+    :return: nada
     """
     # lazy imports
     from wgd.modeling import mixture_model_bgmm, mixture_model_gmm, get_component_probabilities
@@ -549,48 +577,90 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequence
               help="Plot title.")
 @click.option('--output_file', '-o', default='wgd_hist.png',
               help="Output file, default='wgd_hist.png'.")
-@click.option('--interactive', is_flag=True,
+@click.option('--interactive','-i', is_flag=True,
               help="Interactive visualization with bokeh.")
 def viz(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file, interactive):
-    """ Plot (stacked) histograms. """
+    """
+    Plot histograms/densities (interactively).
+
+    Requires a running bokeh server for interactive visualization.
+    Run a bokeh serve instance (in the background) with `bokeh serve &`.
+
+    more information about bokeh: https://bokeh.pydata.org/en/latest/index.html
+    """
     viz_(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file, interactive)
 
 
 def viz_(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file, interactive=False):
+    """
+    Plot (stacked) histograms (interactively)
+
+    :param ks_distributions: a directory with ks distributions (other files are ignored)
+        or a comma-separated string of file names
+    :param alpha_values: alpha values for the different distributions (in the same order).
+        Only relevant for non-interactive visualization.
+    :param colors: as in ``alpha_values`` but for colors
+    :param labels: as in ``alpha_values`` but for legend labels (by default the file names are used),
+        this is also relevant for the interactive bokeh visualization (as opposed to ``alpha_values`` and ``colors``.
+    :param hist_type: histogram type (matplotlib), either 'barstacked', 'step' or 'stepfilled'.
+    :param title: plot title
+    :param output_file: output file name
+    :param interactive: render an interactive bokeh plot. This makes some of the above arguments redundant
+    :return: nada
+    """
     from wgd.viz import plot_selection
 
+    # basic input check
     if not ks_distributions:
         logging.error('No Ks distributions provided, run `wgd viz -h` for usage instructions')
         logging.error('You have to provide one or more computed Ks distributions! See for example `wgd ks -h`')
         return 1
 
+    # directory provided
+    if os.path.isdir(ks_distributions):
+        ks_distributions = [os.path.join(ks_distributions, x) for x in os.listdir(ks_distributions)]
+
+    # separate distributions provided
+    else:
+        ks_distributions = ks_distributions.split(',')
+
+    # get distributions
+    dists_files = []
+    dists = []
+    for i in ks_distributions:
+        # check if valid distributions
+        try:
+            d = pd.read_csv(i, sep='\t', index_col=0)
+            _ = d[['Ks', 'WeightOutliersExcluded']]
+            dists_files.append(i)
+            dists.append(d)
+        except:
+            logging.info('Not a Ks distribution: {}'.format(i))
+
+    # interactive bokeh visualizatoin
     if interactive:
         from wgd.viz import histogram_bokeh
-        if os.path.isdir(ks_distributions):
-            dists = []
-            for i in os.listdir(ks_distributions):
-                try:
-                    d = pd.read_csv(os.path.join(ks_distributions, i), sep='\t', index_col=0)
-                    _ = d[['Ks', 'WeightOutliersExcluded']]
-                    dists.append(os.path.join(ks_distributions, i))
-                except:
-                    logging.info('Not a Ks distribution: {}'.format(i))
-        else:
-            dists = ks_distributions.split(',')
-        histogram_bokeh(dists, labels)
+        histogram_bokeh(dists_files, labels)
         return
 
-    dists = [pd.read_csv(x, sep='\t') for x in ks_distributions.split(',')]
-
+    # normal matplotlib plots
+    # features
     if alpha_values:
         alpha_values = [float(x) for x in alpha_values.split(',')]
+        if len(alpha_values) != len(dists):
+            logging.error('Please provide as much alpha values as there are distributions')
     if colors:
         colors = [x for x in colors.split(',')]
+        if len(colors) != len(dists):
+            logging.error('Please provide as much colors as there are distributions')
     if not labels:
-        labels = [x for x in ks_distributions.split(',')]
+        labels = dists_files
+        if len(labels) != len(dists):
+            logging.error('Please provide as much labels as there are distributions')
     else:
         labels = labels.split(',')
 
+    # make plot
     logging.info('Plotting Ks distributions overlay')
     plot_selection(dists, alphas=alpha_values, colors=colors, labels=labels, output_file=output_file,
                    title=title, histtype=hist_type)
@@ -606,6 +676,10 @@ def viz_(ks_distributions, alpha_values, colors, labels, hist_type, title, outpu
 def pipeline_1(sequences, output_dir, gff_file, n_threads):
     """
     Standard workflow whole paranome Ks.
+
+    Example:
+
+        wgd pipeline_1 -gff snail.gff -n 16 snail.fasta snail_wgd_out
     """
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
@@ -634,6 +708,10 @@ def pipeline_1(sequences, output_dir, gff_file, n_threads):
 def pipeline_2(sequences, output_dir, n_threads):
     """
     Standard workflow one-vs-one ortholog Ks.
+
+    Example:
+
+        wgd pipeline_2 -n 8 snail.fasta,whale.fasta snail_vs_whale_ks_out
     """
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)

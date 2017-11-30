@@ -60,17 +60,18 @@ command, which provides less control, but is quite convenient in usage for this 
 ~~~~~~~~~~~~~~~
 First we infer paralogous families using all-vs-all `blastp` and `mcl`::
 
-    $ wgd blast --cds --mcl -s aptenodytes_patagonicus.cds.fasta -o ./penguin.wgd_out
+    $ wgd blast --cds --mcl -s penguin.cds.fasta -o ./
 
-Then we can construct a |Ks| distribution using `codeml`::
+Then we can construct a |Ks| distribution for the paranome we just generated
+in the file ``penguin.cds.fasta.mcl`` using `wgd ks`::
 
-    $ wgd ks -gf penguin.wgd_out/out.mcl -s aptenodytes_patagonicus.cds.fasta -o ./penguin.wgd_out
+    $ wgd ks -gf penguin.cds.fasta.mcl -s penguin.cds.fasta -o ./
 
 If we have adequate structural annotation data available, we can look for anchor
 pairs and make a |Ks| distribution for the obtained co-linear
 gene pairs::
 
-    $ wgd coll -ks penguin.wgd_out/all.csv -gff annotation.gff -gf penguin.wgd_out/out.mcl -o ./penguin.wgd_out
+    $ wgd coll -ks penguin.cds.fasta.ks.tsv -gff annotation.gff -gf penguin.cds.fasta.mcl -o ./
 
 That's it! Quite easy no?
 
@@ -79,7 +80,7 @@ That's it! Quite easy no?
 
 The same cn be accomplished using the ``pipeline_1`` command::
 
-    $ wgd pipeline_1 -gff annotation.gff aptenodytes_patagonicus.cds.fasta penguin.wgd_out
+    $ wgd pipeline_1 -gff annotation.gff penguin.cds.fasta penguin.wgd_out
 
 However this dos not provide any further control, as opposed to the subcommands listed above.
 Note that this ability to for more detailed control was not illustrated above.

@@ -239,7 +239,7 @@ def histogram_bokeh(ks_distributions, labels):
     from bokeh.plotting import figure, output_file, show
     from bokeh.client import push_session
     from pylab import cm, colors
-    import datetime
+    import requests
     from .utils import gaussian_kde
 
     # helper functions
@@ -313,22 +313,6 @@ def histogram_bokeh(ks_distributions, labels):
     all_data = []
     all_weights = []
 
-    """
-    for df in dists:
-        d, w, _ = get_data(df, var.value, scale.value, float(r1.value), float(r2.value))
-        all_data.append(d)
-        all_weights.append(w)
-
-    edges = np.histogram(np.hstack(tuple([dist[var.value] for dist in dists])), bins=int(bins.value))[1]
-    for i in range(len(dists)):
-        hist = np.histogram(all_data[i], bins=int(bins.value), weights=all_weights[i])[0]
-        hist_dict[i] = p1.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], fill_color=c[i],
-                                line_color=c[i], fill_alpha=0.3, line_alpha=line.value, legend=labels[i])
-        p1.legend.label_text_font_style = "italic"
-        p1.legend.click_policy = "hide"
-        p1.legend.inactive_fill_alpha = 0.6
-    """
-
     # set up callbacks
     def update(selected=None):
         redraw_plots()
@@ -349,8 +333,10 @@ def histogram_bokeh(ks_distributions, labels):
         for i in range(len(dists)):
             if density.value == 0:
                 hist = np.histogram(all_data[i], bins=int(bins.value), weights=all_weights[i])[0]
+                p1.yaxis.axis_label = '# paralogs'
             else:
                 hist = np.histogram(all_data[i], bins=int(bins.value), weights=all_weights[i], density=True)[0]
+                p1.yaxis.axis_label = 'density'
 
             if i in density_dict:
                 density_dict[i].data_source.data['x'] = []
@@ -427,11 +413,11 @@ def histogram_bokeh(ks_distributions, labels):
 
     # initialize
     update()
+
     session = push_session(curdoc())
     curdoc().add_root(l)
     session.show(l)  # open the document in a browser
     session.loop_until_closed()  # run forever
-
     # bokeh_html(c, )
     return #  show(p1)
 

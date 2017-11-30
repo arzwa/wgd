@@ -146,23 +146,23 @@ class Codeml:
 
     Run codeml with default (Ks analysis) settings on a multiple sequence alignment (msa.fasta):::
 
-        >> codeml = Codeml()
-        >> codeml.run_codeml(msa.fasta)
+        >>> codeml = Codeml()
+        >>> codeml.run_codeml('msa.fasta')
 
     Change control setting CodonFreq to the F1x4 option (1) and rerun above example:::
 
-        >> codeml.control['CodonFreq'] = 1
-        >> codeml.run_codeml(msa.fasta)
+        >>> codeml.control['CodonFreq'] = 1
+        >>> codeml.run_codeml('msa.fasta')
 
     Do the above example directly without modifying the control settings in the dict directly:::
 
-        >> codeml = Codeml(CodonFreq=1)
-        >> codeml.run_codeml(msa.fasta)
+        >>> codeml = Codeml(CodonFreq=1)
+        >>> codeml.run_codeml('msa.fasta')
 
     Print the default control settings:::
 
-        >> codeml = Codeml()
-        >> print(codeml)
+        >>> codeml = Codeml()
+        >>> print(codeml)
     """
     def __init__(self, codeml='codeml', tmp='./', id='tmp', **kwargs):
         """

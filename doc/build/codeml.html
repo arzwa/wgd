@@ -107,23 +107,23 @@ Defines the controle file and enables running codeml from within python in one l
 </table>
 <p>Usage examples:</p>
 <p>Run codeml with default (Ks analysis) settings on a multiple sequence alignment (msa.fasta)::</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">codeml</span> <span class="o">=</span> <span class="n">Codeml</span><span class="p">()</span>
-<span class="o">&gt;&gt;</span> <span class="n">codeml</span><span class="o">.</span><span class="n">run_codeml</span><span class="p">(</span><span class="n">msa</span><span class="o">.</span><span class="n">fasta</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">codeml</span> <span class="o">=</span> <span class="n">Codeml</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">codeml</span><span class="o">.</span><span class="n">run_codeml</span><span class="p">(</span><span class="s1">&#39;msa.fasta&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Change control setting CodonFreq to the F1x4 option (1) and rerun above example::</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">codeml</span><span class="o">.</span><span class="n">control</span><span class="p">[</span><span class="s1">&#39;CodonFreq&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="o">&gt;&gt;</span> <span class="n">codeml</span><span class="o">.</span><span class="n">run_codeml</span><span class="p">(</span><span class="n">msa</span><span class="o">.</span><span class="n">fasta</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">codeml</span><span class="o">.</span><span class="n">control</span><span class="p">[</span><span class="s1">&#39;CodonFreq&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">codeml</span><span class="o">.</span><span class="n">run_codeml</span><span class="p">(</span><span class="s1">&#39;msa.fasta&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Do the above example directly without modifying the control settings in the dict directly::</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">codeml</span> <span class="o">=</span> <span class="n">Codeml</span><span class="p">(</span><span class="n">CodonFreq</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-<span class="o">&gt;&gt;</span> <span class="n">codeml</span><span class="o">.</span><span class="n">run_codeml</span><span class="p">(</span><span class="n">msa</span><span class="o">.</span><span class="n">fasta</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">codeml</span> <span class="o">=</span> <span class="n">Codeml</span><span class="p">(</span><span class="n">CodonFreq</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">codeml</span><span class="o">.</span><span class="n">run_codeml</span><span class="p">(</span><span class="s1">&#39;msa.fasta&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Print the default control settings::</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">codeml</span> <span class="o">=</span> <span class="n">Codeml</span><span class="p">()</span>
-<span class="o">&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">codeml</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">codeml</span> <span class="o">=</span> <span class="n">Codeml</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">codeml</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="method">

@@ -135,6 +135,220 @@ chromosome (as for I-ADHoRe)</p>
 </table>
 </dd></dl>
 
+<dl class="class">
+<dt id="wgd.utils.gaussian_kde">
+<em class="property">class </em><code class="descclassname">wgd.utils.</code><code class="descname">gaussian_kde</code><span class="sig-paren">(</span><em>dataset</em>, <em>bw_method=None</em>, <em>weights=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.gaussian_kde" title="Permalink to this definition">¶</a></dt>
+<dd><p>from: <a class="reference external" href="https://stackoverflow.com/questions/27623919/weighted-gaussian-kernel-density-estimation-in-python">https://stackoverflow.com/questions/27623919/weighted-gaussian-kernel-density-estimation-in-python</a></p>
+<p>Representation of a kernel-density estimate using Gaussian kernels.</p>
+<p>Kernel density estimation is a way to estimate the probability density
+function (PDF) of a random variable in a non-parametric way.
+<cite>gaussian_kde</cite> works for both uni-variate and multi-variate data.   It
+includes automatic bandwidth determination.  The estimation works best for
+a unimodal distribution; bimodal or multi-modal distributions tend to be
+oversmoothed.</p>
+<dl class="docutils">
+<dt>dataset <span class="classifier-delimiter">:</span> <span class="classifier">array_like</span></dt>
+<dd>Datapoints to estimate from. In case of univariate data this is a 1-D
+array, otherwise a 2-D array with shape (# of dims, # of data).</dd>
+<dt>bw_method <span class="classifier-delimiter">:</span> <span class="classifier">str, scalar or callable, optional</span></dt>
+<dd>The method used to calculate the estimator bandwidth.  This can be
+‘scott’, ‘silverman’, a scalar constant or a callable.  If a scalar,
+this will be used directly as <cite>kde.factor</cite>.  If a callable, it should
+take a <cite>gaussian_kde</cite> instance as only parameter and return a scalar.
+If None (default), ‘scott’ is used.  See Notes for more details.</dd>
+<dt>weights <span class="classifier-delimiter">:</span> <span class="classifier">array_like, shape (n, ), optional, default: None</span></dt>
+<dd>An array of weights, of the same shape as <cite>x</cite>.  Each value in <cite>x</cite>
+only contributes its associated weight towards the bin count
+(instead of 1).</dd>
+</dl>
+<dl class="docutils">
+<dt>dataset <span class="classifier-delimiter">:</span> <span class="classifier">ndarray</span></dt>
+<dd>The dataset with which <cite>gaussian_kde</cite> was initialized.</dd>
+<dt>d <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Number of dimensions.</dd>
+<dt>n <span class="classifier-delimiter">:</span> <span class="classifier">int</span></dt>
+<dd>Number of datapoints.</dd>
+<dt>neff <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Effective sample size using Kish’s approximation.</dd>
+<dt>factor <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>The bandwidth factor, obtained from <cite>kde.covariance_factor</cite>, with which
+the covariance matrix is multiplied.</dd>
+<dt>covariance <span class="classifier-delimiter">:</span> <span class="classifier">ndarray</span></dt>
+<dd>The covariance matrix of <cite>dataset</cite>, scaled by the calculated bandwidth
+(<cite>kde.factor</cite>).</dd>
+<dt>inv_cov <span class="classifier-delimiter">:</span> <span class="classifier">ndarray</span></dt>
+<dd>The inverse of <cite>covariance</cite>.</dd>
+</dl>
+<dl class="docutils">
+<dt>kde.evaluate(points) <span class="classifier-delimiter">:</span> <span class="classifier">ndarray</span></dt>
+<dd>Evaluate the estimated pdf on a provided set of points.</dd>
+<dt>kde(points) <span class="classifier-delimiter">:</span> <span class="classifier">ndarray</span></dt>
+<dd>Same as kde.evaluate(points)</dd>
+<dt>kde.pdf(points) <span class="classifier-delimiter">:</span> <span class="classifier">ndarray</span></dt>
+<dd>Alias for <code class="docutils literal"><span class="pre">kde.evaluate(points)</span></code>.</dd>
+<dt>kde.set_bandwidth(bw_method=’scott’) <span class="classifier-delimiter">:</span> <span class="classifier">None</span></dt>
+<dd>Computes the bandwidth, i.e. the coefficient that multiplies the data
+covariance matrix to obtain the kernel covariance matrix.
+.. versionadded:: 0.11.0</dd>
+<dt>kde.covariance_factor <span class="classifier-delimiter">:</span> <span class="classifier">float</span></dt>
+<dd>Computes the coefficient (<cite>kde.factor</cite>) that multiplies the data
+covariance matrix to obtain the kernel covariance matrix.
+The default is <cite>scotts_factor</cite>.  A subclass can overwrite this method
+to provide a different method, or set it through a call to
+<cite>kde.set_bandwidth</cite>.</dd>
+</dl>
+<p>Bandwidth selection strongly influences the estimate obtained from the KDE
+(much more so than the actual shape of the kernel).  Bandwidth selection
+can be done by a “rule of thumb”, by cross-validation, by “plug-in
+methods” or by other means; see <a class="footnote-reference" href="#id10" id="id1">[3]</a>, <a class="footnote-reference" href="#id11" id="id2">[4]</a> for reviews.  <cite>gaussian_kde</cite>
+uses a rule of thumb, the default is Scott’s Rule.</p>
+<p>Scott’s Rule <a class="footnote-reference" href="#id8" id="id3">[1]</a>, implemented as <cite>scotts_factor</cite>, is:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">n</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">1.</span><span class="o">/</span><span class="p">(</span><span class="n">d</span><span class="o">+</span><span class="mi">4</span><span class="p">)),</span>
+</pre></div>
+</div>
+<p>with <code class="docutils literal"><span class="pre">n</span></code> the number of data points and <code class="docutils literal"><span class="pre">d</span></code> the number of dimensions.
+Silverman’s Rule <a class="footnote-reference" href="#id9" id="id4">[2]</a>, implemented as <cite>silverman_factor</cite>, is:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="p">(</span><span class="n">d</span> <span class="o">+</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="mf">4.</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span><span class="n">d</span> <span class="o">+</span> <span class="mi">4</span><span class="p">))</span><span class="o">.</span>
+</pre></div>
+</div>
+<p>Good general descriptions of kernel density estimation can be found in <a class="footnote-reference" href="#id8" id="id5">[1]</a>
+and <a class="footnote-reference" href="#id9" id="id6">[2]</a>, the mathematics for this multi-dimensional implementation can be
+found in <a class="footnote-reference" href="#id8" id="id7">[1]</a>.</p>
+<table class="docutils footnote" frame="void" id="id8" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id3">1</a>, <a class="fn-backref" href="#id5">2</a>, <a class="fn-backref" href="#id7">3</a>)</em> D.W. Scott, “Multivariate Density Estimation: Theory, Practice, and
+Visualization”, John Wiley &amp; Sons, New York, Chicester, 1992.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id9" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[2]</td><td><em>(<a class="fn-backref" href="#id4">1</a>, <a class="fn-backref" href="#id6">2</a>)</em> B.W. Silverman, “Density Estimation for Statistics and Data
+Analysis”, Vol. 26, Monographs on Statistics and Applied Probability,
+Chapman and Hall, London, 1986.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id10" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[3]</a></td><td>B.A. Turlach, “Bandwidth Selection in Kernel Density Estimation: A
+Review”, CORE and Institut de Statistique, Vol. 19, pp. 1-33, 1993.</td></tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id11" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[4]</a></td><td>D.M. Bashtannyk and R.J. Hyndman, “Bandwidth selection for kernel
+conditional density estimation”, Computational Statistics &amp; Data
+Analysis, Vol. 36, pp. 279-298, 2001.</td></tr>
+</tbody>
+</table>
+<p>Generate some random two-dimensional data:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">measure</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="s2">&quot;Measurement model, return two coupled measurements.&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">m1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="n">m2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">n</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span>    <span class="k">return</span> <span class="n">m1</span><span class="o">+</span><span class="n">m2</span><span class="p">,</span> <span class="n">m1</span><span class="o">-</span><span class="n">m2</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span> <span class="o">=</span> <span class="n">measure</span><span class="p">(</span><span class="mi">2000</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xmin</span> <span class="o">=</span> <span class="n">m1</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xmax</span> <span class="o">=</span> <span class="n">m1</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ymin</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ymax</span> <span class="o">=</span> <span class="n">m2</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Perform a kernel density estimate on the data:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="n">xmin</span><span class="p">:</span><span class="n">xmax</span><span class="p">:</span><span class="mi">100</span><span class="n">j</span><span class="p">,</span> <span class="n">ymin</span><span class="p">:</span><span class="n">ymax</span><span class="p">:</span><span class="mi">100</span><span class="n">j</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">X</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span> <span class="n">Y</span><span class="o">.</span><span class="n">ravel</span><span class="p">()])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kernel</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">gaussian_kde</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">kernel</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Plot the results:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">rot90</span><span class="p">(</span><span class="n">Z</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">gist_earth_r</span><span class="p">,</span>
+<span class="gp">... </span>          <span class="n">extent</span><span class="o">=</span><span class="p">[</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">,</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span><span class="p">,</span> <span class="s1">&#39;k.&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">([</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="wgd.utils.gaussian_kde._compute_covariance">
+<code class="descname">_compute_covariance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.gaussian_kde._compute_covariance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the covariance matrix for each Gaussian kernel using
+covariance_factor().</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="wgd.utils.gaussian_kde.evaluate">
+<code class="descname">evaluate</code><span class="sig-paren">(</span><em>points</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.gaussian_kde.evaluate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Evaluate the estimated pdf on a set of points.</p>
+<dl class="docutils">
+<dt>points <span class="classifier-delimiter">:</span> <span class="classifier">(# of dimensions, # of points)-array</span></dt>
+<dd>Alternatively, a (# of dimensions,) vector can be passed in and
+treated as a single point.</dd>
+</dl>
+<dl class="docutils">
+<dt>values <span class="classifier-delimiter">:</span> <span class="classifier">(# of points,)-array</span></dt>
+<dd>The values at each point.</dd>
+</dl>
+<dl class="docutils">
+<dt>ValueError <span class="classifier-delimiter">:</span> <span class="classifier">if the dimensionality of the input points is different than</span></dt>
+<dd>the dimensionality of the KDE.</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="wgd.utils.gaussian_kde.set_bandwidth">
+<code class="descname">set_bandwidth</code><span class="sig-paren">(</span><em>bw_method=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.gaussian_kde.set_bandwidth" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the estimator bandwidth with given method.</p>
+<p>The new bandwidth calculated after a call to <cite>set_bandwidth</cite> is used
+for subsequent evaluations of the estimated density.</p>
+<dl class="docutils">
+<dt>bw_method <span class="classifier-delimiter">:</span> <span class="classifier">str, scalar or callable, optional</span></dt>
+<dd>The method used to calculate the estimator bandwidth.  This can be
+‘scott’, ‘silverman’, a scalar constant or a callable.  If a
+scalar, this will be used directly as <cite>kde.factor</cite>.  If a callable,
+it should take a <cite>gaussian_kde</cite> instance as only parameter and
+return a scalar.  If None (default), nothing happens; the current
+<cite>kde.covariance_factor</cite> method is kept.</dd>
+</dl>
+<div class="versionadded">
+<p><span class="versionmodified">New in version 0.11.</span></p>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">x1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mf">5.</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kde</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">gaussian_kde</span><span class="p">(</span><span class="n">x1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="n">num</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y1</span> <span class="o">=</span> <span class="n">kde</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kde</span><span class="o">.</span><span class="n">set_bandwidth</span><span class="p">(</span><span class="n">bw_method</span><span class="o">=</span><span class="s1">&#39;silverman&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y2</span> <span class="o">=</span> <span class="n">kde</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">kde</span><span class="o">.</span><span class="n">set_bandwidth</span><span class="p">(</span><span class="n">bw_method</span><span class="o">=</span><span class="n">kde</span><span class="o">.</span><span class="n">factor</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y3</span> <span class="o">=</span> <span class="n">kde</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">x1</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mf">4.</span> <span class="o">*</span> <span class="n">x1</span><span class="o">.</span><span class="n">size</span><span class="p">),</span> <span class="s1">&#39;bo&#39;</span><span class="p">,</span>
+<span class="gp">... </span>        <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Data points (rescaled)&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Scott (default)&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">y2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Silverman&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">y3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Const (1/3 * Silverman)&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="function">
 <dt id="wgd.utils.get_gfs_for_species">
 <code class="descclassname">wgd.utils.</code><code class="descname">get_gfs_for_species</code><span class="sig-paren">(</span><em>gene_family_dict</em>, <em>gene_pattern</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.utils.get_gfs_for_species" title="Permalink to this definition">¶</a></dt>

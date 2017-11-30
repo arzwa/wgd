@@ -76,15 +76,15 @@ Currently only runs with default settings.</p>
 <p>Usage examples</p>
 <ul>
 <li><p class="first">Sequences in dictionary, output as dictionary:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">sequences</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;bear_gene&#39;</span><span class="p">:</span> <span class="s1">&#39;BEAR&#39;</span><span class="p">,</span> <span class="s1">&#39;hare_gene&#39;</span><span class="p">:</span> <span class="s1">&#39;HARE&#39;</span><span class="p">,</span> <span class="s1">&#39;yeast_gene&#39;</span><span class="p">:</span> <span class="s1">&#39;BEER&#39;</span><span class="p">}</span>
-<span class="o">&gt;&gt;</span> <span class="n">msa</span> <span class="o">=</span> <span class="n">Muscle</span><span class="p">()</span>
-<span class="o">&gt;&gt;</span> <span class="n">msa</span><span class="o">.</span><span class="n">run_muscle</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sequences</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;bear_gene&#39;</span><span class="p">:</span> <span class="s1">&#39;BEAR&#39;</span><span class="p">,</span> <span class="s1">&#39;hare_gene&#39;</span><span class="p">:</span> <span class="s1">&#39;HARE&#39;</span><span class="p">,</span> <span class="s1">&#39;yeast_gene&#39;</span><span class="p">:</span> <span class="s1">&#39;BEER&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">msa</span> <span class="o">=</span> <span class="n">Muscle</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">msa</span><span class="o">.</span><span class="n">run_muscle</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
 </pre></div>
 </div>
 </li>
 <li><p class="first">Sequences in fasta file, output as fasta file <code class="docutils literal"><span class="pre">(msa.fasta)</span></code>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span> <span class="n">msa</span> <span class="o">=</span> <span class="n">Muscle</span><span class="p">()</span>
-<span class="o">&gt;&gt;</span> <span class="n">msa</span><span class="o">.</span><span class="n">run_muscle</span><span class="p">(</span><span class="s1">&#39;./sequences.fasta&#39;</span><span class="p">,</span> <span class="s1">&#39;./msa.fasta&#39;</span><span class="p">)</span>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">msa</span> <span class="o">=</span> <span class="n">Muscle</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">msa</span><span class="o">.</span><span class="n">run_muscle</span><span class="p">(</span><span class="s1">&#39;./sequences.fasta&#39;</span><span class="p">,</span> <span class="s1">&#39;./msa.fasta&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </li>
