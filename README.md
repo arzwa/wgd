@@ -26,16 +26,18 @@ directory or at https://arzwa.github.io/wgd/index.html.
 
 ## Third party software
 
-`wgd` requires the following third party software (preferably these
+`wgd` requires the following third party executables (preferably these
 should also be in the `PATH` environment variable):
 
 - `blast` (Altschul _et al._ 2008), from which it uses the `blastp` and `makeblastdb` commands,
 `sudo apt-get install ncbi-blast+` will often suffice for installation
-- `muscle` (Edgar 2004) for multiple sequence alignment. `muscle` can be \
+- ``mcl`` (https://micans.org/mcl/index.html). Get MCL using your package
+manager ``sudo apt-get install mcl`` or download it at the provided link.
+- `muscle` (Edgar 2004) for multiple sequence alignment. MUSCLE can be
 retrieved from http://www.drive5.com/muscle/.
 - `codeml` from the PAML software package (Yang 1997). PAML can be downloaded
 from the following link: http://abacus.gene.ucl.ac.uk/software/paml.html
-- `I-ADHoRe 3.0` (Proost _et al._ 2012) for co-linearity analysis. `I-ADHoRe 3.0`
+- `i-adhore` (Proost _et al._ 2012) for co-linearity analysis. I-ADHoRe 3.0
 can be obtained from http://bioinformatics.psb.ugent.be/beg/tools/i-adhore30
 
 

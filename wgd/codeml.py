@@ -4,8 +4,6 @@ Arthur Zwaenepoel - 2017
 
 A python wrapper for codeml (PAML package, Yang 2007)
 """
-# TODO: maybe use ete3 EvolTree?
-
 import pandas as pd
 import numpy as np
 import os

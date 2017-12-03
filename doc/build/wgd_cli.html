@@ -1,33 +1,35 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>wgd_cli &#8212; wgd 0.0.1 documentation</title>
+    
+    <title>wgd_cli &mdash; wgd 0.0.1 documentation</title>
+    
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="wgd 0.0.1 documentation" href="index.html" />
+    <link rel="up" title="Command line interface" href="cli.html" />
     <link rel="next" title="Markov clustering related functions" href="blast_mcl.html" />
     <link rel="prev" title="Command line interface" href="cli.html" /> 
   </head>
-  <body>
+  <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,8 +45,8 @@
         <li class="right" >
           <a href="cli.html" title="Command line interface"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="cli.html" accesskey="U">Command line interface</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="cli.html" accesskey="U">Command line interface</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -68,17 +70,17 @@ For usage in the <code class="docutils literal"><span class="pre">wgd</span></co
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>cds</strong> – boolean, provided sequences are CDS</li>
-<li><strong>mcl</strong> – boolean, perform MCL clustering</li>
-<li><strong>one_v_one</strong> – boolean, identify one vs. one orthologs (reciprocal best hits)</li>
-<li><strong>sequences</strong> – CDS fasta files, if multiple (for one vs. one ortholog identification), then as a comma-separated
+<li><strong>cds</strong> &#8211; boolean, provided sequences are CDS</li>
+<li><strong>mcl</strong> &#8211; boolean, perform MCL clustering</li>
+<li><strong>one_v_one</strong> &#8211; boolean, identify one vs. one orthologs (reciprocal best hits)</li>
+<li><strong>sequences</strong> &#8211; CDS fasta files, if multiple (for one vs. one ortholog identification), then as a comma-separated
 string e.g. ath.fasta,aly.fasta</li>
-<li><strong>species_ids</strong> – comma-separated species ids, optional for one-vs-one ortholog delineation</li>
-<li><strong>blast_results</strong> – precomputed blast results (tab separated blast output style)</li>
-<li><strong>inflation_factor</strong> – inflation factor for MCL clustering</li>
-<li><strong>eval_cutoff</strong> – e-value cut off for blastp analysis</li>
-<li><strong>output_dir</strong> – output directory</li>
-<li><strong>n_threads</strong> – number of CPU threads to use</li>
+<li><strong>species_ids</strong> &#8211; comma-separated species ids, optional for one-vs-one ortholog delineation</li>
+<li><strong>blast_results</strong> &#8211; precomputed blast results (tab separated blast output style)</li>
+<li><strong>inflation_factor</strong> &#8211; inflation factor for MCL clustering</li>
+<li><strong>eval_cutoff</strong> &#8211; e-value cut off for blastp analysis</li>
+<li><strong>output_dir</strong> &#8211; output directory</li>
+<li><strong>n_threads</strong> &#8211; number of CPU threads to use</li>
 </ul>
 </td>
 </tr>
@@ -98,20 +100,20 @@ string e.g. ath.fasta,aly.fasta</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>gene_families</strong> – gene families, i.e. tab separated paralogs or one-vs-one orthologs (see <a class="reference internal" href="#wgd_cli.blast_" title="wgd_cli.blast_"><code class="xref py py-func docutils literal"><span class="pre">blast_()</span></code></a>)</li>
-<li><strong>sequences</strong> – CDS fasta files, if multiple (one-vs.-one ortholog distribution) then as a comma separated string</li>
-<li><strong>output_directory</strong> – output directory</li>
-<li><strong>protein_sequences</strong> – potein sequences (optional)</li>
-<li><strong>tmp_dir</strong> – tmp directory name (optional)</li>
-<li><strong>muscle</strong> – path to MUSCLE executable</li>
-<li><strong>codeml</strong> – path to codeml executable</li>
-<li><strong>times</strong> – number of times to iteratively perform ML estimation of Ks, Ka and omega values.</li>
-<li><strong>min_msa_length</strong> – minimum multiple sequence alignment length</li>
-<li><strong>ignore_prefixes</strong> – ignore prefixes defined by ‘|’ in gene IDs</li>
-<li><strong>one_v_one</strong> – boolean, one-vs.-one ortholog analysis</li>
-<li><strong>preserve</strong> – boolean, preserve codeml output files and multiple sequence alignments?</li>
-<li><strong>async</strong> – use the async library for parallelliztion</li>
-<li><strong>n_threads</strong> – number of CPU threads to use</li>
+<li><strong>gene_families</strong> &#8211; gene families, i.e. tab separated paralogs or one-vs-one orthologs (see <a class="reference internal" href="#wgd_cli.blast_" title="wgd_cli.blast_"><code class="xref py py-func docutils literal"><span class="pre">blast_()</span></code></a>)</li>
+<li><strong>sequences</strong> &#8211; CDS fasta files, if multiple (one-vs.-one ortholog distribution) then as a comma separated string</li>
+<li><strong>output_directory</strong> &#8211; output directory</li>
+<li><strong>protein_sequences</strong> &#8211; potein sequences (optional)</li>
+<li><strong>tmp_dir</strong> &#8211; tmp directory name (optional)</li>
+<li><strong>muscle</strong> &#8211; path to MUSCLE executable</li>
+<li><strong>codeml</strong> &#8211; path to codeml executable</li>
+<li><strong>times</strong> &#8211; number of times to iteratively perform ML estimation of Ks, Ka and omega values.</li>
+<li><strong>min_msa_length</strong> &#8211; minimum multiple sequence alignment length</li>
+<li><strong>ignore_prefixes</strong> &#8211; ignore prefixes defined by &#8216;|&#8217; in gene IDs</li>
+<li><strong>one_v_one</strong> &#8211; boolean, one-vs.-one ortholog analysis</li>
+<li><strong>preserve</strong> &#8211; boolean, preserve codeml output files and multiple sequence alignments?</li>
+<li><strong>async</strong> &#8211; use the async library for parallelliztion</li>
+<li><strong>n_threads</strong> &#8211; number of CPU threads to use</li>
 </ul>
 </td>
 </tr>
@@ -131,13 +133,13 @@ string e.g. ath.fasta,aly.fasta</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>ks_distribution</strong> – Ks distribution tsv file</li>
-<li><strong>method</strong> – mixture modeling method, either ‘bgmm’ or ‘gmm’</li>
-<li><strong>n_range</strong> – range of number of components to fit</li>
-<li><strong>ks_range</strong> – range of Ks values to fit model to</li>
-<li><strong>output_dir</strong> – output directory</li>
-<li><strong>gamma</strong> – gamma parameter for regulaization in BGMM (lower, stronger regularization)</li>
-<li><strong>sequences</strong> – fasta file (if provided will write component-wise fasta files)</li>
+<li><strong>ks_distribution</strong> &#8211; Ks distribution tsv file</li>
+<li><strong>method</strong> &#8211; mixture modeling method, either &#8216;bgmm&#8217; or &#8216;gmm&#8217;</li>
+<li><strong>n_range</strong> &#8211; range of number of components to fit</li>
+<li><strong>ks_range</strong> &#8211; range of Ks values to fit model to</li>
+<li><strong>output_dir</strong> &#8211; output directory</li>
+<li><strong>gamma</strong> &#8211; gamma parameter for regulaization in BGMM (lower, stronger regularization)</li>
+<li><strong>sequences</strong> &#8211; fasta file (if provided will write component-wise fasta files)</li>
 </ul>
 </td>
 </tr>
@@ -158,12 +160,12 @@ For usage in the <code class="docutils literal"><span class="pre">wgd</span></co
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>gff_file</strong> – GFF annotation file</li>
-<li><strong>families</strong> – gene families as tab seperated gene IDs, see <a class="reference internal" href="#wgd_cli.blast_" title="wgd_cli.blast_"><code class="xref py py-func docutils literal"><span class="pre">blast_()</span></code></a></li>
-<li><strong>output_dir</strong> – output directory</li>
-<li><strong>ks_distribution</strong> – Ks distribution tsv file, see <a class="reference internal" href="#wgd_cli.ks_" title="wgd_cli.ks_"><code class="xref py py-func docutils literal"><span class="pre">ks_()</span></code></a></li>
-<li><strong>keyword</strong> – keyword for entities of interest in the GFF file, e.g. ‘CDS’ or ‘mRNA’</li>
-<li><strong>id_string</strong> – ID string for the gene ID in the GFF (9th column), e.g. ‘ID’ or ‘Parent’</li>
+<li><strong>gff_file</strong> &#8211; GFF annotation file</li>
+<li><strong>families</strong> &#8211; gene families as tab seperated gene IDs, see <a class="reference internal" href="#wgd_cli.blast_" title="wgd_cli.blast_"><code class="xref py py-func docutils literal"><span class="pre">blast_()</span></code></a></li>
+<li><strong>output_dir</strong> &#8211; output directory</li>
+<li><strong>ks_distribution</strong> &#8211; Ks distribution tsv file, see <a class="reference internal" href="#wgd_cli.ks_" title="wgd_cli.ks_"><code class="xref py py-func docutils literal"><span class="pre">ks_()</span></code></a></li>
+<li><strong>keyword</strong> &#8211; keyword for entities of interest in the GFF file, e.g. &#8216;CDS&#8217; or &#8216;mRNA&#8217;</li>
+<li><strong>id_string</strong> &#8211; ID string for the gene ID in the GFF (9th column), e.g. &#8216;ID&#8217; or &#8216;Parent&#8217;</li>
 </ul>
 </td>
 </tr>
@@ -183,17 +185,17 @@ For usage in the <code class="docutils literal"><span class="pre">wgd</span></co
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>ks_distributions</strong> – a directory with ks distributions (other files are ignored)
+<li><strong>ks_distributions</strong> &#8211; a directory with ks distributions (other files are ignored)
 or a comma-separated string of file names</li>
-<li><strong>alpha_values</strong> – alpha values for the different distributions (in the same order).
+<li><strong>alpha_values</strong> &#8211; alpha values for the different distributions (in the same order).
 Only relevant for non-interactive visualization.</li>
-<li><strong>colors</strong> – as in <code class="docutils literal"><span class="pre">alpha_values</span></code> but for colors</li>
-<li><strong>labels</strong> – as in <code class="docutils literal"><span class="pre">alpha_values</span></code> but for legend labels (by default the file names are used),
+<li><strong>colors</strong> &#8211; as in <code class="docutils literal"><span class="pre">alpha_values</span></code> but for colors</li>
+<li><strong>labels</strong> &#8211; as in <code class="docutils literal"><span class="pre">alpha_values</span></code> but for legend labels (by default the file names are used),
 this is also relevant for the interactive bokeh visualization (as opposed to <code class="docutils literal"><span class="pre">alpha_values</span></code> and <code class="docutils literal"><span class="pre">colors</span></code>.</li>
-<li><strong>hist_type</strong> – histogram type (matplotlib), either ‘barstacked’, ‘step’ or ‘stepfilled’.</li>
-<li><strong>title</strong> – plot title</li>
-<li><strong>output_file</strong> – output file name</li>
-<li><strong>interactive</strong> – render an interactive bokeh plot. This makes some of the above arguments redundant</li>
+<li><strong>hist_type</strong> &#8211; histogram type (matplotlib), either &#8216;barstacked&#8217;, &#8216;step&#8217; or &#8216;stepfilled&#8217;.</li>
+<li><strong>title</strong> &#8211; plot title</li>
+<li><strong>output_file</strong> &#8211; output file name</li>
+<li><strong>interactive</strong> &#8211; render an interactive bokeh plot. This makes some of the above arguments redundant</li>
 </ul>
 </td>
 </tr>
@@ -221,18 +223,21 @@ this is also relevant for the interactive bokeh visualization (as opposed to <co
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/wgd_cli.rst.txt"
+      <li><a href="_sources/wgd_cli.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -254,13 +259,13 @@ this is also relevant for the interactive bokeh visualization (as opposed to <co
         <li class="right" >
           <a href="cli.html" title="Command line interface"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &#187;</li>
-          <li class="nav-item nav-item-1"><a href="cli.html" >Command line interface</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="cli.html" >Command line interface</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2017, Arthur Zwaenepoel.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+        &copy; Copyright 2017, Arthur Zwaenepoel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
     </div>
   </body>
 </html>

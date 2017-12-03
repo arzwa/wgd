@@ -8,61 +8,22 @@ Markov clustering (MCL) related functions
 from .utils import process_gene_families
 import os
 import subprocess
-import re
+import uuid
 import logging
 
 
-def _ava_blast_to_abc(ava_file, regex='.+', prefix=None, col_1=0, col_2=1, col_3=2):
-    """
-    Convert tab separated all-vs-all (ava) Blast results to an input graph for ``mcl``.
-
-    :param prefix: prefix for genes of interest (optional), e.g. 'arat' for 'arat|AT1G001290'.
-    :param regex: regular expression for parsing genes of interest (optional), e.g. 'AT.+' for 'AT1G001290'.
-    :param ava_file: all-vs-all Blast results file (tab separated)
-    :param pipe: boolean, piped prefix or not? (see species parameter)
-    :param col_1: column in file for gene 1 (starts from 0)
-    :param col_2: column in file for gene 2
-    :param col_3: column in file for e-value (weight in graph)
-    :return: graph in ``abc`` format for ``mcl``
-    """
-
-    if not prefix:
-        if not regex:
-            regex = '.+'
-        p = re.compile(regex)
-
-    graph = []
-    with open(ava_file, 'r') as f:
-        for line in f:
-            line = line.split("\t")
-            gene_1, gene_2, e = line[col_1], line[col_2], line[col_3]
-
-            # when prefixed with species id (e.g. arat|AT1G00120)
-            if prefix:
-                gene_1 = gene_1.split('|')
-                gene_2 = gene_2.split('|')
-
-                if gene_1[0] == gene_2[0] == prefix:
-                    graph.append([gene_1[1], gene_2[1], str(e)])
-
-            # when not prefixed but regex patter defined
-            else:
-                if p.match(gene_1) and p.match(gene_2):
-                    graph.append([gene_1, gene_2, str(e)])
-
-    return graph
-
-
-def all_v_all_blast(query, db, output_directory, output_file='blast.tsv', eval_cutoff=1e-10, n_threads=4):
+def all_v_all_blast(query, db, output_directory='./', output_file='blast.tsv', eval_cutoff=1e-10, n_threads=4):
     """
     Perform all-versus-all Blastp.
+    Runs a blast of ``query`` vs. ``db``.
 
-    :param query:
-    :param db:
-    :param output_directory:
-    :param output_file:
-    :param eval_cutoff:
-    :return:
+    :param query: query sequences fasta file
+    :param db: database sequences fasta file
+    :param output_directory: output directory
+    :param output_file: output file name
+    :param eval_cutoff: e-value cut-off
+    :param: n_threads: number of threads to use for blastp
+    :return: blast file path
     """
     logging.info("Making Blastdb")
     subprocess.run(['makeblastdb', '-in', db, '-dbtype', 'prot'])
@@ -73,15 +34,25 @@ def all_v_all_blast(query, db, output_directory, output_file='blast.tsv', eval_c
     logging.info("All versus all Blastp done")
 
     logging.info("Reformatting output")
-    os.system(" ".join(['cut', '-f1,2,11', os.path.join(output_directory, output_file), '> ava.tsv'])) # this did'nt seem to work with suprocess.run ?
-    subprocess.run(['mv', 'ava.tsv', os.path.join(output_directory, output_file)])
+    # this didn't seem to work with suprocess.run ?
+    tmp = str(uuid.uuid4())
+    os.system(" ".join(['cut', '-f1,2,11', os.path.join(output_directory, output_file), '>', tmp]))
+    subprocess.run(['mv', tmp, os.path.join(output_directory, output_file)])
     subprocess.run(['rm', db + '.phr', db + '.pin', db + '.psq'])
 
     return os.path.join(output_directory, output_file)
 
 
 def get_one_v_one_orthologs_rbh(blast_file, output_dir):
-    """ Get one-vs-one orthologs (using RBHs) """
+    """
+    Get one-vs-one orthologs (using RBHs).
+    Implemented for an arbitrary number of species. note that every gene ID in the blast file
+    should be prefixed with a species ID e.g. ``ath|AT1G01000``.
+
+    :param blast_file: all vs. all blastp results, gene IDs should be prefixed
+    :param output_dir: output directory
+    :return: the last output file that was written
+    """
     one_v_one_orthologs = {}
     with open(blast_file, 'r') as f:
         for line in f:
@@ -107,6 +78,7 @@ def get_one_v_one_orthologs_rbh(blast_file, output_dir):
             elif e < one_v_one_orthologs[comb][gene_2][1]:
                 one_v_one_orthologs[comb][gene_2] = (gene_1, e)
 
+    last = None
     for comb, d in one_v_one_orthologs.items():
         logging.info('Writing one vs one orthologs to {}.tsv'.format(comb))
         with open(os.path.join(output_dir, '{}.ovo.tsv'.format(comb)), 'w') as o:
@@ -121,11 +93,9 @@ def get_one_v_one_orthologs_rbh(blast_file, output_dir):
     return last
 
 
-# REWRITE: MAINTAIN BOTH IN ORDER TO PREVENT BROKEN STUFF --------------------------------------------------------------
-
-def ava_blast_to_abc_2(ava_file, col_1=0, col_2=1, col_3=2):
+def ava_blast_to_abc(ava_file, col_1=0, col_2=1, col_3=2):
     """
-    Convert tab separated all-vs-all (ava) Blast results to an input graph for ``mcl``.
+    Convert tab separated all-vs-all (ava) Blast results to an input graph in ``abc`` format for ``mcl``.
 
     :param ava_file: all-vs-all Blast results file (tab separated)
     :param col_1: column in file for gene 1 (starts from 0)
@@ -155,16 +125,13 @@ def run_mcl_ava_2(graph, output_dir='./', inflation=2, output_file='out.mcl', pr
     :param preserve: boolean, preserve tmp/intermediate files?
     :return: results as output file or as gene family dictionary
     """
-    # get all-vs-all results in abc format graph for mcl
-
-    tmp_file = 'mcl.abc'
+    tmp_file = str(uuid.uuid4())
     tmp_file = os.path.join(output_dir, tmp_file)
     output_file = os.path.join(output_dir, output_file)
 
+    # get all-vs-all results in abc format graph for mcl
     with open(tmp_file, 'w') as o:
         o.write("\n".join(["\t".join(x) for x in graph]))
-
-    # configuration
 
     # run mcl pipeline
     logging.info('Started MCL clustering (mcl)')

@@ -1,33 +1,34 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Markov clustering related functions &#8212; wgd 0.0.1 documentation</title>
+    
+    <title>Markov clustering related functions &mdash; wgd 0.0.1 documentation</title>
+    
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="wgd 0.0.1 documentation" href="index.html" />
     <link rel="next" title="Codeml python wrapper" href="codeml.html" />
     <link rel="prev" title="wgd_cli" href="wgd_cli.html" /> 
   </head>
-  <body>
+  <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +44,7 @@
         <li class="right" >
           <a href="wgd_cli.html" title="wgd_cli"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -67,13 +68,13 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>prefix</strong> – prefix for genes of interest (optional), e.g. ‘arat’ for ‘arat|AT1G001290’.</li>
-<li><strong>regex</strong> – regular expression for parsing genes of interest (optional), e.g. ‘AT.+’ for ‘AT1G001290’.</li>
-<li><strong>ava_file</strong> – all-vs-all Blast results file (tab separated)</li>
-<li><strong>pipe</strong> – boolean, piped prefix or not? (see species parameter)</li>
-<li><strong>col_1</strong> – column in file for gene 1 (starts from 0)</li>
-<li><strong>col_2</strong> – column in file for gene 2</li>
-<li><strong>col_3</strong> – column in file for e-value (weight in graph)</li>
+<li><strong>prefix</strong> &#8211; prefix for genes of interest (optional), e.g. &#8216;arat&#8217; for &#8216;arat|AT1G001290&#8217;.</li>
+<li><strong>regex</strong> &#8211; regular expression for parsing genes of interest (optional), e.g. &#8216;AT.+&#8217; for &#8216;AT1G001290&#8217;.</li>
+<li><strong>ava_file</strong> &#8211; all-vs-all Blast results file (tab separated)</li>
+<li><strong>pipe</strong> &#8211; boolean, piped prefix or not? (see species parameter)</li>
+<li><strong>col_1</strong> &#8211; column in file for gene 1 (starts from 0)</li>
+<li><strong>col_2</strong> &#8211; column in file for gene 2</li>
+<li><strong>col_3</strong> &#8211; column in file for e-value (weight in graph)</li>
 </ul>
 </td>
 </tr>
@@ -93,11 +94,11 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>query</strong> – </li>
-<li><strong>db</strong> – </li>
-<li><strong>output_directory</strong> – </li>
-<li><strong>output_file</strong> – </li>
-<li><strong>eval_cutoff</strong> – </li>
+<li><strong>query</strong> &#8211; </li>
+<li><strong>db</strong> &#8211; </li>
+<li><strong>output_directory</strong> &#8211; </li>
+<li><strong>output_file</strong> &#8211; </li>
+<li><strong>eval_cutoff</strong> &#8211; </li>
 </ul>
 </td>
 </tr>
@@ -117,10 +118,10 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>ava_file</strong> – all-vs-all Blast results file (tab separated)</li>
-<li><strong>col_1</strong> – column in file for gene 1 (starts from 0)</li>
-<li><strong>col_2</strong> – column in file for gene 2</li>
-<li><strong>col_3</strong> – column in file for e-value (weight in graph)</li>
+<li><strong>ava_file</strong> &#8211; all-vs-all Blast results file (tab separated)</li>
+<li><strong>col_1</strong> &#8211; column in file for gene 1 (starts from 0)</li>
+<li><strong>col_2</strong> &#8211; column in file for gene 2</li>
+<li><strong>col_3</strong> &#8211; column in file for e-value (weight in graph)</li>
 </ul>
 </td>
 </tr>
@@ -148,12 +149,12 @@ only a python dictionary is returned and no file is written.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>graph</strong> – input graph (abc format)</li>
-<li><strong>output_dir</strong> – output_dir</li>
-<li><strong>output_file</strong> – output_file (optional)</li>
-<li><strong>inflation</strong> – inflation factor for <code class="docutils literal"><span class="pre">mcl</span></code></li>
-<li><strong>return_dict</strong> – boolean, return results as dictionary?</li>
-<li><strong>preserve</strong> – boolean, preserve tmp/intermediate files?</li>
+<li><strong>graph</strong> &#8211; input graph (abc format)</li>
+<li><strong>output_dir</strong> &#8211; output_dir</li>
+<li><strong>output_file</strong> &#8211; output_file (optional)</li>
+<li><strong>inflation</strong> &#8211; inflation factor for <code class="docutils literal"><span class="pre">mcl</span></code></li>
+<li><strong>return_dict</strong> &#8211; boolean, return results as dictionary?</li>
+<li><strong>preserve</strong> &#8211; boolean, preserve tmp/intermediate files?</li>
 </ul>
 </td>
 </tr>
@@ -181,18 +182,21 @@ only a python dictionary is returned and no file is written.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/blast_mcl.rst.txt"
+      <li><a href="_sources/blast_mcl.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -214,12 +218,12 @@ only a python dictionary is returned and no file is written.</p>
         <li class="right" >
           <a href="wgd_cli.html" title="wgd_cli"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2017, Arthur Zwaenepoel.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+        &copy; Copyright 2017, Arthur Zwaenepoel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
     </div>
   </body>
 </html>

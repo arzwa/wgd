@@ -1,5 +1,9 @@
 """
 Arthur Zwaenepoel - 2017
+
+The ``viz`` module collects several common visualization functions for ``wgd`` as well as
+the interactive boke application for plotting multiple Ks distributions with kernel density estimates
+interactively.
 """
 import plumbum as pb
 import matplotlib
@@ -231,7 +235,12 @@ def syntenic_dotplot_ks_colored(df, an, ks, color_map='Spectral', output_file=No
 
 def histogram_bokeh(ks_distributions, labels):
     """
-    Run an interactive bokeh instance
+    Run an interactive bokeh application.
+    This requires a running bokeh server! Use ``bokeh serve &`` to start a bokeh server in the background.
+
+    :param ks_distributions: a list of Ks distributions (pandas data frames)
+    :param labels: a list of labels for the corresponding distributions
+    :return: bokeh app
     """
     from bokeh.io import curdoc
     from bokeh.layouts import widgetbox, layout
@@ -239,7 +248,6 @@ def histogram_bokeh(ks_distributions, labels):
     from bokeh.plotting import figure, output_file, show
     from bokeh.client import push_session
     from pylab import cm, colors
-    import requests
     from .utils import gaussian_kde
 
     # helper functions

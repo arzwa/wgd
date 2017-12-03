@@ -87,7 +87,7 @@ def multiple_sequence_aligment_nucleotide(msa_protein, nucleotide_sequences, min
     Make a nucleotide multiple sequence alignment based on a protein alignment
 
     :param msa_protein: dictionary of aligned protein sequences
-    :return: nucleotide MSA
+    :return: nucleotide MSA, length, stripped length
     """
     if not os.path.isfile(msa_protein):
         warnings.warn('MSA file {} not found!'.format(msa_protein))
@@ -95,13 +95,24 @@ def multiple_sequence_aligment_nucleotide(msa_protein, nucleotide_sequences, min
 
     protein_msa_sequences = read_fasta(msa_protein)
     nucleotide_msa = _nucleotide_msa_from_protein_msa(protein_msa_sequences, nucleotide_sequences)
-    nucleotide_msa = _strip_gaps(nucleotide_msa)
 
     if nucleotide_msa is None:
         return None
 
+    # get alignment statistics for quality control
+    alignment_stats = pairwise_alignment_stats(nucleotide_msa)
+    l = len(list(nucleotide_msa.values())[0])
+
+    # strip gaps
+    nucleotide_msa = _strip_gaps(nucleotide_msa)
+
+    if nucleotide_msa is None:  # probably not necessary
+        return None
+
     elif len(list(nucleotide_msa.values())[0]) < min_length:
         return None
+
+    l_stripped = len(list(nucleotide_msa.values())[0])
 
     msa_nuc = msa_protein + '.nuc'
     with open(msa_nuc, 'w') as o:
@@ -111,7 +122,40 @@ def multiple_sequence_aligment_nucleotide(msa_protein, nucleotide_sequences, min
             o.write(nucleotide_msa[gene_ID])
             o.write("\n")
 
-    return msa_nuc
+    return [msa_nuc, int(l), int(l_stripped), alignment_stats]
+
+
+def pairwise_alignment_stats(msa):
+    """
+    Get pairwise stats from MSA.
+    Return as  dictionary {Gene1: {Gene2: [0.8, 0.7], Gene3: [...], ...}
+
+    :param msa: MSA dictionary
+    :return: dictionary
+    """
+    stats = {}
+    seqs = [(x, msa[x]) for x in sorted(msa.keys())]
+
+    for i in range(len(seqs)):
+        stats[seqs[i][0]] = {}
+        for j in range(i, len(seqs)):
+            id1, id2 = seqs[i][0], seqs[j][0]
+            d = _strip_gaps({id1: seqs[i][1], id2: seqs[j][1]})
+            try:
+                # % identity
+                stats[id1][id2] = [(len(d[id1]) - hamming_distance(d[id1], d[id2]))/len(d[id1])]
+                # coverage
+                stats[id1][id2].append(len(d[id1])/len(seqs[i][1]))
+            except:
+                stats[id1][id2] = [0, 0]
+    return stats
+
+
+def hamming_distance(s1, s2):
+    """Return the Hamming distance between equal-length sequences"""
+    if len(s1) != len(s2):
+        raise ValueError("Undefined for sequences of unequal length")
+    return sum(el1 != el2 for el1, el2 in zip(s1, s2))
 
 
 class Muscle:

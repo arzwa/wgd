@@ -1,6 +1,11 @@
 #!/usr/bin/python3.5
 """
 Arthur Zwaenepoel - 2017
+
+The co-linearity analysis functions currently only support intragenomic analyses.
+A note on the name for this module: 'collinearity' is often found in the literature, however it is obviously
+a wrong spelling, as the word stems from co & linearity. I prefer the usage of co-linearity since it is most clear
+and not wrong, however I'd like to avoid hyphens in file names so I opted for collinearity anyway.
 """
 # TODO: multiple genomes
 

@@ -63,7 +63,7 @@ def cli(verbose):
               help="Inflation factor for MCL clustering. (Default = 2)")
 @click.option('--eval_cutoff', '-e', default=1e-10,
               help="E-value cut-off for Blast results (Default = 1e-10)")
-@click.option('--output_dir','-o', default='wgd.blast.out',
+@click.option('--output_dir','-o', default='wgd_blast',
               help='Output directory.')
 @click.option('--n_threads','-n', default=4,
               help='Number of threads used by blastp.')
@@ -88,7 +88,7 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results, inflation_
 
 
 def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None, blast_results=None,
-           inflation_factor=2.0, eval_cutoff=1e-10, output_dir='wgd.blast.out', n_threads=4):
+           inflation_factor=2.0, eval_cutoff=1e-10, output_dir='wgd_blast', n_threads=4):
     """
     All vs. all Blast pipeline
     For usage in the ``wgd`` CLI.
@@ -107,7 +107,7 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
     :return: output file name
     """
     # lazy imports
-    from wgd.blast_mcl import all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc_2, get_one_v_one_orthologs_rbh
+    from wgd.blast_mcl import all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc, get_one_v_one_orthologs_rbh
 
     # input checks
     if not sequences and not blast_results:
@@ -156,18 +156,24 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
 
         # blast
         logging.info('Writing blastdb sequences to db.fasta.')
-        db = os.path.join(output_dir, 'db.fasta')
+        db = os.path.join(output_dir, str(uuid.uuid4()) + '.db.fasta')
         write_fasta(protein_sequences[0], db)
         query = db
 
         if one_v_one:
-            query = os.path.join(output_dir, 'query.fasta')
+            query = os.path.join(output_dir, str(uuid.uuid4()) + '.query.fasta')
             logging.info('Writing query sequences to query.fasta.')
             write_fasta(protein_sequences[1], query)
 
-        logging.info('Performing all_v_all_blastp (this might take a while)')
+        logging.info('Performing all-vs.-all Blastp (this might take a while)')
         blast_results = all_v_all_blast(query, db, output_dir, output_file='{}.blast.tsv'.format(
             '_'.join([os.path.basename(x) for x in sequence_files])), eval_cutoff=eval_cutoff, n_threads=n_threads)
+        logging.info('Blast done')
+
+        # remove redundant files
+        os.system('rm {}'.format(db))
+        if db != query:
+            os.system('rm {}'.format(query))
 
     # get one-vs-one orthologs (RBHs)
     if one_v_one:
@@ -179,7 +185,7 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
     # get paranome (MCL)
     if mcl:
         logging.info('Performing MCL clustering (inflation factor = {0})'.format(inflation_factor))
-        ava_graph = ava_blast_to_abc_2(blast_results)
+        ava_graph = ava_blast_to_abc(blast_results)
         mcl_out = run_mcl_ava_2(ava_graph, output_dir=output_dir, output_file='{}.mcl'.format(
             os.path.basename(blast_results)), inflation=inflation_factor)
         logging.info('Done')
@@ -221,8 +227,10 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
               help="Use asyncio module for parallelization. (Default uses joblib)")
 @click.option('--n_threads','-n', default=4,
               help="Number of threads to use.")
-def ks(gene_families, sequences, output_directory, protein_sequences,
-        tmp_dir, muscle, codeml, times, min_msa_length, ignore_prefixes, one_v_one, preserve, async, n_threads):
+@click.option('--weighting_method','-wm', type=click.Choice(['alc', 'fasttree', 'phyml']), default='alc',
+              help="Node weighting method, from fast to slow: alc, fasttree, phyml")
+def ks(gene_families, sequences, output_directory, protein_sequences, tmp_dir, muscle, codeml, times, min_msa_length,
+       ignore_prefixes, one_v_one, preserve, async, n_threads, weighting_method):
     """
     Ks distribution construction.
 
@@ -239,12 +247,12 @@ def ks(gene_families, sequences, output_directory, protein_sequences,
         wgd ks -gf beaver_eagle -s castor_fiber.cds.fasta,aquila_chrysaetos.cds.fasta -o beaver_eagle_ks_out
     """
     ks_(gene_families, sequences, output_directory, protein_sequences, tmp_dir, muscle, codeml, times, min_msa_length,
-        ignore_prefixes, one_v_one, preserve, async, n_threads)
+        ignore_prefixes, one_v_one, preserve, async, n_threads, weighting_method)
 
 
 def ks_(gene_families, sequences, output_directory, protein_sequences=None, tmp_dir=None, muscle='muscle',
         codeml='codeml', times=1, min_msa_length=100, ignore_prefixes=False, one_v_one=False, preserve=False,
-        async=False, n_threads=4):
+        async=False, n_threads=4, weighting_method='alc'):
     """
     Ks distribution construction pipeline. For usage in the ``wgd`` CLI.
 
@@ -338,7 +346,7 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None, tmp_
         results = ks_analysis_paranome(cds_seqs, protein_seqs, gene_families, tmp_dir, output_directory,
                                        muscle, codeml, preserve=preserve, times=times,
                                        ignore_prefixes=ignore_prefixes, async=async, n_cores=n_threads,
-                                       min_length=min_msa_length)
+                                       min_length=min_msa_length, method=weighting_method)
         results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(base)), sep='\t')
 
         logging.info('Generating plots')

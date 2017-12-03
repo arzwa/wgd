@@ -1,33 +1,34 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>Command line interface &#8212; wgd 0.0.1 documentation</title>
+    
+    <title>Command line interface &mdash; wgd 0.0.1 documentation</title>
+    
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '0.0.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true,
-        SOURCELINK_SUFFIX: '.txt'
+        HAS_SOURCE:  true
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="wgd 0.0.1 documentation" href="index.html" />
     <link rel="next" title="wgd_cli" href="wgd_cli.html" />
     <link rel="prev" title="wgd: Whole genome duplication analysis in Python" href="index.html" /> 
   </head>
-  <body>
+  <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -43,7 +44,7 @@
         <li class="right" >
           <a href="index.html" title="wgd: Whole genome duplication analysis in Python"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -56,7 +57,7 @@
 <span id="cli"></span><h1>Command line interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h1>
 <p>The command line interface (CLI) and all command line utilities are written in python3.5 using the click library.
 Upon installation, all available command line utilities bundled in the CLI can be listed by running:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd --help
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ wgd --help
 
 Usage: wgd [OPTIONS] COMMAND [ARGS]...
 
@@ -92,7 +93,7 @@ Commands:
 </pre></div>
 </div>
 <p>Note that the verbose flag can be set before the subcommands:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd --verbose [silent|info|debug] [COMMAND]
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ wgd --verbose [silent|info|debug] [COMMAND]
 </pre></div>
 </div>
 <p>Which sets the verbosity for the logging.</p>
@@ -101,32 +102,29 @@ Commands:
 <h1>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="whole-paranome-ks-distribution-construction">
 <h2>Whole paranome K<sub>S</sub> distribution construction<a class="headerlink" href="#whole-paranome-ks-distribution-construction" title="Permalink to this headline">¶</a></h2>
-<p>Here  recipe is shown for K<sub>S</sub> distribution construction using the provided commands in th <code class="docutils literal"><span class="pre">wgd</span></code>
+<p>Here a recipe is shown for K<sub>S</sub> distribution construction using the provided commands in the <code class="docutils literal"><span class="pre">wgd</span></code>
 command line interface. For this analysis we could also use the provided pipeline <code class="docutils literal"><span class="pre">wgd</span> <span class="pre">pipeline_1</span></code>
 command, which provides less control, but is quite convenient in usage for this standard workflow.</p>
-<div class="section" id="full-control">
-<h3>1) Full control<a class="headerlink" href="#full-control" title="Permalink to this headline">¶</a></h3>
+<p><strong>1) Full control</strong></p>
 <p>First we infer paralogous families using all-vs-all <cite>blastp</cite> and <cite>mcl</cite>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd blast --cds --mcl -s penguin.cds.fasta -o ./
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ wgd blast --cds --mcl -s penguin.cds.fasta -o ./
 </pre></div>
 </div>
 <p>Then we can construct a K<sub>S</sub> distribution for the paranome we just generated
 in the file <code class="docutils literal"><span class="pre">penguin.cds.fasta.mcl</span></code> using <cite>wgd ks</cite>:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd ks -gf penguin.cds.fasta.mcl -s penguin.cds.fasta -o ./
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ wgd ks -gf penguin.cds.fasta.mcl -s penguin.cds.fasta -o ./
 </pre></div>
 </div>
 <p>If we have adequate structural annotation data available, we can look for anchor
 pairs and make a K<sub>S</sub> distribution for the obtained co-linear
 gene pairs:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd coll -ks penguin.cds.fasta.ks.tsv -gff annotation.gff -gf penguin.cds.fasta.mcl -o ./
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ wgd coll -ks penguin.cds.fasta.ks.tsv -gff annotation.gff -gf penguin.cds.fasta.mcl -o ./
 </pre></div>
 </div>
-<p>That’s it! Quite easy no?</p>
-</div>
-<div class="section" id="pipeline">
-<h3>2) Pipeline<a class="headerlink" href="#pipeline" title="Permalink to this headline">¶</a></h3>
-<p>The same cn be accomplished using the <code class="docutils literal"><span class="pre">pipeline_1</span></code> command:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd pipeline_1 -gff annotation.gff penguin.cds.fasta penguin.wgd_out
+<p>That&#8217;s it! Quite easy no?</p>
+<p><strong>2) Pipeline</strong></p>
+<p>The same can be accomplished using the <code class="docutils literal"><span class="pre">pipeline_1</span></code> command:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>$ wgd pipeline_1 -gff annotation.gff penguin.cds.fasta penguin.wgd_out
 </pre></div>
 </div>
 <p>However this dos not provide any further control, as opposed to the subcommands listed above.
@@ -136,7 +134,6 @@ Note that this ability to for more detailed control was not illustrated above.</
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="wgd_cli.html">wgd_cli</a></li>
 </ul>
-</div>
 </div>
 </div>
 </div>
@@ -151,11 +148,7 @@ Note that this ability to for more detailed control was not illustrated above.</
   <ul>
 <li><a class="reference internal" href="#">Command line interface</a></li>
 <li><a class="reference internal" href="#examples">Examples</a><ul>
-<li><a class="reference internal" href="#whole-paranome-ks-distribution-construction">Whole paranome K<sub>S</sub> distribution construction</a><ul>
-<li><a class="reference internal" href="#full-control">1) Full control</a></li>
-<li><a class="reference internal" href="#pipeline">2) Pipeline</a></li>
-</ul>
-</li>
+<li><a class="reference internal" href="#whole-paranome-ks-distribution-construction">Whole paranome K<sub>S</sub> distribution construction</a></li>
 </ul>
 </li>
 </ul>
@@ -169,18 +162,21 @@ Note that this ability to for more detailed control was not illustrated above.</
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/cli.rst.txt"
+      <li><a href="_sources/cli.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -202,12 +198,12 @@ Note that this ability to for more detailed control was not illustrated above.</
         <li class="right" >
           <a href="index.html" title="wgd: Whole genome duplication analysis in Python"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2017, Arthur Zwaenepoel.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
+        &copy; Copyright 2017, Arthur Zwaenepoel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
     </div>
   </body>
 </html>

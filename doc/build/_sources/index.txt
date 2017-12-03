@@ -18,14 +18,11 @@ External software
 
 For full functionality, make sure you have the following external software tools installed:
 
-1. ``codeml`` from the PAML package (http://abacus.gene.ucl.ac.uk/software/paml.html)
-2. ``muscle`` for multiple sequence alignment (http://www.drive5.com/muscle/)
-3. ``mcl`` (https://micans.org/mcl/index.html). On Ubuntu, Debian and Linux Mint a simple
-``sudo apt-get install mcl`` will suffice
-4. ``blastp`` and ``makeblastdb`` from the Blast+ suite (https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download).
-Again, on Ubuntu, Debian and Linux Mint a simple ``sudo apt-get install ncbi-blast+``
-will suffice
-5. ``i-adhore`` from the I-ADHoRe 3.0 suite (http://bioinformatics.psb.ugent.be/beg/tools/i-adhore30)
+1. ``codeml`` from the PAML package (http://abacus.gene.ucl.ac.uk/software/paml.html) (Yang 1997)
+2. ``muscle`` for multiple sequence alignment (http://www.drive5.com/muscle/) (Edgar 2004)
+3. ``mcl`` (https://micans.org/mcl/index.html) (Van Dongen 2000)
+4. ``blastp`` and ``makeblastdb`` from the Blast+ suite (https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download) (Altschul `et al.` 2008)
+5. ``i-adhore`` from the I-ADHoRe 3.0 suite (http://bioinformatics.psb.ugent.be/beg/tools/i-adhore30) (Proost `et al.` 2012)
 
 Of course, you don't need all of these tools installed for each feature of ``wgd``.
 Please put these tools in your PATH environment variable as well, it makes life easier.
@@ -40,7 +37,7 @@ analyses:
 2. Whole paranome |Ks| (and |Ka| and ω) distribution construction
 3. One-versus-one orthologs |Ks| (and |Ka| and ω;) distribution construction
 4. Mixture modeling of |Ks| distributions and WGD-specific paralog extraction
-5. Visualization of (multiple) |Ks| distributions
+5. Interactive visualization of (multiple) |Ks| distributions and kernel density estimates thereof
 6. Intragenomic co-linearity/synteny analysis and anchor based |Ks| distribution construction
 7. Co-linearity dotplot construction
 
