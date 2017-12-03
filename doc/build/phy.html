@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Phylogenetic tools module &mdash; wgd 1.0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="wgd 1.0.0 documentation" href="index.html" />
+    <link rel="next" title="Mixture modeling" href="mix.html" />
+    <link rel="prev" title="Ks distribution module" href="ks.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mix.html" title="Mixture modeling"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ks.html" title="Ks distribution module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-wgd.phy">
+<span id="phylogenetic-tools-module"></span><h1>Phylogenetic tools module<a class="headerlink" href="#module-wgd.phy" title="Permalink to this headline">¶</a></h1>
+<p>Arthur Zwaenepoel - 2017</p>
+<p>Methods related to phylogenetic tree construction and processing.
+Mainly for the node-weighting approach used in constructing whole paranome Ks distributions,
+where currently weighting through average linkage clustering, FastTree ML trees and PhyML trees
+is supported.</p>
+<dl class="function">
+<dt id="wgd.phy.average_linkage_clustering">
+<code class="descclassname">wgd.phy.</code><code class="descname">average_linkage_clustering</code><span class="sig-paren">(</span><em>pairwise_estimates</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.phy.average_linkage_clustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform average linkage clustering using <code class="docutils literal"><span class="pre">fastcluster</span></code>.
+The first two columns of the output contain the node indices which are joined in each step.
+The input nodes are labeled 0, . . . , N - 1, and the newly generated nodes have the labels N, . . . , 2N - 2.
+The third column contains the distance between the two nodes at each step, ie. the
+current minimal distance at the time of the merge. The fourth column counts the
+number of points which comprise each new node.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pairwise_estimates</strong> &#8211; dictionary with data frames with pairwise estimates of Ks, Ka and Ka/Ks
+(or at least Ks), as returned by <code class="xref py py-func docutils literal"><span class="pre">analyse_family()</span></code>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">average linkage clustering as performed with <code class="docutils literal"><span class="pre">fastcluster.average</span></code>.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.phy.phylogenetic_tree_to_cluster_format">
+<code class="descclassname">wgd.phy.</code><code class="descname">phylogenetic_tree_to_cluster_format</code><span class="sig-paren">(</span><em>tree</em>, <em>pairwise_estimates</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.phy.phylogenetic_tree_to_cluster_format" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert a phylogenetic tree to a &#8216;cluster&#8217; data structure as in <code class="docutils literal"><span class="pre">fastcluster</span></code>.
+The first two columns indicate the nodes that are joined by the relevant node,
+the third indicates the distance (calculated from branch lengths in the case of a phylogenetic tree)
+and the fourth the number of leaves underneath the node.
+Note that the trees are rooted using midpoint-rooting.</p>
+<p>Example of the data structure (output from <code class="docutils literal"><span class="pre">fastcluster</span></code>):</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>[[   3.            7.            4.26269776    2.        ]
+ [   0.            5.           26.75703595    2.        ]
+ [   2.            8.           56.16007598    2.        ]
+ [   9.           12.           78.91813609    3.        ]
+ [   1.           11.           87.91756528    3.        ]
+ [   4.            6.           93.04790855    2.        ]
+ [  14.           15.          114.71302639    5.        ]
+ [  13.           16.          137.94616373    8.        ]
+ [  10.           17.          157.29055403   10.        ]]
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> &#8211; newick tree file</li>
+<li><strong>pairwise_estimates</strong> &#8211; pairwise Ks estimates data frame (pandas) (only the index is used)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">clustering data structure, pairwise distances dictionary</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.phy.run_fasttree">
+<code class="descclassname">wgd.phy.</code><code class="descname">run_fasttree</code><span class="sig-paren">(</span><em>msa</em>, <em>fasttree_path='FastTree'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.phy.run_fasttree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run FastTree on a protein multiple sequence alignment</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>msa</strong> &#8211; file path to protein multiple sequence alignment in multifasta format</li>
+<li><strong>fasttree_path</strong> &#8211; path to FastTree executable</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">path to the tree file</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.phy.run_phyml">
+<code class="descclassname">wgd.phy.</code><code class="descname">run_phyml</code><span class="sig-paren">(</span><em>msa</em>, <em>phyml_path='phyml'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.phy.run_phyml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run PhyML on a protein multiple sequence alignment</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>msa</strong> &#8211; file path to protein multiple sequence alignment in multifasta format</li>
+<li><strong>phyml_path</strong> &#8211; path to phyml executable</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">path to the tree file</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.phy.write_sequential_phyml">
+<code class="descclassname">wgd.phy.</code><code class="descname">write_sequential_phyml</code><span class="sig-paren">(</span><em>sequence_dict</em>, <em>output_file</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.phy.write_sequential_phyml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a multiple sequence alignment in sequential format (e.g. for PhyML)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>sequence_dict</strong> &#8211; sequence dictionary</li>
+<li><strong>output_file</strong> &#8211; filename</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ks.html"
+                        title="previous chapter">Ks distribution module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="mix.html"
+                        title="next chapter">Mixture modeling</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/phy.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="mix.html" title="Mixture modeling"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ks.html" title="Ks distribution module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 1.0.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2017, Arthur Zwaenepoel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
+    </div>
+  </body>
+</html>

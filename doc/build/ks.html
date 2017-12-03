@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Ks distribution module &mdash; wgd 0.0.1 documentation</title>
+    <title>Ks distribution module &mdash; wgd 1.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.0.1',
+        VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,8 +24,8 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="wgd 0.0.1 documentation" href="index.html" />
-    <link rel="next" title="Mixture modeling" href="mix.html" />
+    <link rel="top" title="wgd 1.0.0 documentation" href="index.html" />
+    <link rel="next" title="Phylogenetic tools module" href="phy.html" />
     <link rel="prev" title="Alignment tools" href="alignment.html" /> 
   </head>
   <body role="document">
@@ -39,12 +39,12 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="mix.html" title="Mixture modeling"
+          <a href="phy.html" title="Phylogenetic tools module"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="alignment.html" title="Alignment tools"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 1.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -56,38 +56,19 @@
   <div class="section" id="module-wgd.ks_distribution">
 <span id="ks-distribution-module"></span><h1>Ks distribution module<a class="headerlink" href="#module-wgd.ks_distribution" title="Permalink to this headline">¶</a></h1>
 <p>Arthur Zwaenepoel - 2017</p>
-<dl class="function">
-<dt id="wgd.ks_distribution._average_linkage_clustering">
-<code class="descclassname">wgd.ks_distribution.</code><code class="descname">_average_linkage_clustering</code><span class="sig-paren">(</span><em>pairwise_estimates</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution._average_linkage_clustering" title="Permalink to this definition">¶</a></dt>
-<dd><p>Perform average linkage clustering using fastcluster.
-The first two columns of the output contain the node indices which are joined in each step.
-The input nodes are labeled 0, . . . , N - 1, and the newly generated nodes have the labels N, . . . , 2N - 2.
-The third column contains the distance between the two nodes at each step, ie. the
-current minimal distance at the time of the merge. The fourth column counts the
-number of points which comprise each new node.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pairwise_estimates</strong> &#8211; dictionary with data frames with pairwise estimates of Ks, Ka and Ka/Ks
-(or at least Ks), as returned by <a class="reference internal" href="#wgd.ks_distribution.analyse_family" title="wgd.ks_distribution.analyse_family"><code class="xref py py-func docutils literal"><span class="pre">analyse_family()</span></code></a>.</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">average linkage clustering as performed with <code class="docutils literal"><span class="pre">fastcluster.average</span></code>.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
+<p>Tools for whole paranome and one-vs.-one ortholog Ks distribution construction.
+Implemented in parallelized fashion. Please find the functions for node-based weighting in the <code class="docutils literal"><span class="pre">phy</span></code> module.</p>
 <dl class="function">
 <dt id="wgd.ks_distribution._calculate_weighted_ks">
-<code class="descclassname">wgd.ks_distribution.</code><code class="descname">_calculate_weighted_ks</code><span class="sig-paren">(</span><em>clustering</em>, <em>pairwise_estimates</em>, <em>family_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution._calculate_weighted_ks" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">wgd.ks_distribution.</code><code class="descname">_calculate_weighted_ks</code><span class="sig-paren">(</span><em>clustering</em>, <em>pairwise_estimates</em>, <em>pairwise_distances=None</em>, <em>family_id=None</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution._calculate_weighted_ks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate weighted Ks, Kn and w values following the procedure as outlined in Vanneste et al. (2013)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>clustering</strong> &#8211; average linkage clustering results as produced with <a class="reference internal" href="#wgd.ks_distribution._average_linkage_clustering" title="wgd.ks_distribution._average_linkage_clustering"><code class="xref py py-func docutils literal"><span class="pre">_average_linkage_clustering()</span></code></a></li>
+<li><strong>clustering</strong> &#8211; clustering results as produced with <a class="reference internal" href="#wgd.ks_distribution._weighting" title="wgd.ks_distribution._weighting"><code class="xref py py-func docutils literal"><span class="pre">_weighting()</span></code></a>, can be by average linkage clustering
+or phylogenetic means (phyml, fasttree)</li>
 <li><strong>pairwise_estimates</strong> &#8211; pairwise Ks, Kn and w estimates as produced by <code class="xref py py-meth docutils literal"><span class="pre">codeml.Codeml.run_codeml()</span></code></li>
 </ul>
 </td>
@@ -100,11 +81,58 @@ number of points which comprise each new node.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="wgd.ks_distribution._weighting">
+<code class="descclassname">wgd.ks_distribution.</code><code class="descname">_weighting</code><span class="sig-paren">(</span><em>pairwise_estimates</em>, <em>msa=None</em>, <em>method='alc'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution._weighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper for different weighting methods.
+The fastest method is average linkage clustering based on Ks values,
+Other methods use phylogenetic trees (phyml or fasttree)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>pairwise_estimates</strong> &#8211; results dictionary from <code class="xref py py-meth docutils literal"><span class="pre">codeml.Codeml.run()</span></code> output</li>
+<li><strong>msa</strong> &#8211; protein multiple sequence alignment file path (optional, not necessary for method=``alc``)</li>
+<li><strong>method</strong> &#8211; method, one of <code class="docutils literal"><span class="pre">alc|phyml|fasttree</span></code></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">clustering data structure and pairwise leaf distances (not if method=``alc``)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="wgd.ks_distribution.add_alignment_stats">
+<code class="descclassname">wgd.ks_distribution.</code><code class="descname">add_alignment_stats</code><span class="sig-paren">(</span><em>df</em>, <em>stats</em>, <em>l</em>, <em>l_stripped</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.add_alignment_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add alignment statistics to the data frame</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>df</strong> &#8211; pandas data frame</li>
+<li><strong>stats</strong> &#8211; stats dict see <code class="xref py py-func docutils literal"><span class="pre">alignment.pairwise_alignment_stats()</span></code></li>
+<li><strong>l</strong> &#8211; alignment length</li>
+<li><strong>l_stripped</strong> &#8211; stripped alignment length</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">data frame</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="wgd.ks_distribution.analyse_family">
-<code class="descclassname">wgd.ks_distribution.</code><code class="descname">analyse_family</code><span class="sig-paren">(</span><em>family_id</em>, <em>family</em>, <em>nucleotide</em>, <em>tmp='./'</em>, <em>muscle='muscle'</em>, <em>codeml='codeml'</em>, <em>preserve=False</em>, <em>times=1</em>, <em>min_length=100</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.analyse_family" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">wgd.ks_distribution.</code><code class="descname">analyse_family</code><span class="sig-paren">(</span><em>family_id</em>, <em>family</em>, <em>nucleotide</em>, <em>tmp='./'</em>, <em>muscle='muscle'</em>, <em>codeml='codeml'</em>, <em>preserve=False</em>, <em>times=1</em>, <em>min_length=100</em>, <em>method='alc'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.analyse_family" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wrapper function for the analysis of one paralog family. Performs alignment with
 <code class="xref py py-meth docutils literal"><span class="pre">alignment.Muscle.run_muscle()</span></code> and codeml analysis with <code class="xref py py-meth docutils literal"><span class="pre">codeml.Codeml.run_codeml()</span></code>.
-Subsequently also clustering with <a class="reference internal" href="#wgd.ks_distribution._average_linkage_clustering" title="wgd.ks_distribution._average_linkage_clustering"><code class="xref py py-func docutils literal"><span class="pre">_average_linkage_clustering()</span></code></a> is performed and weighted Ks, Kn and w
+Subsequently also clustering with <code class="xref py py-func docutils literal"><span class="pre">_average_linkage_clustering()</span></code> is performed and weighted Ks, Kn and w
 values are calculated using <a class="reference internal" href="#wgd.ks_distribution._calculate_weighted_ks" title="wgd.ks_distribution._calculate_weighted_ks"><code class="xref py py-func docutils literal"><span class="pre">_calculate_weighted_ks()</span></code></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -120,6 +148,7 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
 <li><strong>preserve</strong> &#8211; preserve intermediate files</li>
 <li><strong>times</strong> &#8211; number of times to perform ML estimation of Ks, Ka and omega values</li>
 <li><strong>min_length</strong> &#8211; minimum length of the stripped multiple sequence alignment</li>
+<li><strong>method</strong> &#8211; weighting method, from fast to slow: <code class="docutils literal"><span class="pre">alc</span></code>, <code class="docutils literal"><span class="pre">fasttree</span></code>, <code class="docutils literal"><span class="pre">phyml</span></code></li>
 </ul>
 </td>
 </tr>
@@ -135,7 +164,7 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
 <code class="descclassname">wgd.ks_distribution.</code><code class="descname">analyse_family_ortholog</code><span class="sig-paren">(</span><em>family_id</em>, <em>family</em>, <em>nucleotide</em>, <em>tmp='./'</em>, <em>muscle='muscle'</em>, <em>codeml='codeml'</em>, <em>preserve=False</em>, <em>times=1</em>, <em>min_length=100</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.analyse_family_ortholog" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wrapper function for the analysis of one paralog family. Performs alignment with
 <code class="xref py py-meth docutils literal"><span class="pre">alignment.Muscle.run_muscle()</span></code> and codeml analysis with <code class="xref py py-meth docutils literal"><span class="pre">codeml.Codeml.run_codeml()</span></code>.
-Subsequently also clustering with <a class="reference internal" href="#wgd.ks_distribution._average_linkage_clustering" title="wgd.ks_distribution._average_linkage_clustering"><code class="xref py py-func docutils literal"><span class="pre">_average_linkage_clustering()</span></code></a> is performed and weighted Ks, Kn and w
+Subsequently also clustering with <code class="xref py py-func docutils literal"><span class="pre">_average_linkage_clustering()</span></code> is performed and weighted Ks, Kn and w
 values are calculated using <a class="reference internal" href="#wgd.ks_distribution._calculate_weighted_ks" title="wgd.ks_distribution._calculate_weighted_ks"><code class="xref py py-func docutils literal"><span class="pre">_calculate_weighted_ks()</span></code></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -194,7 +223,7 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
 
 <dl class="function">
 <dt id="wgd.ks_distribution.ks_analysis_paranome">
-<code class="descclassname">wgd.ks_distribution.</code><code class="descname">ks_analysis_paranome</code><span class="sig-paren">(</span><em>nucleotide_sequences</em>, <em>protein_sequences</em>, <em>paralogs</em>, <em>tmp_dir='./tmp'</em>, <em>output_dir='./ks.out'</em>, <em>muscle_path='muscle'</em>, <em>codeml_path='codeml'</em>, <em>preserve=True</em>, <em>times=1</em>, <em>ignore_prefixes=False</em>, <em>n_cores=4</em>, <em>async=False</em>, <em>min_length=100</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.ks_analysis_paranome" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">wgd.ks_distribution.</code><code class="descname">ks_analysis_paranome</code><span class="sig-paren">(</span><em>nucleotide_sequences</em>, <em>protein_sequences</em>, <em>paralogs</em>, <em>tmp_dir='./tmp'</em>, <em>output_dir='./ks.out'</em>, <em>muscle_path='muscle'</em>, <em>codeml_path='codeml'</em>, <em>preserve=True</em>, <em>times=1</em>, <em>ignore_prefixes=False</em>, <em>n_cores=4</em>, <em>async=False</em>, <em>min_length=100</em>, <em>method='alc'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.ks_analysis_paranome" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate a Ks distribution for a whole paranome.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -213,6 +242,7 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
 <li><strong>ignore_prefixes</strong> &#8211; ignore prefixes in paralog/gene family file (e.g. in ath|AT1G45000, ath| will be ignored)</li>
 <li><strong>async</strong> &#8211; use asyncio library for parallelization</li>
 <li><strong>min_length</strong> &#8211; minimum MSA length</li>
+<li><strong>method</strong> &#8211; method to use, from fast to slow: <code class="docutils literal"><span class="pre">alc</span></code>, <code class="docutils literal"><span class="pre">fasttree</span></code>, <code class="docutils literal"><span class="pre">phyml</span></code></li>
 </ul>
 </td>
 </tr>
@@ -235,8 +265,8 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
   <p class="topless"><a href="alignment.html"
                         title="previous chapter">Alignment tools</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="mix.html"
-                        title="next chapter">Mixture modeling</a></p>
+  <p class="topless"><a href="phy.html"
+                        title="next chapter">Phylogenetic tools module</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -271,12 +301,12 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="mix.html" title="Mixture modeling"
+          <a href="phy.html" title="Phylogenetic tools module"
              >next</a> |</li>
         <li class="right" >
           <a href="alignment.html" title="Alignment tools"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">wgd 0.0.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 1.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

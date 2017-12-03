@@ -63,6 +63,7 @@ Contents:
    Codeml anlysis <codeml>
    Alignment tools <alignment>
    Ks distribution analysis <ks>
+   Phylogenetics tools <phy>
    Mixture modeling <mix>
    Co-linearity analysis <syn>
    Utilities <utils>

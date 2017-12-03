@@ -1,17 +1,19 @@
 """
 Arthur Zwaenepoel - 2017
+
+Tools for whole paranome and one-vs.-one ortholog Ks distribution construction.
+Implemented in parallelized fashion. Please find the functions for node-based weighting in the ``phy`` module.
 """
 # TODO: other outlier detection approaches
 
 # IMPORTS
 from .codeml import Codeml
 from .alignment import Muscle, multiple_sequence_aligment_nucleotide
-from .utils import read_fasta, process_gene_families, get_sequences
-from .phy import run_phyml, phylogenetic_tree_to_cluster_format, run_fasttree
+from .utils import process_gene_families, get_sequences
+from .phy import run_phyml, phylogenetic_tree_to_cluster_format, run_fasttree, average_linkage_clustering
 from joblib import Parallel, delayed
 import pandas as pd
 import os
-import fastcluster
 import logging
 import asyncio
 
@@ -51,28 +53,10 @@ def _weighting(pairwise_estimates, msa=None, method='alc'):
     else:
         # Average linkage clustering based on Ks
         logging.debug('Performing average linkage clustering on Ks values.')
-        clustering = _average_linkage_clustering(pairwise_estimates['Ks'])
+        clustering = average_linkage_clustering(pairwise_estimates['Ks'])
 
     logging.debug('Clustering used for weighting: \n{}'.format(str(clustering)))
     return clustering, pairwise_distances
-
-
-def _average_linkage_clustering(pairwise_estimates):
-    """
-    Perform average linkage clustering using ``fastcluster``.
-    The first two columns of the output contain the node indices which are joined in each step.
-    The input nodes are labeled 0, . . . , N - 1, and the newly generated nodes have the labels N, . . . , 2N - 2.
-    The third column contains the distance between the two nodes at each step, ie. the
-    current minimal distance at the time of the merge. The fourth column counts the
-    number of points which comprise each new node.
-
-    :param pairwise_estimates: dictionary with data frames with pairwise estimates of Ks, Ka and Ka/Ks
-        (or at least Ks), as returned by :py:func:`analyse_family`.
-    :return: average linkage clustering as performed with ``fastcluster.average``.
-    """
-    clustering = fastcluster.average(pairwise_estimates)
-
-    return clustering
 
 
 def _calculate_weighted_ks(clustering, pairwise_estimates, pairwise_distances=None, family_id=None):

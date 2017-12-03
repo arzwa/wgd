@@ -1,11 +1,17 @@
 """
 Arthur Zwaenepoel - 2017
+
+Methods related to phylogenetic tree construction and processing.
+Mainly for the node-weighting approach used in constructing whole paranome Ks distributions,
+where currently weighting through average linkage clustering, FastTree ML trees and PhyML trees
+is supported.
 """
 from .utils import read_fasta, write_fasta
 from ete3 import Tree
 import subprocess
 import logging
 import numpy as np
+import fastcluster
 
 
 def write_sequential_phyml(sequence_dict, output_file):
@@ -51,7 +57,7 @@ def run_fasttree(msa, fasttree_path='FastTree'):
     Run FastTree on a protein multiple sequence alignment
 
     :param msa: file path to protein multiple sequence alignment in multifasta format
-    :param phyml_path: path to phyml executable
+    :param fasttree_path: path to FastTree executable
     :return: path to the tree file
     """
     tree_path = msa + '.nw'
@@ -69,19 +75,22 @@ def phylogenetic_tree_to_cluster_format(tree, pairwise_estimates):
     The first two columns indicate the nodes that are joined by the relevant node,
     the third indicates the distance (calculated from branch lengths in the case of a phylogenetic tree)
     and the fourth the number of leaves underneath the node.
+    Note that the trees are rooted using midpoint-rooting.
 
-    Example of the data structure (output from ``fastcluster``):
-    [[   3.            7.            4.26269776    2.        ]
-     [   0.            5.           26.75703595    2.        ]
-     [   2.            8.           56.16007598    2.        ]
-     [   9.           12.           78.91813609    3.        ]
-     [   1.           11.           87.91756528    3.        ]
-     [   4.            6.           93.04790855    2.        ]
-     [  14.           15.          114.71302639    5.        ]
-     [  13.           16.          137.94616373    8.        ]
-     [  10.           17.          157.29055403   10.        ]]
+    Example of the data structure (output from ``fastcluster``)::
+
+        [[   3.            7.            4.26269776    2.        ]
+         [   0.            5.           26.75703595    2.        ]
+         [   2.            8.           56.16007598    2.        ]
+         [   9.           12.           78.91813609    3.        ]
+         [   1.           11.           87.91756528    3.        ]
+         [   4.            6.           93.04790855    2.        ]
+         [  14.           15.          114.71302639    5.        ]
+         [  13.           16.          137.94616373    8.        ]
+         [  10.           17.          157.29055403   10.        ]]
 
     :param tree: newick tree file
+    :param pairwise_estimates: pairwise Ks estimates data frame (pandas) (only the index is used)
     :return: clustering data structure, pairwise distances dictionary
     """
     id_map = {pairwise_estimates.index[i]: i for i in range(len(pairwise_estimates))}
@@ -109,4 +118,19 @@ def phylogenetic_tree_to_cluster_format(tree, pairwise_estimates):
     return np.array(out), pairwise_distances
 
 
+def average_linkage_clustering(pairwise_estimates):
+    """
+    Perform average linkage clustering using ``fastcluster``.
+    The first two columns of the output contain the node indices which are joined in each step.
+    The input nodes are labeled 0, . . . , N - 1, and the newly generated nodes have the labels N, . . . , 2N - 2.
+    The third column contains the distance between the two nodes at each step, ie. the
+    current minimal distance at the time of the merge. The fourth column counts the
+    number of points which comprise each new node.
 
+    :param pairwise_estimates: dictionary with data frames with pairwise estimates of Ks, Ka and Ka/Ks
+        (or at least Ks), as returned by :py:func:`analyse_family`.
+    :return: average linkage clustering as performed with ``fastcluster.average``.
+    """
+    clustering = fastcluster.average(pairwise_estimates)
+
+    return clustering
