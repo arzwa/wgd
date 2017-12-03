@@ -252,7 +252,7 @@ def ks(gene_families, sequences, output_directory, protein_sequences, tmp_dir, m
 
 def ks_(gene_families, sequences, output_directory, protein_sequences=None, tmp_dir=None, muscle='muscle',
         codeml='codeml', times=1, min_msa_length=100, ignore_prefixes=False, one_v_one=False, preserve=False,
-        async=False, n_threads=4, weighting_method='alc'):
+        async=False, n_threads=4, weighting_method='fasttree'):
     """
     Ks distribution construction pipeline. For usage in the ``wgd`` CLI.
 
