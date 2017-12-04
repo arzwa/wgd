@@ -15,14 +15,14 @@ import datetime
 import pandas as pd
 import uuid
 import coloredlogs
-from wgd.utils import translate_cds, read_fasta, write_fasta, Genome
+from wgd.utils import translate_cds, read_fasta, write_fasta, Genome, can_i_run_software
 
 
 # CLI ENTRY POINT ------------------------------------------------------------------------------------------------------
 @click.group(context_settings={'help_option_names': ['-h', '--help']})
-@click.option('--verbose', type=click.Choice(['silent', 'info', 'debug']),
+@click.option('--verbosity','-v', type=click.Choice(['info', 'debug']),
               default='info', help="Verbosity level, default = info.")
-def cli(verbose):
+def cli(verbosity):
     """
     Welcome to the wgd command line interface!
 
@@ -43,7 +43,7 @@ def cli(verbose):
     Arthur Zwaenepoel - 2017
     (arzwa@psb.vib-ugent.be)
     """
-    coloredlogs.install(fmt='%(asctime)s: %(levelname)s\t%(message)s', level=verbose.upper(), stream=sys.stdout)
+    coloredlogs.install(fmt='%(asctime)s: %(levelname)s\t%(message)s', level=verbosity.upper(), stream=sys.stdout)
     pass
 
 
@@ -108,6 +108,16 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
     """
     # lazy imports
     from wgd.blast_mcl import all_v_all_blast, run_mcl_ava_2, ava_blast_to_abc, get_one_v_one_orthologs_rbh
+
+    # software checks
+    software = []
+    if not blast_results:
+        software += ['makeblastdb', 'blastp']
+    if mcl:
+        software.append('mcl')
+    if can_i_run_software(software) == 1:
+        logging.error('Could not run all required software, will exit here.')
+        return
 
     # input checks
     if not sequences and not blast_results:
@@ -217,6 +227,10 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
               help="Number of times to perform ML estimation (for more stable estimates). (Default = 1)")
 @click.option('--min_msa_length', '-mml', default=100,
               help="Minimum MSA length for Ks analysis. (Default = 100)")
+@click.option('--n_threads','-n', default=4,
+              help="Number of threads to use.")
+@click.option('--wm', type=click.Choice(['alc', 'fasttree', 'phyml']), default='fasttree',
+              help="Node weighting method, from fast to slow: alc, fasttree, phyml")
 @click.option('--ignore_prefixes', is_flag=True,
               help="Ignore gene ID prefixes (defined by the '|' symbol) in the gene families file.")
 @click.option('--one_v_one', is_flag=True,
@@ -225,18 +239,15 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
               help="Keep multiple sequence alignment and codeml output. ")
 @click.option('--async', is_flag=True, default=False,
               help="Use asyncio module for parallelization. (Default uses joblib)")
-@click.option('--n_threads','-n', default=4,
-              help="Number of threads to use.")
-@click.option('--weighting_method','-wm', type=click.Choice(['alc', 'fasttree', 'phyml']), default='alc',
-              help="Node weighting method, from fast to slow: alc, fasttree, phyml")
 def ks(gene_families, sequences, output_directory, protein_sequences, tmp_dir, muscle, codeml, times, min_msa_length,
-       ignore_prefixes, one_v_one, preserve, async, n_threads, weighting_method):
+       n_threads, wm, ignore_prefixes, one_v_one, preserve, async):
     """
     Ks distribution construction.
 
     Ks distribution construction for a set of paralogs or one-to-one orthologs.
     This implementation uses either the joblib or the asyncio library for parallellization.
-    Requires both ``codeml`` and ``muscle``.
+    Requires both ``codeml`` and ``muscle``. Depending on the weighting method chosen (``wm`` option)
+    ``phyml`` or ``FastTree`` might also be required.
 
     Example 1 - whole paranome Ks distribution:
 
@@ -247,7 +258,7 @@ def ks(gene_families, sequences, output_directory, protein_sequences, tmp_dir, m
         wgd ks -gf beaver_eagle -s castor_fiber.cds.fasta,aquila_chrysaetos.cds.fasta -o beaver_eagle_ks_out
     """
     ks_(gene_families, sequences, output_directory, protein_sequences, tmp_dir, muscle, codeml, times, min_msa_length,
-        ignore_prefixes, one_v_one, preserve, async, n_threads, weighting_method)
+        ignore_prefixes, one_v_one, preserve, async, n_threads, wm)
 
 
 def ks_(gene_families, sequences, output_directory, protein_sequences=None, tmp_dir=None, muscle='muscle',
@@ -275,6 +286,16 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None, tmp_
     # lazy imports
     from wgd.ks_distribution import ks_analysis_paranome, ks_analysis_one_vs_one
     from wgd.viz import plot_selection
+
+    # software check
+    software = [codeml, muscle]
+    if weighting_method == 'fasttree':
+        software.append('FastTree')
+    elif weighting_method == 'phyml':
+        software.append('phyml')
+    if can_i_run_software(software) == 1:
+        logging.error('Could not run all required external software, exit here.')
+        return 1
 
     # input check
     if not (gene_families and sequences):
@@ -396,9 +417,14 @@ def syn_(gff_file, families, output_dir, ks_distribution, keyword='mRNA', id_str
     :return: nothing at all
     """
     # lazy imports
-    from wgd.collinearity import write_families_file, write_gene_lists, write_config_adhore, run_adhore
-    from wgd.collinearity import get_anchor_pairs
+    from wgd.colinearity import write_families_file, write_gene_lists, write_config_adhore, run_adhore
+    from wgd.colinearity import get_anchor_pairs
     from wgd.viz import plot_selection, syntenic_dotplot, syntenic_dotplot_ks_colored
+
+    # software check
+    if can_i_run_software(['i-adhore']) == 1:
+        logging.error('Could not run all software, exit here.')
+        return 1
 
     # input check
     if not gff_file:

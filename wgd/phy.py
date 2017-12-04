@@ -98,6 +98,8 @@ def phylogenetic_tree_to_cluster_format(tree, pairwise_estimates):
 
     # midpoint rooting
     midpoint = t.get_midpoint_outgroup()
+    if not midpoint:  # midpoint = None when their are only two leaves
+        t.set_outgroup(list(t.get_leaves())[0])
     t.set_outgroup(midpoint)
 
     # algorithm for getting cluster data structure

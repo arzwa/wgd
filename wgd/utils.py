@@ -9,8 +9,38 @@ import warnings
 import random
 import numpy as np
 import json
+import subprocess
+import uuid
 from progressbar import ProgressBar
 from numpy import mean, std
+
+
+def can_i_run_software(software):
+    """
+    Test if external software is executable
+
+    :param software: list or string of executable(s)
+    :return: 1 (failure) or 0 (success)
+    """
+    if type(software) == str:
+        software = [software]
+    ex = 0
+    for s in software:
+        if s == 'codeml':
+            tmp_file = str(uuid.uuid4())
+            with open(tmp_file, 'w') as o:
+                o.write('test')
+            command = ['codeml', tmp_file]
+        else:
+            command = [s, '-h']
+        try:
+            subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        except FileNotFoundError:
+            logging.error('{} executable not found!'.format(s))
+            ex = 1
+        if s == 'codeml':
+            os.remove(tmp_file)
+    return ex
 
 
 def get_gfs_for_species(gene_family_dict, gene_pattern):
