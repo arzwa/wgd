@@ -13,6 +13,7 @@ import subprocess
 import uuid
 from progressbar import ProgressBar
 from numpy import mean, std
+from scipy.spatial.distance import cdist
 
 
 def can_i_run_software(software):
@@ -26,6 +27,7 @@ def can_i_run_software(software):
         software = [software]
     ex = 0
     for s in software:
+        # codeml needs input otherwise it prompts the user for input, so a dummy file is created
         if s == 'codeml':
             tmp_file = str(uuid.uuid4())
             with open(tmp_file, 'w') as o:
@@ -33,11 +35,14 @@ def can_i_run_software(software):
             command = ['codeml', tmp_file]
         else:
             command = [s, '-h']
+
         try:
             subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         except FileNotFoundError:
             logging.error('{} executable not found!'.format(s))
             ex = 1
+
+        # remove the dummy file
         if s == 'codeml':
             os.remove(tmp_file)
     return ex
@@ -46,6 +51,7 @@ def can_i_run_software(software):
 def get_gfs_for_species(gene_family_dict, gene_pattern):
     """
     Get non-singleton gene families for a species of interest
+
     :param gene_family_dict: gene family dictionary
     :param species: species of interest
     :return: dictionairy with gene families
@@ -64,6 +70,7 @@ def get_sequences(paralog_dict, sequences):
     """
     Fetch sequences from a fasta file or sequence dict and put them in a two level dictionairy
     {gene_family: {gene: seq, gene: seq, ...}, ...}
+
     :param paralog_dict:
     :return: two-level dictionairy
     """
@@ -86,9 +93,22 @@ def get_sequences(paralog_dict, sequences):
 
 def process_gene_families(gene_family_file, ignore_prefix=False):
     """
-    Processes a raw gene family file as e.g. from OrthoMCL into a generic dictionary structure
-    OrthoMCL raw file consists of one gene family per line, including tab separated gene IDs,
-    without gene family ID.
+    Processes a raw gene family file as e.g. from MCL output into a generic dictionary structure
+    MCL raw file consists of one gene family per line, including tab separated gene IDs, (without gene family ID !).
+
+    Example::
+
+        gene1   gene2   gene3   gene4   gene5
+        gene6   gene7   gene8
+        gene9   gene10  gene11
+        gene12
+
+    :param gene_family_file: file in the right raw gene family format (see above)
+    :param ignore_prefix: ignore prefixes (boolean), if the gene contains a '|' character
+        in default mode the part preceding the '|' is trimmed of, assuming the second part is the
+        gene ID. If ``ignore prefix = True`` this behavior is suppressed. So with ``ignore_prefix = False``
+        ``ath|AT1G10000`` becomes ``AT1G10000`` after processing, with ``ignore_prefix = True``
+        it remains ``ath|AT1G10000``
     """
     gene_family_dict = {}
     ID = 1
@@ -108,6 +128,7 @@ def process_gene_families(gene_family_file, ignore_prefix=False):
 def check_dirs(tmp_dir, output_dir, prompt, preserve):
     """
     Check directories needed
+
     :param tmp_dir: tmp directory
     :param output_dir: output directory
     :param prompt: prompt for overwrites (boolean)?
@@ -153,8 +174,14 @@ def check_dirs(tmp_dir, output_dir, prompt, preserve):
 
 def read_fasta(fasta_file, prefix=None, split_on_pipe=True, split_on_whitespace=True, raw=False):
     """
-    Generic fastafile reader
-    Returns a dictionairy {ID: sequence, ID: sequence, ...}.
+    Generic fastafile reader. Returns a dictionairy ``{ID: sequence, ID: sequence, ...}``.
+
+    :param fasta_file: fasta file
+    :param prefix: prefix to add to gene IDs
+    :param split_on_pipe: boolean, split gene IDs on '|' character
+    :param split_on_whitespace: boolean, split gene IDs on whitespace
+    :param raw: boolean, return raw fasta file (why would you want this?)
+    :return: sequence dictionary
     """
     sequence_dict = {}
 
@@ -206,7 +233,7 @@ def get_paralogs_fasta(input_fasta, selected_paralogs, output_fasta):
 
 def translate_cds(sequence_dict):
     """
-    Just another CDS to protein translater
+    Just another CDS to protein translater.
 
     :param sequence_dict: dictionary with gene IDs and CDS sequences
     :return: dictionary with gene IDs and proteins sequences
@@ -249,10 +276,10 @@ def translate_cds(sequence_dict):
 
 def write_fasta(seq_dict, output_file):
     """
-    Write a sequence dictionary to a fasta file
+    Write a sequence dictionary to a fasta file.
 
-    :param seq_dict:
-    :param output_file:
+    :param seq_dict: sequence dictionary, see :py:func:`read_fasta`
+    :param output_file: output file name
     """
     with open(output_file, 'w') as o:
         for key, val in seq_dict.items():
@@ -264,10 +291,10 @@ def filter_one_vs_one_families(gene_families, s1, s2):
     """
     Filter one-vs-one ortholog containing families for two given species.
 
-    :param gene_families:
-    :param s1:
-    :param s2:
-    :return:
+    :param gene_families: gene families fil in raw MCL format, see :py:func:`process_gene_families`
+    :param s1: species 1 prefix
+    :param s2: species 2 prefix
+    :return: one-vs.-one ortholog containing gene families.
     """
     to_delete = []
     for key, val in gene_families.items():
@@ -281,29 +308,6 @@ def filter_one_vs_one_families(gene_families, s1, s2):
     for k in to_delete:
         del gene_families[k]
     return gene_families
-
-
-def get_number_of_sp(genes):
-    """
-    Get the number of unique species in a list of gene IDs.
-    Will be approximate since it is based on the assumption that
-    the leading non-digit part identifies the species
-    (which is not always the case e.g. mitochondrial genes etc.)
-    """
-    p = re.compile('\D*')
-    gene_set = set()
-    for gene in genes:
-        m = p.match(gene)
-        if m:
-            gene_set.add(m.group())
-    return len(list(gene_set))
-
-
-def check_genes(genes, ids):
-    for gene in genes:
-        for id in ids:
-            if gene.startswith(id):
-                return True
 
 
 def _random_color():
@@ -338,6 +342,7 @@ class Genome:
 
         :param gff_file: input gff (PLAZA style)
         :param keyword: keyword for elements to parse out
+        :param id_string: keyword for retrieving the gene ID from the 9th column
         """
         self.parent_file = gff_file
 
@@ -369,6 +374,8 @@ class Genome:
     def karyotype_json(self, out_file='genome.json'):
         """
         Generate karyotype data file in json format (as per Circos.js/d3.js)
+
+        :param out_file: output file name
         """
         karyotype = []
         for chrom in self.gene_lists.keys():
@@ -385,9 +392,6 @@ class Genome:
 
         else:
             return json.dumps(karyotype)
-
-
-from scipy.spatial.distance import cdist
 
 
 class gaussian_kde(object):
