@@ -229,7 +229,7 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
               help="Minimum MSA length for Ks analysis. (Default = 100)")
 @click.option('--n_threads','-n', default=4,
               help="Number of threads to use.")
-@click.option('--wm', type=click.Choice(['alc', 'fasttree', 'phyml']), default='fasttree',
+@click.option('--wm', '-w', type=click.Choice(['alc', 'fasttree', 'phyml']), default='fasttree',
               help="Node weighting method, from fast to slow: alc, fasttree, phyml")
 @click.option('--ignore_prefixes', is_flag=True,
               help="Ignore gene ID prefixes (defined by the '|' symbol) in the gene families file.")
