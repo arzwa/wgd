@@ -598,7 +598,8 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequence
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option('--ks_distributions', '-ks', default=None,
-              help="Comma-separated Ks distribution csv files, as generated with `wgd ks`.")
+              help="Comma-separated Ks distribution csv files, or a directory containing these, "
+                   "as generated with `wgd ks`.")
 @click.option('--alpha_values', '-a', default=None,
               help="Comma-separated alpha values, optional.")
 @click.option('--colors', '-c', default=None,

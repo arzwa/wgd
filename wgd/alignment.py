@@ -5,13 +5,14 @@ Arthur Zwaenepoel - 2017
 Alignment related tools.
 
 Contribution note: It is trivial to add support for another aligner (besides MUSCLE and PRANK).
+Especially when it's for amino acid alignments (codon alignment as PRANK are a bit more involved).
 To add another aligner, only the :py:meth:`MSA.run_aligner` method should be modified to include
 the aligner of interest.
 """
 from .utils import read_fasta
 import os
 import subprocess
-import warnings
+import logging
 
 
 def _nucleotide_msa_from_protein_msa(protein_msa_sequences, nucleotide_sequences):
@@ -30,13 +31,13 @@ def _nucleotide_msa_from_protein_msa(protein_msa_sequences, nucleotide_sequences
         lengths.add(length)
 
     if len(list(lengths)) != 1:
-        warnings.warn("Not all sequences have the same length after alignment!")
+        logging.warning("Not all sequences have the same length after alignment!")
         return None
 
     for gene_ID in protein_msa_sequences.keys():
         protein = protein_msa_sequences[gene_ID]
         if gene_ID not in nucleotide_sequences.keys():
-            warnings.warn("Gene {} not found in nucleotide fasta!".format(gene_ID))
+            logging.warning("Gene {} not found in nucleotide fasta!".format(gene_ID))
         else:
             nucleotide = nucleotide_sequences[gene_ID]
             nucleotide_msa_sequence = ''
@@ -70,8 +71,8 @@ def _strip_gaps(msa_dict):
         for gene_ID in msa_dict.keys():
             # Prevent index error, raise warning instead
             if i >= len(msa_dict[gene_ID]):
-                warnings.warn("Seems there are unequal string lengths after alignment in "
-                              "this gene family. Occurred at gene: {}.".format(gene_ID))
+                logging.warning("Seems there are unequal string lengths after alignment in "
+                                "this gene family. Occurred at gene: {}.".format(gene_ID))
                 return None
             if msa_dict[gene_ID][i] == '-':
                 indices.add(i)
@@ -86,26 +87,33 @@ def _strip_gaps(msa_dict):
     return msa_dict
 
 
-def multiple_sequence_aligment_nucleotide(msa_protein, nucleotide_sequences, min_length=100):
+def multiple_sequence_aligment_nucleotide(msa_protein, nucleotide_sequences, min_length=100, aligner='muscle'):
     """
     Make a nucleotide multiple sequence alignment based on a protein alignment
 
     :param msa_protein: dictionary of aligned protein sequences
+    :param nucleotide_sequences: nucleotide sequence dictionary
+    :param min_length: minimum alignment length to consider
+    :param aligner: alignment program used, if prank, than msa_protein will be interpreted as codon alignment
     :return: nucleotide MSA, length, stripped length
     """
     if not os.path.isfile(msa_protein):
-        warnings.warn('MSA file {} not found!'.format(msa_protein))
+        logging.warning('MSA file {} not found!'.format(msa_protein))
         return None
 
+    # if aligner is prank than the family is codon aligned so no need to backtranslate
     protein_msa_sequences = read_fasta(msa_protein)
-    nucleotide_msa = _nucleotide_msa_from_protein_msa(protein_msa_sequences, nucleotide_sequences)
+    if aligner != 'prank':
+        nucleotide_msa = _nucleotide_msa_from_protein_msa(protein_msa_sequences, nucleotide_sequences)
+    else:
+        nucleotide_msa = protein_msa_sequences
 
     if nucleotide_msa is None:
         return None
 
     # get alignment statistics for quality control
     alignment_stats = pairwise_alignment_stats(nucleotide_msa)
-    l = len(list(nucleotide_msa.values())[0])
+    l_unstripped = len(list(nucleotide_msa.values())[0])
 
     # strip gaps
     nucleotide_msa = _strip_gaps(nucleotide_msa)
@@ -126,7 +134,7 @@ def multiple_sequence_aligment_nucleotide(msa_protein, nucleotide_sequences, min
             o.write(nucleotide_msa[gene_ID])
             o.write("\n")
 
-    return [msa_nuc, int(l), int(l_stripped), alignment_stats]
+    return [msa_nuc, int(l_unstripped), int(l_stripped), alignment_stats]
 
 
 def pairwise_alignment_stats(msa):
@@ -167,16 +175,14 @@ class MSA:
     Multiple multiple sequence alignment (MSA) programs python wrappers.
     Currently only runs with default settings.
 
-    :param muscle: path to Muscle executable, will by defult look for Muscle/PRANK in the system PATH
-    :param tmp: directory to store temporary files.
-
     Usage examples
 
     * Sequences in dictionary, output as dictionary::
 
-        >>> sequences = {'bear_gene': 'BEAR', 'hare_gene': 'HARE', 'yeast_gene': 'BEER'}
-        >>> msa = MSA()
-        >>> msa.run_aligner(sequences)
+        >>> MSA().run_aligner({'bear_gene': 'BEARBEAR', 'hare_gene': 'HAREERAH', 'yeast_gene': 'BEERBEARBEER'})
+        {'bear_gene': '----BEARBEAR-',
+        'hare_gene': '-----HAREERAH',
+        'yeast_gene': 'BEERBEARBEER-'}
 
     * Sequences in fasta file, output as fasta file ``(msa.fasta)``::
 
@@ -185,7 +191,7 @@ class MSA:
 
     """
 
-    def __init__(self, muscle='muscle', prank='prank', tmp='./tmp'):
+    def __init__(self, muscle='muscle', prank='prank', tmp='./'):
         """
         Muscle wrapper init.
 
@@ -230,7 +236,8 @@ class MSA:
 
         # error
         else:
-            raise FileNotFoundError('{} is not a dictionary and also not a file path'.format(sequences))
+            logging.error('{} is not a dictionary and also not a file path'.format(sequences))
+            return None
 
         target_path_msa = os.path.join(self.tmp, '{}.msa'.format(file_name))
 
@@ -238,7 +245,7 @@ class MSA:
             subprocess.run([self.muscle, '-quiet', '-in', target_path_fasta, '-out', target_path_msa],
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         elif aligner == 'prank':
-            subprocess.run([self.prank, '-d=' + target_path_fasta, '-o=' + target_path_msa],
+            subprocess.run([self.prank, '-codon', '-d=' + target_path_fasta, '-o=' + target_path_msa],
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             subprocess.run(['mv', '{}.best.fas'.format(target_path_msa), target_path_msa])
 
