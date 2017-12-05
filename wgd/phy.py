@@ -46,8 +46,8 @@ def run_phyml(msa, phyml_path='phyml'):
 
     logging.debug('Running PhyML: {}'.format(' '.join(command)))
     subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    subprocess.run(['rm', msa_phyml, '{}_phyml_stats*'.format(msa_phyml)])
-    subprocess.run(['mv', '{}_phyml_tree*'.format(msa_phyml), tree_path])
+    subprocess.run(['rm', msa_phyml, '{}_phyml_stats*'.format(msa_phyml)], shell=True)
+    subprocess.run(['mv', '{}_phyml_tree*'.format(msa_phyml), tree_path], shell=True)
 
     return tree_path
 
