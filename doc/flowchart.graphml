@@ -112,10 +112,10 @@
           </y:NodeLabel>
           <y:StyleProperties>
             <y:Property class="java.awt.Color" name="com.yworks.bpmn.icon.line.color" value="#000000"/>
+            <y:Property class="com.yworks.yfiles.bpmn.view.DataObjectTypeEnum" name="com.yworks.bpmn.dataObjectType" value="DATA_OBJECT_TYPE_OUTPUT"/>
             <y:Property class="java.awt.Color" name="com.yworks.bpmn.icon.fill2" value="#d4d4d4cc"/>
             <y:Property class="java.awt.Color" name="com.yworks.bpmn.icon.fill" value="#ffffffe6"/>
             <y:Property class="com.yworks.yfiles.bpmn.view.BPMNTypeEnum" name="com.yworks.bpmn.type" value="ARTIFACT_TYPE_DATA_OBJECT"/>
-            <y:Property class="com.yworks.yfiles.bpmn.view.DataObjectTypeEnum" name="com.yworks.bpmn.dataObjectType" value="DATA_OBJECT_TYPE_OUTPUT"/>
           </y:StyleProperties>
         </y:GenericNode>
       </data>
@@ -377,14 +377,14 @@ comparative visualization<y:LabelModel>
         <y:ProxyAutoBoundsNode>
           <y:Realizers active="0">
             <y:GroupNode>
-              <y:Geometry height="612.0737500000005" width="651.5" x="259.0" y="104.55968749999988"/>
+              <y:Geometry height="612.0737500000005" width="654.0" x="259.0" y="104.55968749999988"/>
               <y:Fill color="#F5F5F5" transparent="false"/>
               <y:BorderStyle hasColor="false" type="dashed" width="1.0"/>
-              <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#EBEBEB" borderDistance="0.0" fontFamily="Monospaced" fontSize="15" fontStyle="plain" hasLineColor="false" height="21.4609375" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="651.5" x="0.0" y="0.0">wgd pipelines</y:NodeLabel>
+              <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#EBEBEB" borderDistance="0.0" fontFamily="Monospaced" fontSize="15" fontStyle="plain" hasLineColor="false" height="21.4609375" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="654.0" x="0.0" y="0.0">wgd pipelines</y:NodeLabel>
               <y:Shape type="roundrectangle"/>
               <y:State closed="false" closedHeight="50.0" closedWidth="50.0" innerGraphDisplayEnabled="false"/>
               <y:Insets bottom="15" bottomF="15.0" left="15" leftF="15.0" right="15" rightF="15.0" top="15" topF="15.0"/>
-              <y:BorderInsets bottom="0" bottomF="0.0" left="0" leftF="0.0" right="0" rightF="0.0" top="0" topF="0.0"/>
+              <y:BorderInsets bottom="0" bottomF="0.0" left="0" leftF="0.0" right="3" rightF="2.5" top="0" topF="0.0"/>
             </y:GroupNode>
             <y:GroupNode>
               <y:Geometry height="50.0" width="50.0" x="0.0" y="60.0"/>
@@ -556,14 +556,14 @@ comparative visualization<y:LabelModel>
             <y:ProxyAutoBoundsNode>
               <y:Realizers active="0">
                 <y:GroupNode>
-                  <y:Geometry height="170.57593750000024" width="621.25" x="274.0" y="331.5390625"/>
+                  <y:Geometry height="170.57593750000024" width="619.7965000000004" x="274.0" y="331.5390625"/>
                   <y:Fill color="#F5F5F5" transparent="false"/>
                   <y:BorderStyle hasColor="false" type="line" width="1.0"/>
-                  <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#EBEBEB" borderDistance="0.0" fontFamily="Monospaced" fontSize="15" fontStyle="plain" hasLineColor="false" height="21.4609375" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="621.25" x="0.0" y="0.0">wgd ks</y:NodeLabel>
+                  <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#EBEBEB" borderDistance="0.0" fontFamily="Monospaced" fontSize="15" fontStyle="plain" hasLineColor="false" height="21.4609375" horizontalTextPosition="center" iconTextGap="4" modelName="internal" modelPosition="t" textColor="#000000" verticalTextPosition="bottom" visible="true" width="619.7965000000004" x="0.0" y="0.0">wgd ks</y:NodeLabel>
                   <y:Shape type="roundrectangle"/>
                   <y:State closed="false" closedHeight="50.0" closedWidth="50.0" innerGraphDisplayEnabled="false"/>
                   <y:Insets bottom="15" bottomF="15.0" left="15" leftF="15.0" right="15" rightF="15.0" top="15" topF="15.0"/>
-                  <y:BorderInsets bottom="0" bottomF="0.0" left="0" leftF="0.0" right="0" rightF="0.0" top="9" topF="8.75"/>
+                  <y:BorderInsets bottom="0" bottomF="0.0" left="0" leftF="0.0" right="7" rightF="7.296500000000378" top="22" topF="22.05750000000012"/>
                 </y:GroupNode>
                 <y:GroupNode>
                   <y:Geometry height="50.0" width="50.0" x="0.0" y="60.0"/>
@@ -582,10 +582,10 @@ comparative visualization<y:LabelModel>
             <node id="n10::n1::n0">
               <data key="d6">
                 <y:ShapeNode>
-                  <y:Geometry height="30.0" width="100.5" x="692.75" y="390.0575000000001"/>
+                  <y:Geometry height="30.0" width="80.5" x="775.75" y="390.0575000000001"/>
                   <y:Fill hasColor="false" transparent="false"/>
                   <y:BorderStyle color="#000000" raised="false" type="line" width="1.0"/>
-                  <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="LM Sans 8" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="14.902008056640625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="73.68170166015625" x="13.409149169921875" y="7.5489959716796875">Protein MSA<y:LabelModel>
+                  <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="LM Sans 8" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="14.902008056640625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="73.68170166015625" x="3.409149169921875" y="7.5489959716796875">Protein MSA<y:LabelModel>
                       <y:SmartNodeLabelModel distance="4.0"/>
                     </y:LabelModel>
                     <y:ModelParameter>
@@ -599,7 +599,7 @@ comparative visualization<y:LabelModel>
             <node id="n10::n1::n1">
               <data key="d6">
                 <y:ShapeNode>
-                  <y:Geometry height="30.0" width="57.0" x="823.25" y="376.75"/>
+                  <y:Geometry height="30.0" width="57.0" x="814.5" y="423.5862500000002"/>
                   <y:Fill hasColor="false" transparent="false"/>
                   <y:BorderStyle hasColor="false" raised="false" type="line" width="1.0"/>
                   <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Monospaced" fontSize="12" fontStyle="italic" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="47.34765625" x="4.826171875" y="6.015625">muscle<y:LabelModel>
@@ -616,10 +616,10 @@ comparative visualization<y:LabelModel>
             <node id="n10::n1::n2">
               <data key="d6">
                 <y:ShapeNode>
-                  <y:Geometry height="30.0" width="100.5" x="692.75" y="457.11500000000024"/>
+                  <y:Geometry height="30.0" width="80.5" x="775.75" y="457.11500000000024"/>
                   <y:Fill hasColor="false" transparent="false"/>
                   <y:BorderStyle color="#000000" raised="false" type="line" width="1.0"/>
-                  <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="LM Sans 8" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="14.902008056640625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="73.68170166015625" x="13.409149169921875" y="7.5489959716796875">Protein MSA<y:LabelModel>
+                  <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="LM Sans 8" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="14.902008056640625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="73.68170166015625" x="3.409149169921875" y="7.5489959716796875">Protein MSA<y:LabelModel>
                       <y:SmartNodeLabelModel distance="4.0"/>
                     </y:LabelModel>
                     <y:ModelParameter>
@@ -633,10 +633,10 @@ comparative visualization<y:LabelModel>
             <node id="n10::n1::n3">
               <data key="d6">
                 <y:ShapeNode>
-                  <y:Geometry height="30.0" width="100.5" x="570.5" y="390.0575000000001"/>
+                  <y:Geometry height="30.0" width="80.5" x="660.75" y="390.0575000000001"/>
                   <y:Fill hasColor="false" transparent="false"/>
                   <y:BorderStyle color="#000000" raised="false" type="line" width="1.0"/>
-                  <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="LM Sans 8" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="14.902008056640625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="68.98028564453125" x="15.759857177734375" y="7.5489959716796875">Codon MSA<y:LabelModel>
+                  <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="LM Sans 8" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="14.902008056640625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="68.98028564453125" x="5.759857177734375" y="7.5489959716796875">Codon MSA<y:LabelModel>
                       <y:SmartNodeLabelModel distance="4.0"/>
                     </y:LabelModel>
                     <y:ModelParameter>
@@ -650,10 +650,10 @@ comparative visualization<y:LabelModel>
             <node id="n10::n1::n4">
               <data key="d6">
                 <y:ShapeNode>
-                  <y:Geometry height="30.0" width="100.5" x="570.5" y="457.11500000000024"/>
+                  <y:Geometry height="30.0" width="80.5" x="660.75" y="457.11500000000024"/>
                   <y:Fill hasColor="false" transparent="false"/>
                   <y:BorderStyle color="#000000" raised="false" type="line" width="1.0"/>
-                  <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="LM Sans 8" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="14.902008056640625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="68.98028564453125" x="15.759857177734375" y="7.5489959716796875">Codon MSA<y:LabelModel>
+                  <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="LM Sans 8" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="14.902008056640625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="68.98028564453125" x="5.759857177734375" y="7.5489959716796875">Codon MSA<y:LabelModel>
                       <y:SmartNodeLabelModel distance="4.0"/>
                     </y:LabelModel>
                     <y:ModelParameter>
@@ -667,10 +667,10 @@ comparative visualization<y:LabelModel>
             <node id="n10::n1::n5">
               <data key="d6">
                 <y:ShapeNode>
-                  <y:Geometry height="30.0" width="100.5" x="383.75" y="457.11500000000024"/>
+                  <y:Geometry height="30.0" width="73.0" x="551.0" y="457.11500000000024"/>
                   <y:Fill hasColor="false" transparent="false"/>
                   <y:BorderStyle color="#000000" raised="false" type="line" width="1.0"/>
-                  <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="LM Sans 8" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="20.0" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="60.0" x="20.25" y="5.0">&lt;html&gt;&lt;i&gt;K&lt;sub&gt;S&lt;/sub&gt;, K&lt;sub&gt;A&lt;/sub&gt;, &amp;omega;&lt;/html&gt;<y:LabelModel>
+                  <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="LM Sans 8" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="20.0" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="60.0" x="6.5" y="5.0">&lt;html&gt;&lt;i&gt;K&lt;sub&gt;S&lt;/sub&gt;, K&lt;sub&gt;A&lt;/sub&gt;, &amp;omega;&lt;/html&gt;<y:LabelModel>
                       <y:SmartNodeLabelModel distance="4.0"/>
                     </y:LabelModel>
                     <y:ModelParameter>
@@ -701,7 +701,7 @@ comparative visualization<y:LabelModel>
             <node id="n10::n1::n7">
               <data key="d6">
                 <y:ShapeNode>
-                  <y:Geometry height="30.0" width="57.0" x="498.875" y="376.75"/>
+                  <y:Geometry height="30.0" width="57.0" x="594.125" y="423.5862500000002"/>
                   <y:Fill hasColor="false" transparent="false"/>
                   <y:BorderStyle hasColor="false" raised="false" type="line" width="1.0"/>
                   <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Monospaced" fontSize="12" fontStyle="italic" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="47.34765625" x="4.826171875" y="6.015625">codeml<y:LabelModel>
@@ -718,10 +718,10 @@ comparative visualization<y:LabelModel>
             <node id="n10::n1::n8">
               <data key="d6">
                 <y:ShapeNode>
-                  <y:Geometry height="30.0" width="100.5" x="383.75" y="390.0575000000001"/>
+                  <y:Geometry height="30.0" width="73.0" x="551.0" y="390.0575000000001"/>
                   <y:Fill hasColor="false" transparent="false"/>
                   <y:BorderStyle color="#000000" raised="false" type="line" width="1.0"/>
-                  <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="LM Sans 8" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="20.0" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="60.0" x="20.25" y="5.0">&lt;html&gt;&lt;i&gt;K&lt;sub&gt;S&lt;/sub&gt;, K&lt;sub&gt;A&lt;/sub&gt;, &amp;omega;&lt;/html&gt;<y:LabelModel>
+                  <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="LM Sans 8" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="20.0" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="60.0" x="6.5" y="5.0">&lt;html&gt;&lt;i&gt;K&lt;sub&gt;S&lt;/sub&gt;, K&lt;sub&gt;A&lt;/sub&gt;, &amp;omega;&lt;/html&gt;<y:LabelModel>
                       <y:SmartNodeLabelModel distance="4.0"/>
                     </y:LabelModel>
                     <y:ModelParameter>
@@ -729,6 +729,23 @@ comparative visualization<y:LabelModel>
                     </y:ModelParameter>
                   </y:NodeLabel>
                   <y:Shape type="roundrectangle"/>
+                </y:ShapeNode>
+              </data>
+            </node>
+            <node id="n10::n1::n9">
+              <data key="d6">
+                <y:ShapeNode>
+                  <y:Geometry height="30.0" width="57.0" x="464.0" y="423.5862500000002"/>
+                  <y:Fill hasColor="false" transparent="false"/>
+                  <y:BorderStyle hasColor="false" raised="false" type="line" width="1.0"/>
+                  <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Monospaced" fontSize="12" fontStyle="italic" hasBackgroundColor="false" hasLineColor="false" height="17.96875" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#000000" verticalTextPosition="bottom" visible="true" width="134.04296875" x="-38.521484375" y="6.015625">ALC|FastTree|PhyML<y:LabelModel>
+                      <y:SmartNodeLabelModel distance="4.0"/>
+                    </y:LabelModel>
+                    <y:ModelParameter>
+                      <y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/>
+                    </y:ModelParameter>
+                  </y:NodeLabel>
+                  <y:Shape type="rectangle"/>
                 </y:ShapeNode>
               </data>
             </node>
@@ -1046,8 +1063,8 @@ comparative visualization<y:LabelModel>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="918.6715000000004" y="213.48156249999988"/>
             <y:Point x="918.6715000000004" y="439.3150000000002"/>
-            <y:Point x="849.0715000000004" y="439.3150000000002"/>
-            <y:Point x="822.2280000000004" y="400.8"/>
+            <y:Point x="900.0715000000004" y="439.3150000000002"/>
+            <y:Point x="885.2280000000004" y="400.8"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -1062,8 +1079,8 @@ comparative visualization<y:LabelModel>
             <y:Point x="918.6715000000004" y="213.48156249999988"/>
             <y:Point x="918.6715000000004" y="279.2"/>
             <y:Point x="918.6715000000004" y="439.3150000000002"/>
-            <y:Point x="849.0715000000004" y="439.3150000000002"/>
-            <y:Point x="825.4280000000005" y="472.11500000000024"/>
+            <y:Point x="900.0715000000004" y="439.3150000000002"/>
+            <y:Point x="888.4280000000005" y="472.11500000000024"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -1117,7 +1134,7 @@ comparative visualization<y:LabelModel>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="259.75" y="213.48156249999988"/>
             <y:Point x="259.75" y="364.0575000000001"/>
-            <y:Point x="620.75" y="364.0575000000001"/>
+            <y:Point x="701.0" y="364.0575000000001"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
@@ -1415,15 +1432,14 @@ comparative visualization<y:LabelModel>
       </data>
     </edge>
     <edge id="n10::e3" source="n10::n0::n3" target="n10::n1::n0">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="918.6715000000004" y="279.4815624999999"/>
             <y:Point x="918.6715000000004" y="326.4"/>
             <y:Point x="918.6715000000004" y="439.3150000000002"/>
-            <y:Point x="849.0715000000004" y="439.3150000000002"/>
-            <y:Point x="822.2280000000004" y="400.8"/>
+            <y:Point x="900.0715000000004" y="439.3150000000002"/>
+            <y:Point x="885.2280000000004" y="400.8"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>

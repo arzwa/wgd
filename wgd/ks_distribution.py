@@ -8,7 +8,7 @@ Implemented in parallelized fashion. Please find the functions for node-based we
 
 # IMPORTS
 from .codeml import Codeml
-from .alignment import Muscle, multiple_sequence_aligment_nucleotide
+from .alignment import MSA, multiple_sequence_aligment_nucleotide
 from .utils import process_gene_families, get_sequences
 from .phy import run_phyml, phylogenetic_tree_to_cluster_format, run_fasttree, average_linkage_clustering
 from joblib import Parallel, delayed
@@ -151,11 +151,11 @@ def add_alignment_stats(df, stats, l, l_stripped):
     return df
 
 
-def analyse_family(family_id, family, nucleotide, tmp='./', muscle='muscle', codeml='codeml', preserve=False, times=1,
-                   min_length=100, method='alc'):
+def analyse_family(family_id, family, nucleotide, tmp='./', muscle='muscle', codeml='codeml', prank='prank',
+                   preserve=False, times=1, min_length=100, method='alc', aligner='muscle'):
     """
     Wrapper function for the analysis of one paralog family. Performs alignment with
-    :py:meth:`alignment.Muscle.run_muscle` and codeml analysis with :py:meth:`codeml.Codeml.run_codeml`.
+    :py:meth:`alignment.MSA.run_aligner` and codeml analysis with :py:meth:`codeml.Codeml.run_codeml`.
     Subsequently also clustering with :py:func:`_average_linkage_clustering` is performed and weighted Ks, Kn and w
     values are calculated using :py:func:`_calculate_weighted_ks`.
 
@@ -169,6 +169,7 @@ def analyse_family(family_id, family, nucleotide, tmp='./', muscle='muscle', cod
     :param times: number of times to perform ML estimation of Ks, Ka and omega values
     :param min_length: minimum length of the stripped multiple sequence alignment
     :param method: weighting method, from fast to slow: ``alc``, ``fasttree``, ``phyml``
+    :param aligner: alignment program
     :return: ``csv`` file with results for the paralog family of interest
     """
     if os.path.isfile(os.path.join(tmp, family_id + '.Ks')):
@@ -182,10 +183,10 @@ def analyse_family(family_id, family, nucleotide, tmp='./', muscle='muscle', cod
     logging.info('Performing analysis on gene family {}'.format(family_id))
 
     codeml = Codeml(codeml=codeml, tmp=tmp, id=family_id)
-    muscle = Muscle(muscle=muscle, tmp=tmp)
+    align = MSA(muscle=muscle, tmp=tmp, prank=prank)
 
     logging.debug('Performing multiple sequence alignment (MUSCLE) on gene family {}.'.format(family_id))
-    msa_path_protein = muscle.run_muscle(family, file=family_id)
+    msa_path_protein = align.run_aligner(family, file=family_id, aligner=aligner)
     msa_out = multiple_sequence_aligment_nucleotide(msa_path_protein, nucleotide, min_length=min_length)
     if not msa_out:
         logging.warning('Did not analyze gene family {0}, stripped MSA too short (< {1}).'.format(
@@ -209,11 +210,11 @@ def analyse_family(family_id, family, nucleotide, tmp='./', muscle='muscle', cod
         out.to_csv(os.path.join(tmp, family_id + '.Ks'))
 
 
-def analyse_family_ortholog(family_id, family, nucleotide, tmp='./', muscle='muscle', codeml='codeml',
-                            preserve=False, times=1, min_length=100):
+def analyse_family_ortholog(family_id, family, nucleotide, tmp='./', muscle='muscle', codeml='codeml', prank='prank',
+                            preserve=False, times=1, min_length=100, aligner='muscle'):
     """
     Wrapper function for the analysis of one paralog family. Performs alignment with
-    :py:meth:`alignment.Muscle.run_muscle` and codeml analysis with :py:meth:`codeml.Codeml.run_codeml`.
+    :py:meth:`alignment.MSA.run_aligner` and codeml analysis with :py:meth:`codeml.Codeml.run_codeml`.
     Subsequently also clustering with :py:func:`_average_linkage_clustering` is performed and weighted Ks, Kn and w
     values are calculated using :py:func:`_calculate_weighted_ks`.
 
@@ -226,6 +227,7 @@ def analyse_family_ortholog(family_id, family, nucleotide, tmp='./', muscle='mus
     :param preserve: preserve intermediate files
     :param times: number of times to perform ML estimation of Ks, Ka and omega values
     :param min_length: minimum length of the stripped multiple sequence alignment
+    :param aligner: alignment program
     :return: ``csv`` file with results for the paralog family of interest
     """
     if os.path.isfile(os.path.join(tmp, family_id + '.Ks')):
@@ -239,11 +241,11 @@ def analyse_family_ortholog(family_id, family, nucleotide, tmp='./', muscle='mus
     logging.info('Performing analysis on gene family {}'.format(family_id))
 
     codeml = Codeml(codeml=codeml, tmp=tmp, id=family_id)
-    muscle = Muscle(muscle=muscle, tmp=tmp)
+    align = MSA(muscle=muscle, tmp=tmp, prank=prank)
 
     logging.debug('Performing multiple sequence analysis (MUSCLE) on gene family {}.'.format(family_id))
-    msa_path = muscle.run_muscle(family, file=family_id)
-    msa_path , l, l_stripped, alignment_stats = multiple_sequence_aligment_nucleotide(
+    msa_path = align.run_aligner(family, aligner=aligner, file=family_id)
+    msa_path, l, l_stripped, alignment_stats = multiple_sequence_aligment_nucleotide(
         msa_path, nucleotide, min_length=min_length)
 
     if not msa_path:
@@ -266,8 +268,8 @@ def analyse_family_ortholog(family_id, family, nucleotide, tmp='./', muscle='mus
 
 
 def ks_analysis_one_vs_one(nucleotide_sequences, protein_sequences, gene_families, tmp_dir='./tmp',
-                           output_dir='./ks.out', muscle_path='muscle', codeml_path='codeml',
-                           preserve=True, times=1, n_cores=4, async=False, min_length=100):
+                           output_dir='./ks.out', muscle_path='muscle', codeml_path='codeml', prank_path='prank',
+                           aligner='muscle', preserve=True, times=1, n_cores=4, async=False, min_length=100):
     """
     Calculate a Ks distribution for one vs. one orthologs.
 
@@ -294,15 +296,16 @@ def ks_analysis_one_vs_one(nucleotide_sequences, protein_sequences, gene_familie
     if async:
         loop = asyncio.get_event_loop()
         tasks = [loop.run_in_executor(None, analyse_family_ortholog, family, protein[family],
-                                      nucleotide_sequences, tmp_dir, muscle_path,
-                                      codeml_path, preserve, times, min_length) for family in protein.keys()]
+                                                         nucleotide_sequences, tmp_dir, muscle_path,
+                                                         codeml_path, prank_path, preserve, times,
+                                                         min_length, aligner) for family in protein.keys()]
         loop.run_until_complete(asyncio.gather(*tasks))
 
     else:
         Parallel(n_jobs=n_cores)(delayed(analyse_family)(family, protein[family],
                                                          nucleotide_sequences, tmp_dir, muscle_path,
-                                                         codeml_path, preserve, times,
-                                                         min_length) for family in protein.keys())
+                                                         codeml_path, prank_path, preserve, times,
+                                                         min_length, aligner) for family in protein.keys())
     logging.info('Analysis done')
 
     # preserve intermediate data if asked
@@ -342,8 +345,8 @@ def ks_analysis_one_vs_one(nucleotide_sequences, protein_sequences, gene_familie
 
 
 def ks_analysis_paranome(nucleotide_sequences, protein_sequences, paralogs, tmp_dir='./tmp', output_dir='./ks.out',
-                         muscle_path='muscle', codeml_path='codeml', preserve=True, times=1,
-                         ignore_prefixes=False, n_cores=4, async=False, min_length=100, method='alc'):
+                         muscle_path='muscle', codeml_path='codeml', prank_path='prank', preserve=True, times=1,
+                         ignore_prefixes=False, n_cores=4, async=False, min_length=100, method='alc', aligner='muscle'):
     """
     Calculate a Ks distribution for a whole paranome.
 
@@ -372,15 +375,16 @@ def ks_analysis_paranome(nucleotide_sequences, protein_sequences, paralogs, tmp_
     if async:
         loop = asyncio.get_event_loop()
         tasks = [loop.run_in_executor(None, analyse_family, family, protein[family],
-                                      nucleotide_sequences, tmp_dir, muscle_path,
-                                      codeml_path, preserve, times, min_length) for family in protein.keys()]
+                                                         nucleotide_sequences, tmp_dir, muscle_path,
+                                                         codeml_path, prank_path, preserve, times,
+                                                         min_length, method, aligner) for family in protein.keys()]
 
         loop.run_until_complete(asyncio.gather(*tasks))
     else:
         Parallel(n_jobs=n_cores)(delayed(analyse_family)(family, protein[family],
                                                          nucleotide_sequences, tmp_dir, muscle_path,
-                                                         codeml_path, preserve, times,
-                                                         min_length, method) for family in protein.keys())
+                                                         codeml_path, prank_path, preserve, times,
+                                                         min_length, method, aligner) for family in protein.keys())
     logging.info('Analysis done')
 
     # preserve intermediate data if asked

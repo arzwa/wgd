@@ -2,7 +2,11 @@
 """
 Arthur Zwaenepoel - 2017
 
-Alignment related tools
+Alignment related tools.
+
+Contribution note: It is trivial to add support for another aligner (besides MUSCLE and PRANK).
+To add another aligner, only the :py:meth:`MSA.run_aligner` method should be modified to include
+the aligner of interest.
 """
 from .utils import read_fasta
 import os
@@ -158,12 +162,12 @@ def hamming_distance(s1, s2):
     return sum(el1 != el2 for el1, el2 in zip(s1, s2))
 
 
-class Muscle:
+class MSA:
     """
-    Muscle (multiple sequence alignment program) python wrapper.
+    Multiple multiple sequence alignment (MSA) programs python wrappers.
     Currently only runs with default settings.
 
-    :param muscle: path to Muscle executable, will by defult look for Muscle in the system PATH
+    :param muscle: path to Muscle executable, will by defult look for Muscle/PRANK in the system PATH
     :param tmp: directory to store temporary files.
 
     Usage examples
@@ -171,35 +175,38 @@ class Muscle:
     * Sequences in dictionary, output as dictionary::
 
         >>> sequences = {'bear_gene': 'BEAR', 'hare_gene': 'HARE', 'yeast_gene': 'BEER'}
-        >>> msa = Muscle()
-        >>> msa.run_muscle(sequences)
+        >>> msa = MSA()
+        >>> msa.run_aligner(sequences)
 
     * Sequences in fasta file, output as fasta file ``(msa.fasta)``::
 
-        >>> msa = Muscle()
-        >>> msa.run_muscle('./sequences.fasta', './msa.fasta')
+        >>> msa = MSA()
+        >>> msa.run_aligner('./sequences.fasta', './msa.fasta')
 
     """
 
-    def __init__(self, muscle='muscle', tmp='./tmp'):
+    def __init__(self, muscle='muscle', prank='prank', tmp='./tmp'):
         """
         Muscle wrapper init.
 
         :param muscle: path to Muscle executable, will by defult look for Muscle in the system PATH
+        :param prank: path to PRANK executable
         :param tmp: directory to store temporary files.
         """
         self.muscle = muscle
+        self.prank = prank
         self.tmp = tmp
 
         if not os.path.isdir(self.tmp):
             raise NotADirectoryError('tmp directory {} not found!'.format(self.tmp))
 
-    def run_muscle(self, sequences, file=None):
+    def run_aligner(self, sequences, aligner='muscle', file=None):
         """
-        Run MUSCLE on sequences stored in dictionary
+        Run MSA on sequences stored in dictionary with a particular aligner
 
         :param sequences: dictionary of sequences or input fasta file
         :param file: output file name, if not provided output is dictionary
+        :param aligner: alignment software to use (prank|muscle)
         :return: MSA file
         """
         if not file:
@@ -226,8 +233,15 @@ class Muscle:
             raise FileNotFoundError('{} is not a dictionary and also not a file path'.format(sequences))
 
         target_path_msa = os.path.join(self.tmp, '{}.msa'.format(file_name))
-        subprocess.run([self.muscle, '-quiet', '-in', target_path_fasta, '-out', target_path_msa],
-                       stdout=subprocess.PIPE)
+
+        if aligner == 'muscle':
+            subprocess.run([self.muscle, '-quiet', '-in', target_path_fasta, '-out', target_path_msa],
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        elif aligner == 'prank':
+            subprocess.run([self.prank, '-d=' + target_path_fasta, '-o=' + target_path_msa],
+                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.run(['mv', '{}.best.fas'.format(target_path_msa), target_path_msa])
+
         subprocess.run(['rm', target_path_fasta], stdout=subprocess.PIPE)
 
         if not file:

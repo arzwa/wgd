@@ -219,10 +219,8 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
                    "commas.")
 @click.option('--tmp_dir', '-tmp', default=None,
               help="Path to store temporary files. (Default = automatically generated unique id)")
-@click.option('--muscle', '-m', default='muscle',
-              help="Absolute path to muscle executable, not necessary if in PATH environment variable.")
-@click.option('--codeml', '-c', default='codeml',
-              help="Absolute path to codeml executable, not necessary if in PATH environment variable.")
+@click.option('--aligner', '-a', default='muscle', type=click.Choice(['muscle', 'prank']),
+              help='Aligner program to use, from fast to slow: muscle, prank. (Default = muscle)')
 @click.option('--times', '-t', default=1,
               help="Number of times to perform ML estimation (for more stable estimates). (Default = 1)")
 @click.option('--min_msa_length', '-mml', default=100,
@@ -239,7 +237,7 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
               help="Keep multiple sequence alignment and codeml output. ")
 @click.option('--async', is_flag=True, default=False,
               help="Use asyncio module for parallelization. (Default uses joblib)")
-def ks(gene_families, sequences, output_directory, protein_sequences, tmp_dir, muscle, codeml, times, min_msa_length,
+def ks(gene_families, sequences, output_directory, protein_sequences, tmp_dir, aligner, times, min_msa_length,
        n_threads, wm, ignore_prefixes, one_v_one, preserve, async):
     """
     Ks distribution construction.
@@ -257,13 +255,14 @@ def ks(gene_families, sequences, output_directory, protein_sequences, tmp_dir, m
 
         wgd ks -gf beaver_eagle -s castor_fiber.cds.fasta,aquila_chrysaetos.cds.fasta -o beaver_eagle_ks_out
     """
-    ks_(gene_families, sequences, output_directory, protein_sequences, tmp_dir, muscle, codeml, times, min_msa_length,
-        ignore_prefixes, one_v_one, preserve, async, n_threads, wm)
+    ks_(gene_families, sequences, output_directory, protein_sequences, tmp_dir, aligner, muscle='muscle', codeml='codeml',
+        times=times, min_msa_length=min_msa_length, ignore_prefixes=ignore_prefixes, one_v_one=one_v_one,
+        preserve=preserve, async=async, n_threads=n_threads, weighting_method=wm)
 
 
-def ks_(gene_families, sequences, output_directory, protein_sequences=None, tmp_dir=None, muscle='muscle',
-        codeml='codeml', times=1, min_msa_length=100, ignore_prefixes=False, one_v_one=False, preserve=False,
-        async=False, n_threads=4, weighting_method='fasttree'):
+def ks_(gene_families, sequences, output_directory, protein_sequences=None, tmp_dir=None, aligner='muscle',
+        muscle='muscle', codeml='codeml', times=1, min_msa_length=100, ignore_prefixes=False, one_v_one=False,
+        preserve=False, async=False, n_threads=4, weighting_method='fasttree'):
     """
     Ks distribution construction pipeline. For usage in the ``wgd`` CLI.
 
@@ -279,8 +278,9 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None, tmp_
     :param ignore_prefixes: ignore prefixes defined by '|' in gene IDs
     :param one_v_one: boolean, one-vs.-one ortholog analysis
     :param preserve: boolean, preserve codeml output files and multiple sequence alignments?
-    :param async: use the async library for parallelliztion
+    :param async: use the async library for parallelization
     :param n_threads: number of CPU threads to use
+    :param weighting_method: weighting method (fasttree, phyml or alc)
     :return: output file name
     """
     # lazy imports
@@ -288,7 +288,7 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None, tmp_
     from wgd.viz import plot_selection
 
     # software check
-    software = [codeml, muscle]
+    software = [codeml, aligner]
     if weighting_method == 'fasttree':
         software.append('FastTree')
     elif weighting_method == 'phyml':
@@ -350,7 +350,7 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None, tmp_
         logging.info('Started one-vs-one ortholog Ks analysis')
         results = ks_analysis_one_vs_one(cds_seqs, protein_seqs, gene_families, tmp_dir, output_directory,
                                          muscle, codeml, async=async, n_cores=n_threads, preserve=preserve,
-                                         times=times, min_length=min_msa_length)
+                                         times=times, min_length=min_msa_length, aligner=aligner)
         results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(base)), sep='\t')
 
         logging.info('Generating plots')
@@ -365,7 +365,7 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None, tmp_
         os.chdir(tmp_dir)  # change directory to the tmp dir, as codeml writes non-unique file names to the working dir
         logging.info('Started whole paranome Ks analysis')
         results = ks_analysis_paranome(cds_seqs, protein_seqs, gene_families, tmp_dir, output_directory,
-                                       muscle, codeml, preserve=preserve, times=times,
+                                       muscle, codeml, preserve=preserve, times=times, aligner=aligner,
                                        ignore_prefixes=ignore_prefixes, async=async, n_cores=n_threads,
                                        min_length=min_msa_length, method=weighting_method)
         results.round(5).to_csv(os.path.join(output_directory, '{}.ks.tsv'.format(base)), sep='\t')
