@@ -9,6 +9,7 @@ is supported.
 from .utils import read_fasta, write_fasta
 from ete3 import Tree
 import subprocess
+import os
 import logging
 import numpy as np
 import fastcluster
@@ -46,8 +47,8 @@ def run_phyml(msa, phyml_path='phyml'):
 
     logging.debug('Running PhyML: {}'.format(' '.join(command)))
     subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    subprocess.run(['rm', msa_phyml, '{}_phyml_stats*'.format(msa_phyml)], shell=True)
-    subprocess.run(['mv', '{}_phyml_tree*'.format(msa_phyml), tree_path], shell=True)
+    os.system(' '.join(['rm', msa_phyml, '{}_phyml_stats*'.format(msa_phyml)]))
+    os.system(' '.join(['mv', '{}_phyml_tree*'.format(msa_phyml), tree_path]))
 
     return tree_path
 
