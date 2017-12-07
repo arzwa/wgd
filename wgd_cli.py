@@ -5,7 +5,7 @@ Arthur Zwaenepoel - 2017
 The idea behind the wgd CLI is to provide script-like programs bundled under one command (`wgd`)
 for common WGD analyses for which the wgd package provides the underlying modular functionalities.
 """
-
+# TODO: codeml multiple times, keep only best estimate (highest likelihood -> no averaging!)
 # keep these imports to a minimum tos peed up initial CLI loading
 import click
 import logging
@@ -503,7 +503,7 @@ def syn_(gff_file, families, output_dir, ks_distribution, keyword='mRNA', id_str
 # MIXTURE MODELING -----------------------------------------------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option('--ks_distribution', '-ks', default=None, help="Ks distribution csv file, as generated with `wgd ks`.")
-@click.option('--method', type=click.Choice(['bgmm', 'gmm', 'both']), default='gmm',
+@click.option('--method', type=click.Choice(['gmm', 'bgmm']), default='gmm',
               help="Mixture modeling method, default is `gmm` (Gaussian mixture model).")
 @click.option('--n_range', '-n', default='1,4',
               help='Range of number of components to fit. Default = 1,4')
@@ -518,7 +518,10 @@ def syn_(gff_file, families, output_dir, ks_distribution, keyword='mRNA', id_str
 @click.option('--cut_off', '-c', default=0.95,
               help='Minimum probability to belong to a particular component for selected sequence files. '
                    'Default = 0.95')
-def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences, cut_off):
+@click.option('--n_init', '-ni', default=1,
+              help='Number of k-means initializations to perform, default = 1')
+@click.option('--pairs', is_flag=True, help='Write fasta file for each gene pair.')
+def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences, cut_off, pairs=False, n_init=1):
     """
     Mixture modeling of Ks distributions.
 
@@ -526,10 +529,10 @@ def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences
 
         wgd mix -ks lama.ks.tsv --method gmm -n 2,5
     """
-    mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences, cut_off)
+    mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences, cut_off, pairs, n_init=n_init)
 
 
-def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences, cut_off=0.95):
+def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequences, cut_off=0.95, pairs=False, n_init=1):
     """
     Mixture modeling using sklearn
 
@@ -540,6 +543,9 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequence
     :param output_dir: output directory
     :param gamma: gamma parameter for regulaization in BGMM (lower, stronger regularization)
     :param sequences: fasta file (if provided will write component-wise fasta files)
+    :param cut_off: posterior probability cut-off for component-wise paralog identification
+    :param pairs: write out fasta files for every gene pair
+    :param n_init: number of k-means initializations to perform
     :return: nada
     """
     # lazy imports
@@ -559,6 +565,7 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequence
         os.mkdir(output_dir)
 
     logging.info("Reading Ks distribution")
+    base_ks = os.path.basename(ks_distribution)
     df = pd.read_csv(ks_distribution, index_col=0, sep='\t')
     ks_range = [float(x) for x in ks_range.strip().split(',')]
     n_range = [int(x) for x in n_range.strip().split(',')]
@@ -571,7 +578,7 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequence
     if method == 'bgmm':
         logging.info('Started Bayesian Gaussian Mixture modeling (BGMM)')
         models_bgmm = mixture_model_bgmm(df, n_range=n_range, plot_save=True, output_dir=output_dir,
-                                         output_file='bgmm.mixture.png', Ks_range=ks_range, gamma=gamma)
+                                         output_file='bgmm.mixture.png', Ks_range=ks_range, gamma=gamma, n_init=100)
         best = models_bgmm[-1]
         logging.info('Bayesian Gaussian mixture option, will take the highest number of ')
         logging.info('components as best model under assumption of sufficient regularization.')
@@ -579,21 +586,21 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequence
     else:
         logging.info('Started Gaussian Mixture modeling (GMM)')
         models_gmm, bic, aic, best = mixture_model_gmm(df, Ks_range=ks_range, n=n_range[1], output_dir=output_dir,
-                                                       output_file='gmm.mixture.png')
+                                                       output_file='gmm.mixture.png', n_init=100)
 
     logging.info('Saving data frame with probabilities for each component to {}'.format(
-        os.path.join(output_dir, '{}.{}.tsv'.format(ks_distribution, method))))
+        os.path.join(output_dir, '{}.{}.tsv'.format(base_ks, method))))
     df = get_component_probabilities(df, best)
-    df.to_csv(os.path.join(output_dir, '{}.{}.tsv'.format(ks_distribution, method)), sep='\t')
+    df.to_csv(os.path.join(output_dir, '{}.{}.tsv'.format(base_ks, method)), sep='\t')
 
-    logging.info('Saving fasta file for each component')
     if sequences:
+        logging.info('Saving fasta file for each component')
         for i in range(best.n_components):
             selected = df[df['p_component{}'.format(i+1)] >= cut_off]
-            get_paralogs_fasta(sequences, selected, os.path.join(output_dir, 'component{}.fasta'.format(i+1)))
+            get_paralogs_fasta(sequences, selected, os.path.join(output_dir, 'component{}.fasta'.format(i+1)),
+                               pairs=pairs)
 
-    # TODO Add both method with comparison plots (3 panels ~ cedalion)
-    # TODO Get paralogs method (see lore notebook) and finetune plots
+    # TODO Get paralog fasta files for each pair -> dating
 
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
@@ -758,7 +765,7 @@ def pipeline_2(sequences, output_dir, n_threads):
 
     # wgd ks
     ks_dir = os.path.join(output_dir, 'wgd_ks')
-    ks_(gene_families=ovo_out, sequences=sequences, n_threads=n_threads, output_directory=output_dir, one_v_one=True)
+    ks_(gene_families=ovo_out, sequences=sequences, n_threads=n_threads, output_directory=ks_dir, one_v_one=True)
 
     return
 

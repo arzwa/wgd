@@ -208,7 +208,7 @@ def read_fasta(fasta_file, prefix=None, split_on_pipe=True, split_on_whitespace=
     return sequence_dict
 
 
-def get_paralogs_fasta(input_fasta, selected_paralogs, output_fasta):
+def get_paralogs_fasta(input_fasta, selected_paralogs, output_fasta, pairs=False):
     """
     Get the fasta file associated with the paralogs in a slice from a Ks distribution data frame
 
@@ -218,17 +218,31 @@ def get_paralogs_fasta(input_fasta, selected_paralogs, output_fasta):
     :return: nada
     """
     seqs = read_fasta(input_fasta)
-    genes = set(selected_paralogs['Paralog1']) | set(selected_paralogs['Paralog2'])
-    with open(output_fasta, 'w') as f:
-        for gene in list(genes):
-            ks_values = list(selected_paralogs[selected_paralogs['Paralog1'] == gene]['Ks'])
-            ks_values += list(selected_paralogs[selected_paralogs['Paralog2'] == gene]['Ks'])
-            ks_value, var = mean(ks_values), std(ks_values)
-            if gene in seqs.keys():
-                f.write('>{0} mean(Ks)={1:.5f};std(Ks)={2:.5f}\n{3}\n'.format(
-                    gene, float(ks_value), float(var), seqs[gene]))
+
+    if not pairs:
+        genes = set(selected_paralogs['Paralog1']) | set(selected_paralogs['Paralog2'])
+        with open(output_fasta, 'w') as f:
+            for gene in list(genes):
+                ks_values = list(selected_paralogs[selected_paralogs['Paralog1'] == gene]['Ks'])
+                ks_values += list(selected_paralogs[selected_paralogs['Paralog2'] == gene]['Ks'])
+                ks_value, var = mean(ks_values), std(ks_values)
+                if gene in seqs.keys():
+                    f.write('>{0} mean(Ks)={1:.5f};std(Ks)={2:.5f}\n{3}\n'.format(
+                        gene, float(ks_value), float(var), seqs[gene]))
+                else:
+                    logging.warning('Gene {} not found in fasta file!'.format(gene))
+
+    if pairs:
+        for row in selected_paralogs.index:
+            p1, p2 = selected_paralogs.loc[row]['Paralog1'], selected_paralogs.loc[row]['Paralog2']
+            if p1 in seqs.keys() and p2 in seqs.keys():
+                with open('{0}_{1}_{2:.3f}_{3}'.format(
+                        p1, p2, selected_paralogs.loc[row]['Ks'], output_fasta), 'w') as o:
+                    o.write('>{0}\n{1}\n>{2}\n{3}'.format(p1, seqs[p1], p2, seqs[p2]))
             else:
-                logging.warning('gene {} not found in fasta file!'.format(gene))
+                logging.warning('Gene not found in fasta file!')
+
+    return
 
 
 def translate_cds(sequence_dict):

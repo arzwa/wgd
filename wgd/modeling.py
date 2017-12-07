@@ -278,7 +278,7 @@ def mixture_model_gmm(data_frame, n=4, Ks_range=(0.1, 2), log=True, plot=True,
     models = [None for i in range(len(N))]
 
     for i in range(len(N)):
-        logging.info("Fitting GMM with {} components".format(i))
+        logging.info("Fitting GMM with {} components".format(i+1))
         models[i] = mixture.GaussianMixture(n_components=N[i], covariance_type='full',
                                             max_iter=100, **kwargs).fit(X)
 
@@ -394,13 +394,9 @@ def get_component_probabilities(df, model):
     """
     Get paralogs from a mixture model component.
 
-    :param df:
-    :param model:
-    :param component:
-    :param cut_off:
-    :param ks_cut_off_low:
-    :param ks_cut_off_high:
-    :return:
+    :param df: Ks distribution pandas data frame
+    :param model: mixture model
+    :return: data frame
     """
     df = df.dropna()
     df = df.drop_duplicates(keep='first')
@@ -409,16 +405,10 @@ def get_component_probabilities(df, model):
     df = df.dropna()
 
     p = model.predict_proba(np.array(df['log(Ks)']).reshape(-1,1))
-    means = []
-    for c in range(len(p[0])):
-        col = 'tmp' + str(c + 1)
+    order = np.argsort([x[0] for x in model.means_])
+    order_dict = {i: order[i] for i in range(len(order))}
+    for c in range(len(order)):
+        col = 'p_component{}'.format(order_dict[c]+1)
         df[col] = p[:,c]
-        means.append((df[df[col] > 0.95]['Ks'].mean(), col))
 
-    # rename the columns so that components are sorted by mean Ks value
-    new_cols = {}
-    means = sorted(means)
-    for i in range(len(means)):
-        new_cols[means[i][1]] = 'p_component{}'.format(i+1)
-
-    return df.rename(columns=new_cols)
+    return df

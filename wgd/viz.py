@@ -352,12 +352,13 @@ def histogram_bokeh(ks_distributions, labels):
 
             if density.value == 1 or density.value == 2:
                 kde = gaussian_kde(np.array(all_data[i]), weights=np.array(all_weights[i]), bw_method='scott')
-                x = np.linspace(float(r1.value), float(r2.value), 1000)
+                x = np.linspace(float(r1.value)+0.000001, float(r2.value), 1000)
                 if scale.value == 'log10':
                     x = np.log10(x)
                 pdf = list(kde(x))
-                pdf[0] = 0
-                pdf[-1] = 0
+                pdf[np.argmin(x)] = 0
+                pdf[np.argmax(x)] = 0
+
                 density_dict[i] = p1.patch(x=x, y=pdf, fill_color=c[i], line_width=2, line_color=c[i],
                                            alpha=density_alpha.value, legend=labels[i])
 
