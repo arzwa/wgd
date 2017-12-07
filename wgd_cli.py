@@ -578,7 +578,7 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequence
     if method == 'bgmm':
         logging.info('Started Bayesian Gaussian Mixture modeling (BGMM)')
         models_bgmm = mixture_model_bgmm(df, n_range=n_range, plot_save=True, output_dir=output_dir,
-                                         output_file='bgmm.mixture.png', Ks_range=ks_range, gamma=gamma, n_init=100)
+                                         output_file='bgmm.mixture.png', Ks_range=ks_range, gamma=gamma, n_init=n_init)
         best = models_bgmm[-1]
         logging.info('Bayesian Gaussian mixture option, will take the highest number of ')
         logging.info('components as best model under assumption of sufficient regularization.')
@@ -586,7 +586,7 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequence
     else:
         logging.info('Started Gaussian Mixture modeling (GMM)')
         models_gmm, bic, aic, best = mixture_model_gmm(df, Ks_range=ks_range, n=n_range[1], output_dir=output_dir,
-                                                       output_file='gmm.mixture.png', n_init=100)
+                                                       output_file='gmm.mixture.png', n_init=n_init)
 
     logging.info('Saving data frame with probabilities for each component to {}'.format(
         os.path.join(output_dir, '{}.{}.tsv'.format(base_ks, method))))
