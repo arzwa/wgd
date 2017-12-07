@@ -10,8 +10,10 @@ This Python package and corresponding command line interface (CLI) were develope
 to whole genome duplications (WGDs). Here the Python API is documented as well as the various command line
 utilities bundled in the ``wgd`` CLI.
 
-To install ``wgd``, clone the repository available at https://github.com/arzwa/wgd, navigate into the repo, run
-``pip install .``.
+To install ``wgd``, clone the repository available at https://github.com/arzwa/wgd (where you can also find more
+detailed installation instructions), navigate into the repo, run ``pip install .``.
+
+To **get started** with ``wgd`` head straight to the :ref:`command line interface page <cli>`
 
 External software
 =================
@@ -49,7 +51,7 @@ analyses:
 6. Intragenomic co-linearity/synteny analysis and anchor based |Ks| distribution construction
 7. Co-linearity dotplot construction
 
-All relative information can be find here:
+All relative information can be found here:
 
 .. toctree::
    :maxdepth: 1

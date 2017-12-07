@@ -46,7 +46,7 @@ def _weighting(pairwise_estimates, msa=None, method='alc'):
 
     elif method == 'fasttree':
         # Fasttree tree construction
-        logging.debug('Constructing phylogenetic tree with Fasttree')
+        logging.debug('Constructing phylogenetic tree with FastTree')
         fast_tree = run_fasttree(msa)
         clustering, pairwise_distances = phylogenetic_tree_to_cluster_format(fast_tree, pairwise_estimates['Ks'])
 
@@ -188,8 +188,8 @@ def analyse_family(family_id, family, nucleotide, tmp='./', muscle='muscle', cod
     align = MSA(muscle=muscle, tmp=tmp, prank=prank)
 
     # multiple sequence alignment
-    logging.debug('Aligner is prank, will perform codon alignment')
     if aligner == 'prank':
+        logging.debug('Aligner is prank, will perform codon alignment')
         family = {k: nucleotide[k] for k in family.keys() if len(nucleotide[k]) % 3 == 0}
 
     logging.debug('Performing multiple sequence alignment ({0}) on gene family {1}.'.format(aligner, family_id))

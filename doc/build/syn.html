@@ -1,34 +1,33 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Co-linearity analyses module &mdash; wgd 1.0.0 documentation</title>
-    
+    <title>Co-linearity analyses module &#8212; wgd 1.0.0 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="wgd 1.0.0 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Various utilities" href="utils.html" />
     <link rel="prev" title="Mixture modeling" href="mix.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -44,7 +43,7 @@
         <li class="right" >
           <a href="mix.html" title="Mixture modeling"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">wgd 1.0.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 1.0.0 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -66,8 +65,8 @@
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>anchors_file</strong> &#8211; anchorpoints.txt output from I-ADHoRe 3.0</li>
-<li><strong>ks_distribution</strong> &#8211; Ks distribution dataf rame</li>
+<li><strong>anchors_file</strong> – anchorpoints.txt output from I-ADHoRe 3.0</li>
+<li><strong>ks_distribution</strong> – Ks distribution dataf rame</li>
 </ul>
 </td>
 </tr>
@@ -86,7 +85,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config_file</strong> &#8211; path to I-ADHoRe configuration file</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config_file</strong> – path to I-ADHoRe configuration file</td>
 </tr>
 </tbody>
 </table>
@@ -105,9 +104,9 @@ with length defined as number of genes, not physical length.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>segments_file</strong> &#8211; pat to the I-ADHoRe segments.txt output file</li>
-<li><strong>genome</strong> &#8211; a <code class="xref py py-func docutils literal"><span class="pre">gff_parser.Genome</span> <span class="pre">object()</span></code></li>
-<li><strong>output_file</strong> &#8211; output file name</li>
+<li><strong>segments_file</strong> – pat to the I-ADHoRe segments.txt output file</li>
+<li><strong>genome</strong> – a <code class="xref py py-func docutils literal"><span class="pre">gff_parser.Genome</span> <span class="pre">object()</span></code></li>
+<li><strong>output_file</strong> – output file name</li>
 </ul>
 </td>
 </tr>
@@ -125,22 +124,22 @@ parameter settings.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>gene_lists</strong> &#8211; directory with gene lists per chromosome</li>
-<li><strong>families</strong> &#8211; file with gene to family mapping</li>
-<li><strong>config_file_name</strong> &#8211; name for the config file</li>
-<li><strong>genome</strong> &#8211; genome name</li>
-<li><strong>output_path</strong> &#8211; output path name</li>
-<li><strong>gap_size</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
-<li><strong>cluster_gap</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
-<li><strong>q_value</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
-<li><strong>prob_cutoff</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
-<li><strong>anchor_points</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
-<li><strong>alignment_method</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
-<li><strong>level_2_only</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
-<li><strong>table_type</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
-<li><strong>multiple_hypothesis_correction</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
-<li><strong>visualize_ghm</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
-<li><strong>visualize_alignment</strong> &#8211; see I-ADHoRe 3.0 documentation</li>
+<li><strong>gene_lists</strong> – directory with gene lists per chromosome</li>
+<li><strong>families</strong> – file with gene to family mapping</li>
+<li><strong>config_file_name</strong> – name for the config file</li>
+<li><strong>genome</strong> – genome name</li>
+<li><strong>output_path</strong> – output path name</li>
+<li><strong>gap_size</strong> – see I-ADHoRe 3.0 documentation</li>
+<li><strong>cluster_gap</strong> – see I-ADHoRe 3.0 documentation</li>
+<li><strong>q_value</strong> – see I-ADHoRe 3.0 documentation</li>
+<li><strong>prob_cutoff</strong> – see I-ADHoRe 3.0 documentation</li>
+<li><strong>anchor_points</strong> – see I-ADHoRe 3.0 documentation</li>
+<li><strong>alignment_method</strong> – see I-ADHoRe 3.0 documentation</li>
+<li><strong>level_2_only</strong> – see I-ADHoRe 3.0 documentation</li>
+<li><strong>table_type</strong> – see I-ADHoRe 3.0 documentation</li>
+<li><strong>multiple_hypothesis_correction</strong> – see I-ADHoRe 3.0 documentation</li>
+<li><strong>visualize_ghm</strong> – see I-ADHoRe 3.0 documentation</li>
+<li><strong>visualize_alignment</strong> – see I-ADHoRe 3.0 documentation</li>
 </ul>
 </td>
 </tr>
@@ -160,9 +159,9 @@ parameter settings.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>families</strong> &#8211; gene families</li>
-<li><strong>all_genes</strong> &#8211; set object with all genes for the species of interest</li>
-<li><strong>output_file</strong> &#8211; output file name</li>
+<li><strong>families</strong> – gene families</li>
+<li><strong>all_genes</strong> – set object with all genes for the species of interest</li>
+<li><strong>output_file</strong> – output file name</li>
 </ul>
 </td>
 </tr>
@@ -182,8 +181,8 @@ parameter settings.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>genome</strong> &#8211; Genome object</li>
-<li><strong>output_dir</strong> &#8211; output directory</li>
+<li><strong>genome</strong> – Genome object</li>
+<li><strong>output_dir</strong> – output directory</li>
 </ul>
 </td>
 </tr>
@@ -208,21 +207,18 @@ parameter settings.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/syn.txt"
+      <li><a href="_sources/syn.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -244,12 +240,12 @@ parameter settings.</p>
         <li class="right" >
           <a href="mix.html" title="Mixture modeling"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">wgd 1.0.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 1.0.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2017, Arthur Zwaenepoel.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
+        &#169; Copyright 2017, Arthur Zwaenepoel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>

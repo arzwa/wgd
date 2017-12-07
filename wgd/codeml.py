@@ -42,6 +42,7 @@ def _parse_codeml_out(codeml_out):
     ks_p = re.compile('\s+dS\s*=\s*(\d+\.\d+)')
     ka_p = re.compile('\s+dN\s*=\s*(\d+\.\d+)')
     w_p = re.compile('\s+dN\/dS\s*=\s*(\d+\.\d+)')
+    likelihood = re.compile('lnL\s*=(\D*\d+.\d+)')
 
     # read codeml output file
     with open(codeml_out, 'r') as f:
@@ -66,11 +67,16 @@ def _parse_codeml_out(codeml_out):
                     }
 
     # populate results
+    ln_l = None
+
     for pairwise_estimate in codeml_results:
         gene_1, gene_2 = gene_pair_p.search(pairwise_estimate).group(1), gene_pair_p.search(pairwise_estimate).group(2)
         ks_value_m = ks_p.search(pairwise_estimate)
         ka_value_m = ka_p.search(pairwise_estimate)
         w_m = w_p.search(pairwise_estimate)
+        likelihood_m = likelihood.search(pairwise_estimate)
+        if likelihood_m:
+            ln_l = float(likelihood_m.group(1))
 
         # On the PLAZA 4.0 Vitis vinifera genome I had an issue with a pattern match
         # that was not retrieved. So now I check whether there is a match and give a warning.
@@ -99,7 +105,7 @@ def _parse_codeml_out(codeml_out):
         results_dict['Omega'][gene_1][gene_2] = w
         results_dict['Omega'][gene_2][gene_1] = w
 
-    return {'results': results_dict, 'raw': file_content}
+    return {'results': results_dict, 'raw': file_content}, ln_l
 
 
 class Codeml:
@@ -232,25 +238,30 @@ class Codeml:
         output = []
         logging.debug("Performing codeml {} times".format(times))
 
+        best = None
+        best_index = 0
         for i in range(times):
             logging.debug("Codeml iteration {0} for {1}".format(str(i+1), msa))
             subprocess.run([self.codeml, self.control_file], stdout=subprocess.PIPE)
             subprocess.run(['rm', '2ML.dN', '2ML.dS', '2ML.t', '2NG.dN', '2NG.dS', '2NG.t', 'rst', 'rst1', 'rub'],
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-            output.append(_parse_codeml_out(self.out_file))
+            d, likelihood =_parse_codeml_out(self.out_file)
+            output.append(d)
+            if not best or likelihood > best:
+                best = likelihood
+                best_index = i
 
         # average results if times > 1
-        results = {'results': {}, 'raw': []}
-        if times != 1:
-            logging.debug("Averaging codeml results")
-            for key in ['Ks', 'Ka', 'Omega']:
-                df = pd.concat([x['results'][key] for x in output])
-                results['results'][key] = df.groupby(level=0).mean()
-            results['raw'] = [x for x in output]
+        # results = {'results': {}, 'raw': []}
+        # if times != 1:
+            # logging.debug("Averaging codeml results")
+            # for key in ['Ks', 'Ka', 'Omega']:
+            #    df = pd.concat([x['results'][key] for x in output])
+            #    results['results'][key] = df.groupby(level=0).mean()
+            # results['raw'] = [x for x in output]
 
-        else:
-            results = output[0]
+        logging.debug('Best MLE: ln(L) = {}'.format(best))
+        results = output[best_index]
 
         if not output:
             return None

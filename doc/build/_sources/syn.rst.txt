@@ -1,7 +1,7 @@
 Co-linearity analyses module
 ****************************
 
-.. automodule:: wgd.collinearity
+.. automodule:: wgd.colinearity
     :members:
     :private-members:
     :special-members: __init__

@@ -102,6 +102,7 @@ def phylogenetic_tree_to_cluster_format(tree, pairwise_estimates):
     if not midpoint:  # midpoint = None when their are only two leaves
         midpoint = list(t.get_leaves())[0]
     t.set_outgroup(midpoint)
+    logging.debug('Tree after rooting:\n{}'.format(t.get_ascii()))
 
     # algorithm for getting cluster data structure
     n = len(id_map)

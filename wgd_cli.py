@@ -5,7 +5,6 @@ Arthur Zwaenepoel - 2017
 The idea behind the wgd CLI is to provide script-like programs bundled under one command (`wgd`)
 for common WGD analyses for which the wgd package provides the underlying modular functionalities.
 """
-# TODO: codeml multiple times, keep only best estimate (highest likelihood -> no averaging!)
 # keep these imports to a minimum tos peed up initial CLI loading
 import click
 import logging

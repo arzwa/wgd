@@ -1,34 +1,33 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Phylogenetic tools module &mdash; wgd 1.0.0 documentation</title>
-    
+    <title>Phylogenetic tools module &#8212; wgd 1.0.0 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="wgd 1.0.0 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Mixture modeling" href="mix.html" />
     <link rel="prev" title="Ks distribution module" href="ks.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -44,7 +43,7 @@
         <li class="right" >
           <a href="ks.html" title="Ks distribution module"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">wgd 1.0.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 1.0.0 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -65,7 +64,7 @@ is supported.</p>
 <code class="descclassname">wgd.phy.</code><code class="descname">average_linkage_clustering</code><span class="sig-paren">(</span><em>pairwise_estimates</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.phy.average_linkage_clustering" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform average linkage clustering using <code class="docutils literal"><span class="pre">fastcluster</span></code>.
 The first two columns of the output contain the node indices which are joined in each step.
-The input nodes are labeled 0, . . . , N - 1, and the newly generated nodes have the labels N, . . . , 2N - 2.
+The input nodes are labeled 0, … , N - 1, and the newly generated nodes have the labels N, … , 2N - 2.
 The third column contains the distance between the two nodes at each step, ie. the
 current minimal distance at the time of the merge. The fourth column counts the
 number of points which comprise each new node.</p>
@@ -73,7 +72,7 @@ number of points which comprise each new node.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pairwise_estimates</strong> &#8211; dictionary with data frames with pairwise estimates of Ks, Ka and Ka/Ks
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pairwise_estimates</strong> – dictionary with data frames with pairwise estimates of Ks, Ka and Ka/Ks
 (or at least Ks), as returned by <code class="xref py py-func docutils literal"><span class="pre">analyse_family()</span></code>.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">average linkage clustering as performed with <code class="docutils literal"><span class="pre">fastcluster.average</span></code>.</td>
@@ -85,21 +84,21 @@ number of points which comprise each new node.</p>
 <dl class="function">
 <dt id="wgd.phy.phylogenetic_tree_to_cluster_format">
 <code class="descclassname">wgd.phy.</code><code class="descname">phylogenetic_tree_to_cluster_format</code><span class="sig-paren">(</span><em>tree</em>, <em>pairwise_estimates</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.phy.phylogenetic_tree_to_cluster_format" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert a phylogenetic tree to a &#8216;cluster&#8217; data structure as in <code class="docutils literal"><span class="pre">fastcluster</span></code>.
+<dd><p>Convert a phylogenetic tree to a ‘cluster’ data structure as in <code class="docutils literal"><span class="pre">fastcluster</span></code>.
 The first two columns indicate the nodes that are joined by the relevant node,
 the third indicates the distance (calculated from branch lengths in the case of a phylogenetic tree)
 and the fourth the number of leaves underneath the node.
 Note that the trees are rooted using midpoint-rooting.</p>
 <p>Example of the data structure (output from <code class="docutils literal"><span class="pre">fastcluster</span></code>):</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>[[   3.            7.            4.26269776    2.        ]
- [   0.            5.           26.75703595    2.        ]
- [   2.            8.           56.16007598    2.        ]
- [   9.           12.           78.91813609    3.        ]
- [   1.           11.           87.91756528    3.        ]
- [   4.            6.           93.04790855    2.        ]
- [  14.           15.          114.71302639    5.        ]
- [  13.           16.          137.94616373    8.        ]
- [  10.           17.          157.29055403   10.        ]]
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="p">[[</span>   <span class="mf">3.</span>            <span class="mf">7.</span>            <span class="mf">4.26269776</span>    <span class="mf">2.</span>        <span class="p">]</span>
+ <span class="p">[</span>   <span class="mf">0.</span>            <span class="mf">5.</span>           <span class="mf">26.75703595</span>    <span class="mf">2.</span>        <span class="p">]</span>
+ <span class="p">[</span>   <span class="mf">2.</span>            <span class="mf">8.</span>           <span class="mf">56.16007598</span>    <span class="mf">2.</span>        <span class="p">]</span>
+ <span class="p">[</span>   <span class="mf">9.</span>           <span class="mf">12.</span>           <span class="mf">78.91813609</span>    <span class="mf">3.</span>        <span class="p">]</span>
+ <span class="p">[</span>   <span class="mf">1.</span>           <span class="mf">11.</span>           <span class="mf">87.91756528</span>    <span class="mf">3.</span>        <span class="p">]</span>
+ <span class="p">[</span>   <span class="mf">4.</span>            <span class="mf">6.</span>           <span class="mf">93.04790855</span>    <span class="mf">2.</span>        <span class="p">]</span>
+ <span class="p">[</span>  <span class="mf">14.</span>           <span class="mf">15.</span>          <span class="mf">114.71302639</span>    <span class="mf">5.</span>        <span class="p">]</span>
+ <span class="p">[</span>  <span class="mf">13.</span>           <span class="mf">16.</span>          <span class="mf">137.94616373</span>    <span class="mf">8.</span>        <span class="p">]</span>
+ <span class="p">[</span>  <span class="mf">10.</span>           <span class="mf">17.</span>          <span class="mf">157.29055403</span>   <span class="mf">10.</span>        <span class="p">]]</span>
 </pre></div>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
@@ -107,8 +106,8 @@ Note that the trees are rooted using midpoint-rooting.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>tree</strong> &#8211; newick tree file</li>
-<li><strong>pairwise_estimates</strong> &#8211; pairwise Ks estimates data frame (pandas) (only the index is used)</li>
+<li><strong>tree</strong> – newick tree file</li>
+<li><strong>pairwise_estimates</strong> – pairwise Ks estimates data frame (pandas) (only the index is used)</li>
 </ul>
 </td>
 </tr>
@@ -128,8 +127,8 @@ Note that the trees are rooted using midpoint-rooting.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>msa</strong> &#8211; file path to protein multiple sequence alignment in multifasta format</li>
-<li><strong>fasttree_path</strong> &#8211; path to FastTree executable</li>
+<li><strong>msa</strong> – file path to protein multiple sequence alignment in multifasta format</li>
+<li><strong>fasttree_path</strong> – path to FastTree executable</li>
 </ul>
 </td>
 </tr>
@@ -149,8 +148,8 @@ Note that the trees are rooted using midpoint-rooting.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>msa</strong> &#8211; file path to protein multiple sequence alignment in multifasta format</li>
-<li><strong>phyml_path</strong> &#8211; path to phyml executable</li>
+<li><strong>msa</strong> – file path to protein multiple sequence alignment in multifasta format</li>
+<li><strong>phyml_path</strong> – path to phyml executable</li>
 </ul>
 </td>
 </tr>
@@ -170,8 +169,8 @@ Note that the trees are rooted using midpoint-rooting.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>sequence_dict</strong> &#8211; sequence dictionary</li>
-<li><strong>output_file</strong> &#8211; filename</li>
+<li><strong>sequence_dict</strong> – sequence dictionary</li>
+<li><strong>output_file</strong> – filename</li>
 </ul>
 </td>
 </tr>
@@ -196,21 +195,18 @@ Note that the trees are rooted using midpoint-rooting.</p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/phy.txt"
+      <li><a href="_sources/phy.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -232,12 +228,12 @@ Note that the trees are rooted using midpoint-rooting.</p>
         <li class="right" >
           <a href="ks.html" title="Ks distribution module"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">wgd 1.0.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 1.0.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2017, Arthur Zwaenepoel.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
+        &#169; Copyright 2017, Arthur Zwaenepoel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>

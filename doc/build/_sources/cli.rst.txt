@@ -50,14 +50,14 @@ Examples
 ********
 
 Whole paranome |Ks| distribution construction
----------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Here  recipe is shown for |Ks| distribution construction using the provided commands in th ``wgd``
+Here a recipe is shown for |Ks| distribution construction using the provided commands in the ``wgd``
 command line interface. For this analysis we could also use the provided pipeline ``wgd pipeline_1``
 command, which provides less control, but is quite convenient in usage for this standard workflow.
 
-1) Full control
-~~~~~~~~~~~~~~~
+**1) Full control**
+
 First we infer paralogous families using all-vs-all `blastp` and `mcl`::
 
     $ wgd blast --cds --mcl -s penguin.cds.fasta -o ./
@@ -75,10 +75,9 @@ gene pairs::
 
 That's it! Quite easy no?
 
-2) Pipeline
-~~~~~~~~~~~
+**2) Pipeline**
 
-The same cn be accomplished using the ``pipeline_1`` command::
+The same can be accomplished using the ``pipeline_1`` command::
 
     $ wgd pipeline_1 -gff annotation.gff penguin.cds.fasta penguin.wgd_out
 

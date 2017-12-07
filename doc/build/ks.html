@@ -1,34 +1,33 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Ks distribution module &mdash; wgd 1.0.0 documentation</title>
-    
+    <title>Ks distribution module &#8212; wgd 1.0.0 documentation</title>
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
         VERSION:     '1.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
       };
     </script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="wgd 1.0.0 documentation" href="index.html" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Phylogenetic tools module" href="phy.html" />
     <link rel="prev" title="Alignment tools" href="alignment.html" /> 
   </head>
-  <body role="document">
+  <body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
@@ -44,7 +43,7 @@
         <li class="right" >
           <a href="alignment.html" title="Alignment tools"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">wgd 1.0.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 1.0.0 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -67,9 +66,9 @@ Implemented in parallelized fashion. Please find the functions for node-based we
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>clustering</strong> &#8211; clustering results as produced with <a class="reference internal" href="#wgd.ks_distribution._weighting" title="wgd.ks_distribution._weighting"><code class="xref py py-func docutils literal"><span class="pre">_weighting()</span></code></a>, can be by average linkage clustering
+<li><strong>clustering</strong> – clustering results as produced with <a class="reference internal" href="#wgd.ks_distribution._weighting" title="wgd.ks_distribution._weighting"><code class="xref py py-func docutils literal"><span class="pre">_weighting()</span></code></a>, can be by average linkage clustering
 or phylogenetic means (phyml, fasttree)</li>
-<li><strong>pairwise_estimates</strong> &#8211; pairwise Ks, Kn and w estimates as produced by <code class="xref py py-meth docutils literal"><span class="pre">codeml.Codeml.run_codeml()</span></code></li>
+<li><strong>pairwise_estimates</strong> – pairwise Ks, Kn and w estimates as produced by <code class="xref py py-meth docutils literal"><span class="pre">codeml.Codeml.run_codeml()</span></code></li>
 </ul>
 </td>
 </tr>
@@ -91,9 +90,9 @@ Other methods use phylogenetic trees (phyml or fasttree)</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>pairwise_estimates</strong> &#8211; results dictionary from <code class="xref py py-meth docutils literal"><span class="pre">codeml.Codeml.run()</span></code> output</li>
-<li><strong>msa</strong> &#8211; protein multiple sequence alignment file path (optional, not necessary for method=``alc``)</li>
-<li><strong>method</strong> &#8211; method, one of <code class="docutils literal"><span class="pre">alc|phyml|fasttree</span></code></li>
+<li><strong>pairwise_estimates</strong> – results dictionary from <code class="xref py py-meth docutils literal"><span class="pre">codeml.Codeml.run()</span></code> output</li>
+<li><strong>msa</strong> – protein multiple sequence alignment file path (optional, not necessary for method=``alc``)</li>
+<li><strong>method</strong> – method, one of <code class="docutils literal"><span class="pre">alc|phyml|fasttree</span></code></li>
 </ul>
 </td>
 </tr>
@@ -113,10 +112,10 @@ Other methods use phylogenetic trees (phyml or fasttree)</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>df</strong> &#8211; pandas data frame</li>
-<li><strong>stats</strong> &#8211; stats dict see <code class="xref py py-func docutils literal"><span class="pre">alignment.pairwise_alignment_stats()</span></code></li>
-<li><strong>l</strong> &#8211; alignment length</li>
-<li><strong>l_stripped</strong> &#8211; stripped alignment length</li>
+<li><strong>df</strong> – pandas data frame</li>
+<li><strong>stats</strong> – stats dict see <code class="xref py py-func docutils literal"><span class="pre">alignment.pairwise_alignment_stats()</span></code></li>
+<li><strong>l</strong> – alignment length</li>
+<li><strong>l_stripped</strong> – stripped alignment length</li>
 </ul>
 </td>
 </tr>
@@ -139,17 +138,17 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>family_id</strong> &#8211; gene family id</li>
-<li><strong>family</strong> &#8211; dictionary with sequences of paralogs</li>
-<li><strong>nucleotide</strong> &#8211; nucleotide (CDS) sequences dictionary</li>
-<li><strong>tmp</strong> &#8211; tmp directory</li>
-<li><strong>muscle</strong> &#8211; muscle path</li>
-<li><strong>codeml</strong> &#8211; codeml path</li>
-<li><strong>preserve</strong> &#8211; preserve intermediate files</li>
-<li><strong>times</strong> &#8211; number of times to perform ML estimation of Ks, Ka and omega values</li>
-<li><strong>min_length</strong> &#8211; minimum length of the stripped multiple sequence alignment</li>
-<li><strong>method</strong> &#8211; weighting method, from fast to slow: <code class="docutils literal"><span class="pre">alc</span></code>, <code class="docutils literal"><span class="pre">fasttree</span></code>, <code class="docutils literal"><span class="pre">phyml</span></code></li>
-<li><strong>aligner</strong> &#8211; alignment program</li>
+<li><strong>family_id</strong> – gene family id</li>
+<li><strong>family</strong> – dictionary with sequences of paralogs</li>
+<li><strong>nucleotide</strong> – nucleotide (CDS) sequences dictionary</li>
+<li><strong>tmp</strong> – tmp directory</li>
+<li><strong>muscle</strong> – muscle path</li>
+<li><strong>codeml</strong> – codeml path</li>
+<li><strong>preserve</strong> – preserve intermediate files</li>
+<li><strong>times</strong> – number of times to perform ML estimation of Ks, Ka and omega values</li>
+<li><strong>min_length</strong> – minimum length of the stripped multiple sequence alignment</li>
+<li><strong>method</strong> – weighting method, from fast to slow: <code class="docutils literal"><span class="pre">alc</span></code>, <code class="docutils literal"><span class="pre">fasttree</span></code>, <code class="docutils literal"><span class="pre">phyml</span></code></li>
+<li><strong>aligner</strong> – alignment program</li>
 </ul>
 </td>
 </tr>
@@ -169,21 +168,21 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>nucleotide_sequences</strong> &#8211; sequence dictionary</li>
-<li><strong>protein_sequences</strong> &#8211; protein sequence dictionary</li>
-<li><strong>paralogs</strong> &#8211; file with paralog families</li>
-<li><strong>tmp_dir</strong> &#8211; tmp directory</li>
-<li><strong>output_dir</strong> &#8211; output directory</li>
-<li><strong>muscle_path</strong> &#8211; path to muscle executable</li>
-<li><strong>codeml_path</strong> &#8211; path to codeml executable</li>
-<li><strong>prank_path</strong> &#8211; path to prank executable</li>
-<li><strong>preserve</strong> &#8211; preserve intermediate results (muscle, codeml)</li>
-<li><strong>times</strong> &#8211; number of times to perform codeml analysis</li>
-<li><strong>ignore_prefixes</strong> &#8211; ignore prefixes in paralog/gene family file (e.g. in ath|AT1G45000, ath| will be ignored)</li>
-<li><strong>async</strong> &#8211; use asyncio library for parallelization</li>
-<li><strong>min_length</strong> &#8211; minimum MSA length</li>
-<li><strong>aligner</strong> &#8211; aligner to use (muslce|prank)</li>
-<li><strong>n_cores</strong> &#8211; number of CPU cores to use</li>
+<li><strong>nucleotide_sequences</strong> – sequence dictionary</li>
+<li><strong>protein_sequences</strong> – protein sequence dictionary</li>
+<li><strong>paralogs</strong> – file with paralog families</li>
+<li><strong>tmp_dir</strong> – tmp directory</li>
+<li><strong>output_dir</strong> – output directory</li>
+<li><strong>muscle_path</strong> – path to muscle executable</li>
+<li><strong>codeml_path</strong> – path to codeml executable</li>
+<li><strong>prank_path</strong> – path to prank executable</li>
+<li><strong>preserve</strong> – preserve intermediate results (muscle, codeml)</li>
+<li><strong>times</strong> – number of times to perform codeml analysis</li>
+<li><strong>ignore_prefixes</strong> – ignore prefixes in paralog/gene family file (e.g. in ath|AT1G45000, ath| will be ignored)</li>
+<li><strong>async</strong> – use asyncio library for parallelization</li>
+<li><strong>min_length</strong> – minimum MSA length</li>
+<li><strong>aligner</strong> – aligner to use (muslce|prank)</li>
+<li><strong>n_cores</strong> – number of CPU cores to use</li>
 </ul>
 </td>
 </tr>
@@ -203,21 +202,21 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>nucleotide_sequences</strong> &#8211; sequence dictionary</li>
-<li><strong>protein_sequences</strong> &#8211; protein sequence dictionary</li>
-<li><strong>paralogs</strong> &#8211; file with paralog families</li>
-<li><strong>tmp_dir</strong> &#8211; tmp directory</li>
-<li><strong>output_dir</strong> &#8211; output directory</li>
-<li><strong>muscle_path</strong> &#8211; path to muscle executable</li>
-<li><strong>codeml_path</strong> &#8211; path to codeml executable</li>
-<li><strong>preserve</strong> &#8211; preserve intermediate results (muscle, codeml)</li>
-<li><strong>times</strong> &#8211; number of times to perform codeml analysis</li>
-<li><strong>ignore_prefixes</strong> &#8211; ignore prefixes in paralog/gene family file (e.g. in ath|AT1G45000, ath| will be ignored)</li>
-<li><strong>async</strong> &#8211; use asyncio library for parallelization</li>
-<li><strong>min_length</strong> &#8211; minimum MSA length</li>
-<li><strong>method</strong> &#8211; method to use, from fast to slow: <code class="docutils literal"><span class="pre">alc</span></code>, <code class="docutils literal"><span class="pre">fasttree</span></code>, <code class="docutils literal"><span class="pre">phyml</span></code></li>
-<li><strong>aligner</strong> &#8211; alignment program to use (muscle|prank)</li>
-<li><strong>n_cores</strong> &#8211; number of CPU cores to use</li>
+<li><strong>nucleotide_sequences</strong> – sequence dictionary</li>
+<li><strong>protein_sequences</strong> – protein sequence dictionary</li>
+<li><strong>paralogs</strong> – file with paralog families</li>
+<li><strong>tmp_dir</strong> – tmp directory</li>
+<li><strong>output_dir</strong> – output directory</li>
+<li><strong>muscle_path</strong> – path to muscle executable</li>
+<li><strong>codeml_path</strong> – path to codeml executable</li>
+<li><strong>preserve</strong> – preserve intermediate results (muscle, codeml)</li>
+<li><strong>times</strong> – number of times to perform codeml analysis</li>
+<li><strong>ignore_prefixes</strong> – ignore prefixes in paralog/gene family file (e.g. in ath|AT1G45000, ath| will be ignored)</li>
+<li><strong>async</strong> – use asyncio library for parallelization</li>
+<li><strong>min_length</strong> – minimum MSA length</li>
+<li><strong>method</strong> – method to use, from fast to slow: <code class="docutils literal"><span class="pre">alc</span></code>, <code class="docutils literal"><span class="pre">fasttree</span></code>, <code class="docutils literal"><span class="pre">phyml</span></code></li>
+<li><strong>aligner</strong> – alignment program to use (muscle|prank)</li>
+<li><strong>n_cores</strong> – number of CPU cores to use</li>
 </ul>
 </td>
 </tr>
@@ -245,21 +244,18 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/ks.txt"
+      <li><a href="_sources/ks.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -281,12 +277,12 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
         <li class="right" >
           <a href="alignment.html" title="Alignment tools"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">wgd 1.0.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">wgd 1.0.0 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2017, Arthur Zwaenepoel.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
+        &#169; Copyright 2017, Arthur Zwaenepoel.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.6.3.
     </div>
   </body>
 </html>
