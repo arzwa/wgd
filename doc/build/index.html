@@ -58,16 +58,23 @@ utilities bundled in the <code class="docutils literal"><span class="pre">wgd</s
 <code class="docutils literal"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">.</span></code>.</p>
 <div class="section" id="external-software">
 <h2>External software<a class="headerlink" href="#external-software" title="Permalink to this headline">¶</a></h2>
-<p>For full functionality, make sure you have the following external software tools installed:</p>
-<ol class="arabic simple">
-<li><code class="docutils literal"><span class="pre">codeml</span></code> from the PAML package (<a class="reference external" href="http://abacus.gene.ucl.ac.uk/software/paml.html">http://abacus.gene.ucl.ac.uk/software/paml.html</a>) (Yang 1997)</li>
-<li><code class="docutils literal"><span class="pre">muscle</span></code> for multiple sequence alignment (<a class="reference external" href="http://www.drive5.com/muscle/">http://www.drive5.com/muscle/</a>) (Edgar 2004)</li>
-<li><code class="docutils literal"><span class="pre">mcl</span></code> (<a class="reference external" href="https://micans.org/mcl/index.html">https://micans.org/mcl/index.html</a>) (Van Dongen 2000)</li>
-<li><code class="docutils literal"><span class="pre">blastp</span></code> and <code class="docutils literal"><span class="pre">makeblastdb</span></code> from the Blast+ suite (<a class="reference external" href="https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&amp;PAGE_TYPE=BlastDocs&amp;DOC_TYPE=Download">https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&amp;PAGE_TYPE=BlastDocs&amp;DOC_TYPE=Download</a>) (Altschul <cite>et al.</cite> 2008)</li>
+<p><code class="docutils literal"><span class="pre">wgd</span></code> requires the following third party executables (preferably these should also be in the <cite>PATH</cite> environment variable):</p>
+<p>For <code class="docutils literal"><span class="pre">wgd</span> <span class="pre">blast</span></code>:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">blast</span></code> (Altschul _et al._ 2008), from which it uses the <code class="docutils literal"><span class="pre">blastp</span></code> and <code class="docutils literal"><span class="pre">makeblastdb</span></code> commands, <code class="docutils literal"><span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">ncbi-blast+</span></code> will often suffice for installation</li>
+<li><code class="docutils literal"><span class="pre">mcl</span></code> (<a class="reference external" href="https://micans.org/mcl/index.html">https://micans.org/mcl/index.html</a>). Get MCL using your package manager <code class="docutils literal"><span class="pre">sudo</span> <span class="pre">apt-get</span> <span class="pre">install</span> <span class="pre">mcl</span></code> or download it at the provided link.</li>
+</ul>
+<p>For <code class="docutils literal"><span class="pre">wgd</span> <span class="pre">ks</span></code>:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">muscle</span></code> (Edgar 2004) for multiple sequence alignment. MUSCLE can be retrieved from <a class="reference external" href="http://www.drive5.com/muscle/">http://www.drive5.com/muscle/</a>. Codon alignment with PRANK (Löytynoja &amp; Goldman 2005, 2008)  is also supported (<a class="reference external" href="http://wasabiapp.org/software/prank/">http://wasabiapp.org/software/prank/</a>).</li>
+<li><code class="docutils literal"><span class="pre">codeml</span></code> from the PAML software package (Yang 1997). PAML can be downloaded from the following link: <a class="reference external" href="http://abacus.gene.ucl.ac.uk/software/paml.html">http://abacus.gene.ucl.ac.uk/software/paml.html</a></li>
+<li>Depending on which weighting method you choose for node-weighting the Ks distribution, you might also need <code class="docutils literal"><span class="pre">FastTree</span></code> (<a class="reference external" href="http://www.microbesonline.org/fasttree/">http://www.microbesonline.org/fasttree/</a>) (Price <cite>et al.</cite> 2010) or <code class="docutils literal"><span class="pre">phyml</span></code> (<a class="reference external" href="http://www.atgc-montpellier.fr/phyml/">http://www.atgc-montpellier.fr/phyml/</a>) (Guindon &amp; Gascuel 2003) (not necessary however).</li>
+</ul>
+<p>For <code class="docutils literal"><span class="pre">wgd</span> <span class="pre">syn</span></code></p>
+<ul class="simple">
 <li><code class="docutils literal"><span class="pre">i-adhore</span></code> from the I-ADHoRe 3.0 suite (<a class="reference external" href="http://bioinformatics.psb.ugent.be/beg/tools/i-adhore30">http://bioinformatics.psb.ugent.be/beg/tools/i-adhore30</a>) (Proost <cite>et al.</cite> 2012)</li>
-</ol>
-<p>Of course, you don&#8217;t need all of these tools installed for each feature of <code class="docutils literal"><span class="pre">wgd</span></code>.
-Please put these tools in your PATH environment variable as well, it makes life easier.</p>
+</ul>
+<p>Of course, you don&#8217;t need all of these tools installed for each feature of <code class="docutils literal"><span class="pre">wgd</span></code>.</p>
 </div>
 <div class="section" id="command-line-tools">
 <h2>Command line tools<a class="headerlink" href="#command-line-tools" title="Permalink to this headline">¶</a></h2>

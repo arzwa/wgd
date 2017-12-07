@@ -93,7 +93,7 @@ string e.g. ath.fasta,aly.fasta</li>
 
 <dl class="function">
 <dt id="wgd_cli.ks_">
-<code class="descclassname">wgd_cli.</code><code class="descname">ks_</code><span class="sig-paren">(</span><em>gene_families</em>, <em>sequences</em>, <em>output_directory</em>, <em>protein_sequences=None</em>, <em>tmp_dir=None</em>, <em>muscle='muscle'</em>, <em>codeml='codeml'</em>, <em>times=1</em>, <em>min_msa_length=100</em>, <em>ignore_prefixes=False</em>, <em>one_v_one=False</em>, <em>preserve=False</em>, <em>async=False</em>, <em>n_threads=4</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd_cli.ks_" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">wgd_cli.</code><code class="descname">ks_</code><span class="sig-paren">(</span><em>gene_families</em>, <em>sequences</em>, <em>output_directory</em>, <em>protein_sequences=None</em>, <em>tmp_dir=None</em>, <em>aligner='muscle'</em>, <em>muscle='muscle'</em>, <em>codeml='codeml'</em>, <em>times=1</em>, <em>min_msa_length=100</em>, <em>ignore_prefixes=False</em>, <em>one_v_one=False</em>, <em>preserve=False</em>, <em>async=False</em>, <em>n_threads=4</em>, <em>weighting_method='fasttree'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd_cli.ks_" title="Permalink to this definition">¶</a></dt>
 <dd><p>Ks distribution construction pipeline. For usage in the <code class="docutils literal"><span class="pre">wgd</span></code> CLI.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -112,8 +112,9 @@ string e.g. ath.fasta,aly.fasta</li>
 <li><strong>ignore_prefixes</strong> &#8211; ignore prefixes defined by &#8216;|&#8217; in gene IDs</li>
 <li><strong>one_v_one</strong> &#8211; boolean, one-vs.-one ortholog analysis</li>
 <li><strong>preserve</strong> &#8211; boolean, preserve codeml output files and multiple sequence alignments?</li>
-<li><strong>async</strong> &#8211; use the async library for parallelliztion</li>
+<li><strong>async</strong> &#8211; use the async library for parallelization</li>
 <li><strong>n_threads</strong> &#8211; number of CPU threads to use</li>
+<li><strong>weighting_method</strong> &#8211; weighting method (fasttree, phyml or alc)</li>
 </ul>
 </td>
 </tr>

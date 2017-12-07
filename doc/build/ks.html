@@ -129,9 +129,9 @@ Other methods use phylogenetic trees (phyml or fasttree)</p>
 
 <dl class="function">
 <dt id="wgd.ks_distribution.analyse_family">
-<code class="descclassname">wgd.ks_distribution.</code><code class="descname">analyse_family</code><span class="sig-paren">(</span><em>family_id</em>, <em>family</em>, <em>nucleotide</em>, <em>tmp='./'</em>, <em>muscle='muscle'</em>, <em>codeml='codeml'</em>, <em>preserve=False</em>, <em>times=1</em>, <em>min_length=100</em>, <em>method='alc'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.analyse_family" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">wgd.ks_distribution.</code><code class="descname">analyse_family</code><span class="sig-paren">(</span><em>family_id</em>, <em>family</em>, <em>nucleotide</em>, <em>tmp='./'</em>, <em>muscle='muscle'</em>, <em>codeml='codeml'</em>, <em>prank='prank'</em>, <em>preserve=False</em>, <em>times=1</em>, <em>min_length=100</em>, <em>method='alc'</em>, <em>aligner='muscle'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.analyse_family" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wrapper function for the analysis of one paralog family. Performs alignment with
-<code class="xref py py-meth docutils literal"><span class="pre">alignment.Muscle.run_muscle()</span></code> and codeml analysis with <code class="xref py py-meth docutils literal"><span class="pre">codeml.Codeml.run_codeml()</span></code>.
+<code class="xref py py-meth docutils literal"><span class="pre">alignment.MSA.run_aligner()</span></code> and codeml analysis with <code class="xref py py-meth docutils literal"><span class="pre">codeml.Codeml.run_codeml()</span></code>.
 Subsequently also clustering with <code class="xref py py-func docutils literal"><span class="pre">_average_linkage_clustering()</span></code> is performed and weighted Ks, Kn and w
 values are calculated using <a class="reference internal" href="#wgd.ks_distribution._calculate_weighted_ks" title="wgd.ks_distribution._calculate_weighted_ks"><code class="xref py py-func docutils literal"><span class="pre">_calculate_weighted_ks()</span></code></a>.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -149,37 +149,7 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
 <li><strong>times</strong> &#8211; number of times to perform ML estimation of Ks, Ka and omega values</li>
 <li><strong>min_length</strong> &#8211; minimum length of the stripped multiple sequence alignment</li>
 <li><strong>method</strong> &#8211; weighting method, from fast to slow: <code class="docutils literal"><span class="pre">alc</span></code>, <code class="docutils literal"><span class="pre">fasttree</span></code>, <code class="docutils literal"><span class="pre">phyml</span></code></li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><code class="docutils literal"><span class="pre">csv</span></code> file with results for the paralog family of interest</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="wgd.ks_distribution.analyse_family_ortholog">
-<code class="descclassname">wgd.ks_distribution.</code><code class="descname">analyse_family_ortholog</code><span class="sig-paren">(</span><em>family_id</em>, <em>family</em>, <em>nucleotide</em>, <em>tmp='./'</em>, <em>muscle='muscle'</em>, <em>codeml='codeml'</em>, <em>preserve=False</em>, <em>times=1</em>, <em>min_length=100</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.analyse_family_ortholog" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wrapper function for the analysis of one paralog family. Performs alignment with
-<code class="xref py py-meth docutils literal"><span class="pre">alignment.Muscle.run_muscle()</span></code> and codeml analysis with <code class="xref py py-meth docutils literal"><span class="pre">codeml.Codeml.run_codeml()</span></code>.
-Subsequently also clustering with <code class="xref py py-func docutils literal"><span class="pre">_average_linkage_clustering()</span></code> is performed and weighted Ks, Kn and w
-values are calculated using <a class="reference internal" href="#wgd.ks_distribution._calculate_weighted_ks" title="wgd.ks_distribution._calculate_weighted_ks"><code class="xref py py-func docutils literal"><span class="pre">_calculate_weighted_ks()</span></code></a>.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>family_id</strong> &#8211; gene family id</li>
-<li><strong>family</strong> &#8211; dictionary with sequences of paralogs</li>
-<li><strong>nucleotide</strong> &#8211; nucleotide (CDS) sequences dictionary</li>
-<li><strong>tmp</strong> &#8211; tmp directory</li>
-<li><strong>muscle</strong> &#8211; muscle path</li>
-<li><strong>codeml</strong> &#8211; codeml path</li>
-<li><strong>preserve</strong> &#8211; preserve intermediate files</li>
-<li><strong>times</strong> &#8211; number of times to perform ML estimation of Ks, Ka and omega values</li>
-<li><strong>min_length</strong> &#8211; minimum length of the stripped multiple sequence alignment</li>
+<li><strong>aligner</strong> &#8211; alignment program</li>
 </ul>
 </td>
 </tr>
@@ -192,7 +162,7 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
 
 <dl class="function">
 <dt id="wgd.ks_distribution.ks_analysis_one_vs_one">
-<code class="descclassname">wgd.ks_distribution.</code><code class="descname">ks_analysis_one_vs_one</code><span class="sig-paren">(</span><em>nucleotide_sequences</em>, <em>protein_sequences</em>, <em>gene_families</em>, <em>tmp_dir='./tmp'</em>, <em>output_dir='./ks.out'</em>, <em>muscle_path='muscle'</em>, <em>codeml_path='codeml'</em>, <em>preserve=True</em>, <em>times=1</em>, <em>n_cores=4</em>, <em>async=False</em>, <em>min_length=100</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.ks_analysis_one_vs_one" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">wgd.ks_distribution.</code><code class="descname">ks_analysis_one_vs_one</code><span class="sig-paren">(</span><em>nucleotide_sequences</em>, <em>protein_sequences</em>, <em>gene_families</em>, <em>tmp_dir='./tmp'</em>, <em>output_dir='./ks.out'</em>, <em>muscle_path='muscle'</em>, <em>codeml_path='codeml'</em>, <em>prank_path='prank'</em>, <em>aligner='muscle'</em>, <em>preserve=True</em>, <em>times=1</em>, <em>n_cores=4</em>, <em>async=False</em>, <em>min_length=100</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.ks_analysis_one_vs_one" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate a Ks distribution for one vs. one orthologs.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -206,11 +176,14 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
 <li><strong>output_dir</strong> &#8211; output directory</li>
 <li><strong>muscle_path</strong> &#8211; path to muscle executable</li>
 <li><strong>codeml_path</strong> &#8211; path to codeml executable</li>
+<li><strong>prank_path</strong> &#8211; path to prank executable</li>
 <li><strong>preserve</strong> &#8211; preserve intermediate results (muscle, codeml)</li>
 <li><strong>times</strong> &#8211; number of times to perform codeml analysis</li>
 <li><strong>ignore_prefixes</strong> &#8211; ignore prefixes in paralog/gene family file (e.g. in ath|AT1G45000, ath| will be ignored)</li>
 <li><strong>async</strong> &#8211; use asyncio library for parallelization</li>
 <li><strong>min_length</strong> &#8211; minimum MSA length</li>
+<li><strong>aligner</strong> &#8211; aligner to use (muslce|prank)</li>
+<li><strong>n_cores</strong> &#8211; number of CPU cores to use</li>
 </ul>
 </td>
 </tr>
@@ -223,7 +196,7 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
 
 <dl class="function">
 <dt id="wgd.ks_distribution.ks_analysis_paranome">
-<code class="descclassname">wgd.ks_distribution.</code><code class="descname">ks_analysis_paranome</code><span class="sig-paren">(</span><em>nucleotide_sequences</em>, <em>protein_sequences</em>, <em>paralogs</em>, <em>tmp_dir='./tmp'</em>, <em>output_dir='./ks.out'</em>, <em>muscle_path='muscle'</em>, <em>codeml_path='codeml'</em>, <em>preserve=True</em>, <em>times=1</em>, <em>ignore_prefixes=False</em>, <em>n_cores=4</em>, <em>async=False</em>, <em>min_length=100</em>, <em>method='alc'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.ks_analysis_paranome" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">wgd.ks_distribution.</code><code class="descname">ks_analysis_paranome</code><span class="sig-paren">(</span><em>nucleotide_sequences</em>, <em>protein_sequences</em>, <em>paralogs</em>, <em>tmp_dir='./tmp'</em>, <em>output_dir='./ks.out'</em>, <em>muscle_path='muscle'</em>, <em>codeml_path='codeml'</em>, <em>prank_path='prank'</em>, <em>preserve=True</em>, <em>times=1</em>, <em>ignore_prefixes=False</em>, <em>n_cores=4</em>, <em>async=False</em>, <em>min_length=100</em>, <em>method='alc'</em>, <em>aligner='muscle'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.ks_distribution.ks_analysis_paranome" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate a Ks distribution for a whole paranome.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -243,6 +216,8 @@ values are calculated using <a class="reference internal" href="#wgd.ks_distribu
 <li><strong>async</strong> &#8211; use asyncio library for parallelization</li>
 <li><strong>min_length</strong> &#8211; minimum MSA length</li>
 <li><strong>method</strong> &#8211; method to use, from fast to slow: <code class="docutils literal"><span class="pre">alc</span></code>, <code class="docutils literal"><span class="pre">fasttree</span></code>, <code class="docutils literal"><span class="pre">phyml</span></code></li>
+<li><strong>aligner</strong> &#8211; alignment program to use (muscle|prank)</li>
+<li><strong>n_cores</strong> &#8211; number of CPU cores to use</li>
 </ul>
 </td>
 </tr>
