@@ -53,16 +53,13 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="module-wgd.collinearity">
-<span id="co-linearity-analyses-module"></span><h1>Co-linearity analyses module<a class="headerlink" href="#module-wgd.collinearity" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-wgd.colinearity">
+<span id="co-linearity-analyses-module"></span><h1>Co-linearity analyses module<a class="headerlink" href="#module-wgd.colinearity" title="Permalink to this headline">¶</a></h1>
 <p>Arthur Zwaenepoel - 2017</p>
-<p>The co-linearity analysis functions currently only support intragenomic analyses.
-A note on the name for this module: &#8216;collinearity&#8217; is often found in the literature, however it is obviously
-a wrong spelling, as the word stems from co &amp; linearity. I prefer the usage of co-linearity since it is most clear
-and not wrong, however I&#8217;d like to avoid hyphens in file names so I opted for collinearity anyway.</p>
+<p>The co-linearity analysis functions currently only support intragenomic analyses.</p>
 <dl class="function">
-<dt id="wgd.collinearity.get_anchor_pairs">
-<code class="descclassname">wgd.collinearity.</code><code class="descname">get_anchor_pairs</code><span class="sig-paren">(</span><em>anchors_file</em>, <em>ks_distribution=None</em>, <em>out_file='anchors_ks.csv'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.collinearity.get_anchor_pairs" title="Permalink to this definition">¶</a></dt>
+<dt id="wgd.colinearity.get_anchor_pairs">
+<code class="descclassname">wgd.colinearity.</code><code class="descname">get_anchor_pairs</code><span class="sig-paren">(</span><em>anchors_file</em>, <em>ks_distribution=None</em>, <em>out_file='anchors_ks.csv'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.colinearity.get_anchor_pairs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get anchor pairs and their corresponding Ks values (if provided)</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -82,8 +79,8 @@ and not wrong, however I&#8217;d like to avoid hyphens in file names so I opted 
 </dd></dl>
 
 <dl class="function">
-<dt id="wgd.collinearity.run_adhore">
-<code class="descclassname">wgd.collinearity.</code><code class="descname">run_adhore</code><span class="sig-paren">(</span><em>config_file</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.collinearity.run_adhore" title="Permalink to this definition">¶</a></dt>
+<dt id="wgd.colinearity.run_adhore">
+<code class="descclassname">wgd.colinearity.</code><code class="descname">run_adhore</code><span class="sig-paren">(</span><em>config_file</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.colinearity.run_adhore" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run I-ADHoRe for a given config file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -96,8 +93,8 @@ and not wrong, however I&#8217;d like to avoid hyphens in file names so I opted 
 </dd></dl>
 
 <dl class="function">
-<dt id="wgd.collinearity.segments_to_chords_table">
-<code class="descclassname">wgd.collinearity.</code><code class="descname">segments_to_chords_table</code><span class="sig-paren">(</span><em>segments_file</em>, <em>genome</em>, <em>output_file='chords.tsv'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.collinearity.segments_to_chords_table" title="Permalink to this definition">¶</a></dt>
+<dt id="wgd.colinearity.segments_to_chords_table">
+<code class="descclassname">wgd.colinearity.</code><code class="descname">segments_to_chords_table</code><span class="sig-paren">(</span><em>segments_file</em>, <em>genome</em>, <em>output_file='chords.tsv'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.colinearity.segments_to_chords_table" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create chords table for visualization in a chord diagram. Uses the segments.txt
 output of I-ADHoRe. Chords are defined by a source chromosome and a target 
 chromosome and begin and end coordinates for each chromosome respectively.</p>
@@ -119,8 +116,8 @@ with length defined as number of genes, not physical length.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="wgd.collinearity.write_config_adhore">
-<code class="descclassname">wgd.collinearity.</code><code class="descname">write_config_adhore</code><span class="sig-paren">(</span><em>gene_lists</em>, <em>families</em>, <em>config_file_name='i-adhore.conf'</em>, <em>genome='genome'</em>, <em>output_path='i-adhore_out'</em>, <em>gap_size=30</em>, <em>cluster_gap=35</em>, <em>q_value=0.75</em>, <em>prob_cutoff=0.01</em>, <em>anchor_points=3</em>, <em>alignment_method='gg2'</em>, <em>level_2_only='false'</em>, <em>table_type='family'</em>, <em>multiple_hypothesis_correction='FDR'</em>, <em>visualize_ghm='false'</em>, <em>visualize_alignment='true'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.collinearity.write_config_adhore" title="Permalink to this definition">¶</a></dt>
+<dt id="wgd.colinearity.write_config_adhore">
+<code class="descclassname">wgd.colinearity.</code><code class="descname">write_config_adhore</code><span class="sig-paren">(</span><em>gene_lists</em>, <em>families</em>, <em>config_file_name='i-adhore.conf'</em>, <em>genome='genome'</em>, <em>output_path='i-adhore_out'</em>, <em>gap_size=30</em>, <em>cluster_gap=35</em>, <em>q_value=0.75</em>, <em>prob_cutoff=0.01</em>, <em>anchor_points=3</em>, <em>alignment_method='gg2'</em>, <em>level_2_only='false'</em>, <em>table_type='family'</em>, <em>multiple_hypothesis_correction='FDR'</em>, <em>visualize_ghm='false'</em>, <em>visualize_alignment='true'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.colinearity.write_config_adhore" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write out the config file for I-ADHoRe. See I-ADHoRe manual for information on
 parameter settings.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -155,8 +152,8 @@ parameter settings.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="wgd.collinearity.write_families_file">
-<code class="descclassname">wgd.collinearity.</code><code class="descname">write_families_file</code><span class="sig-paren">(</span><em>families</em>, <em>all_genes</em>, <em>output_file='families.tsv'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.collinearity.write_families_file" title="Permalink to this definition">¶</a></dt>
+<dt id="wgd.colinearity.write_families_file">
+<code class="descclassname">wgd.colinearity.</code><code class="descname">write_families_file</code><span class="sig-paren">(</span><em>families</em>, <em>all_genes</em>, <em>output_file='families.tsv'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.colinearity.write_families_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write out families file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -177,8 +174,8 @@ parameter settings.</p>
 </dd></dl>
 
 <dl class="function">
-<dt id="wgd.collinearity.write_gene_lists">
-<code class="descclassname">wgd.collinearity.</code><code class="descname">write_gene_lists</code><span class="sig-paren">(</span><em>genome</em>, <em>output_dir='gene_lists'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.collinearity.write_gene_lists" title="Permalink to this definition">¶</a></dt>
+<dt id="wgd.colinearity.write_gene_lists">
+<code class="descclassname">wgd.colinearity.</code><code class="descname">write_gene_lists</code><span class="sig-paren">(</span><em>genome</em>, <em>output_dir='gene_lists'</em><span class="sig-paren">)</span><a class="headerlink" href="#wgd.colinearity.write_gene_lists" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write out the gene lists</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

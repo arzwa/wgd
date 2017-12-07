@@ -19,21 +19,18 @@ External software
 ``wgd`` requires the following third party executables (preferably these should also be in the `PATH` environment variable):
 
 For ``wgd blast``:
-- ``blast`` (Altschul _et al._ 2008), from which it uses the ``blastp`` and ``makeblastdb`` commands,
-``sudo apt-get install ncbi-blast+`` will often suffice for installation
-- ``mcl`` (https://micans.org/mcl/index.html). Get MCL using your package
-manager ``sudo apt-get install mcl`` or download it at the provided link.
+
+- ``blast`` (Altschul _et al._ 2008), from which it uses the ``blastp`` and ``makeblastdb`` commands, ``sudo apt-get install ncbi-blast+`` will often suffice for installation
+- ``mcl`` (https://micans.org/mcl/index.html). Get MCL using your package manager ``sudo apt-get install mcl`` or download it at the provided link.
 
 For ``wgd ks``:
-- ``muscle`` (Edgar 2004) for multiple sequence alignment. MUSCLE can be
-retrieved from http://www.drive5.com/muscle/.
-- ``codeml`` from the PAML software package (Yang 1997). PAML can be downloaded
-from the following link: http://abacus.gene.ucl.ac.uk/software/paml.html
-- Depending on which weighting method you choose for node-weighting the Ks distribution, you might also
-need ``FastTree`` (http://www.microbesonline.org/fasttree/) (Price `et al.` 2010) or ``phyml``
-(http://www.atgc-montpellier.fr/phyml/) (Guindon & Gascuel 2003) (not necessary however).
+
+- ``muscle`` (Edgar 2004) for multiple sequence alignment. MUSCLE can be retrieved from http://www.drive5.com/muscle/. Codon alignment with PRANK (Löytynoja & Goldman 2005, 2008)  is also supported (http://wasabiapp.org/software/prank/).
+- ``codeml`` from the PAML software package (Yang 1997). PAML can be downloaded from the following link: http://abacus.gene.ucl.ac.uk/software/paml.html
+- Depending on which weighting method you choose for node-weighting the Ks distribution, you might also need ``FastTree`` (http://www.microbesonline.org/fasttree/) (Price `et al.` 2010) or ``phyml`` (http://www.atgc-montpellier.fr/phyml/) (Guindon & Gascuel 2003) (not necessary however).
 
 For ``wgd syn``
+
 - ``i-adhore`` from the I-ADHoRe 3.0 suite (http://bioinformatics.psb.ugent.be/beg/tools/i-adhore30) (Proost `et al.` 2012)
 
 Of course, you don't need all of these tools installed for each feature of ``wgd``.
