@@ -128,6 +128,59 @@ gene pairs:</p>
 </div>
 <p>However this dos not provide any further control, as opposed to the subcommands listed above.
 Note that this ability to for more detailed control was not illustrated above.</p>
+</div>
+<div class="section" id="one-vs-one-ortholog-ks-distribution-construction">
+<h2>One-<cite>vs.</cite>-one ortholog K<sub>S</sub> distribution construction<a class="headerlink" href="#one-vs-one-ortholog-ks-distribution-construction" title="Permalink to this headline">¶</a></h2>
+<p>Again, the longer way, with more customization options:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd blast --cds --one_v_one -s ath.cds.fasta,aly.cds.fasta
+$ wgd ks --one_v_one -s ath.cds.fasta,aly.cds.fasta -gf aly.cds.fasta_ath.cds.fasta.ovo.tsv
+</pre></div>
+</div>
+<p>And the shorter option:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd pipeline_2 -n 8 ath.cds.fasta,aly.cds.fasta ./aly_ath_one-vs_one_out
+</pre></div>
+</div>
+</div>
+<div class="section" id="intragenomic-co-linearity-analysis-and-anchor-base-ks-distributions">
+<h2>Intragenomic co-linearity analysis and anchor-base K<sub>S</sub> distributions<a class="headerlink" href="#intragenomic-co-linearity-analysis-and-anchor-base-ks-distributions" title="Permalink to this headline">¶</a></h2>
+<p>Example command:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd syn -gff ath.gff -gf ath.paranome.mcl -o ./wgd_syn
+</pre></div>
+</div>
+</div>
+<div class="section" id="mixture-modeling-of-ks-distributions-and-extraction-of-wgd-specific-paralogs">
+<h2>Mixture modeling of K<sub>S</sub> distributions and extraction of WGD-specific paralogs<a class="headerlink" href="#mixture-modeling-of-ks-distributions-and-extraction-of-wgd-specific-paralogs" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">wgd</span> <span class="pre">mix</span></code> command makes it easy to perform mixture model analysis of K<sub>S</sub>
+distributions. Also, it provides the possibility to extract paralogs for a given
+mixture component of interest, which can than be used for functional analysis
+(_e.g._ GO enrichment, see <code class="docutils literal"><span class="pre">example</span></code> directory in the <code class="docutils literal"><span class="pre">wgd</span></code> repository) and
+relative or absolute phylogenomic data.</p>
+<p>Example command:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd mix --method bgmm -ks ./ath.ks.tsv -n 1,4 -s ath.cds.fasta --pairs
+</pre></div>
+</div>
+<p>Will fit 1 to 4 components using a Bayesian Gaussian mixture model to the K<sub>S</sub>
+distribution in the file <code class="docutils literal"><span class="pre">ath.ks.tsv</span></code> and will subsequently write fasta files
+for the pairs for each component of the best fitting mixture (which could then be
+used for dating studies).</p>
+</div>
+<div class="section" id="interactive-visualization-of-ks-distributions-and-kernel-density-estimates">
+<h2>Interactive visualization of K<sub>S</sub> distributions and kernel density estimates<a class="headerlink" href="#interactive-visualization-of-ks-distributions-and-kernel-density-estimates" title="Permalink to this headline">¶</a></h2>
+<p>Make sure you have a <code class="docutils literal"><span class="pre">bokeh</span></code> server running (<a class="reference external" href="https://bokeh.pydata.org/en/latest/">https://bokeh.pydata.org/en/latest/</a>)</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ bokeh serve &amp;
+</pre></div>
+</div>
+<p>If you have some K<sub>S</sub> distributions in a directory, say <code class="docutils literal"><span class="pre">cool_plants_ks</span></code> you can
+plot them interactively using <code class="docutils literal"><span class="pre">wgd</span> <span class="pre">viz</span></code>:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>$ wgd viz -ks ./cool_plants_ks -i
+</pre></div>
+</div>
+<p>Where the <code class="docutils literal"><span class="pre">-i</span></code> flag triggers interactive mode. In this mode you can dynamically alter
+the range, scale, colors, _etc._ as well hide and show different distributions and plot
+kernel density estimates.</p>
+</div>
+<div class="section" id="id1">
+<h2>Command line interface<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
 <p>More detailed documentation of the main <code class="docutils literal"><span class="pre">wgd</span></code> commands can be obtained here:</p>
 <div class="toctree-wrapper compound">
 <ul>
@@ -148,6 +201,11 @@ Note that this ability to for more detailed control was not illustrated above.</
 <li><a class="reference internal" href="#">Command line interface</a></li>
 <li><a class="reference internal" href="#examples">Examples</a><ul>
 <li><a class="reference internal" href="#whole-paranome-ks-distribution-construction">Whole paranome K<sub>S</sub> distribution construction</a></li>
+<li><a class="reference internal" href="#one-vs-one-ortholog-ks-distribution-construction">One-<cite>vs.</cite>-one ortholog K<sub>S</sub> distribution construction</a></li>
+<li><a class="reference internal" href="#intragenomic-co-linearity-analysis-and-anchor-base-ks-distributions">Intragenomic co-linearity analysis and anchor-base K<sub>S</sub> distributions</a></li>
+<li><a class="reference internal" href="#mixture-modeling-of-ks-distributions-and-extraction-of-wgd-specific-paralogs">Mixture modeling of K<sub>S</sub> distributions and extraction of WGD-specific paralogs</a></li>
+<li><a class="reference internal" href="#interactive-visualization-of-ks-distributions-and-kernel-density-estimates">Interactive visualization of K<sub>S</sub> distributions and kernel density estimates</a></li>
+<li><a class="reference internal" href="#id1">Command line interface</a></li>
 </ul>
 </li>
 </ul>
