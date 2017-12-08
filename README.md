@@ -40,11 +40,11 @@ retrieved from http://www.drive5.com/muscle/.
 - `codeml` from the PAML software package (Yang 1997). PAML can be downloaded
 from the following link: http://abacus.gene.ucl.ac.uk/software/paml.html
 - Depending on which weighting method you choose for node-weighting the Ks distribution, you might also
-need `FastTree` (http://www.microbesonline.org/fasttree/) (Price `et al.` 2010) or ``phyml``
+need `FastTree` (http://www.microbesonline.org/fasttree/) (Price _et al._ 2010) or ``phyml``
 (http://www.atgc-montpellier.fr/phyml/) (Guindon & Gascuel 2003) (not necessary however).
 
 For `wgd syn`
-- ``i-adhore`` from the I-ADHoRe 3.0 suite (http://bioinformatics.psb.ugent.be/beg/tools/i-adhore30) (Proost `et al.` 2012)
+- ``i-adhore`` from the I-ADHoRe 3.0 suite (http://bioinformatics.psb.ugent.be/beg/tools/i-adhore30) (Proost _et al._ 2012)
 
 Of course, you don't need all of these tools installed for each feature of ``wgd``.
 
