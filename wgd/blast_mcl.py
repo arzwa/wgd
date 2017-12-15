@@ -33,11 +33,12 @@ def all_v_all_blast(query, db, output_directory='./', output_file='blast.tsv', e
                     '-num_threads', str(n_threads), '-out', os.path.join(output_directory, output_file)])
     logging.info("All versus all Blastp done")
 
-    logging.info("Reformatting output")
+    # logging.info("Reformatting output")
     # this didn't seem to work with suprocess.run ?
-    tmp = str(uuid.uuid4())
-    os.system(" ".join(['cut', '-f1,2,11', os.path.join(output_directory, output_file), '>', tmp]))
-    subprocess.run(['mv', tmp, os.path.join(output_directory, output_file)])
+    # tmp = str(uuid.uuid4())
+    # os.system(" ".join(['cut', '-f1,2,11', os.path.join(output_directory, output_file), '>', tmp]))
+    # subprocess.run(['mv', os.path.join(output_directory, output_file), os.path.join(output_directory, 'blast.out')])
+    # subprocess.run(['mv', tmp, os.path.join(output_directory, output_file)])
     subprocess.run(['rm', db + '.phr', db + '.pin', db + '.psq'])
 
     return os.path.join(output_directory, output_file)
@@ -59,7 +60,7 @@ def get_one_v_one_orthologs_rbh(blast_file, output_dir):
             line = line.strip().split('\t')
             sp_1, gene_1 = line[0].split('|')
             sp_2, gene_2 = line[1].split('|')
-            e = float(line[2])
+            e = float(line[10])
 
             if sp_1 == sp_2:  # putative paralog
                 continue
@@ -93,7 +94,7 @@ def get_one_v_one_orthologs_rbh(blast_file, output_dir):
     return last
 
 
-def ava_blast_to_abc(ava_file, col_1=0, col_2=1, col_3=2):
+def ava_blast_to_abc(ava_file, col_1=0, col_2=1, col_3=10):
     """
     Convert tab separated all-vs-all (ava) Blast results to an input graph in ``abc`` format for ``mcl``.
 
