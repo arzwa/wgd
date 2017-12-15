@@ -129,15 +129,20 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
 
     # all vs. all blast
     if not blast_results:
-        sequence_files = sequences.strip().split(',')
+        if os.path.isdir(sequences):
+            sequence_files = [os.path.join(sequences, x) for x in os.listdir(sequences) if x.endswith(
+                ('fa', 'fasta', 'tfa', 'faa'))]
+            logging.info('Read the following fasta files from directory {}:'.format(sequences))
+            logging.info('{}'.format(', '.join(sequence_files)))
+        else:
+            sequence_files = sequences.strip().split(',')
 
         # input checks
         if len(sequence_files) != 1 and not one_v_one:
-            logging.error('Please provide only one fasta file for whole paranome all-vs-all blast')
-            return
+            logging.info('More then one fasta file provided and one_v_one flag not set, will perform all-vs.-all blast.')
 
         if len(sequence_files) != 2 and one_v_one:
-            logging.error('Please provide (only) two fasta files for one-vs-one ortholog finding')
+            logging.error('Please provide two or more fasta files for one-vs-one ortholog finding')
             return
 
         if species_ids:
@@ -166,13 +171,23 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
         # blast
         logging.info('Writing blastdb sequences to db.fasta.')
         db = os.path.join(output_dir, str(uuid.uuid4()) + '.db.fasta')
-        write_fasta(protein_sequences[0], db)
-        query = db
 
+        # one-vs.-one
         if one_v_one:
+            write_fasta(protein_sequences[0], db)
             query = os.path.join(output_dir, str(uuid.uuid4()) + '.query.fasta')
             logging.info('Writing query sequences to query.fasta.')
             write_fasta(protein_sequences[1], query)
+
+        # all-vs.-all
+        else:
+            d = {}
+            for x in protein_sequences:
+                d.update(x)
+            write_fasta(d, db)
+            query = os.path.join(output_dir, str(uuid.uuid4()) + '.query.fasta')
+            logging.info('Writing query sequences to query.fasta.')
+            write_fasta(d, query)
 
         logging.info('Performing all-vs.-all Blastp (this might take a while)')
         blast_results = all_v_all_blast(query, db, output_dir, output_file='{}.blast.tsv'.format(
