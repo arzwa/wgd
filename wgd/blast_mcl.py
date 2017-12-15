@@ -29,8 +29,10 @@ def all_v_all_blast(query, db, output_directory='./', output_file='blast.tsv', e
     subprocess.run(['makeblastdb', '-in', db, '-dbtype', 'prot'])
 
     logging.info("Running Blastp")
-    subprocess.run(['blastp', '-db', db, '-query', query, '-evalue', str(eval_cutoff), '-outfmt', '6',
-                    '-num_threads', str(n_threads), '-out', os.path.join(output_directory, output_file)])
+    command = ['blastp', '-db', db, '-query', query, '-evalue', str(eval_cutoff), '-outfmt', '6',
+               '-num_threads', str(n_threads), '-out', os.path.join(output_directory, output_file)]
+    logging.info(' '.join(command))
+    subprocess.run(command)
     logging.info("All versus all Blastp done")
 
     # logging.info("Reformatting output")

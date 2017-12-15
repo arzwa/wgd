@@ -14,6 +14,7 @@ import datetime
 import pandas as pd
 import uuid
 import coloredlogs
+import subprocess
 from wgd.utils import translate_cds, read_fasta, write_fasta, Genome, can_i_run_software
 
 
@@ -43,6 +44,12 @@ def cli(verbosity):
     (arzwa@psb.vib-ugent.be)
     """
     coloredlogs.install(fmt='%(asctime)s: %(levelname)s\t%(message)s', level=verbosity.upper(), stream=sys.stdout)
+
+    # get round problem with python multiprocessing library that can set all cpu affinities to a single cpu
+    # found in OrthoFinder source code
+    if sys.platform.startswith("linux"):
+        with open(os.devnull, "w") as f:
+            subprocess.call("taskset -p 0xffffffffffff %d" % os.getpid(), shell=True, stdout=f)
     pass
 
 
@@ -130,8 +137,8 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
     # all vs. all blast
     if not blast_results:
         if os.path.isdir(sequences):
-            sequence_files = [os.path.join(sequences, x) for x in os.listdir(sequences) if x.endswith(
-                ('fa', 'fasta', 'tfa', 'faa'))]
+            sequence_files = sorted([os.path.join(sequences, x) for x in os.listdir(sequences) if x.endswith(
+                ('fa', 'fasta', 'tfa', 'faa'))])
             logging.info('Read the following fasta files from directory {}:'.format(sequences))
             logging.info('{}'.format(', '.join(sequence_files)))
         else:
