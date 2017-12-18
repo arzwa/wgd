@@ -4,6 +4,8 @@ Arthur Zwaenepoel - 2017
 
 The idea behind the wgd CLI is to provide script-like programs bundled under one command (`wgd`)
 for common WGD analyses for which the wgd package provides the underlying modular functionalities.
+Note that this is quite verbosely coded on purpose, and includes lots of logging messages.
+It reflects the kind of 'manual' workflow one would perform to do these tasks.
 """
 # keep these imports to a minimum tos peed up initial CLI loading
 import click
@@ -179,23 +181,14 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None, species_ids=None
         logging.info('Writing blastdb sequences to db.fasta.')
         db = os.path.join(output_dir, str(uuid.uuid4()) + '.db.fasta')
 
-        # one-vs.-one
-        if one_v_one:
-            write_fasta(protein_sequences[0], db)
-            query = os.path.join(output_dir, str(uuid.uuid4()) + '.query.fasta')
-            logging.info('Writing query sequences to query.fasta.')
-            write_fasta(protein_sequences[1], query)
-
         # all-vs.-all
-        else:
-            d = {}
-            for x in protein_sequences:
-                d.update(x)
-            write_fasta(d, db)
-            query = os.path.join(output_dir, str(uuid.uuid4()) + '.query.fasta')
-            logging.info('Writing query sequences to query.fasta.')
-            write_fasta(d, query)
-
+        d = {}
+        for x in protein_sequences:
+            d.update(x)
+        write_fasta(d, db)
+        query = os.path.join(output_dir, str(uuid.uuid4()) + '.query.fasta')
+        logging.info('Writing query sequences to query.fasta.')
+        write_fasta(d, query)
         logging.info('Performing all-vs.-all Blastp (this might take a while)')
         blast_results = all_v_all_blast(query, db, output_dir, output_file='{}.blast.tsv'.format(
             '_'.join([os.path.basename(x) for x in sequence_files])), eval_cutoff=eval_cutoff, n_threads=n_threads)
