@@ -77,6 +77,8 @@ def _parse_codeml_out(codeml_out):
         likelihood_m = likelihood.search(pairwise_estimate)
         if likelihood_m:
             ln_l = float(likelihood_m.group(1))
+        else:
+            logging.warning('No ln(L) value found!')
 
         # On the PLAZA 4.0 Vitis vinifera genome I had an issue with a pattern match
         # that was not retrieved. So now I check whether there is a match and give a warning.
