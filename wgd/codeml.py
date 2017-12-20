@@ -32,10 +32,10 @@ def _parse_codeml_out(codeml_out):
     :return: dictionary with CODEML results
     """
     if codeml_out is None:
-        return None
+        return None, None
 
     if not os.path.isfile(codeml_out):
-        return None
+        return None, None
 
     # compile regular expressions
     gene_pair_p = re.compile('\((.+)\) \.\.\. \d+ \((.+)\)')
@@ -56,14 +56,14 @@ def _parse_codeml_out(codeml_out):
         columns.add(gene_2)
 
     results_dict = {'Ks': pd.DataFrame(np.zeros((len(list(columns)), len(list(columns)))),
-                                       index = sorted(list(columns)),
-                                       columns = sorted(list(columns))),
+                                       index=sorted(list(columns)),
+                                       columns=sorted(list(columns))),
                     'Ka': pd.DataFrame(np.zeros((len(list(columns)), len(list(columns)))),
-                                       index = sorted(list(columns)),
-                                       columns = sorted(list(columns))),
+                                       index=sorted(list(columns)),
+                                       columns=sorted(list(columns))),
                     'Omega': pd.DataFrame(np.zeros((len(list(columns)), len(list(columns)))),
-                                      index=sorted(list(columns)),
-                                      columns=sorted(list(columns)))
+                                          index=sorted(list(columns)),
+                                          columns=sorted(list(columns)))
                     }
 
     # populate results
@@ -76,7 +76,7 @@ def _parse_codeml_out(codeml_out):
         w_m = w_p.search(pairwise_estimate)
         likelihood_m = likelihood.search(pairwise_estimate)
         if likelihood_m:
-            ln_l = float(likelihood_m.group(1))
+            ln_l += float(likelihood_m.group(1))
         else:
             logging.warning('No ln(L) value found!')
 
@@ -88,17 +88,17 @@ def _parse_codeml_out(codeml_out):
             ks_value = ks_value_m.group(1)
         else:
             logging.warning("No Ks value found in codeml file!")
-            return None
+            return None, None
 
         if ka_value_m:
             ka_value = ka_value_m.group(1)
         else:
-            return None
+            return None, None
 
         if w_m:
             w = w_m.group(1)
         else:
-            return None
+            return None, None
 
         results_dict['Ks'][gene_1][gene_2] = ks_value
         results_dict['Ks'][gene_2][gene_1] = ks_value
@@ -170,6 +170,7 @@ class Codeml:
         >>> codeml = Codeml()
         >>> print(codeml)
     """
+
     def __init__(self, codeml='codeml', tmp='./', id='tmp', **kwargs):
         """
         Codeml wrapper init. Initializes the default control file for Ks analysis as proposed by Vanneste et al. (2013)
@@ -243,24 +244,28 @@ class Codeml:
         best = None
         best_index = 0
         for i in range(times):
-            logging.debug("Codeml iteration {0} for {1}".format(str(i+1), msa))
+            logging.debug("Codeml iteration {0} for {1}".format(str(i + 1), msa))
             subprocess.run([self.codeml, self.control_file], stdout=subprocess.PIPE)
             subprocess.run(['rm', '2ML.dN', '2ML.dS', '2ML.t', '2NG.dN', '2NG.dS', '2NG.t', 'rst', 'rst1', 'rub'],
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            d, likelihood =_parse_codeml_out(self.out_file)
+            if not os.path.isfile(self.out_file):
+                logging.warning('Codeml output file {} not found'.format(self.out_file))
+                return None
+
+            d, likelihood = _parse_codeml_out(self.out_file)
             output.append(d)
             if not best or likelihood > best:
                 best = likelihood
                 best_index = i
 
-        # average results if times > 1
-        # results = {'results': {}, 'raw': []}
-        # if times != 1:
-            # logging.debug("Averaging codeml results")
-            # for key in ['Ks', 'Ka', 'Omega']:
-            #    df = pd.concat([x['results'][key] for x in output])
-            #    results['results'][key] = df.groupby(level=0).mean()
-            # results['raw'] = [x for x in output]
+                # average results if times > 1
+                # results = {'results': {}, 'raw': []}
+                # if times != 1:
+                # logging.debug("Averaging codeml results")
+                # for key in ['Ks', 'Ka', 'Omega']:
+                #    df = pd.concat([x['results'][key] for x in output])
+                #    results['results'][key] = df.groupby(level=0).mean()
+                # results['raw'] = [x for x in output]
 
         logging.debug('Best MLE: ln(L) = {}'.format(best))
         results = output[best_index]
@@ -284,4 +289,3 @@ class Codeml:
             if results is not None:
                 return results['results']
             return None
-
