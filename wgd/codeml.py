@@ -78,7 +78,10 @@ def _parse_codeml_out(codeml_out):
         if likelihood_m:
             if not ln_l:
                 ln_l = 0
-            ln_l += float(likelihood_m.group(1))
+            try:
+                ln_l += float(likelihood_m.group(1))
+            except ValueError:
+                logging.debug('Not a valid ln(L) value')
         else:
             logging.warning('No ln(L) value found!')
 
