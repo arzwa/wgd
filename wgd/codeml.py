@@ -76,6 +76,8 @@ def _parse_codeml_out(codeml_out):
         w_m = w_p.search(pairwise_estimate)
         likelihood_m = likelihood.search(pairwise_estimate)
         if likelihood_m:
+            if not ln_l:
+                ln_l = 0
             ln_l += float(likelihood_m.group(1))
         else:
             logging.warning('No ln(L) value found!')
