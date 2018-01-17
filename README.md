@@ -21,8 +21,7 @@ a command (e.g. `ks`) run
     $ wgd ks --help
 
 To use as a Python package as well as to find additional documentation
-for the CLI, please consult the **extensive documentation** in the `doc`
-directory or at https://arzwa.github.io/wgd/index.html.
+for the CLI, please consult the docs at http://wgd.readthedocs.io/en/latest/
 
 ## Third party software
 
@@ -31,7 +30,7 @@ directory or at https://arzwa.github.io/wgd/index.html.
 For `wgd blast`:
 - `blast` (Altschul _et al._ 2008), from which it uses the `blastp` and `makeblastdb` commands,
 `sudo apt-get install ncbi-blast+` will often suffice for installation
-- ``mcl`` (https://micans.org/mcl/index.html). Get MCL using your package
+- `mcl` (https://micans.org/mcl/index.html). Get MCL using your package
 manager ``sudo apt-get install mcl`` or download it at the provided link.
 
 For `wgd ks`:
@@ -47,9 +46,3 @@ For `wgd syn`
 - ``i-adhore`` from the I-ADHoRe 3.0 suite (http://bioinformatics.psb.ugent.be/beg/tools/i-adhore30) (Proost _et al._ 2012)
 
 Of course, you don't need all of these tools installed for each feature of ``wgd``.
-
-
-
-
-
-
