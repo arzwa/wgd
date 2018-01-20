@@ -3,6 +3,10 @@
 Arthur Zwaenepoel - 2017
 
 This is part of the `wgd` package for whole genome duplication analysis.
+
+Not operative yet, not sure if it will be completed.
+A good algorithm for phylogenomic WGD inference is GRAMPA (Gregg et al. (2017)).
+So it seems there is not much need for other algorithms/implementations here.
 """
 from .utils import read_fasta, process_gene_families, get_sequences
 from ete3 import Tree

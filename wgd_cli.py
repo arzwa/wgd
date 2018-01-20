@@ -6,8 +6,11 @@ The idea behind the wgd CLI is to provide script-like programs bundled under one
 for common WGD analyses for which the wgd package provides the underlying modular functionalities.
 Note that this is quite verbosely coded on purpose, and includes lots of logging messages.
 It reflects the kind of 'manual' workflow one would perform to do these tasks.
+
+The CLI is organized with a Click command that wraps a function with the same name followed by
+an underscore, this is chosen mostly so that the pipeline commands can reuse code.
 """
-# keep these imports to a minimum tos peed up initial CLI loading
+# keep these imports to a minimum to speed up initial CLI loading
 import click
 import logging
 import sys
@@ -614,8 +617,6 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequence
             get_paralogs_fasta(sequences, selected, os.path.join(output_dir, 'component{}.fasta'.format(i+1)),
                                pairs=pairs)
 
-    # TODO Get paralog fasta files for each pair -> dating
-
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option('--ks_distributions', '-ks', default=None,
@@ -638,6 +639,8 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma, sequence
 def viz(ks_distributions, alpha_values, colors, labels, hist_type, title, output_file, interactive):
     """
     Plot histograms/densities (interactively).
+
+    This will be replaced by a novel distinct app.
 
     Requires a running bokeh server for interactive visualization.
     Run a bokeh serve instance (in the background) with `bokeh serve &`.
