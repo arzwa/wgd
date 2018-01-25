@@ -1,3 +1,5 @@
+[![Documentation Status](https://readthedocs.org/projects/wgd/badge/?version=latest)](http://wgd.readthedocs.io/en/latest/?badge=latest)
+
 # Whole genome duplication analysis
 
 Python package and command line interface (CLI) for the analysis
@@ -45,4 +47,4 @@ need `FastTree` (http://www.microbesonline.org/fasttree/) (Price _et al._ 2010) 
 For `wgd syn`
 - ``i-adhore`` from the I-ADHoRe 3.0 suite (http://bioinformatics.psb.ugent.be/beg/tools/i-adhore30) (Proost _et al._ 2012)
 
-Of course, you don't need all of these tools installed for each feature of ``wgd``.
+Of course, you don't need all of these tools installed for each feature of ``wgd``. Note that **`wgd` is still under development**, if you use `wgd` in your work, please cite this repository (when the first release is ready, this will have a DOI).
