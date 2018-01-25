@@ -295,6 +295,10 @@ def ks_analysis_one_vs_one(nucleotide_sequences, protein_sequences, gene_familie
     logging.info('Removing tmp directory')
     os.system('rm -r {}'.format(tmp_dir))
 
+    # rename the index of the data_frame to gene1_gene2 (alphabetically)
+    new_index = results_frame[['Paralog1', 'Paralog2']].apply(lambda x: '_'.join(sorted(x)), axis=1)
+    results_frame.index = new_index
+
     return results_frame
 
 
@@ -381,5 +385,9 @@ def ks_analysis_paranome(nucleotide_sequences, protein_sequences, paralogs, tmp_
 
     logging.info('Removing tmp directory')
     os.system('rm -r {}'.format(tmp_dir))
+
+    # rename the index of the data_frame to gene1_gene2 (alphabetically)
+    new_index = results_frame[['Paralog1', 'Paralog2']].apply(lambda x: '_'.join(sorted(x)), axis=1)
+    results_frame.index = new_index
 
     return results_frame
