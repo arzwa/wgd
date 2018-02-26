@@ -9,7 +9,7 @@ on Linux Ubuntu. If you don't have python or pip installed a simple
 
 To install: clone the repo, navigate to it and install it with pip
 
-    $ git clone https://gitlab.psb.ugent.be/arzwa/wgd.git
+    $ git clone https://github.com/arzwa/wgd.git
     $ cd wgd
     $ pip install .
 
