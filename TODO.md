@@ -30,6 +30,10 @@ many cores and/or not enough memory requested.
 
 ## `wgd ks`
 
+- Revisit the gap stripping approach!
+
+- sort gene families by size and execute analysis in that order
+
 - running `wgd ks` hangs or crashes when the path of the working directory is
   too long. More specifically codeml crashes (or silently hangs in the
 background waiting for input) when the paths in “seqfile” or “outfile” are too
