@@ -1,5 +1,7 @@
 [![Documentation Status](https://readthedocs.org/projects/wgd/badge/?version=latest)](http://wgd.readthedocs.io/en/latest/?badge=latest)
 
+Copyright (C) 2018 Arthur Zwaenepoel
+
 # Whole genome duplication analysis
 
 Python package and command line interface (CLI) for the analysis
