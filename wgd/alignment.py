@@ -1,13 +1,29 @@
 #!/usr/bin/python3.5
 """
-Arthur Zwaenepoel - 2017
+Copyright (C) 2018 Arthur Zwaenepoel
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Contact: arzwa@psb.vib-ugent.be
 
 Alignment related tools.
 
-Contribution note: It is trivial to add support for another aligner (besides MUSCLE and PRANK).
-Especially when it's for amino acid alignments (codon alignment as PRANK are a bit more involved).
-To add another aligner, only the :py:meth:`MSA.run_aligner` method should be modified to include
-the aligner of interest.
+Contribution note: It is trivial to add support for another aligner (besides
+MUSCLE and PRANK). Especially when it's for amino acid alignments (codon
+alignment as PRANK are a bit more involved). To add another aligner, only the
+:py:meth:`MSA.run_aligner` method should be modified to include the aligner of
+interest.
 """
 from .utils import read_fasta
 import os

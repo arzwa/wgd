@@ -1,8 +1,21 @@
 #!/usr/bin/python3
 """
-Arthur Zwaenepoel - 2017
+Copyright (C) 2018 Arthur Zwaenepoel
 
-This is part of the `wgd` package for whole genome duplication analysis.
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Contact: arzwa@psb.vib-ugent.be
 
 Not operative yet, not sure if it will be completed.
 A good algorithm for phylogenomic WGD inference is GRAMPA (Gregg et al. (2017)).
