@@ -20,30 +20,38 @@ Contact: arzwa@psb.vib-ugent.be
 weighting in the ``phy`` module.
 """
 # TODO: other outlier detection approaches
+# TODO: alignment stripping as in Vanneste 2013
+# TODO: add functionality to use custom alignments
 
 # IMPORTS
 from .codeml import Codeml
 from .alignment import MSA, multiple_sequence_aligment_nucleotide
 from .utils import process_gene_families, get_sequences
-from .phy import run_phyml, phylogenetic_tree_to_cluster_format, run_fasttree, average_linkage_clustering
+from .phy import run_phyml, phylogenetic_tree_to_cluster_format, run_fasttree, \
+    average_linkage_clustering
+from operator import itemgetter
 from joblib import Parallel, delayed
 import pandas as pd
 import os
 import logging
 import asyncio
+import subprocess
 
 
-# HELPER FUNCTIONS -----------------------------------------------------------------------------------------------------
+# HELPER FUNCTIONS -------------------------------------------------------------
 def _weighting(pairwise_estimates, msa=None, method='alc'):
     """
     Wrapper for different weighting methods.
     The fastest method is average linkage clustering based on Ks values,
     Other methods use phylogenetic trees (phyml or fasttree)
 
-    :param pairwise_estimates: results dictionary from :py:meth:`codeml.Codeml.run()` output
-    :param msa: protein multiple sequence alignment file path (optional, not necessary for method=``alc``)
+    :param pairwise_estimates: results dictionary from
+        :py:meth:`codeml.Codeml.run()` output
+    :param msa: protein multiple sequence alignment file path (optional,
+        not necessary for method=``alc``)
     :param method: method, one of ``alc|phyml|fasttree``
-    :return: clustering data structure and pairwise leaf distances (not if method=``alc``)
+    :return: clustering data structure and pairwise leaf distances
+        (not if method=``alc``)
     """
     if pairwise_estimates is None:
         return None, None
@@ -52,18 +60,21 @@ def _weighting(pairwise_estimates, msa=None, method='alc'):
         return None, None
 
     pairwise_distances = None
+    tree_path = None
 
     if method == 'phyml':
         # PhyML tree construction
         logging.debug('Constructing phylogenetic tree with PhyML')
-        phyml_tree = run_phyml(msa)
-        clustering, pairwise_distances = phylogenetic_tree_to_cluster_format(phyml_tree, pairwise_estimates['Ks'])
+        tree_path = run_phyml(msa)
+        clustering, pairwise_distances = phylogenetic_tree_to_cluster_format(
+                tree_path, pairwise_estimates['Ks'])
 
     elif method == 'fasttree':
         # Fasttree tree construction
         logging.debug('Constructing phylogenetic tree with FastTree')
-        fast_tree = run_fasttree(msa)
-        clustering, pairwise_distances = phylogenetic_tree_to_cluster_format(fast_tree, pairwise_estimates['Ks'])
+        tree_path = run_fasttree(msa)
+        clustering, pairwise_distances = phylogenetic_tree_to_cluster_format(
+                tree_path, pairwise_estimates['Ks'])
 
     else:
         # Average linkage clustering based on Ks
@@ -71,16 +82,20 @@ def _weighting(pairwise_estimates, msa=None, method='alc'):
         clustering = average_linkage_clustering(pairwise_estimates['Ks'])
 
     logging.debug('Clustering used for weighting: \n{}'.format(str(clustering)))
-    return clustering, pairwise_distances
+    return clustering, pairwise_distances, tree_path
 
 
-def _calculate_weighted_ks(clustering, pairwise_estimates, pairwise_distances=None, family_id=None):
+def _calculate_weighted_ks(clustering, pairwise_estimates,
+                           pairwise_distances=None, family_id=None):
     """
-    Calculate weighted Ks, Kn and w values following the procedure as outlined in Vanneste et al. (2013)
+    Calculate weighted Ks, Kn and w values following the procedure as outlined
+    in Vanneste et al. (2013)
 
-    :param clustering: clustering results as produced with :py:func:`_weighting`, can be by average linkage clustering
-        or phylogenetic means (phyml, fasttree)
-    :param pairwise_estimates: pairwise Ks, Kn and w estimates as produced by :py:meth:`codeml.Codeml.run_codeml`
+    :param clustering: clustering results as produced with
+        :py:func:`_weighting`, can be by average linkage clustering or
+        phylogenetic means (phyml, fasttree)
+    :param pairwise_estimates: pairwise Ks, Kn and w estimates as produced by
+        :py:meth:`codeml.Codeml.run_codeml`
     :return: a pandas data frame of weighted Ks, Kn and w values.
     """
     # None -> None
@@ -97,7 +112,8 @@ def _calculate_weighted_ks(clustering, pairwise_estimates, pairwise_distances=No
     out = set()
 
     for x in range(clustering.shape[0]):
-        node_1, node_2, distance = clustering[x, 0], clustering[x, 1], clustering[x, 2] * 2
+        node_1, node_2, distance = clustering[x, 0], clustering[x, 1], \
+                                   clustering[x, 2] * 2
         grouping_node = leaves + x
         nodes[grouping_node] = nodes[node_1] + nodes[node_2]
         weight = 1 / (len(nodes[node_1]) * len(nodes[node_2]))
@@ -120,7 +136,8 @@ def _calculate_weighted_ks(clustering, pairwise_estimates, pairwise_distances=No
                 if pairwise_estimates['Ks'].iloc[i, j] > 5:
                     out.add(grouping_node)
 
-    df1 = pd.DataFrame(array, columns=['Paralog1', 'Paralog2', 'Family', 'WeightOutliersIncluded',
+    df1 = pd.DataFrame(array, columns=['Paralog1', 'Paralog2', 'Family',
+                                       'WeightOutliersIncluded',
                                        'Ks', 'Ka', 'Omega', 'Distance'])
 
     # reweigh after outlier removal
@@ -135,10 +152,12 @@ def _calculate_weighted_ks(clustering, pairwise_estimates, pairwise_distances=No
             weight = 1 / (len(nodes[node_1]) * len(nodes[node_2]))
             for i in nodes[node_1]:
                 for j in nodes[node_2]:
-                    reweight.append([pairwise_estimates['Ks'].index[i], pairwise_estimates['Ks'].index[j],
+                    reweight.append([pairwise_estimates['Ks'].index[i],
+                                     pairwise_estimates['Ks'].index[j],
                                      weight, 'FALSE'])
 
-    df2 = pd.DataFrame(reweight, columns=['Paralog1', 'Paralog2', 'WeightOutliersExcluded', 'Outlier'])
+    df2 = pd.DataFrame(reweight, columns=['Paralog1', 'Paralog2',
+                                          'WeightOutliersExcluded', 'Outlier'])
     data_frame = pd.merge(df1, df2, how='outer', on=['Paralog1', 'Paralog2'])
     data_frame['Outlier'] = data_frame['Outlier'].fillna('TRUE')
 
@@ -164,17 +183,21 @@ def add_alignment_stats(df, stats, l, l_stripped):
     df['AlignmentIdentity'] = pd.Series(identity, index=df.index)
     df['AlignmentCoverage'] = pd.Series(coverage, index=df.index)
     df['AlignmentLength'] = pd.Series([l] * len(df.index), index=df.index)
-    df['AlignmentLengthStripped'] = pd.Series([l_stripped] * len(df.index), index=df.index)
+    df['AlignmentLengthStripped'] = pd.Series([l_stripped] * len(df.index),
+                                              index=df.index)
     return df
 
 
-def analyse_family(family_id, family, nucleotide, tmp='./', muscle='muscle', codeml='codeml', prank='prank',
-                   preserve=False, times=1, min_length=100, method='alc', aligner='muscle'):
+def analyse_family(family_id, family, nucleotide, tmp='./', muscle='muscle',
+                   codeml='codeml', prank='prank', preserve=False, times=1,
+                   min_length=100, method='alc', aligner='muscle',
+                   output_dir='./out'):
     """
-    Wrapper function for the analysis of one paralog family. Performs alignment with
-    :py:meth:`alignment.MSA.run_aligner` and codeml analysis with :py:meth:`codeml.Codeml.run_codeml`.
-    Subsequently also clustering with :py:func:`_average_linkage_clustering` is performed and weighted Ks, Kn and w
-    values are calculated using :py:func:`_calculate_weighted_ks`.
+    Wrapper function for the analysis of one paralog family. Performs alignment
+    with :py:meth:`alignment.MSA.run_aligner` and codeml analysis with
+    :py:meth:`codeml.Codeml.run_codeml`. Subsequently also clustering with
+    :py:func:`_average_linkage_clustering` is performed and weighted Ks, Kn and
+    w values are calculated using :py:func:`_calculate_weighted_ks`.
 
     :param family_id: gene family id
     :param family: dictionary with sequences of paralogs
@@ -182,15 +205,21 @@ def analyse_family(family_id, family, nucleotide, tmp='./', muscle='muscle', cod
     :param tmp: tmp directory
     :param muscle: muscle path
     :param codeml: codeml path
+    :param prank: prank path
     :param preserve: preserve intermediate files
-    :param times: number of times to perform ML estimation of Ks, Ka and omega values
-    :param min_length: minimum length of the stripped multiple sequence alignment
-    :param method: weighting method, from fast to slow: ``alc``, ``fasttree``, ``phyml``
+    :param times: number of times to perform ML estimation of Ks, Ka and omega
+        values
+    :param min_length: minimum length of the stripped multiple sequence
+        alignment
+    :param method: weighting method, from fast to slow: ``alc``, ``fasttree``,
+        ``phyml``
     :param aligner: alignment program
     :return: ``csv`` file with results for the paralog family of interest
     """
+    # pre-processing -----------------------------------------------------------
     if os.path.isfile(os.path.join(tmp, family_id + '.Ks')):
-        logging.info('Found {}.Ks in tmp directory, will use this'.format(family_id))
+        logging.info('Found {}.Ks in tmp directory, will use this'
+                     ''.format(family_id))
         return
 
     if len(list(family.keys())) < 2:
@@ -202,40 +231,65 @@ def analyse_family(family_id, family, nucleotide, tmp='./', muscle='muscle', cod
     codeml = Codeml(codeml=codeml, tmp=tmp, id=family_id)
     align = MSA(muscle=muscle, tmp=tmp, prank=prank)
 
-    # multiple sequence alignment
+    # multiple sequence alignment ----------------------------------------------
     if aligner == 'prank':
         logging.debug('Aligner is prank, will perform codon alignment')
-        family = {k: nucleotide[k] for k in family.keys() if len(nucleotide[k]) % 3 == 0}
+        family = {k: nucleotide[k] for k in family.keys() if len(nucleotide[k])
+                  % 3 == 0}
 
-    logging.debug('Performing multiple sequence alignment ({0}) on gene family {1}.'.format(aligner, family_id))
-    msa_path_protein = align.run_aligner(family, file=family_id, aligner=aligner)
-    msa_out = multiple_sequence_aligment_nucleotide(msa_path_protein, nucleotide, min_length=min_length,
-                                                    aligner=aligner)
+    logging.debug('Performing multiple sequence alignment ({0}) on gene family '
+                  '{1}.'.format(aligner, family_id))
+    msa_path_protein = align.run_aligner(
+            family, file=family_id, aligner=aligner)
+    msa_out = multiple_sequence_aligment_nucleotide(
+            msa_path_protein, nucleotide, min_length=min_length, aligner=aligner
+    )
     if not msa_out:
-        logging.warning('Did not analyze gene family {0}, stripped MSA too short (< {1}).'.format(
-            family_id, min_length))
+        logging.warning('Did not analyze gene family {0}, stripped MSA too '
+                        'short (< {1}).'.format(family_id, min_length))
         return
 
     else:
         msa_path, l, l_stripped, alignment_stats = msa_out
 
-    # Calculate Ks values (codeml)
-    logging.debug('Performing codeml analysis on gene family {}'.format(family_id))
-    results_dict = codeml.run_codeml(msa_path, preserve=preserve, times=times)
+    # Calculate Ks values (codeml) ---------------------------------------------
+    logging.debug('Performing codeml analysis on gene family {}'
+                  ''.format(family_id))
+    results_dict, codeml_out = codeml.run_codeml(os.path.basename(msa_path),
+                                                 preserve=preserve, times=times)
 
-    # Calculate weights according to method
-    clustering, pairwise_distances = _weighting(results_dict, msa=msa_path_protein, method=method)
+    # Calculate weights according to method ------------------------------------
+    clustering, pairwise_distances, tree_path = _weighting(
+            results_dict, msa=msa_path_protein, method=method)
 
     if clustering is not None:
         out = _calculate_weighted_ks(
-            clustering, results_dict, pairwise_distances=pairwise_distances, family_id=family_id)
+                clustering, results_dict, pairwise_distances=pairwise_distances,
+                family_id=family_id)
         out = add_alignment_stats(out, alignment_stats, l, l_stripped)
         out.to_csv(os.path.join(tmp, family_id + '.Ks'))
 
+    # preserve or remove data --------------------------------------------------
+    if preserve:
+        subprocess.run(['mv', msa_path, os.path.join(output_dir, 'msa')])
+        subprocess.run(['mv', codeml_out, os.path.join(output_dir, 'codeml')])
+        if tree_path:
+            subprocess.run(['mv', tree_path, os.path.join(output_dir, 'trees')])
+    else:
+        subprocess.run(['rm', msa_path])
+        subprocess.run(['rm', codeml_out])
+        if tree_path:
+            subprocess.run(['rm', tree_path])
 
-def ks_analysis_one_vs_one(nucleotide_sequences, protein_sequences, gene_families, tmp_dir='./tmp',
-                           output_dir='./ks.out', muscle_path='muscle', codeml_path='codeml', prank_path='prank',
-                           aligner='muscle', preserve=True, times=1, n_cores=4, async=False, min_length=100):
+
+def ks_analysis_one_vs_one(
+        nucleotide_sequences, protein_sequences,
+        gene_families, tmp_dir='./tmp',
+        output_dir='./ks.out', muscle_path='muscle',
+        codeml_path='codeml', prank_path='prank',
+        aligner='muscle', preserve=True, times=1,
+        n_threads=4, async=False, min_length=100
+):
     """
     Calculate a Ks distribution for one vs. one orthologs.
 
@@ -249,56 +303,62 @@ def ks_analysis_one_vs_one(nucleotide_sequences, protein_sequences, gene_familie
     :param prank_path: path to prank executable
     :param preserve: preserve intermediate results (muscle, codeml)
     :param times: number of times to perform codeml analysis
-    :param ignore_prefixes: ignore prefixes in paralog/gene family file (e.g. in ath|AT1G45000, ath| will be ignored)
+    :param ignore_prefixes: ignore prefixes in paralog/gene family file
+        (e.g. in ath|AT1G45000, ath| will be ignored)
     :param async: use asyncio library for parallelization
     :param min_length: minimum MSA length
     :param aligner: aligner to use (muslce|prank)
-    :param n_cores: number of CPU cores to use
+    :param n_threads: number of CPU cores to use
     :return: data frame
     """
-    # Filter families with one vs one orthologs for the species of interest.
+    # Filter families with one vs one orthologs for the species of interest. ---
     gene_families = process_gene_families(gene_families, ignore_prefix=False)
     protein = get_sequences(gene_families, protein_sequences)
 
-    # start analysis
-    logging.info('Started analysis in parallel')
-    if async:
-        loop = asyncio.get_event_loop()
-        tasks = [loop.run_in_executor(None, analyse_family, family, protein[family],
-                                      nucleotide_sequences, tmp_dir, muscle_path,
-                                      codeml_path, prank_path, preserve, times,
-                                      min_length, 'alc', aligner) for family in protein.keys()]
-        loop.run_until_complete(asyncio.gather(*tasks))
-
-    else:
-        Parallel(n_jobs=n_cores)(delayed(analyse_family)(family, protein[family],
-                                                         nucleotide_sequences, tmp_dir, muscle_path,
-                                                         codeml_path, prank_path, preserve, times,
-                                                         min_length, 'alc', aligner) for family in protein.keys())
-    logging.info('Analysis done')
-
-    # preserve intermediate data if asked
+    # preserve intermediate data if asked --------------------------------------
     if preserve:
-        logging.info('Moving files (preserve=True)')
-
         # msa and codeml results
         if not os.path.isdir(os.path.join(output_dir, 'msa')):
             os.mkdir(os.path.join(output_dir, 'msa'))
         if not os.path.isdir(os.path.join(output_dir, 'codeml')):
             os.mkdir(os.path.join(output_dir, 'codeml'))
 
-        os.system(" ".join(['mv', os.path.join(tmp_dir, '*.msa*'), os.path.join(output_dir, 'msa')]))
-        os.system(" ".join(['mv', os.path.join(tmp_dir, '*.codeml'), os.path.join(output_dir, 'codeml')]))
+    # start analysis -----------------------------------------------------------
+    logging.info('Started analysis in parallel')
+    if async:
+        loop = asyncio.get_event_loop()
+        tasks = [
+            loop.run_in_executor(None, analyse_family, family, protein[family],
+                                 nucleotide_sequences, tmp_dir, muscle_path,
+                                 codeml_path, prank_path, preserve, times,
+                                 min_length, 'alc', aligner, output_dir)
+            for family in protein.keys()]
+        loop.run_until_complete(asyncio.gather(*tasks))
 
     else:
-        logging.info('Removing files (preserve=False)')
-        os.system(" ".join(['rm', os.path.join(tmp_dir, '*.msa*')]))
+        Parallel(n_jobs=n_threads)(
+                delayed(analyse_family)(
+                        family, protein[family],
+                        nucleotide_sequences,
+                        tmp_dir,
+                        muscle_path,
+                        codeml_path,
+                        prank_path,
+                        preserve,
+                        times,
+                        min_length,
+                        'alc',
+                        aligner,
+                        output_dir) for family
+                in protein.keys())
+    logging.info('Analysis done')
 
     logging.info('Making results data frame')
     results_frame = pd.DataFrame(columns=['Paralog1', 'Paralog2', 'Family',
-                                          'WeightOutliersIncluded', 'Ks', 'Ka', 'Omega'])
+                                          'WeightOutliersIncluded', 'Ks', 'Ka',
+                                          'Omega'])
 
-    # count the number of analyzed pairs
+    # count the number of analyzed pairs ---------------------------------------
     counts = 0
     for f in os.listdir(tmp_dir):
         if f[-3:] == '.Ks':
@@ -310,16 +370,22 @@ def ks_analysis_one_vs_one(nucleotide_sequences, protein_sequences, gene_familie
     logging.info('Removing tmp directory')
     os.system('rm -r {}'.format(tmp_dir))
 
-    # rename the index of the data_frame to gene1_gene2 (alphabetically)
-    new_index = results_frame[['Paralog1', 'Paralog2']].apply(lambda x: '_'.join(sorted(x)), axis=1)
+    # rename the index of the data_frame to gene1_gene2 (alphabetically) -------
+    new_index = results_frame[['Paralog1', 'Paralog2']].apply(
+            lambda x: '_'.join(sorted(x)), axis=1)
     results_frame.index = new_index
 
     return results_frame
 
 
-def ks_analysis_paranome(nucleotide_sequences, protein_sequences, paralogs, tmp_dir='./tmp', output_dir='./ks.out',
-                         muscle_path='muscle', codeml_path='codeml', prank_path='prank', preserve=True, times=1,
-                         ignore_prefixes=False, n_cores=4, async=False, min_length=100, method='alc', aligner='muscle'):
+def ks_analysis_paranome(
+        nucleotide_sequences, protein_sequences, paralogs,
+        tmp_dir='./tmp', output_dir='./ks.out',
+        muscle_path='muscle', codeml_path='codeml',
+        prank_path='prank', preserve=True, times=1,
+        ignore_prefixes=False, n_threads=4, async=False,
+        min_length=100, method='alc', aligner='muscle'
+):
     """
     Calculate a Ks distribution for a whole paranome.
 
@@ -332,64 +398,71 @@ def ks_analysis_paranome(nucleotide_sequences, protein_sequences, paralogs, tmp_
     :param codeml_path: path to codeml executable
     :param preserve: preserve intermediate results (muscle, codeml)
     :param times: number of times to perform codeml analysis
-    :param ignore_prefixes: ignore prefixes in paralog/gene family file (e.g. in ath|AT1G45000, ath| will be ignored)
+    :param ignore_prefixes: ignore prefixes in paralog/gene family file
+        (e.g. in ath|AT1G45000, ath| will be ignored)
     :param async: use asyncio library for parallelization
     :param min_length: minimum MSA length
-    :param method: method to use, from fast to slow: ``alc``, ``fasttree``, ``phyml``
+    :param method: method to use, from fast to slow: ``alc``, ``fasttree``,
+        ``phyml``
     :param aligner: alignment program to use (muscle|prank)
-    :param n_cores: number of CPU cores to use
+    :param n_threads: number of CPU cores to use
     :return: data frame
     """
-
-    # ignore prefixes in gene families, since only one species
+    # ignore prefixes in gene families, since only one species -----------------
     paralogs = process_gene_families(paralogs, ignore_prefix=ignore_prefixes)
     protein = get_sequences(paralogs, protein_sequences)
 
-    # start analysis
-    logging.info('Started analysis in parallel (n_cores = {})'.format(n_cores))
-    if async:
-        loop = asyncio.get_event_loop()
-        tasks = [loop.run_in_executor(None, analyse_family, family, protein[family],
-                                      nucleotide_sequences, tmp_dir, muscle_path,
-                                      codeml_path, prank_path, preserve, times,
-                                      min_length, method, aligner) for family in protein.keys()]
-
-        loop.run_until_complete(asyncio.gather(*tasks))
-    else:
-        Parallel(n_jobs=n_cores)(delayed(analyse_family)(family, protein[family],
-                                                         nucleotide_sequences, tmp_dir, muscle_path,
-                                                         codeml_path, prank_path, preserve, times,
-                                                         min_length, method, aligner) for family in protein.keys())
-    logging.info('Analysis done')
-
-    # preserve intermediate data if asked
+    # preserve intermediate data if asked --------------------------------------
     if preserve:
-        logging.info('Moving files (preserve=True)')
-
         # msa and codeml results
         if not os.path.isdir(os.path.join(output_dir, 'msa')):
             os.mkdir(os.path.join(output_dir, 'msa'))
         if not os.path.isdir(os.path.join(output_dir, 'codeml')):
             os.mkdir(os.path.join(output_dir, 'codeml'))
-        os.system(" ".join(['mv', os.path.join(tmp_dir, '*.msa'), os.path.join(output_dir, 'msa')]))
-        os.system(" ".join(['mv', os.path.join(tmp_dir, '*.msa.nuc'), os.path.join(output_dir, 'msa')]))
-        os.system(" ".join(['mv', os.path.join(tmp_dir, '*.codeml'), os.path.join(output_dir, 'codeml')]))
-
-        # trees
         if method in ['fasttree', 'phyml']:
-            if not os.path.isdir(os.path.join(output_dir, method)):
-                os.mkdir(os.path.join(output_dir, method))
-            os.system(" ".join(['mv', os.path.join(tmp_dir, '*.nw'), os.path.join(output_dir, method)]))
+            if not os.path.isdir(os.path.join(output_dir, 'trees')):
+                os.mkdir(os.path.join(output_dir, 'trees'))
 
+    # sort family ids by family size -------------------------------------------
+    sorted_families = sort_families_by_size(protein)
+    print(sorted_families)
+
+    # start analysis -----------------------------------------------------------
+    logging.info('Started analysis in parallel (n_threads = {})'
+                 ''.format(n_threads))
+    if async:
+        loop = asyncio.get_event_loop()
+        tasks = [loop.run_in_executor(
+                None, analyse_family, family[0], protein[family[0]],
+                nucleotide_sequences, tmp_dir, muscle_path,
+                codeml_path, prank_path, preserve, times,
+                min_length, method, aligner, output_dir)
+            for family in sorted_families]
+        loop.run_until_complete(asyncio.gather(*tasks))
     else:
-        logging.info('Removing files (preserve=False)')
-        os.system(" ".join(['rm', os.path.join(tmp_dir, '*.msa*')]))
+        Parallel(n_jobs=n_threads)(
+                delayed(analyse_family)(
+                        family[0], protein[family[0]],
+                        nucleotide_sequences,
+                        tmp_dir,
+                        muscle_path,
+                        codeml_path,
+                        prank_path,
+                        preserve,
+                        times,
+                        min_length,
+                        method,
+                        aligner,
+                        output_dir
+                ) for family in sorted_families)
+    logging.info('Analysis done')
 
     logging.info('Making results data frame')
     results_frame = pd.DataFrame(columns=['Paralog1', 'Paralog2', 'Family',
-                                          'WeightOutliersIncluded', 'Ks', 'Ka', 'Omega'])
+                                          'WeightOutliersIncluded', 'Ks', 'Ka',
+                                          'Omega'])
 
-    # count the number of analyzed pairs
+    # count the number of analyzed pairs ---------------------------------------
     counts = 0
     for f in os.listdir(tmp_dir):
         if f[-3:] == '.Ks':
@@ -401,8 +474,22 @@ def ks_analysis_paranome(nucleotide_sequences, protein_sequences, paralogs, tmp_
     logging.info('Removing tmp directory')
     os.system('rm -r {}'.format(tmp_dir))
 
-    # rename the index of the data_frame to gene1_gene2 (alphabetically)
-    new_index = results_frame[['Paralog1', 'Paralog2']].apply(lambda x: '_'.join(sorted(x)), axis=1)
+    # rename the index of the data_frame to gene1_gene2 (alphabetically) -------
+    new_index = results_frame[['Paralog1', 'Paralog2']].apply(
+            lambda x: '_'.join(sorted(x)), axis=1)
     results_frame.index = new_index
 
     return results_frame
+
+
+def sort_families_by_size(families):
+    """
+    Sort a families dictionary by family size
+
+    :param families: nested gene family dictionary {family: {gene: sequence}}
+    :return: list of tuples [(family id, size)] sorted by size
+    """
+    sorted_families = []
+    for k, v in families.items():
+        sorted_families.append((k, len(v.keys())))
+    return sorted(sorted_families, key=itemgetter(1), reverse=True)

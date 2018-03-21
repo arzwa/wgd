@@ -62,30 +62,37 @@ def _parse_codeml_out(codeml_out):
     # read codeml output file
     with open(codeml_out, 'r') as f:
         file_content = f.read()
-    codeml_results = file_content.split('pairwise comparison')[-1].split("\n\n\n")[1:]
+    codeml_results = file_content.split(
+            'pairwise comparison')[-1].split("\n\n\n")[1:]
 
     columns = set()
     for pairwise_estimate in codeml_results:
-        gene_1, gene_2 = gene_pair_p.search(pairwise_estimate).group(1), gene_pair_p.search(pairwise_estimate).group(2)
+        gene_1, gene_2 = gene_pair_p.search(pairwise_estimate).group(1), \
+                         gene_pair_p.search(pairwise_estimate).group(2)
         columns.add(gene_1)
         columns.add(gene_2)
 
-    results_dict = {'Ks': pd.DataFrame(np.zeros((len(list(columns)), len(list(columns)))),
-                                       index=sorted(list(columns)),
-                                       columns=sorted(list(columns))),
-                    'Ka': pd.DataFrame(np.zeros((len(list(columns)), len(list(columns)))),
-                                       index=sorted(list(columns)),
-                                       columns=sorted(list(columns))),
-                    'Omega': pd.DataFrame(np.zeros((len(list(columns)), len(list(columns)))),
-                                          index=sorted(list(columns)),
-                                          columns=sorted(list(columns)))
-                    }
+    results_dict = {
+        'Ks': pd.DataFrame(
+                np.zeros((len(list(columns)), len(list(columns)))),
+                index=sorted(list(columns)),
+                columns=sorted(list(columns))),
+        'Ka': pd.DataFrame(
+                np.zeros((len(list(columns)), len(list(columns)))),
+                index=sorted(list(columns)),
+                columns=sorted(list(columns))),
+        'Omega': pd.DataFrame(
+                np.zeros((len(list(columns)), len(list(columns)))),
+                index=sorted(list(columns)),
+                columns=sorted(list(columns)))
+    }
 
     # populate results
     ln_l = None
 
     for pairwise_estimate in codeml_results:
-        gene_1, gene_2 = gene_pair_p.search(pairwise_estimate).group(1), gene_pair_p.search(pairwise_estimate).group(2)
+        gene_1, gene_2 = gene_pair_p.search(pairwise_estimate).group(
+                1), gene_pair_p.search(pairwise_estimate).group(2)
         ks_value_m = ks_p.search(pairwise_estimate)
         ka_value_m = ka_p.search(pairwise_estimate)
         w_m = w_p.search(pairwise_estimate)
@@ -100,10 +107,10 @@ def _parse_codeml_out(codeml_out):
         else:
             logging.warning('No ln(L) value found!')
 
-        # On the PLAZA 4.0 Vitis vinifera genome I had an issue with a pattern match
-        # that was not retrieved. So now I check whether there is a match and give a warning.
-        # anyway this shouldn't be necessary! if there is codeml output, it should have
-        # the ks, ka and w values!
+        # On the PLAZA 4.0 Vitis vinifera genome I had an issue with a pattern
+        # match that was not retrieved. So now I check whether there is a match
+        # and give a warning. anyway this shouldn't be necessary! if there is
+        # codeml output, it should have the ks, ka and w values!
         if ks_value_m:
             ks_value = ks_value_m.group(1)
         else:
@@ -132,11 +139,13 @@ def _parse_codeml_out(codeml_out):
 
 class Codeml:
     """
-    Class for codeml (PAML Yang 2007) python wrapper.
-    Defines the controle file and enables running codeml from within python in one line of code.
+    Class for codeml (PAML Yang 2007) python wrapper. Defines the controle file
+    and enables running codeml from within python in one line of code.
 
-    :param codeml: path to codeml executable (by default will look for codeml in the system PATH)
-    :param tmp: path to temporary directory, will default to the current working directory ('./')
+    :param codeml: path to codeml executable (by default will look for codeml
+        in the system PATH)
+    :param tmp: path to temporary directory, will default to the current working
+        directory ('./')
     :param id: filename prefix for output/tmp files
     :param kwargs: other codeml keyword arguments (see PAML user guide)::
 
@@ -170,17 +179,20 @@ class Codeml:
 
     Usage examples:
 
-    Run codeml with default (Ks analysis) settings on a multiple sequence alignment (msa.fasta):::
+    Run codeml with default (Ks analysis) settings on a multiple sequence
+    alignment (msa.fasta):::
 
         >>> codeml = Codeml()
         >>> codeml.run_codeml('msa.fasta')
 
-    Change control setting CodonFreq to the F1x4 option (1) and rerun above example:::
+    Change control setting CodonFreq to the F1x4 option (1) and rerun above
+    example:::
 
         >>> codeml.control['CodonFreq'] = 1
         >>> codeml.run_codeml('msa.fasta')
 
-    Do the above example directly without modifying the control settings in the dict directly:::
+    Do the above example directly without modifying the control settings in the
+    dict directly:::
 
         >>> codeml = Codeml(CodonFreq=1)
         >>> codeml.run_codeml('msa.fasta')
@@ -191,14 +203,19 @@ class Codeml:
         >>> print(codeml)
     """
 
-    def __init__(self, codeml='codeml', tmp='./', id='tmp', **kwargs):
+    def __init__(self, codeml='codeml', tmp='./', id='tmp', out_file=None,
+                 **kwargs):
         """
-        Codeml wrapper init. Initializes the default control file for Ks analysis as proposed by Vanneste et al. (2013)
-        Takes as keyword arguments the options from the normal codeml distribution.
-        Control settings are stored in a dictionary that can be accessed with the .control attribute
+        Codeml wrapper init. Initializes the default control file for Ks
+        analysis as proposed by Vanneste et al. (2013). Takes as keyword
+        arguments the options from the normal codeml distribution. Control
+        settings are stored in a dictionary that can be accessed with the
+        `.control` attribute
 
-        :param codeml: path to codeml executable (by default will look for codeml in the system PATH)
-        :param tmp: path to temporary directory, will default to the current working directory ('./')
+        :param codeml: path to codeml executable (by default will look for
+            codeml in the system PATH)
+        :param tmp: path to temporary directory, will default to the current
+            working directory ('./')
         :param id: filename prefix for output/tmp files
         :param kwargs: any codeml control option (see PAML user guide)
         """
@@ -206,23 +223,32 @@ class Codeml:
         self.tmp = tmp
 
         if not os.path.isdir(self.tmp):
-            raise NotADirectoryError('tmp directory {} not found!'.format(self.tmp))
+            raise NotADirectoryError(
+                    'tmp directory {} not found!'.format(self.tmp))
 
         self.id = id
         self.control_file = os.path.join(self.tmp, self.id + '.ctrl')
-        self.out_file = os.path.join(self.tmp, self.id + '.codeml')
+        if not out_file:
+            self.out_file = os.path.join(self.tmp, self.id + '.codeml')
+        else:
+            self.out_file = out_file
         self.control = {
             'seqfile': None, 'outfile': self.out_file,
-            'noisy': 0, 'verbose': 0, 'runmode': -2, 'seqtype': 1, 'CodonFreq': 2, 'clock': 0, 'aaDist': 0,
-            'aaRatefile': 'dat/jones.dat', 'model': 0, 'NSsites': 0, 'icode': 0, 'Mgene': 0, 'fix_kappa': 0,
-            'kappa': 2, 'fix_omega': 0, 'omega': .4, 'fix_alpha': 1, 'alpha': 0, 'Malpha': 0, 'ncatG': 8,
-            'getSE': 0, 'RateAncestor': 1, 'Small_Diff': .5e-6, 'cleandata': 1, 'method': 0
+            'noisy': 0, 'verbose': 0, 'runmode': -2, 'seqtype': 1,
+            'CodonFreq': 2, 'clock': 0, 'aaDist': 0,
+            'aaRatefile': 'dat/jones.dat', 'model': 0, 'NSsites': 0, 'icode': 0,
+            'Mgene': 0, 'fix_kappa': 0,
+            'kappa': 2, 'fix_omega': 0, 'omega': .4, 'fix_alpha': 1, 'alpha': 0,
+            'Malpha': 0, 'ncatG': 8,
+            'getSE': 0, 'RateAncestor': 1, 'Small_Diff': .5e-6, 'cleandata': 1,
+            'method': 0
         }
 
         # update the control with kwargs
         for x in kwargs.keys():
             if x not in self.control:
-                raise KeyError("{} is not a valid keyword for the codeml control file.".format(x))
+                raise KeyError("{} is not a valid keyword for the codeml "
+                               "control file.".format(x))
             else:
                 self.control[x] = kwargs[x]
 
@@ -264,12 +290,23 @@ class Codeml:
         best = None
         best_index = 0
         for i in range(times):
-            logging.debug("Codeml iteration {0} for {1}".format(str(i + 1), msa))
-            subprocess.run([self.codeml, self.control_file], stdout=subprocess.PIPE)
-            subprocess.run(['rm', '2ML.dN', '2ML.dS', '2ML.t', '2NG.dN', '2NG.dS', '2NG.t', 'rst', 'rst1', 'rub'],
-                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            logging.debug(
+                    "Codeml iteration {0} for {1}".format(str(i + 1), msa))
+
+            # codeml hangs when filename is too long apparently
+            # however in most use cases the files are in the working directory
+            if os.path.isfile(os.path.basename(self.control_file)):
+                self.control_file = os.path.basename(self.control_file)
+
+            subprocess.run([self.codeml, self.control_file],
+                           stdout=subprocess.PIPE)
+            subprocess.run(
+                    ['rm', '2ML.dN', '2ML.dS', '2ML.t', '2NG.dN', '2NG.dS',
+                     '2NG.t', 'rst', 'rst1', 'rub'],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             if not os.path.isfile(self.out_file):
-                logging.warning('Codeml output file {} not found'.format(self.out_file))
+                logging.warning(
+                        'Codeml output file {} not found'.format(self.out_file))
                 return None
 
             d, likelihood = _parse_codeml_out(self.out_file)
@@ -299,7 +336,9 @@ class Codeml:
             if os.path.isfile(self.out_file):
                 os.remove(self.out_file)
             else:
-                logging.warning("codeml output file {} not found!".format(self.out_file))
+                logging.warning(
+                        "codeml output file {} not found!".format(
+                            self.out_file))
                 return None
 
         if raw:
@@ -307,5 +346,5 @@ class Codeml:
 
         else:
             if results is not None:
-                return results['results']
+                return results['results'], os.path.abspath(self.out_file)
             return None

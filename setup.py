@@ -53,7 +53,7 @@ setup(
         'pandas',
         'progressbar2',
         'joblib',
-        'ete3'
+        'ete3',
     ],
     entry_points='''
         [console_scripts]

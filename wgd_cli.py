@@ -43,11 +43,13 @@ from wgd.utils import translate_cds, read_fasta, write_fasta, Genome, \
     can_i_run_software
 
 
-# CLI ENTRY POINT ------------------------------------------------------------------------------------------------------
+# CLI ENTRY POINT --------------------------------------------------------------
 @click.group(context_settings={'help_option_names': ['-h', '--help']})
 @click.option('--verbosity', '-v', type=click.Choice(['info', 'debug']),
               default='info', help="Verbosity level, default = info.")
-def cli(verbosity):
+@click.option('--logfile', '-l', default=None,
+              help="File to write logs to (optional)")
+def cli(verbosity, logfile):
     """
     Welcome to the wgd command line interface!
 
@@ -72,8 +74,20 @@ def cli(verbosity):
 
     Contact: arzwa@psb.vib-ugent.be
     """
-    coloredlogs.install(fmt='%(asctime)s: %(levelname)s\t%(message)s',
-                        level=verbosity.upper(), stream=sys.stdout)
+    if not logfile:
+        coloredlogs.install(
+                fmt='%(asctime)s: %(levelname)s\t%(message)s',
+                level=verbosity.upper(), stream=sys.stdout
+        )
+    else:
+        print('Logs will be written to {}'.format(logfile))
+        logging.basicConfig(
+                filename=logfile,
+                filemode='a',
+                format='%(asctime)s: %(levelname)s\t%(message)s',
+                datefmt='%H:%M:%S',
+                level=verbosity.upper()
+        )
 
     # get round problem with python multiprocessing library that can set all cpu
     # affinities to a single cpu found in OrthoFinder source code
@@ -94,8 +108,7 @@ def cli(verbosity):
                    'x.fasta,y.fasta,z.fasta).')
 @click.option('--species_ids', '-id', default=None,
               help='Species identifiers for respective input sequence files, '
-                   'as a comma separated '
-                   'string (e.g. x,y,z). (optional)')
+                   'as a comma separated string (e.g. x,y,z). (optional)')
 @click.option('--blast_results', '-b', default=None,
               help='Input precomputed tab separated blast results.')
 @click.option('--inflation_factor', '-I', default=2.0,
@@ -105,13 +118,13 @@ def cli(verbosity):
 @click.option('--output_dir', '-o', default='wgd_blast',
               help='Output directory.')
 @click.option('--n_threads', '-n', default=4,
-              help='Number of threads used by blastp.')
+              help='Number of threads used by blastp. (Default = 4)')
 def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results,
           inflation_factor, eval_cutoff, output_dir, n_threads):
     """
     All-vs.-all blastp (+ MCL) analysis.
 
-    Requires ``blastp``, ``makeblastdb`` (ncbi-blast+ suite) and ``mcl``.
+    Requires blastp, makeblastdb (ncbi-blast+ suite) and mcl.
 
     Example 1 - whole paranome delineation:
 
@@ -121,6 +134,9 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results,
 
         wgd blast --cds --one_v_one -s equus_ferus.fasta,ursus_arctos.fasta
         -id horse,bear -e 1e-8 -o bear_horse_out
+
+    wgd  Copyright (C) 2018 Arthur Zwaenepoel
+    This program comes with ABSOLUTELY NO WARRANTY;
     """
     # lazy imports
     blast_(cds, mcl, one_v_one, sequences, species_ids, blast_results,
@@ -131,8 +147,7 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None,
            species_ids=None, blast_results=None, inflation_factor=2.0,
            eval_cutoff=1e-10, output_dir='wgd_blast', n_threads=4):
     """
-    All vs. all Blast pipeline
-    For usage in the ``wgd`` CLI.
+    All vs. all Blast pipeline. For usage in the ``wgd`` CLI.
 
     :param cds: boolean, provided sequences are CDS
     :param mcl: boolean, perform MCL clustering
@@ -167,50 +182,45 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None,
 
     # input checks
     if not sequences and not blast_results:
-        logging.error(
-                'No sequences nor blast results provided! Please use the --help'
-                ' flag for usage instructions.')
+        logging.error('No sequences nor blast results provided! Please use the '
+                      '--help flag for usage instructions.')
         return
 
     if not os.path.exists(output_dir):
-        logging.info(
-                'Output directory: {} does not exist, will make it.'.format(
-                        output_dir))
+        logging.info('Output directory: {} does not exist, will make it.'
+                     ''.format(output_dir))
         os.mkdir(output_dir)
 
     # all vs. all blast
     if not blast_results:
+        # get sequences from directory
         if os.path.isdir(sequences):
-            sequence_files = sorted(
-                    [os.path.join(sequences, x) for x in os.listdir(sequences)
-                     if x.endswith(
-                            ('fa', 'fasta', 'tfa', 'faa'))])
-            logging.info(
-                    'Read the following fasta files from directory {}:'.format(
-                            sequences))
+            sequence_files = sorted([os.path.join(sequences, x) for x
+                                     in os.listdir(sequences) if
+                                     x.endswith(('fa', 'fasta', 'tfa', 'faa'))])
+            logging.info('Read the following fasta files from directory {}:'
+                         ''.format(sequences))
             logging.info('{}'.format(', '.join(sequence_files)))
+        # sequences as comma-separated string
         else:
             sequence_files = sequences.strip().split(',')
 
         # input checks
         if len(sequence_files) != 1 and not one_v_one:
-            logging.info(
-                    'More then one fasta file provided and one_v_one flag not'
-                    ' set, will perform all-vs.-all blast.')
+            logging.info('More then one fasta file provided and one_v_one flag '
+                         'not set, will perform all-vs.-all blast.')
 
         if len(sequence_files) != 2 and one_v_one:
-            logging.error(
-                    'Please provide two or more fasta files for one-vs-one'
-                    ' ortholog finding')
+            logging.error('Please provide two or more fasta files for one-vs-'
+                          'one ortholog finding')
             return
 
         if species_ids:
             ids = species_ids.strip().split(',')
             if len(ids) != len(sequence_files):
-                logging.error(
-                        'Number of species identifiers ({0}) does not match'
-                        ' number of provided sequence '
-                        'files ({1}).'.format(len(ids), len(sequence_files)))
+                logging.error('Number of species identifiers ({0}) does not '
+                              'match number of provided sequence files ({1}).'
+                              ''.format(len(ids), len(sequence_files)))
                 return
         elif one_v_one:
             ids = [os.path.basename(x) for x in sequence_files]
@@ -224,12 +234,12 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None,
         protein_sequences = []
         for i in range(len(sequence_files)):
             if cds:
-                protein_seqs = translate_cds(
-                        read_fasta(sequence_files[i], prefix=ids[i]))
+                protein_seqs = translate_cds(read_fasta(
+                        sequence_files[i], prefix=ids[i]))
                 protein_sequences.append(protein_seqs)
             else:
-                protein_sequences.append(
-                        read_fasta(sequence_files[i], prefix=ids[i]))
+                protein_sequences.append(read_fasta(
+                        sequence_files[i], prefix=ids[i]))
 
         # blast
         logging.info('Writing blastdb sequences to db.fasta.')
@@ -243,14 +253,17 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None,
         query = os.path.join(output_dir, str(uuid.uuid4()) + '.query.fasta')
         logging.info('Writing query sequences to query.fasta.')
         write_fasta(d, query)
+
+        # start the blast
         logging.info('Performing all-vs.-all Blastp (this might take a while)')
-        blast_results = all_v_all_blast(query, db, output_dir,
-                                        output_file='{}.blast.tsv'.format(
-                                                '_'.join(
-                                                        [os.path.basename(x) for
-                                                         x in sequence_files])),
-                                        eval_cutoff=eval_cutoff,
-                                        n_threads=n_threads)
+        blast_results = all_v_all_blast(
+                query, db, output_dir,
+                output_file='{}.blast.tsv'.format(
+                        '_'.join([os.path.basename(x) for x in sequence_files])
+                ),
+                eval_cutoff=eval_cutoff,
+                n_threads=n_threads
+        )
         logging.info('Blast done')
 
         # remove redundant files
@@ -267,14 +280,14 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None,
 
     # get paranome (MCL)
     if mcl:
-        logging.info(
-                'Performing MCL clustering (inflation factor = {0})'.format(
-                        inflation_factor))
+        logging.info('Performing MCL clustering (inflation factor = {0})'
+                     ''.format(inflation_factor))
         ava_graph = ava_blast_to_abc(blast_results)
-        mcl_out = run_mcl_ava_2(ava_graph, output_dir=output_dir,
-                                output_file='{}.mcl'.format(
-                                        os.path.basename(blast_results)),
-                                inflation=inflation_factor)
+        mcl_out = run_mcl_ava_2(
+                ava_graph, output_dir=output_dir,
+                output_file='{}.mcl'.format(os.path.basename(blast_results)),
+                inflation=inflation_factor
+        )
         logging.info('Done')
         return mcl_out
 
@@ -314,7 +327,7 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None,
 @click.option('--wm', '-w', type=click.Choice(['alc', 'fasttree', 'phyml']),
               default='fasttree',
               help="Node weighting method, from fast to slow: alc, fasttree, "
-                   "phyml")
+                   "phyml. (Default = fasttree) ")
 @click.option('--ignore_prefixes', is_flag=True,
               help="Ignore gene ID prefixes (defined by the '|' symbol) in the "
                    "gene families file.")
@@ -340,13 +353,16 @@ def ks(gene_families, sequences, output_directory, protein_sequences, tmp_dir,
     Example 1 - whole paranome Ks distribution:
 
         wgd ks -gf fringilla_coelebs.mcl -s fringilla_coelebs.cds.fasta -o
-            finch_ks_out --n_cores 8
+            finch_ks_out --n_threads 8
 
     Example 2 - one vs. one ortholog Ks distribution:
 
         wgd ks -gf beaver_eagle -s
         castor_fiber.cds.fasta,aquila_chrysaetos.cds.fasta
         -o beaver_eagle_ks_out
+
+    wgd  Copyright (C) 2018 Arthur Zwaenepoel
+    This program comes with ABSOLUTELY NO WARRANTY;
     """
     ks_(gene_families, sequences, output_directory, protein_sequences, tmp_dir,
         aligner, muscle='muscle', codeml='codeml',
@@ -455,12 +471,14 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None,
         os.chdir(tmp_dir)  # chdir is necessary because codeml produces these
         # rub, rst and rst1 files
         logging.info('Started one-vs-one ortholog Ks analysis')
-        results = ks_analysis_one_vs_one(cds_seqs, protein_seqs, gene_families,
-                                         tmp_dir, output_directory,
-                                         muscle, codeml, async=async,
-                                         n_cores=n_threads, preserve=preserve,
-                                         times=times, min_length=min_msa_length,
-                                         aligner=aligner)
+        results = ks_analysis_one_vs_one(
+                cds_seqs, protein_seqs, gene_families,
+                tmp_dir, output_directory,
+                muscle, codeml, async=async,
+                n_threads=n_threads, preserve=preserve,
+                times=times, min_length=min_msa_length,
+                aligner=aligner
+        )
         results.round(5).to_csv(
                 os.path.join(output_directory, '{}.ks.tsv'.format(base)),
                 sep='\t')
@@ -479,14 +497,16 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None,
         os.chdir(tmp_dir)  # change directory to the tmp dir, as codeml writes
         # non-unique file names to the working dir
         logging.info('Started whole paranome Ks analysis')
-        results = ks_analysis_paranome(cds_seqs, protein_seqs, gene_families,
-                                       tmp_dir, output_directory,
-                                       muscle, codeml, preserve=preserve,
-                                       times=times, aligner=aligner,
-                                       ignore_prefixes=ignore_prefixes,
-                                       async=async, n_cores=n_threads,
-                                       min_length=min_msa_length,
-                                       method=weighting_method)
+        results = ks_analysis_paranome(
+                cds_seqs, protein_seqs, gene_families,
+                tmp_dir, output_directory,
+                muscle, codeml, preserve=preserve,
+                times=times, aligner=aligner,
+                ignore_prefixes=ignore_prefixes,
+                async=async, n_threads=n_threads,
+                min_length=min_msa_length,
+                method=weighting_method
+        )
         results.round(5).to_csv(
                 os.path.join(output_directory, '{}.ks.tsv'.format(base)),
                 sep='\t')
@@ -529,6 +549,9 @@ def syn(gff_file, gene_families, output_dir, ks_distribution, keyword,
 
         wgd syn -gff ailuropoda.gff -gf ailuropoda.paranome.mcl -ks panda.ks -o
         panda.anchors_out
+
+    wgd  Copyright (C) 2018 Arthur Zwaenepoel
+    This program comes with ABSOLUTELY NO WARRANTY;
     """
     syn_(gff_file, gene_families, output_dir, ks_distribution, keyword,
          id_string)
@@ -692,6 +715,9 @@ def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma,
     Example:
 
         wgd mix -ks lama.ks.tsv --method gmm -n 2,5
+
+    wgd  Copyright (C) 2018 Arthur Zwaenepoel
+    This program comes with ABSOLUTELY NO WARRANTY;
     """
     mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma,
          sequences, cut_off, pairs, n_init=n_init)
@@ -815,6 +841,9 @@ def viz(ks_distributions, alpha_values, colors, labels, hist_type, title,
     Run a bokeh serve instance (in the background) with `bokeh serve &`.
 
     more information about bokeh: https://bokeh.pydata.org/en/latest/index.html
+
+    wgd  Copyright (C) 2018 Arthur Zwaenepoel
+    This program comes with ABSOLUTELY NO WARRANTY;
     """
     viz_(ks_distributions, alpha_values, colors, labels, hist_type, title,
          output_file, interactive)
@@ -918,9 +947,15 @@ def pipeline_1(sequences, output_dir, gff_file, n_threads):
     """
     Standard workflow whole paranome Ks.
 
+    Parameters used are the default parameters in `wgd blast`, `wgd ks` and if
+    relevant `wgd syn`.
+
     Example:
 
         wgd pipeline_1 -gff snail.gff -n 16 snail.fasta snail_wgd_out
+
+    wgd  Copyright (C) 2018 Arthur Zwaenepoel
+    This program comes with ABSOLUTELY NO WARRANTY;
     """
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)
@@ -953,9 +988,14 @@ def pipeline_2(sequences, output_dir, n_threads):
     """
     Standard workflow one-vs-one ortholog Ks.
 
+    Parameters used are the default parameters in `wgd blast`, and `wgd ks`.
+
     Example:
 
         wgd pipeline_2 -n 8 snail.fasta,whale.fasta snail_vs_whale_ks_out
+
+    wgd  Copyright (C) 2018 Arthur Zwaenepoel
+    This program comes with ABSOLUTELY NO WARRANTY;
     """
     if not os.path.isdir(output_dir):
         os.mkdir(output_dir)

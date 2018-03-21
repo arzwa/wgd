@@ -41,7 +41,8 @@ def write_sequential_phyml(sequence_dict, output_file):
     with open(output_file, 'w') as o:
         for id, seq in sequence_dict.items():
             if first:
-                o.write('{0} {1}\n'.format(len(list(sequence_dict.keys())), len(seq)))
+                o.write('{0} {1}\n'.format(
+                        len(list(sequence_dict.keys())), len(seq)))
                 first = False
             o.write('{0}\t\t{1}\n'.format(id, seq))
     return 0
@@ -51,7 +52,8 @@ def run_phyml(msa, phyml_path='phyml'):
     """
     Run PhyML on a protein multiple sequence alignment
 
-    :param msa: file path to protein multiple sequence alignment in multifasta format
+    :param msa: file path to protein multiple sequence alignment in multifasta
+        format
     :param phyml_path: path to phyml executable
     :return: path to the tree file
     """
@@ -72,7 +74,8 @@ def run_fasttree(msa, fasttree_path='FastTree'):
     """
     Run FastTree on a protein multiple sequence alignment
 
-    :param msa: file path to protein multiple sequence alignment in multifasta format
+    :param msa: file path to protein multiple sequence alignment in multifasta
+        format
     :param fasttree_path: path to FastTree executable
     :return: path to the tree file
     """
@@ -87,11 +90,12 @@ def run_fasttree(msa, fasttree_path='FastTree'):
 
 def phylogenetic_tree_to_cluster_format(tree, pairwise_estimates):
     """
-    Convert a phylogenetic tree to a 'cluster' data structure as in ``fastcluster``.
-    The first two columns indicate the nodes that are joined by the relevant node,
-    the third indicates the distance (calculated from branch lengths in the case of a phylogenetic tree)
-    and the fourth the number of leaves underneath the node.
-    Note that the trees are rooted using midpoint-rooting.
+    Convert a phylogenetic tree to a 'cluster' data structure as in
+    ``fastcluster``. The first two columns indicate the nodes that are joined by
+    the relevant node, the third indicates the distance (calculated from branch
+    lengths in the case of a phylogenetic tree) and the fourth the number of
+    leaves underneath the node. Note that the trees are rooted using
+    midpoint-rooting.
 
     Example of the data structure (output from ``fastcluster``)::
 
@@ -106,10 +110,12 @@ def phylogenetic_tree_to_cluster_format(tree, pairwise_estimates):
          [  10.           17.          157.29055403   10.        ]]
 
     :param tree: newick tree file
-    :param pairwise_estimates: pairwise Ks estimates data frame (pandas) (only the index is used)
+    :param pairwise_estimates: pairwise Ks estimates data frame (pandas)
+        (only the index is used)
     :return: clustering data structure, pairwise distances dictionary
     """
-    id_map = {pairwise_estimates.index[i]: i for i in range(len(pairwise_estimates))}
+    id_map = {
+        pairwise_estimates.index[i]: i for i in range(len(pairwise_estimates))}
     t = Tree(tree)
 
     # midpoint rooting
@@ -126,29 +132,36 @@ def phylogenetic_tree_to_cluster_format(tree, pairwise_estimates):
     for node in t.traverse('postorder'):
         if node.is_leaf():
             node.name = id_map[node.name]
-            id_map[node.name] = node.name  # add identity map for renamed nodes to id_map for line below
-            pairwise_distances[node.name] = {id_map[x.name]: node.get_distance(x) for x in t.get_leaves()}
+            id_map[node.name] = node.name  # add identity map for renamed nodes
+            # to id_map for line below
+            pairwise_distances[node.name] = {
+                id_map[x.name]: node.get_distance(x) for x in t.get_leaves()}
         else:
             node.name = n
             n += 1
             children = node.get_children()
             out.append(
-                [children[0].name, children[1].name, children[0].get_distance(children[1]), len(node.get_leaves())])
+                [children[0].name, children[1].name,
+                 children[0].get_distance(children[1]),
+                 len(node.get_leaves())])
     return np.array(out), pairwise_distances
 
 
 def average_linkage_clustering(pairwise_estimates):
     """
-    Perform average linkage clustering using ``fastcluster``.
-    The first two columns of the output contain the node indices which are joined in each step.
-    The input nodes are labeled 0, . . . , N - 1, and the newly generated nodes have the labels N, . . . , 2N - 2.
-    The third column contains the distance between the two nodes at each step, ie. the
-    current minimal distance at the time of the merge. The fourth column counts the
-    number of points which comprise each new node.
+    Perform average linkage clustering using ``fastcluster``. The first two
+    columns of the output contain the node indices which are joined in each
+    step. The input nodes are labeled 0, . . . , N - 1, and the newly generated
+    nodes have the labels N, . . . , 2N - 2. The third column contains the
+    distance between the two nodes at each step, ie. the current minimal
+    distance at the time of the merge. The fourth column counts the number of
+    points which comprise each new node.
 
-    :param pairwise_estimates: dictionary with data frames with pairwise estimates of Ks, Ka and Ka/Ks
-        (or at least Ks), as returned by :py:func:`analyse_family`.
-    :return: average linkage clustering as performed with ``fastcluster.average``.
+    :param pairwise_estimates: dictionary with data frames with pairwise
+        estimates of Ks, Ka and Ka/Ks (or at least Ks), as returned by
+        :py:func:`analyse_family`.
+    :return: average linkage clustering as performed with
+        ``fastcluster.average``.
     """
     clustering = fastcluster.average(pairwise_estimates)
 

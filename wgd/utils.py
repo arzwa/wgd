@@ -42,25 +42,45 @@ def can_i_run_software(software):
         software = [software]
     ex = 0
     for s in software:
-        # codeml needs input otherwise it prompts the user for input, so a dummy file is created
+        # codeml needs input otherwise it prompts the user for input, so a dummy
+        # file is created
         if s == 'codeml':
             tmp_file = str(uuid.uuid4())
             with open(tmp_file, 'w') as o:
                 o.write('test')
             command = ['codeml', tmp_file]
+        elif s in ['blastp', 'makeblastdb', 'blast', 'prank', 'muscle',
+                   'i-adhore']:
+            command = [s, '-version']
         else:
-            command = [s, '-h']
-
+            command = [s, '--version']
         try:
-            subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            sp = subprocess.run(command, stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE)
+            logging.info(sp.stdout.decode("utf-8"))
         except FileNotFoundError:
             logging.error('{} executable not found!'.format(s))
             ex = 1
 
         # remove the dummy file
         if s == 'codeml':
+            logging.info('codeml found')
             os.remove(tmp_file)
+            subprocess.run(['rm', 'rub', 'rst1', 'rst'])
     return ex
+
+
+def log_subprocess(program, process):
+    """
+    Log output from a subprocess call to debug log stream
+
+    :param program: program name
+    :param process: completed subprocess object
+    """
+    logging.debug('{} stdout:\n'.format(program) +
+                  process.stdout.decode('utf-8'))
+    logging.debug('{} stderr:\n'.format(program) +
+                  process.stderr.decode('utf-8'))
 
 
 def get_gfs_for_species(gene_family_dict, gene_pattern):
@@ -83,8 +103,8 @@ def get_gfs_for_species(gene_family_dict, gene_pattern):
 
 def get_sequences(paralog_dict, sequences):
     """
-    Fetch sequences from a fasta file or sequence dict and put them in a two level dictionairy
-    {gene_family: {gene: seq, gene: seq, ...}, ...}
+    Fetch sequences from a fasta file or sequence dict and put them in a two
+    level dictionairy {gene_family: {gene: seq, gene: seq, ...}, ...}
 
     :param paralog_dict:
     :return: two-level dictionairy
@@ -99,7 +119,8 @@ def get_sequences(paralog_dict, sequences):
         paralog_sequence_dict[family] = {}
         for gene in paralog_dict[family]:
             if gene not in sequences.keys():
-                warnings.warn("Gene {} in gene families but not in protein fasta!".format(gene))
+                warnings.warn("Gene {} in gene families but not in protein "
+                              "fasta!".format(gene))
             else:
                 paralog_sequence_dict[family][gene] = sequences[gene]
 
@@ -108,8 +129,9 @@ def get_sequences(paralog_dict, sequences):
 
 def process_gene_families(gene_family_file, ignore_prefix=False):
     """
-    Processes a raw gene family file as e.g. from MCL output into a generic dictionary structure
-    MCL raw file consists of one gene family per line, including tab separated gene IDs, (without gene family ID !).
+    Processes a raw gene family file as e.g. from MCL output into a generic
+    dictionary structure. MCL raw file consists of one gene family per line,
+    including tab separated gene IDs, (without gene family ID !).
 
     Example::
 
@@ -118,12 +140,14 @@ def process_gene_families(gene_family_file, ignore_prefix=False):
         gene9   gene10  gene11
         gene12
 
-    :param gene_family_file: file in the right raw gene family format (see above)
-    :param ignore_prefix: ignore prefixes (boolean), if the gene contains a '|' character
-        in default mode the part preceding the '|' is trimmed of, assuming the second part is the
-        gene ID. If ``ignore prefix = True`` this behavior is suppressed. So with ``ignore_prefix = False``
-        ``ath|AT1G10000`` becomes ``AT1G10000`` after processing, with ``ignore_prefix = True``
-        it remains ``ath|AT1G10000``
+    :param gene_family_file: file in the right raw gene family format
+        (see above)
+    :param ignore_prefix: ignore prefixes (boolean), if the gene contains a '|'
+        character in default mode the part preceding the '|' is trimmed of,
+        assuming the second part is the gene ID. If ``ignore prefix = True``
+        this behavior is suppressed. So with ``ignore_prefix = False``
+        ``ath|AT1G10000`` becomes ``AT1G10000`` after processing, with
+        ``ignore_prefix = True`` it remains ``ath|AT1G10000``.
     """
     gene_family_dict = {}
     ID = 1
@@ -154,7 +178,8 @@ def check_dirs(tmp_dir, output_dir, prompt, preserve):
     if tmp_dir:
         if os.path.exists(tmp_dir):
             if prompt:
-                overwrite = input("tmp directory {} already exists. Overwrite? [y/n]: ".format(tmp_dir))
+                overwrite = input("tmp directory {} already exists. Overwrite? "
+                                  "[y/n]: ".format(tmp_dir))
                 if overwrite == 'y':
                     os.system('rm -r {}'.format(os.path.join(tmp_dir)))
                 else:
@@ -168,7 +193,8 @@ def check_dirs(tmp_dir, output_dir, prompt, preserve):
     if output_dir:
         if os.path.exists(output_dir):
             if prompt:
-                overwrite = input("Output directory {} already exists. Overwrite? [y/n]: ".format(output_dir))
+                overwrite = input("Output directory {} already exists. "
+                                  "Overwrite? [y/n]: ".format(output_dir))
                 if overwrite == 'y':
                     os.system('rm -r {}'.format(os.path.join(output_dir)))
                 else:
@@ -187,9 +213,11 @@ def check_dirs(tmp_dir, output_dir, prompt, preserve):
             os.mkdir(os.path.join(output_dir, 'codeml'))
 
 
-def read_fasta(fasta_file, prefix=None, split_on_pipe=True, split_on_whitespace=True, raw=False):
+def read_fasta(fasta_file, prefix=None, split_on_pipe=True,
+               split_on_whitespace=True, raw=False):
     """
-    Generic fastafile reader. Returns a dictionairy ``{ID: sequence, ID: sequence, ...}``.
+    Generic fasta file reader. Returns a dictionairy ``{ID: sequence, ID:
+    sequence, ...}``.
 
     :param fasta_file: fasta file
     :param prefix: prefix to add to gene IDs
@@ -223,9 +251,11 @@ def read_fasta(fasta_file, prefix=None, split_on_pipe=True, split_on_whitespace=
     return sequence_dict
 
 
-def get_paralogs_fasta(input_fasta, selected_paralogs, output_fasta, pairs=False):
+def get_paralogs_fasta(input_fasta, selected_paralogs, output_fasta,
+                       pairs=False):
     """
-    Get the fasta file associated with the paralogs in a slice from a Ks distribution data frame
+    Get the fasta file associated with the paralogs in a slice from a Ks
+    distribution data frame
 
     :param input_fasta: fasta file
     :param selected_paralogs: Data frame (slice)
@@ -235,25 +265,35 @@ def get_paralogs_fasta(input_fasta, selected_paralogs, output_fasta, pairs=False
     seqs = read_fasta(input_fasta)
 
     if not pairs:
-        genes = set(selected_paralogs['Paralog1']) | set(selected_paralogs['Paralog2'])
+        genes = set(selected_paralogs['Paralog1']) | \
+                set(selected_paralogs['Paralog2'])
         with open(output_fasta, 'w') as f:
             for gene in list(genes):
-                ks_values = list(selected_paralogs[selected_paralogs['Paralog1'] == gene]['Ks'])
-                ks_values += list(selected_paralogs[selected_paralogs['Paralog2'] == gene]['Ks'])
+                ks_values = list(selected_paralogs[
+                                     selected_paralogs[
+                                         'Paralog1'] == gene]['Ks'])
+                ks_values += list(selected_paralogs[
+                                      selected_paralogs[
+                                          'Paralog2'] == gene]['Ks'])
                 ks_value, var = mean(ks_values), std(ks_values)
                 if gene in seqs.keys():
-                    f.write('>{0} mean(Ks)={1:.5f};std(Ks)={2:.5f}\n{3}\n'.format(
-                        gene, float(ks_value), float(var), seqs[gene]))
+                    f.write('>{0} mean(Ks)={1:.5f};std(Ks)={2:.5f}\n{3}\n'
+                            ''.format(gene, float(ks_value), float(var),
+                                      seqs[gene]))
                 else:
-                    logging.warning('Gene {} not found in fasta file!'.format(gene))
+                    logging.warning('Gene {} not found in fasta file!'.format(
+                            gene))
 
     if pairs:
         for row in selected_paralogs.index:
-            p1, p2 = selected_paralogs.loc[row]['Paralog1'], selected_paralogs.loc[row]['Paralog2']
+            p1, p2 = selected_paralogs.loc[row]['Paralog1'], \
+                     selected_paralogs.loc[row]['Paralog2']
             if p1 in seqs.keys() and p2 in seqs.keys():
                 with open('{0}_{1}_{2:.3f}_{3}'.format(
-                        p1, p2, selected_paralogs.loc[row]['Ks'], output_fasta), 'w') as o:
-                    o.write('>{0}\n{1}\n>{2}\n{3}'.format(p1, seqs[p1], p2, seqs[p2]))
+                        p1, p2, selected_paralogs.loc[row]['Ks'], output_fasta),
+                        'w') as o:
+                    o.write('>{0}\n{1}\n>{2}\n{3}'.format(p1, seqs[p1], p2,
+                                                          seqs[p2]))
             else:
                 logging.warning('Gene not found in fasta file!')
 
@@ -287,16 +327,17 @@ def translate_cds(sequence_dict):
     }
     protein_dict = {}
 
-    with ProgressBar(max_value=len(sequence_dict.keys())+1) as pb:
+    with ProgressBar(max_value=len(sequence_dict.keys()) + 1) as pb:
         j = 0
         for key, val in sequence_dict.items():
             j += 1
             aa_seq = ''
-            for i in range(0,len(val),3):
-                if val[i:i+3] not in aa_dict.keys():
-                    logging.debug('Invalid codon {0:>3} in sequence {1}'.format(val[i:i+3], key))
+            for i in range(0, len(val), 3):
+                if val[i:i + 3] not in aa_dict.keys():
+                    logging.debug('Invalid codon {0:>3} in sequence {1}'.format(
+                            val[i:i + 3], key))
                 else:
-                    aa_seq += aa_dict[val[i:i+3]]
+                    aa_seq += aa_dict[val[i:i + 3]]
             protein_dict[key] = aa_seq
             pb.update(j)
 
@@ -320,7 +361,8 @@ def filter_one_vs_one_families(gene_families, s1, s2):
     """
     Filter one-vs-one ortholog containing families for two given species.
 
-    :param gene_families: gene families fil in raw MCL format, see :py:func:`process_gene_families`
+    :param gene_families: gene families fil in raw MCL format, see
+        :py:func:`process_gene_families`
     :param s1: species 1 prefix
     :param s2: species 2 prefix
     :return: one-vs.-one ortholog containing gene families.
@@ -329,7 +371,7 @@ def filter_one_vs_one_families(gene_families, s1, s2):
     for key, val in gene_families.items():
         count = 0
         for gene in val:
-            prefix=gene.split('|')[0]
+            prefix = gene.split('|')[0]
             if prefix == s1 or prefix == s2:
                 count += 1
         if count != 2:
@@ -343,7 +385,9 @@ def _random_color():
     """
     Generate a random hex color
     """
+
     def r(): return random.randint(0, 255)
+
     return '#%02X%02X%02X' % (r(), r(), r())
 
 
@@ -387,7 +431,8 @@ class Genome:
                     stop = line[4]
                     orientation = line[6]
                     gene_l = line[8].split(';')
-                    gene_dict = {x.split('=')[0]: x.split('=')[1] for x in gene_l if len(x.split('=')) == 2}
+                    gene_dict = {x.split('=')[0]: x.split('=')[1] for x in
+                                 gene_l if len(x.split('=')) == 2}
 
                     if chromosome not in self.genome:
                         self.genome[chromosome] = {}
@@ -395,9 +440,10 @@ class Genome:
                         self.colors[chromosome] = _random_color()
 
                     self.genome[chromosome][gene_dict[id_string]] = {
-                        'orientation': orientation, 'start': start, 'stop': stop}
+                        'orientation': orientation, 'start': start,
+                        'stop': stop}
                     self.gene_lists[chromosome].append(
-                        (gene_dict[id_string], orientation, start, stop))
+                            (gene_dict[id_string], orientation, start, stop))
         return
 
     def karyotype_json(self, out_file='genome.json'):
@@ -425,7 +471,8 @@ class Genome:
 
 class gaussian_kde(object):
     """
-    from: https://stackoverflow.com/questions/27623919/weighted-gaussian-kernel-density-estimation-in-python
+    from: https://stackoverflow.com/questions/27623919/weighted-gaussian-kernel-
+    density-estimation-in-python
 
     Representation of a kernel-density estimate using Gaussian kernels.
 
@@ -575,7 +622,8 @@ class gaussian_kde(object):
             self.weights = np.ones(self.n) / self.n
 
         # Compute the effective sample size
-        # http://surveyanalysis.org/wiki/Design_Effects_and_Effective_Sample_Size#Kish.27s_approximate_formula_for_computing_effective_sample_size
+        # http://surveyanalysis.org/wiki/Design_Effects_and_Effective_Sample_
+        # Size#Kish.27s_approximate_formula_for_computing_effective_sample_size
         self.neff = 1.0 / np.sum(self.weights ** 2)
 
         self.set_bandwidth(bw_method=bw_method)
@@ -609,14 +657,16 @@ class gaussian_kde(object):
                 points = np.reshape(points, (self.d, 1))
                 m = 1
             else:
-                msg = "points have dimension %s, dataset has dimension %s" % (d,
-                                                                              self.d)
+                msg = "points have dimension %s, dataset has dimension %s" % \
+                      (d, self.d)
                 raise ValueError(msg)
 
         # compute the normalised residuals
-        chi2 = cdist(points.T, self.dataset.T, 'mahalanobis', VI=self.inv_cov) ** 2
+        chi2 = cdist(points.T, self.dataset.T, 'mahalanobis',
+                     VI=self.inv_cov) ** 2
         # compute the pdf
-        result = np.sum(np.exp(-.5 * chi2) * self.weights, axis=1) / self._norm_factor
+        result = np.sum(np.exp(-.5 * chi2) * self.weights,
+                        axis=1) / self._norm_factor
 
         return result
 
@@ -703,11 +753,14 @@ class gaussian_kde(object):
             _mean = np.sum(self.weights * self.dataset, axis=1)
             _residual = (self.dataset - _mean[:, None])
             # Compute the biased covariance
-            self._data_covariance = np.atleast_2d(np.dot(_residual * self.weights, _residual.T))
-            # Correct for bias (http://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Weighted_sample_covariance)
+            self._data_covariance = np.atleast_2d(
+                    np.dot(_residual * self.weights, _residual.T))
+            # Correct for bias (http://en.wikipedia.org/wiki/Weighted_arithmetic
+            # _mean#Weighted_sample_covariance)
             self._data_covariance /= (1 - np.sum(self.weights ** 2))
             self._data_inv_cov = np.linalg.inv(self._data_covariance)
 
         self.covariance = self._data_covariance * self.factor ** 2
         self.inv_cov = self._data_inv_cov / self.factor ** 2
-        self._norm_factor = np.sqrt(np.linalg.det(2 * np.pi * self.covariance))  # * self.n
+        self._norm_factor = np.sqrt(
+                np.linalg.det(2 * np.pi * self.covariance))  # * self.n
