@@ -328,6 +328,8 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None,
               default='fasttree',
               help="Node weighting method, from fast to slow: alc, fasttree, "
                    "phyml. (Default = fasttree) ")
+@click.option('--pairwise', is_flag=True,
+              help="Perform the analysis using a pairwise approach (see docs)")
 @click.option('--ignore_prefixes', is_flag=True,
               help="Ignore gene ID prefixes (defined by the '|' symbol) in the "
                    "gene families file.")
@@ -339,8 +341,8 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None,
               help="Use asyncio module for parallelization. (Default uses "
                    "joblib)")
 def ks(gene_families, sequences, output_directory, protein_sequences, tmp_dir,
-       aligner, times, min_msa_length,
-       n_threads, wm, ignore_prefixes, one_v_one, preserve, async):
+       aligner, times, min_msa_length, n_threads, wm, pairwise,
+       ignore_prefixes, one_v_one, preserve, async):
     """
     Ks distribution construction.
 
@@ -369,13 +371,13 @@ def ks(gene_families, sequences, output_directory, protein_sequences, tmp_dir,
         times=times, min_msa_length=min_msa_length,
         ignore_prefixes=ignore_prefixes, one_v_one=one_v_one,
         preserve=preserve, async=async, n_threads=n_threads,
-        weighting_method=wm)
+        weighting_method=wm, pairwise=pairwise)
 
 
 def ks_(gene_families, sequences, output_directory, protein_sequences=None,
         tmp_dir=None, aligner='muscle',
         muscle='muscle', codeml='codeml', times=1, min_msa_length=100,
-        ignore_prefixes=False, one_v_one=False,
+        ignore_prefixes=False, one_v_one=False, pairwise=False,
         preserve=False, async=False, n_threads=4, weighting_method='fasttree'):
     """
     Ks distribution construction pipeline. For usage in the ``wgd`` CLI.
@@ -505,7 +507,8 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None,
                 ignore_prefixes=ignore_prefixes,
                 async=async, n_threads=n_threads,
                 min_length=min_msa_length,
-                method=weighting_method
+                method=weighting_method,
+                pairwise=pairwise
         )
         results.round(5).to_csv(
                 os.path.join(output_directory, '{}.ks.tsv'.format(base)),

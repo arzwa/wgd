@@ -29,14 +29,18 @@ from .utils import read_fasta
 import os
 import subprocess
 import logging
+import itertools
 
 
-def _nucleotide_msa_from_protein_msa(protein_msa_sequences, nucleotide_sequences):
+def _nucleotide_msa_from_protein_msa(
+        protein_msa_sequences, nucleotide_sequences):
     """
-    Make a nucleotide multiple sequence alignment from a protein multiple sequence alignment
+    Make a nucleotide multiple sequence alignment from a protein multiple
+    sequence alignment
 
     :param protein_msa_sequences: dictionary with protein sequences (aligned)
-    :param nucleotide_sequences: dictionary with nucleotide sequences (unaligned)
+    :param nucleotide_sequences: dictionary with nucleotide sequences
+        (unaligned)
     :return: dictionary with nucleotide sequences (aligned)
     """
     nucleotide_msa = {}
@@ -47,13 +51,15 @@ def _nucleotide_msa_from_protein_msa(protein_msa_sequences, nucleotide_sequences
         lengths.add(length)
 
     if len(list(lengths)) != 1:
-        logging.warning("Not all sequences have the same length after alignment!")
+        logging.warning(
+            "Not all sequences have the same length after alignment!")
         return None
 
     for gene_ID in protein_msa_sequences.keys():
         protein = protein_msa_sequences[gene_ID]
         if gene_ID not in nucleotide_sequences.keys():
-            logging.warning("Gene {} not found in nucleotide fasta!".format(gene_ID))
+            logging.warning(
+                "Gene {} not found in nucleotide fasta!".format(gene_ID))
         else:
             nucleotide = nucleotide_sequences[gene_ID]
             nucleotide_msa_sequence = ''
@@ -62,7 +68,7 @@ def _nucleotide_msa_from_protein_msa(protein_msa_sequences, nucleotide_sequences
                 if protein[i] == '-':
                     nucleotide_msa_sequence += '---'
                 else:
-                    nucleotide_msa_sequence += nucleotide[j:j+3]
+                    nucleotide_msa_sequence += nucleotide[j:j + 3]
                     j += 3
             nucleotide_msa[gene_ID] = nucleotide_msa_sequence
 
@@ -72,7 +78,8 @@ def _nucleotide_msa_from_protein_msa(protein_msa_sequences, nucleotide_sequences
 def _strip_gaps(msa_dict):
     """
     Strip gap positions from a multiple sequence alignment (MSA).
-    Finds the positions in the strings that have a gap and removes them in all sequences.
+    Finds the positions in the strings that have a gap and removes them in all
+    sequences.
 
     :param msa_dict: dictionary with aligned nucleotide sequences.
     """
@@ -87,8 +94,9 @@ def _strip_gaps(msa_dict):
         for gene_ID in msa_dict.keys():
             # Prevent index error, raise warning instead
             if i >= len(msa_dict[gene_ID]):
-                logging.warning("Seems there are unequal string lengths after alignment in "
-                                "this gene family. Occurred at gene: {}.".format(gene_ID))
+                logging.warning(
+                    "Seems there are unequal string lengths after alignment in "
+                    "this gene family. Occurred at gene: {}.".format(gene_ID))
                 return None
             if msa_dict[gene_ID][i] == '-':
                 indices.add(i)
@@ -103,35 +111,40 @@ def _strip_gaps(msa_dict):
     return msa_dict
 
 
-def multiple_sequence_aligment_nucleotide(msa_protein, nucleotide_sequences, min_length=100, aligner='muscle'):
+def multiple_sequence_aligment_nucleotide(msa_protein, nucleotide_sequences,
+                                          min_length=100, aligner='muscle'):
     """
     Make a nucleotide multiple sequence alignment based on a protein alignment
 
     :param msa_protein: dictionary of aligned protein sequences
     :param nucleotide_sequences: nucleotide sequence dictionary
     :param min_length: minimum alignment length to consider
-    :param aligner: alignment program used, if prank, than msa_protein will be interpreted as codon alignment
+    :param aligner: alignment program used, if prank, than msa_protein will be
+        interpreted as codon alignment
     :return: nucleotide MSA, length, stripped length
     """
     if not os.path.isfile(msa_protein):
         logging.warning('MSA file {} not found!'.format(msa_protein))
         return None
 
-    # if aligner is prank than the family is codon aligned so no need to backtranslate
+    # Back-translate -----------------------------------------------------------
+    # if aligner is prank than the family is codon aligned so no need to
+    # back-translate
     protein_msa_sequences = read_fasta(msa_protein)
     if aligner != 'prank':
-        nucleotide_msa = _nucleotide_msa_from_protein_msa(protein_msa_sequences, nucleotide_sequences)
+        nucleotide_msa = _nucleotide_msa_from_protein_msa(protein_msa_sequences,
+                                                          nucleotide_sequences)
     else:
         nucleotide_msa = protein_msa_sequences
 
     if nucleotide_msa is None:
         return None
 
-    # get alignment statistics for quality control
+    # get alignment statistics for quality control -----------------------------
     alignment_stats = pairwise_alignment_stats(nucleotide_msa)
     l_unstripped = len(list(nucleotide_msa.values())[0])
 
-    # strip gaps
+    # strip gaps ---------------------------------------------------------------
     nucleotide_msa = _strip_gaps(nucleotide_msa)
 
     if nucleotide_msa is None:  # probably not necessary
@@ -144,7 +157,8 @@ def multiple_sequence_aligment_nucleotide(msa_protein, nucleotide_sequences, min
 
     msa_nuc = msa_protein + '.nuc'
     with open(msa_nuc, 'w') as o:
-        o.write("\t{0}\t{1}\n".format(len(nucleotide_msa.keys()), len(list(nucleotide_msa.values())[0])))
+        o.write("\t{0}\t{1}\n".format(len(nucleotide_msa.keys()),
+                                      len(list(nucleotide_msa.values())[0])))
         for gene_ID in nucleotide_msa.keys():
             o.write("{}\n".format(gene_ID))
             o.write(nucleotide_msa[gene_ID])
@@ -153,7 +167,77 @@ def multiple_sequence_aligment_nucleotide(msa_protein, nucleotide_sequences, min
     return [msa_nuc, int(l_unstripped), int(l_stripped), alignment_stats]
 
 
-def pairwise_alignment_stats(msa):
+def get_pairwise_nucleotide_alignments(msa_protein, nucleotide_sequences,
+                                       min_length=100, aligner='muscle'):
+    """
+
+    :param msa_protein:
+    :param nucleotide_sequences:
+    :return: a list with file names
+    """
+    if not os.path.isfile(msa_protein):
+        logging.warning('MSA file {} not found!'.format(msa_protein))
+        return None
+
+    pairwise_alignments = []
+
+    # back-translate -----------------------------------------------------------
+    # if aligner is prank than the family is codon aligned so no need to
+    # back-translate
+    protein_msa_sequences = read_fasta(msa_protein)
+    if aligner != 'prank':
+        nucleotide_msa = _nucleotide_msa_from_protein_msa(protein_msa_sequences,
+                                                          nucleotide_sequences)
+    else:
+        nucleotide_msa = protein_msa_sequences
+
+    if nucleotide_msa is None:
+        return None
+
+    # get all alignment pairs with gap-stripped length > min_length ------------
+    pairs = itertools.combinations(list(nucleotide_msa.keys()), 2)
+    i = 1
+    for pair in pairs:
+        pair_dict = {pair[0]: nucleotide_msa[pair[0]],
+                     pair[1]: nucleotide_msa[pair[1]]}
+        # strip gaps
+        l_unstripped = len(list(pair_dict.values())[0])
+        pair_dict = _strip_gaps(pair_dict)
+
+        if pair_dict is None:  # probably not necessary
+            continue
+
+        elif len(list(pair_dict.values())[0]) < min_length:
+            logging.warning('Stripped alignment for gene {0} and gene {1} '
+                            'too short (< {2} nucleotides)'.format(
+                    pair[0], pair[1], min_length
+            ))
+            continue
+
+        l_stripped = len(list(pair_dict.values())[0])
+        alignment_stats = pairwise_alignment_stats(pair_dict, pair=True)
+
+        # write alignment
+        file_name = msa_protein + '.' + str(i) + '.nuc'
+        write_alignment_codeml(pair_dict, file_name)
+        pairwise_alignments.append((file_name, pair[0], pair[1],
+                                    l_stripped, l_unstripped, alignment_stats))
+        i += 1
+
+    return pairwise_alignments
+
+
+def write_alignment_codeml(alignment, file_name):
+    with open(file_name, 'w') as o:
+        o.write("\t{0}\t{1}\n".format(
+                len(alignment.keys()), len(list(alignment.values())[0])))
+        for gene_ID in alignment.keys():
+            o.write("{}\n".format(gene_ID))
+            o.write(alignment[gene_ID])
+            o.write("\n")
+
+
+def pairwise_alignment_stats(msa, pair=False):
     """
     Get pairwise stats from MSA.
     Return as  dictionary {Gene1: {Gene2: [0.8, 0.7], Gene3: [...], ...}
@@ -162,6 +246,7 @@ def pairwise_alignment_stats(msa):
     :return: dictionary
     """
     stats = {}
+    stats_pair = None
     seqs = [(x, msa[x]) for x in sorted(msa.keys())]
 
     for i in range(len(seqs)):
@@ -171,11 +256,15 @@ def pairwise_alignment_stats(msa):
             d = _strip_gaps({id1: seqs[i][1], id2: seqs[j][1]})
             try:
                 # % identity
-                stats[id1][id2] = [(len(d[id1]) - hamming_distance(d[id1], d[id2]))/len(d[id1])]
+                stats_pair = [(len(d[id1]) - hamming_distance(d[id1], d[id2]))
+                              / len(d[id1]), len(d[id1]) / len(seqs[i][1])]
                 # coverage
-                stats[id1][id2].append(len(d[id1])/len(seqs[i][1]))
+                stats[id1][id2] = stats_pair
             except:
                 stats[id1][id2] = [0, 0]
+    if pair:
+        return stats_pair
+
     return stats
 
 
@@ -211,7 +300,8 @@ class MSA:
         """
         Muscle wrapper init.
 
-        :param muscle: path to Muscle executable, will by defult look for Muscle in the system PATH
+        :param muscle: path to Muscle executable, will by defult look for Muscle
+            in the system PATH
         :param prank: path to PRANK executable
         :param tmp: directory to store temporary files.
         """
@@ -220,9 +310,11 @@ class MSA:
         self.tmp = tmp
 
         if not os.path.isdir(self.tmp):
-            raise NotADirectoryError('tmp directory {} not found!'.format(self.tmp))
+            raise NotADirectoryError(
+                'tmp directory {} not found!'.format(self.tmp))
 
-    def run_aligner(self, sequences, aligner='muscle', file=None):
+    def run_aligner(self, sequences, aligner='muscle', file=None,
+                    return_dict=False):
         """
         Run MSA on sequences stored in dictionary with a particular aligner
 
@@ -238,7 +330,8 @@ class MSA:
 
         # sequences provided in dictionary
         if type(sequences) == dict:
-            target_path_fasta = os.path.join(self.tmp, '{}.fasta'.format(file_name))
+            target_path_fasta = os.path.join(self.tmp,
+                                             '{}.fasta'.format(file_name))
 
             with open(target_path_fasta, 'w') as o:
                 for gene in sequences.keys():
@@ -252,23 +345,29 @@ class MSA:
 
         # error
         else:
-            logging.error('{} is not a dictionary and also not a file path'.format(sequences))
+            logging.error(
+                '{} is not a dictionary and also not a file path'.format(
+                    sequences))
             return None
 
         target_path_msa = os.path.join(self.tmp, '{}.msa'.format(file_name))
 
         if aligner == 'muscle':
-            subprocess.run([self.muscle, '-quiet', '-in', target_path_fasta, '-out', target_path_msa],
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            subprocess.run(
+                    [self.muscle, '-quiet', '-in', target_path_fasta, '-out',
+                     target_path_msa],
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         elif aligner == 'prank':
-            subprocess.run([self.prank, '-codon', '-d=' + target_path_fasta, '-o=' + target_path_msa],
+            subprocess.run([self.prank, '-codon', '-d=' + target_path_fasta,
+                            '-o=' + target_path_msa],
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            subprocess.run(['mv', '{}.best.fas'.format(target_path_msa), target_path_msa])
+            subprocess.run(['mv', '{}.best.fas'.format(target_path_msa),
+                            target_path_msa])
 
         subprocess.run(['rm', target_path_fasta], stdout=subprocess.PIPE)
 
-        if not file:
+        if return_dict:
             out = read_fasta(target_path_msa)
-            return out
+            return target_path_msa, out
 
         return target_path_msa

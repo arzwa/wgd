@@ -315,15 +315,6 @@ class Codeml:
                 best = likelihood
                 best_index = i
 
-                # average results if times > 1
-                # results = {'results': {}, 'raw': []}
-                # if times != 1:
-                # logging.debug("Averaging codeml results")
-                # for key in ['Ks', 'Ka', 'Omega']:
-                #    df = pd.concat([x['results'][key] for x in output])
-                #    results['results'][key] = df.groupby(level=0).mean()
-                # results['raw'] = [x for x in output]
-
         logging.debug('Best MLE: ln(L) = {}'.format(best))
         results = output[best_index]
 
@@ -331,15 +322,6 @@ class Codeml:
             return None
 
         os.remove(self.control_file)
-
-        if not preserve:
-            if os.path.isfile(self.out_file):
-                os.remove(self.out_file)
-            else:
-                logging.warning(
-                        "codeml output file {} not found!".format(
-                            self.out_file))
-                return None
 
         if raw:
             return results
