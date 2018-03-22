@@ -376,6 +376,9 @@ def analyse_family_pairwise(
                 os.path.basename(pairwise_msa), preserve=preserve, times=times
         )
 
+        # remove pairwise alignment
+        os.remove(pairwise_msa)
+
         # preserve codeml
         if preserve:
             with open(codeml_out, 'r') as f:
