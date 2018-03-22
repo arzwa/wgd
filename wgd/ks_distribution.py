@@ -416,8 +416,8 @@ def analyse_family_pairwise(
     # entries until no more NA entries are in the Ks matrix. This will give the
     # most parsimonious filtered matrix
     while sum(ks_mat.isnull().sum()) != 0:
-        ks_mat.drop(ks_mat.isnull().sum().idxmax(), index=0)
-        ks_mat.drop(ks_mat.isnull().sum().idxmax(), index=1)
+        ks_mat.drop(ks_mat.isnull().sum().idxmax(), axis=0)
+        ks_mat.drop(ks_mat.isnull().sum().idxmax(), axis=1)
 
     # filter the alignment -----------------------------------------------------
     # remove the sequences that were filtered out from the Ks matrix from the
