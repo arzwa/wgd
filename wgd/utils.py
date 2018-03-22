@@ -302,7 +302,9 @@ def get_paralogs_fasta(input_fasta, selected_paralogs, output_fasta,
 
 def translate_cds(sequence_dict):
     """
-    Just another CDS to protein translater.
+    Just another CDS to protein translater. Will give warnings when in-frame
+    stop codons are found, invalid codons are found, or when the sequence length
+    is not a multiple of three.
 
     :param sequence_dict: dictionary with gene IDs and CDS sequences
     :return: dictionary with gene IDs and proteins sequences
@@ -322,8 +324,8 @@ def translate_cds(sequence_dict):
         'GGA': 'G', 'GGC': 'G', 'GGG': 'G', 'GGT': 'G',
         'TCA': 'S', 'TCC': 'S', 'TCG': 'S', 'TCT': 'S',
         'TTC': 'F', 'TTT': 'F', 'TTA': 'L', 'TTG': 'L',
-        'TAC': 'Y', 'TAT': 'Y', 'TAA': '', 'TAG': '',
-        'TGC': 'C', 'TGT': 'C', 'TGA': '', 'TGG': 'W',
+        'TAC': 'Y', 'TAT': 'Y', 'TAA': '',  'TAG': '',
+        'TGC': 'C', 'TGT': 'C', 'TGA': '',  'TGG': 'W',
     }
     protein_dict = {}
 
@@ -332,12 +334,26 @@ def translate_cds(sequence_dict):
         for key, val in sequence_dict.items():
             j += 1
             aa_seq = ''
+            if len(val) % 3 != 0:
+                logging.warning('Sequence length is not a multiple of 3 for '
+                                'gene {}!'.format(key))
+            invalid = False
             for i in range(0, len(val), 3):
                 if val[i:i + 3] not in aa_dict.keys():
-                    logging.debug('Invalid codon {0:>3} in sequence {1}'.format(
-                            val[i:i + 3], key))
+                    logging.warning('Invalid codon {0:>3} in sequence {1}'
+                                    ''.format(val[i:i + 3], key))
+                    invalid = True
+                    break
                 else:
+                    if aa_dict[val[i:i + 3]] == '' and i+3 != len(val):
+                        logging.warning('In-frame STOP codon in sequence {0} '
+                                        'at position {1}:{2}'
+                                        ''.format(key, i, i+3))
+                        invalid = True
+                        break
                     aa_seq += aa_dict[val[i:i + 3]]
+            if invalid:
+                continue
             protein_dict[key] = aa_seq
             pb.update(j)
 
