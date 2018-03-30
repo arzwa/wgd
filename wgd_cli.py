@@ -29,6 +29,14 @@ The CLI is organized with a Click command that wraps a function with the same
 name followed by an underscore, this is chosen mostly so that the pipeline
 commands can reuse code.
 """
+# TODO: replace codeml module by BioPython's PAML wrapper
+
+# TODO: use biopython for sequence handling
+
+# TODO: the occasional hangs might be due to the use of subprocess.PIPE to
+# TODO: store the stdout and stderr of subprocesses. It might be better to use
+# TODO: tempfiles (from the tempfile module) to keep track of the output of
+# TODO: subprocesses
 # keep these imports to a minimum to speed up initial CLI loading
 import click
 import logging
@@ -36,7 +44,6 @@ import sys
 import os
 import datetime
 import pandas as pd
-import uuid
 import coloredlogs
 import subprocess
 from wgd.utils import translate_cds, read_fasta, write_fasta, Genome, \
@@ -105,7 +112,7 @@ def cli(verbosity, logfile):
 @click.option('--one_v_one', is_flag=True, help='Get one vs. one orthologs')
 @click.option('--sequences', '-s', default=None,
               help='Input fasta files, as a comma separated string (e.g. '
-                   'x.fasta,y.fasta,z.fasta).')
+                   'x.fasta,y.fasta,z.fasta) or directory name.')
 @click.option('--species_ids', '-id', default=None,
               help='Species identifiers for respective input sequence files, '
                    'as a comma separated string (e.g. x,y,z). (optional)')
@@ -167,8 +174,9 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None,
     :return: output file name
     """
     # lazy imports
-    from wgd.blast_mcl import all_v_all_blast, run_mcl_ava_2, \
-        ava_blast_to_abc, get_one_v_one_orthologs_rbh
+    from wgd.blast_mcl import all_v_all_blast, run_mcl_ava, ava_blast_to_abc, \
+        get_one_v_one_orthologs_rbh
+    from wgd.utils import uniq_id
 
     # software checks
     software = []
@@ -243,14 +251,14 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None,
 
         # blast
         logging.info('Writing blastdb sequences to db.fasta.')
-        db = os.path.join(output_dir, str(uuid.uuid4()) + '.db.fasta')
+        db = os.path.join(output_dir, uniq_id() + '.db.fasta')
 
         # all-vs.-all
         d = {}
         for x in protein_sequences:
             d.update(x)
         write_fasta(d, db)
-        query = os.path.join(output_dir, str(uuid.uuid4()) + '.query.fasta')
+        query = os.path.join(output_dir, uniq_id() + '.query.fasta')
         logging.info('Writing query sequences to query.fasta.')
         write_fasta(d, query)
 
@@ -283,7 +291,7 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None,
         logging.info('Performing MCL clustering (inflation factor = {0})'
                      ''.format(inflation_factor))
         ava_graph = ava_blast_to_abc(blast_results)
-        mcl_out = run_mcl_ava_2(
+        mcl_out = run_mcl_ava(
                 ava_graph, output_dir=output_dir,
                 output_file='{}.mcl'.format(os.path.basename(blast_results)),
                 inflation=inflation_factor
@@ -406,6 +414,7 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None,
     # lazy imports
     from wgd.ks_distribution import ks_analysis_paranome, ks_analysis_one_vs_one
     from wgd.viz import plot_selection
+    from wgd.utils import uniq_id
 
     # software check
     software = [codeml, aligner]
@@ -424,8 +433,8 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None,
         return 1
 
     if not tmp_dir:
-        tmp_dir = os.path.join('.', 'ks_tmp.' + str(
-                uuid.uuid4()))  # unique tmp directory
+        # unique tmp directory
+        tmp_dir = os.path.join('.', 'ks_tmp.' + uniq_id())
 
     # get absolute paths before changing dir
     output_directory = os.path.abspath(output_directory)
@@ -538,7 +547,7 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None,
 @click.option('--keyword', '-kw', default='mRNA',
               help="Keyword for parsing the genes from the GFF file (column 3)."
                    " (Default = 'mRNA').")
-@click.option('--id_string', '-id', default='Parent',
+@click.option('--id_string', '-id', default='ID',
               help="Keyword for parsing the gene IDs from the GFF file (column "
                    "9). (Default = 'ID').")
 def syn(gff_file, gene_families, output_dir, ks_distribution, keyword,
@@ -586,8 +595,8 @@ def syn_(gff_file, families, output_dir, ks_distribution, keyword='mRNA',
 
     # software check
     if can_i_run_software(['i-adhore']) == 1:
-        logging.error('Could not run all software, exit here.')
-        return 1
+       logging.error('Could not run all software, exit here.')
+       return 1
 
     # input check
     if not gff_file:
@@ -613,13 +622,13 @@ def syn_(gff_file, families, output_dir, ks_distribution, keyword='mRNA',
     genome = Genome()
     try:
         genome.parse_plaza_gff(gff_file, keyword=keyword, id_string=id_string)
-    except:
+    except IndexError:
         logging.error('Invalid GFF file, be sure to have 9 columns, with your '
                       'features of interest marked by the ')
         logging.error('keyword {0} (set with the -kw option) in the third '
-                      'column and the gene too which it refers ')
-        logging.error('identified by {1}=gene in the ; separated string in the '
-                      'last column. ')
+                      'column and the gene to which it refers '.format(keyword))
+        logging.error('identified by {0}=gene in the ; separated string in the '
+                      'last column.'.format(id_string))
         return
 
     # generate necessary files for i-adhore

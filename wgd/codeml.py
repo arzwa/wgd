@@ -18,6 +18,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 Contact: arzwa@psb.vib-ugent.be
 
 A python wrapper for codeml (PAML package, Yang 2007)
+
+This is apparently very redundant as there is a nice implementation in BioPython
+However the implementation in BioPython does currently not support Codeml runs
+without an input tree.
 """
 import pandas as pd
 import numpy as np
@@ -330,3 +334,6 @@ class Codeml:
             if results is not None:
                 return results['results'], os.path.abspath(self.out_file)
             return None
+
+
+

@@ -20,10 +20,9 @@ Contact: arzwa@psb.vib-ugent.be
 Markov clustering (MCL) related functions
 """
 
-from .utils import process_gene_families, log_subprocess
+from .utils import process_gene_families, log_subprocess, uniq_id
 import os
 import subprocess
-import uuid
 import logging
 
 
@@ -131,8 +130,8 @@ def ava_blast_to_abc(ava_file, col_1=0, col_2=1, col_3=10):
     return graph
 
 
-def run_mcl_ava_2(graph, output_dir='./', inflation=2, output_file='out.mcl',
-                  preserve=False, return_dict=False):
+def run_mcl_ava(graph, output_dir='./', inflation=2, output_file='out.mcl',
+                preserve=False, return_dict=False):
     """
     Run ``mcl`` on all-vs-all Blast results for a species of interest.
     Note if the parameter ``output_file`` is not given and the parameter
@@ -147,7 +146,7 @@ def run_mcl_ava_2(graph, output_dir='./', inflation=2, output_file='out.mcl',
     :param preserve: boolean, preserve tmp/intermediate files?
     :return: results as output file or as gene family dictionary
     """
-    tmp_file = str(uuid.uuid4())
+    tmp_file = uniq_id()
     tmp_file = os.path.join(output_dir, tmp_file)
     output_file = os.path.join(output_dir, output_file)
 

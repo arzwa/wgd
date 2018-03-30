@@ -25,6 +25,8 @@ alignment as PRANK are a bit more involved). To add another aligner, only the
 :py:meth:`MSA.run_aligner` method should be modified to include the aligner of
 interest.
 """
+# TODO: use BioPython alignIO stuff
+
 from .utils import read_fasta
 import os
 import subprocess

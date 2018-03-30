@@ -25,7 +25,6 @@ import random
 import numpy as np
 import json
 import subprocess
-import uuid
 from progressbar import ProgressBar
 from numpy import mean, std
 from scipy.spatial.distance import cdist
@@ -45,7 +44,7 @@ def can_i_run_software(software):
         # codeml needs input otherwise it prompts the user for input, so a dummy
         # file is created
         if s == 'codeml':
-            tmp_file = str(uuid.uuid4())
+            tmp_file = uniq_id()
             with open(tmp_file, 'w') as o:
                 o.write('test')
             command = ['codeml', tmp_file]
@@ -162,6 +161,11 @@ def process_gene_families(gene_family_file, ignore_prefix=False):
             ID += 1
 
     return gene_family_dict
+
+
+def uniq_id():
+    from time import time
+    return str(hex(int(time()*10000000))[2:])
 
 
 def check_dirs(tmp_dir, output_dir, prompt, preserve):

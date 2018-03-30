@@ -28,7 +28,7 @@ import logging
 import pandas as pd
 
 
-# WRITE FILES AND CONFIG -----------------------------------------------------------------------------------------------
+# WRITE FILES AND CONFIG -------------------------------------------------------
 
 def write_gene_lists(genome, output_dir='gene_lists'):
     """
@@ -83,15 +83,16 @@ def write_families_file(families, all_genes, output_file='families.tsv'):
     return
 
 
-def write_config_adhore(gene_lists, families, config_file_name='i-adhore.conf',
-                        genome='genome', output_path='i-adhore_out', gap_size=30,
-                        cluster_gap=35, q_value=0.75, prob_cutoff=0.01, anchor_points=3,
-                        alignment_method='gg2', level_2_only='false', table_type='family',
-                        multiple_hypothesis_correction='FDR', visualize_ghm='false',
-                        visualize_alignment='true'):
+def write_config_adhore(
+        gene_lists, families, config_file_name='i-adhore.conf',
+        genome='genome', output_path='i-adhore_out', gap_size=30,
+        cluster_gap=35, q_value=0.75, prob_cutoff=0.01, anchor_points=3,
+        alignment_method='gg2', level_2_only='false', table_type='family',
+        multiple_hypothesis_correction='FDR', visualize_ghm='false',
+        visualize_alignment='true'):
     """
-    Write out the config file for I-ADHoRe. See I-ADHoRe manual for information on
-    parameter settings.
+    Write out the config file for I-ADHoRe. See I-ADHoRe manual for information
+    on parameter settings.
 
     :param gene_lists: directory with gene lists per chromosome
     :param families: file with gene to family mapping
@@ -130,7 +131,7 @@ def write_config_adhore(gene_lists, families, config_file_name='i-adhore.conf',
         o.write('level_2_only= {}\n'.format(level_2_only))
         o.write('table_type= {}\n'.format(table_type))
         o.write('multiple_hypothesis_correction= {}\n'.format(
-            multiple_hypothesis_correction))
+                multiple_hypothesis_correction))
         o.write('visualizeGHM= {}\n'.format(visualize_ghm))
         # o.write('visGPairs= {}\n'.format(output_path))
         o.write('visualizeAlignment= {}\n'.format(visualize_alignment))
@@ -138,7 +139,8 @@ def write_config_adhore(gene_lists, families, config_file_name='i-adhore.conf',
     return
 
 
-def get_anchor_pairs(anchors_file, ks_distribution=None, out_file='anchors_ks.csv'):
+def get_anchor_pairs(anchors_file, ks_distribution=None,
+                     out_file='anchors_ks.csv'):
     """
     Get anchor pairs and their corresponding Ks values (if provided)
 
@@ -151,19 +153,22 @@ def get_anchor_pairs(anchors_file, ks_distribution=None, out_file='anchors_ks.cs
     else:
         logging.info('Anchor points file found.')
 
-    anchors = pd.read_csv(anchors_file, sep='\t', index_col=0)[['gene_x', 'gene_y']]
+    anchors = pd.read_csv(anchors_file, sep='\t', index_col=0)[
+        ['gene_x', 'gene_y']]
 
     # give the pairs an identifier
     ids = []
     for x in anchors.index:
-        ids.append("-".join(sorted([anchors.loc[x]['gene_x'], anchors.loc[x]['gene_y']])))
+        ids.append("-".join(
+            sorted([anchors.loc[x]['gene_x'], anchors.loc[x]['gene_y']])))
     anchors['pair_id'] = ids
 
     if type(ks_distribution) == pd.DataFrame:
         ids_ = []
         for x in ks_distribution.index:
             ids_.append("-".join(sorted(
-                [ks_distribution.loc[x]['Paralog1'], ks_distribution.loc[x]['Paralog2']])))
+                    [ks_distribution.loc[x]['Paralog1'],
+                     ks_distribution.loc[x]['Paralog2']])))
 
         ks_distribution.index = ids_
         ks_anchors = ks_distribution.ix[anchors['pair_id']]
@@ -182,12 +187,13 @@ def get_anchor_pairs(anchors_file, ks_distribution=None, out_file='anchors_ks.cs
 
 def segments_to_chords_table(segments_file, genome, output_file='chords.tsv'):
     """
-    Create chords table for visualization in a chord diagram. Uses the segments.txt
-    output of I-ADHoRe. Chords are defined by a source chromosome and a target 
-    chromosome and begin and end coordinates for each chromosome respectively.
+    Create chords table for visualization in a chord diagram. Uses the
+    segments.txt output of I-ADHoRe. Chords are defined by a source chromosome
+    and a target chromosome and begin and end coordinates for each chromosome
+    respectively.
 
-    TODO: the length of each syntenic block should be included in the table as well
-    with length defined as number of genes, not physical length.
+    TODO: the length of each syntenic block should be included in the table as
+    well with length defined as number of genes, not physical length.
 
     :param segments_file: pat to the I-ADHoRe segments.txt output file
     :param genome: a :func:`gff_parser.Genome object`
@@ -207,27 +213,35 @@ def segments_to_chords_table(segments_file, genome, output_file='chords.tsv'):
                 target = str(chromosomes[i][k])
 
                 if source not in genome.genome.keys():
-                    logging.warning('Chromosome ID `{}` not found'.format(source))
+                    logging.warning(
+                        'Chromosome ID `{}` not found'.format(source))
                 elif target not in genome.genome.keys():
-                    logging.warning('Chromosome ID `{}` not found'.format(target))
+                    logging.warning(
+                        'Chromosome ID `{}` not found'.format(target))
                 else:
                     d = {'source_id': source,
-                         'source_1': genome.genome[source][first[i][j]]['start'],
+                         'source_1': genome.genome[source][first[i][j]][
+                             'start'],
                          'source_2': genome.genome[source][last[i][j]]['stop'],
                          'target_id': target,
-                         'target_1': genome.genome[target][first[i][k]]['start'],
+                         'target_1': genome.genome[target][first[i][k]][
+                             'start'],
                          'target_2': genome.genome[target][last[i][k]]['stop'],
-                         'label': '{0}-{1};{2}-{3}'.format(first[i][j], last[i][j], first[i][k], last[i][k]),
+                         'label': '{0}-{1};{2}-{3}'.format(first[i][j],
+                                                           last[i][j],
+                                                           first[i][k],
+                                                           last[i][k]),
                          'color': genome.colors[source],
-                         'source_length': abs(int(genome.genome[source][last[i][j]]['stop']) -
-                                              int(genome.genome[source][first[i][j]]['start']))}
+                         'source_length': abs(
+                             int(genome.genome[source][last[i][j]]['stop']) -
+                             int(genome.genome[source][first[i][j]]['start']))}
                     chords.append(d)
 
     df = pd.DataFrame.from_records(chords)
     df.to_csv(output_file, sep='\t')
 
 
-# RUNNING EXTERNAL SOFTWARE --------------------------------------------------------------------------------------------
+# RUNNING EXTERNAL SOFTWARE ----------------------------------------------------
 
 def run_adhore(config_file):
     """
@@ -236,7 +250,8 @@ def run_adhore(config_file):
     :param config_file: path to I-ADHoRe configuration file
     """
     completed = subprocess.run(
-        ['i-adhore', config_file], stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            ['i-adhore', config_file], stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE)
     logging.warning(completed.stderr.decode('utf-8'))
     logging.info(completed.stdout.decode('utf-8'))
     return

@@ -17,7 +17,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Contact: arzwa@psb.vib-ugent.be
-weighting in the ``phy`` module.
 """
 # TODO: other outlier detection approaches
 # TODO: alignment stripping as in Vanneste 2013

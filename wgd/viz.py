@@ -22,6 +22,7 @@ distributions with kernel density estimates interactively.
 """
 import plumbum as pb
 import matplotlib
+
 if not 'DISPLAY' in pb.local.env:
     matplotlib.use('Agg')  # use this backend when no X server
 import matplotlib.pyplot as plt
@@ -31,17 +32,17 @@ import seaborn as sns
 import os
 import matplotlib.patheffects as pe
 import pandas as pd
-import random
-from .modeling import weighted_to_unweighted
 
 
-def plot_selection(dists, output_file=None, alphas=None, colors=None, labels=None, ks_range=(0.1, 5), offset=5,
+def plot_selection(dists, output_file=None, alphas=None, colors=None,
+                   labels=None, ks_range=(0.1, 5), offset=5,
                    title='Species genus', **kwargs):
     """
     Plot a panel from the `all.csv` output from the Ks analysis.
 
     :param dists: distribution(s), if multiple provide as list
-    :param alphas: alpha values for the different distributions (will assign automatically if not provided)
+    :param alphas: alpha values for the different distributions (will assign
+        automatically if not provided)
     :param ks_range: Ks range to include for plotting
     :param offset: offset of axis
     :param title: panel title
@@ -58,7 +59,7 @@ def plot_selection(dists, output_file=None, alphas=None, colors=None, labels=Non
         alphas = list(np.linspace(0.2, 1, len(dists)))
 
     if not colors or not colors[0]:
-        colors = ['black']*len(dists)
+        colors = ['black'] * len(dists)
 
     if not labels or not labels[0]:
         labels = [None] * len(dists)
@@ -70,40 +71,55 @@ def plot_selection(dists, output_file=None, alphas=None, colors=None, labels=Non
     # ks
     ax = fig.add_subplot(221)
     # get the bin edges
-    bins = np.histogram(np.hstack(tuple([dist['Ks'] for dist in dists])), bins=40)[1]
+    bins = \
+    np.histogram(np.hstack(tuple([dist['Ks'] for dist in dists])), bins=40)[1]
     for i in range(len(dists)):
-        ax.hist(dists[i]['Ks'], bins, alpha=alphas[i], color=colors[i], rwidth=0.8,
-                weights=dists[i]['WeightOutliersIncluded'], label=labels[i], **kwargs)
+        ax.hist(dists[i]['Ks'], bins, alpha=alphas[i], color=colors[i],
+                rwidth=0.8,
+                weights=dists[i]['WeightOutliersIncluded'], label=labels[i],
+                **kwargs)
     sns.despine(offset=offset, trim=True)
     ax.set_xlabel('$K_S$')
 
     # ka
     ax = fig.add_subplot(222)
     # get the bin edges
-    bins = np.histogram(np.hstack(tuple([np.log10(dist['Ks']) for dist in dists])), bins=40)[1]
+    bins = \
+    np.histogram(np.hstack(tuple([np.log10(dist['Ks']) for dist in dists])),
+                 bins=40)[1]
     for i in range(len(dists)):
-        ax.hist(np.log10(dists[i]['Ks']), bins, alpha=alphas[i], color=colors[i], rwidth=0.8,
-                weights=dists[i]['WeightOutliersIncluded'], label=labels[i], **kwargs)
+        ax.hist(np.log10(dists[i]['Ks']), bins, alpha=alphas[i],
+                color=colors[i], rwidth=0.8,
+                weights=dists[i]['WeightOutliersIncluded'], label=labels[i],
+                **kwargs)
     sns.despine(offset=offset, trim=True)
     ax.set_xlabel('$log_{10}(K_s)$')
 
     # log(ka)
     ax = fig.add_subplot(223)
     # get the bin edges
-    bins = np.histogram(np.hstack(tuple([np.log10(dist['Ka']) for dist in dists])), bins=40)[1]
+    bins = \
+    np.histogram(np.hstack(tuple([np.log10(dist['Ka']) for dist in dists])),
+                 bins=40)[1]
     for i in range(len(dists)):
-        ax.hist(np.log10(dists[i]['Ka']), bins, alpha=alphas[i], color=colors[i], rwidth=0.8,
-                weights=dists[i]['WeightOutliersIncluded'], label=labels[i],**kwargs)
+        ax.hist(np.log10(dists[i]['Ka']), bins, alpha=alphas[i],
+                color=colors[i], rwidth=0.8,
+                weights=dists[i]['WeightOutliersIncluded'], label=labels[i],
+                **kwargs)
     sns.despine(offset=offset, trim=True)
     ax.set_xlabel('$log_{10}(K_A)$')
 
     # log(w)
     ax = fig.add_subplot(224)
     # get the bin edges
-    bins = np.histogram(np.hstack(tuple([np.log10(dist['Omega']) for dist in dists])), bins=40)[1]
+    bins = \
+    np.histogram(np.hstack(tuple([np.log10(dist['Omega']) for dist in dists])),
+                 bins=40)[1]
     for i in range(len(dists)):
-        ax.hist(np.log10(dists[i]['Omega']), bins, alpha=alphas[i], color=colors[i], rwidth=0.8,
-                weights=dists[i]['WeightOutliersIncluded'], label=labels[i],**kwargs)
+        ax.hist(np.log10(dists[i]['Omega']), bins, alpha=alphas[i],
+                color=colors[i], rwidth=0.8,
+                weights=dists[i]['WeightOutliersIncluded'], label=labels[i],
+                **kwargs)
     sns.despine(offset=offset, trim=True)
     ax.set_xlabel('$log_{10}(\omega)$')
 
@@ -126,23 +142,28 @@ def syntenic_dotplot(df, output_file=None):
     :param output_file: output file name
     :return: figure
     """
-    genomic_elements_ = {x: 0 for x in list(set(df['list_x']) | set(df['list_y'])) if type(x) == str}
+    genomic_elements_ = {x: 0 for x in
+                         list(set(df['list_x']) | set(df['list_y'])) if
+                         type(x) == str}
 
-    fig = plt.figure(figsize=(15,15))
+    fig = plt.figure(figsize=(15, 15))
     ax = fig.add_subplot(111)
 
     for key in sorted(genomic_elements_.keys()):
-        length = max(list(df[df['list_x'] == key]['end_x']) + list(df[df['list_y'] == key]['end_y']))
+        length = max(list(df[df['list_x'] == key]['end_x']) + list(
+                df[df['list_y'] == key]['end_y']))
         genomic_elements_[key] = length
 
     previous = 0
     genomic_elements = {}
-    sorted_ge = sorted(genomic_elements_.items(), key=lambda x: x[1], reverse=True)
+    sorted_ge = sorted(genomic_elements_.items(), key=lambda x: x[1],
+                       reverse=True)
     for kv in sorted_ge:
         genomic_elements[kv[0]] = previous
         previous += kv[1]
 
-    x = [genomic_elements[key] for key in sorted(genomic_elements.keys())] + [previous]
+    x = [genomic_elements[key] for key in sorted(genomic_elements.keys())] + [
+        previous]
     ax.vlines(ymin=0, ymax=previous, x=x, linestyles='dotted', alpha=0.2)
     ax.hlines(xmin=0, xmax=previous, y=x, linestyles='dotted', alpha=0.2)
     ax.plot(x, x, color='k', alpha=0.2)
@@ -156,12 +177,14 @@ def syntenic_dotplot(df, output_file=None):
         list_x, list_y = row['list_x'], row['list_y']
         if type(list_x) != float:
             curr_list_x = list_x
-        x = [genomic_elements[curr_list_x]+x for x in [row['begin_x'], row['end_x']]]
-        y = [genomic_elements[list_y]+x for x in [row['begin_y'], row['end_y']]]
+        x = [genomic_elements[curr_list_x] + x for x in
+             [row['begin_x'], row['end_x']]]
+        y = [genomic_elements[list_y] + x for x in
+             [row['begin_y'], row['end_y']]]
         ax.plot(x, y, color='k', alpha=0.5)
-        ax.plot(y,x, color='k', alpha=0.5)
+        ax.plot(y, x, color='k', alpha=0.5)
 
-    sns.despine(offset=5, trim=True)
+    sns.despine(offset=5)  #,  trim=True)
 
     if output_file:
         fig.savefig(output_file, dpi=200, bbox_inches='tight')
@@ -171,7 +194,8 @@ def syntenic_dotplot(df, output_file=None):
         return fig
 
 
-def syntenic_dotplot_ks_colored(df, an, ks, color_map='Spectral', output_file=None):
+def syntenic_dotplot_ks_colored(df, an, ks, color_map='Spectral',
+                                output_file=None):
     """
     Syntenic dotplot with segment colored by mean Ks value
 
@@ -186,7 +210,9 @@ def syntenic_dotplot_ks_colored(df, an, ks, color_map='Spectral', output_file=No
 
     an['pair'] = an['gene_x'].astype(str) + '-' + an['gene_y']
     an['pair'] = an['pair'].map(lambda x: '-'.join(sorted(x.split('-'))))
-    genomic_elements_ = {x: 0 for x in list(set(df['list_x']) | set(df['list_y'])) if type(x) == str}
+    genomic_elements_ = {x: 0 for x in
+                         list(set(df['list_x']) | set(df['list_y'])) if
+                         type(x) == str}
     ks_multiplicons = {}
     all_ks = []
     for i in range(len(df)):
@@ -201,21 +227,24 @@ def syntenic_dotplot_ks_colored(df, an, ks, color_map='Spectral', output_file=No
     tmp = plt.contourf(z, levels, cmap=cmap)
     plt.clf()
 
-    fig = plt.figure(figsize=(16,15))
+    fig = plt.figure(figsize=(16, 15))
     ax = fig.add_subplot(111)
 
     for key in sorted(genomic_elements_.keys()):
-        length = max(list(df[df['list_x'] == key]['end_x']) + list(df[df['list_y'] == key]['end_y']))
+        length = max(list(df[df['list_x'] == key]['end_x']) + list(
+                df[df['list_y'] == key]['end_y']))
         genomic_elements_[key] = length
 
     previous = 0
     genomic_elements = {}
-    sorted_ge = sorted(genomic_elements_.items(), key=lambda x: x[1], reverse=True)
+    sorted_ge = sorted(genomic_elements_.items(), key=lambda x: x[1],
+                       reverse=True)
     for kv in sorted_ge:
         genomic_elements[kv[0]] = previous
         previous += kv[1]
 
-    x = [genomic_elements[key] for key in sorted(genomic_elements.keys())] + [previous]
+    x = [genomic_elements[key] for key in sorted(genomic_elements.keys())] + [
+        previous]
     ax.vlines(ymin=0, ymax=previous, x=x, linestyles='dotted', alpha=0.2)
     ax.hlines(xmin=0, xmax=previous, y=x, linestyles='dotted', alpha=0.2)
     ax.plot(x, x, color='k', alpha=0.2)
@@ -229,12 +258,18 @@ def syntenic_dotplot_ks_colored(df, an, ks, color_map='Spectral', output_file=No
         list_x, list_y = row['list_x'], row['list_y']
         if type(list_x) != float:
             curr_list_x = list_x
-        x = [genomic_elements[curr_list_x] + x for x in [row['begin_x'], row['end_x']]]
-        y = [genomic_elements[list_y] + x for x in [row['begin_y'], row['end_y']]]
-        ax.plot(x, y, alpha=0.7, linewidth=3, color=cmap(ks_multiplicons[row['id']] / 5),
-                path_effects=[pe.Stroke(linewidth=4, foreground='k'), pe.Normal()])
-        ax.plot(y, x, alpha=0.7, linewidth=3, color=cmap(ks_multiplicons[row['id']] / 5),
-                path_effects=[pe.Stroke(linewidth=4, foreground='k'), pe.Normal()])
+        x = [genomic_elements[curr_list_x] + x for x in
+             [row['begin_x'], row['end_x']]]
+        y = [genomic_elements[list_y] + x for x in
+             [row['begin_y'], row['end_y']]]
+        ax.plot(x, y, alpha=0.7, linewidth=3,
+                color=cmap(ks_multiplicons[row['id']] / 5),
+                path_effects=[pe.Stroke(linewidth=4, foreground='k'),
+                              pe.Normal()])
+        ax.plot(y, x, alpha=0.7, linewidth=3,
+                color=cmap(ks_multiplicons[row['id']] / 5),
+                path_effects=[pe.Stroke(linewidth=4, foreground='k'),
+                              pe.Normal()])
 
     cbar = plt.colorbar(tmp, fraction=0.02, pad=0.01)
     cbar.ax.set_yticklabels(['{:.2f}'.format(x) for x in np.linspace(0, 5, 11)])
@@ -267,14 +302,16 @@ def histogram_bokeh(ks_distributions, labels):
 
     # helper functions
     def get_colors(cmap_choice='binary'):
-        too_light = ['binary', 'hot', 'copper', 'pink', 'summer', 'bone', 'Pastel1', 'Pastel2', 'gist_ncar',
+        too_light = ['binary', 'hot', 'copper', 'pink', 'summer', 'bone',
+                     'Pastel1', 'Pastel2', 'gist_ncar',
                      'nipy_spectral', 'Greens']
         cmap = cm.get_cmap(cmap_choice, len(ks_distributions))
         if cmap_choice in too_light:
-            cmap = cm.get_cmap(cmap_choice, len(ks_distributions)*4)
+            cmap = cm.get_cmap(cmap_choice, len(ks_distributions) * 4)
         c = []
         for i in range(cmap.N):
-            rgb = cmap(i)[:3]  # will return rgba, we take only first 3 so we get rgb
+            rgb = cmap(i)[
+                  :3]  # will return rgba, we take only first 3 so we get rgb
             c.append(matplotlib.colors.rgb2hex(rgb))
         if cmap_choice in too_light:
             if len(ks_distributions) > 1:
@@ -313,16 +350,24 @@ def histogram_bokeh(ks_distributions, labels):
     bins = TextInput(title="Bins", value='50')
     line = Slider(title="Lines", start=0, end=1, value=0.3, step=0.1)
     density = Slider(title="Kernel density", start=0, end=2, value=0, step=1)
-    density_alpha = Slider(title="Density alpha value", start=0, end=1, value=0.6, step=0.1)
-    hist_alpha = Slider(title="Histogram alpha value", start=0, end=1, value=0.6, step=0.1)
-    color_choice = Select(options=['binary', 'hsv', 'hot', 'magma', 'viridis', 'Greens', 'spring', 'autumn',
-                                   'copper', 'cool', 'winter', 'pink', 'summer', 'bone', 'RdBu', 'RdYlGn',
-                                   'coolwarm', 'inferno', 'Pastel1', 'Pastel2', 'tab10', 'gnuplot', 'brg',
-                                   'gist_ncar', 'jet', 'rainbow', 'nipy_spectral', 'ocean', 'cubehelix'],
-                          value='binary', title='Color map')
+    density_alpha = Slider(title="Density alpha value", start=0, end=1,
+                           value=0.6, step=0.1)
+    hist_alpha = Slider(title="Histogram alpha value", start=0, end=1,
+                        value=0.6, step=0.1)
+    color_choice = Select(
+        options=['binary', 'hsv', 'hot', 'magma', 'viridis', 'Greens', 'spring',
+                 'autumn',
+                 'copper', 'cool', 'winter', 'pink', 'summer', 'bone', 'RdBu',
+                 'RdYlGn',
+                 'coolwarm', 'inferno', 'Pastel1', 'Pastel2', 'tab10',
+                 'gnuplot', 'brg',
+                 'gist_ncar', 'jet', 'rainbow', 'nipy_spectral', 'ocean',
+                 'cubehelix'],
+        value='binary', title='Color map')
 
     # set up figure
-    p1 = figure(plot_width=1000, plot_height=700, tools='pan,wheel_zoom,xwheel_zoom,ywheel_zoom,save')
+    p1 = figure(plot_width=1000, plot_height=700,
+                tools='pan,wheel_zoom,xwheel_zoom,ywheel_zoom,save')
     p1.xgrid.grid_line_color = None
     p1.ygrid.grid_line_color = None
     p1.border_fill_color = 'white'
@@ -348,17 +393,21 @@ def histogram_bokeh(ks_distributions, labels):
         all_weights = []
         for i in range(len(dists)):
             df = dists[i]
-            data, weights, df = get_data(df, var.value, scale.value, float(r1.value), float(r2.value))
+            data, weights, df = get_data(df, var.value, scale.value,
+                                         float(r1.value), float(r2.value))
             all_data.append(data)
             all_weights.append(weights)
-        edges = np.histogram(np.hstack(tuple(all_data)), bins=int(bins.value))[1]
+        edges = np.histogram(np.hstack(tuple(all_data)), bins=int(bins.value))[
+            1]
 
         for i in range(len(dists)):
             if density.value == 0:
-                hist = np.histogram(all_data[i], bins=int(bins.value), weights=all_weights[i])[0]
+                hist = np.histogram(all_data[i], bins=int(bins.value),
+                                    weights=all_weights[i])[0]
                 p1.yaxis.axis_label = '# paralogs'
             else:
-                hist = np.histogram(all_data[i], bins=int(bins.value), weights=all_weights[i], density=True)[0]
+                hist = np.histogram(all_data[i], bins=int(bins.value),
+                                    weights=all_weights[i], density=True)[0]
                 p1.yaxis.axis_label = 'density'
 
             if i in density_dict:
@@ -366,23 +415,31 @@ def histogram_bokeh(ks_distributions, labels):
                 density_dict[i].data_source.data['y'] = []
 
             if density.value == 1 or density.value == 2:
-                kde = gaussian_kde(np.array(all_data[i]), weights=np.array(all_weights[i]), bw_method='scott')
-                x = np.linspace(float(r1.value)+0.000001, float(r2.value), 1000)
+                kde = gaussian_kde(np.array(all_data[i]),
+                                   weights=np.array(all_weights[i]),
+                                   bw_method='scott')
+                x = np.linspace(float(r1.value) + 0.000001, float(r2.value),
+                                1000)
                 if scale.value == 'log10':
                     x = np.log10(x)
                 pdf = list(kde(x))
                 pdf[np.argmin(x)] = 0
                 pdf[np.argmax(x)] = 0
 
-                density_dict[i] = p1.patch(x=x, y=pdf, fill_color=c[i], line_width=2, line_color=c[i],
-                                           alpha=density_alpha.value, legend=labels[i])
+                density_dict[i] = p1.patch(x=x, y=pdf, fill_color=c[i],
+                                           line_width=2, line_color=c[i],
+                                           alpha=density_alpha.value,
+                                           legend=labels[i])
 
             if i in hist_dict:
                 remove_plot(hist_dict, i)
 
             if density.value == 1 or density.value == 0:
-                hist_dict[i] = p1.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:], fill_color=c[i],
-                                       line_color=c[i], fill_alpha=hist_alpha.value, line_alpha=line.value,
+                hist_dict[i] = p1.quad(top=hist, bottom=0, left=edges[:-1],
+                                       right=edges[1:], fill_color=c[i],
+                                       line_color=c[i],
+                                       fill_alpha=hist_alpha.value,
+                                       line_alpha=line.value,
                                        legend=labels[i])
 
             p1.legend.label_text_font_style = "italic"
@@ -428,7 +485,8 @@ def histogram_bokeh(ks_distributions, labels):
     hist_alpha.on_change('value', feat_change)
 
     # set up layout
-    widgets1 = widgetbox(var, scale, color_choice, line, density, hist_alpha, density_alpha, r1, r2, bins,
+    widgets1 = widgetbox(var, scale, color_choice, line, density, hist_alpha,
+                         density_alpha, r1, r2, bins,
                          sizing_mode='fixed')
     l = layout([
         [div],
@@ -443,7 +501,7 @@ def histogram_bokeh(ks_distributions, labels):
     session.show(l)  # open the document in a browser
     session.loop_until_closed()  # run forever
     # bokeh_html(c, )
-    return #  show(p1)
+    return  # show(p1)
 
 
 def visualize_adhore_circos_js(output_dir):
@@ -545,7 +603,6 @@ wgd_adhore_html = """
 </html>
 """
 
-
 circos_js = """
 var minLength = 0;
 
@@ -629,7 +686,6 @@ function inputted() {
         .await(drawCircos);
 }
 """
-
 
 BOKEH_APP_DIV = """
 <div>
