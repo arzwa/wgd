@@ -842,8 +842,10 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma,
               help="Output file, default='wgd_hist.png'.")
 @click.option('--interactive', '-i', is_flag=True,
               help="Interactive visualization with bokeh.")
+@click.option('--outliers_included', '-oi', is_flag=True,
+              help="Use weights computed before outlier removal.")
 def viz(ks_distributions, alpha_values, colors, labels, hist_type, title,
-        output_file, interactive):
+        output_file, interactive, outliers_included):
     """
     Plot histograms/densities (interactively).
 
@@ -858,11 +860,11 @@ def viz(ks_distributions, alpha_values, colors, labels, hist_type, title,
     This program comes with ABSOLUTELY NO WARRANTY;
     """
     viz_(ks_distributions, alpha_values, colors, labels, hist_type, title,
-         output_file, interactive)
+         output_file, interactive, outliers_included)
 
 
 def viz_(ks_distributions, alpha_values, colors, labels, hist_type, title,
-         output_file, interactive=False):
+         output_file, interactive=False, outliers_included=False):
     """
     Plot (stacked) histograms (interactively)
 
@@ -891,6 +893,10 @@ def viz_(ks_distributions, alpha_values, colors, labels, hist_type, title,
         logging.error('You have to provide one or more computed Ks '
                       'distributions! See for example `wgd ks -h`')
         return 1
+    if outliers_included:
+        weights = 'WeightOutliersIncluded'
+    else:
+        weights = 'WeightOutliersExcluded'
 
     # directory provided
     if os.path.isdir(ks_distributions):
@@ -908,16 +914,17 @@ def viz_(ks_distributions, alpha_values, colors, labels, hist_type, title,
         # check if valid distributions
         try:
             d = pd.read_csv(i, sep='\t', index_col=0)
-            _ = d[['Ks', 'WeightOutliersExcluded']]
+            _ = d[['Ks', weights]]
+            d = d.fillna(0)
             dists_files.append(i)
             dists.append(d)
         except:
             logging.info('Not a Ks distribution: {}'.format(i))
 
-    # interactive bokeh visualizatoin
+    # interactive bokeh visualization
     if interactive:
         from wgd.viz import histogram_bokeh
-        histogram_bokeh(dists_files, labels)
+        histogram_bokeh(dists_files, labels, weights)
         return
 
     # normal matplotlib plots
@@ -943,7 +950,7 @@ def viz_(ks_distributions, alpha_values, colors, labels, hist_type, title,
     # make plot
     logging.info('Plotting Ks distributions overlay')
     plot_selection(dists, alphas=alpha_values, colors=colors, labels=labels,
-                   output_file=output_file,
+                   output_file=output_file, weights=weights,
                    title=title, histtype=hist_type)
     return
 

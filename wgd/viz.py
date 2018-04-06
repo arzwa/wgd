@@ -36,16 +36,20 @@ import pandas as pd
 
 def plot_selection(dists, output_file=None, alphas=None, colors=None,
                    labels=None, ks_range=(0.1, 5), offset=5,
-                   title='Species genus', **kwargs):
+                   title='Species genus', weights='WeightOutliersIncluded',
+                   **kwargs):
     """
     Plot a panel from the `all.csv` output from the Ks analysis.
 
     :param dists: distribution(s), if multiple provide as list
     :param alphas: alpha values for the different distributions (will assign
         automatically if not provided)
+    :param colors: colors for different distributions
+    :param labels: labels for different distributions
     :param ks_range: Ks range to include for plotting
     :param offset: offset of axis
     :param title: panel title
+    :param weights: weights to use
     :param kwargs: keyword arguments for :py:func:`matplotlib.pyplot.hist`
     :return: :py:class:`matplotlib.pyplot.Figure` object
     """
@@ -76,7 +80,7 @@ def plot_selection(dists, output_file=None, alphas=None, colors=None,
     for i in range(len(dists)):
         ax.hist(dists[i]['Ks'], bins, alpha=alphas[i], color=colors[i],
                 rwidth=0.8,
-                weights=dists[i]['WeightOutliersIncluded'], label=labels[i],
+                weights=dists[i][weights], label=labels[i],
                 **kwargs)
     sns.despine(offset=offset, trim=True)
     ax.set_xlabel('$K_S$')
@@ -90,7 +94,7 @@ def plot_selection(dists, output_file=None, alphas=None, colors=None,
     for i in range(len(dists)):
         ax.hist(np.log10(dists[i]['Ks']), bins, alpha=alphas[i],
                 color=colors[i], rwidth=0.8,
-                weights=dists[i]['WeightOutliersIncluded'], label=labels[i],
+                weights=dists[i][weights], label=labels[i],
                 **kwargs)
     sns.despine(offset=offset, trim=True)
     ax.set_xlabel('$log_{10}(K_s)$')
@@ -104,7 +108,7 @@ def plot_selection(dists, output_file=None, alphas=None, colors=None,
     for i in range(len(dists)):
         ax.hist(np.log10(dists[i]['Ka']), bins, alpha=alphas[i],
                 color=colors[i], rwidth=0.8,
-                weights=dists[i]['WeightOutliersIncluded'], label=labels[i],
+                weights=dists[i][weights], label=labels[i],
                 **kwargs)
     sns.despine(offset=offset, trim=True)
     ax.set_xlabel('$log_{10}(K_A)$')
@@ -118,7 +122,7 @@ def plot_selection(dists, output_file=None, alphas=None, colors=None,
     for i in range(len(dists)):
         ax.hist(np.log10(dists[i]['Omega']), bins, alpha=alphas[i],
                 color=colors[i], rwidth=0.8,
-                weights=dists[i]['WeightOutliersIncluded'], label=labels[i],
+                weights=dists[i][weights], label=labels[i],
                 **kwargs)
     sns.despine(offset=offset, trim=True)
     ax.set_xlabel('$log_{10}(\omega)$')
@@ -283,7 +287,7 @@ def syntenic_dotplot_ks_colored(df, an, ks, color_map='Spectral',
         return fig
 
 
-def histogram_bokeh(ks_distributions, labels):
+def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
     """
     Run an interactive bokeh application.
     This requires a running bokeh server! Use ``bokeh serve &`` to start a bokeh server in the background.
@@ -326,7 +330,7 @@ def histogram_bokeh(ks_distributions, labels):
         data = df[var].dropna()
         if scale == 'log10':
             data = np.log10(data)
-        weights = df['WeightOutliersIncluded']
+        weights = df[weights]
         return data, weights, df
 
     # get the distributions
