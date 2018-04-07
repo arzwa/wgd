@@ -88,6 +88,14 @@ def _weighting(pairwise_estimates, msa=None, method='alc'):
 
 
 def _calculate_weights(clustering, pairwise_estimates, pairwise_distances=None):
+    """
+    This is a patch for weight calculation in the pairwise approach
+
+    :param clustering:
+    :param pairwise_estimates:
+    :param pairwise_distances:
+    :return:
+    """
     # None -> None
     if pairwise_estimates is None or clustering is None:
         return None
@@ -418,18 +426,25 @@ def analyse_family_pairwise(
     # entries until no more NA entries are in the Ks matrix. This will give the
     # most parsimonious filtered matrix
     while sum(ks_mat.isnull().sum()) != 0:
-        ks_mat.drop(ks_mat.isnull().sum().idxmax(), axis=0)
-        ks_mat.drop(ks_mat.isnull().sum().idxmax(), axis=1)
+        logging.debug('Filtering matrix')
+        ks_mat.drop(ks_mat.isnull().sum().idxmax(), axis=0, inplace=True)
+        ks_mat.drop(ks_mat.isnull().sum().idxmax(), axis=1, inplace=True)
+
+    logging.debug('Filtered Ks matrix: \n{}'.format(ks_mat))
 
     # filter the alignment -----------------------------------------------------
     # remove the sequences that were filtered out from the Ks matrix from the
     # alignment as well.
-    for k in msa_dict.keys():
-        if k not in ks_mat.index:
-            del msa_dict[k]
+    to_del = [k for k in msa_dict.keys() if k not in ks_mat.index]
+    for k in to_del:
+        del msa_dict[k]
+
     write_fasta(msa_dict, msa_path_protein)
 
     # weighting ----------------------------------------------------------------
+    # TODO: when only two family members, this is a bit of an overkill, but
+    # otherwise the distance between the gene pair is not computed correctly.
+    # Also, apparently PhyML breaks on families of two members.
     clustering, pairwise_distances, tree_path = _weighting(
             {'Ks': ks_mat}, msa=msa_path_protein, method=method)
     weights = _calculate_weights(clustering, ks_mat, pairwise_distances)
@@ -449,6 +464,8 @@ def analyse_family_pairwise(
         subprocess.run(['rm', msa_path_protein])
         if tree_path:
             subprocess.run(['rm', tree_path])
+
+    return
 
 
 def ks_analysis_one_vs_one(
@@ -658,12 +675,13 @@ def ks_analysis_paranome(
 
 def sort_families_by_size(families):
     """
-    Sort a families dictionary by family size
+    Returns a list of non-singleton gene famileis ordered by size.
 
     :param families: nested gene family dictionary {family: {gene: sequence}}
     :return: list of tuples [(family id, size)] sorted by size
     """
     sorted_families = []
     for k, v in families.items():
-        sorted_families.append((k, len(v.keys())))
+        if len(v.keys()) > 1:
+            sorted_families.append((k, len(v.keys())))
     return sorted(sorted_families, key=itemgetter(1), reverse=True)
