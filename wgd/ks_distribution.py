@@ -351,6 +351,64 @@ def analyse_family_pairwise(
         min_length=100, method='alc', aligner='muscle',
         output_dir='./out'
 ):
+    """
+    Perform Ks analysis for one gene family using teh pairwise approach. The
+    pairwise analysis approach is the one most commonly used in the literature,
+    e.g. Vanneste et al. (2013), Vanneste et al. (2015), Barker et al. (2008),
+    Li et al. (2015), Maere et al. (2005) and many more. Implementation details
+    differ for many publications, and their are several implementation choices
+    that are non-trivial. A main point of importance is the weighting of
+    multiple pairwise Ks estimates based on a phylogeny (or proxy thereof), with
+    some authors that do not weight (naive pairwise Ks distributions). Some
+    authors use phylogentic trees, oter use hierarchical clustering for the
+    weighting. Lastly some authors perform reweighting after outlier removal,
+    others don't. Here the approach of Vanneste et al. (2013) and later papers
+    is largely followed:
+
+    (1) A multiple sequence alignment at the protein level is constructed for a
+    full paralogous family.
+
+    (2) For every pair of sequences in the multiple sequence alignment (i.e.
+    n*(n-1)/2 pairs for a family of n members), strip all gaps in the pairwise
+    alignment.
+
+    (3) Then back-translate the sequences to obtain a codon alignment. Discard
+    the sequence pair if the alignment is too short (min_length, default=100).
+
+    (4) Use codeml to perform ML estimation of Ks, Ka and Ka/Ks. Here the
+    empirical codon frequencies of the pairwise alignment with the F3x4 method.
+
+    (5) A matrix is constructed with all pairwise estimates. Entries that do not
+    have a valid Ks estimate (because the alignment was too short) are removed
+    from the matrix. This is done by iteratively removing the columns (and rows)
+    with most NaN values. These sequences are also removed from the aligment.
+
+    (6) A weighting method is applied. Either a phylogenetic tree is constructed
+    for the faily or the Pairwise Ks matrix is clustered using average linkage
+    clustering. Every Ks estimate for a duplication node is then weighted by the
+    number of estimates that are present for that node such that the different
+    estimates for the same duplication event result in  weight of 1 in total.
+
+    (7) Outliers are removed, where outliers are naively defined as pairs with
+    Ks estimates > 5. Outlier removal essentially consists in putting the weight
+    of these pairs to 0 and recalculating the weights for the remaining pairs in
+    the family.
+
+    :param family_id: gene family ID
+    :param family: gene family sequence dictionary
+    :param nucleotide: nucleotide sequences
+    :param tmp: tmp directory
+    :param muscle: muscle executable
+    :param codeml: codeml executable
+    :param prank: prank executable
+    :param preserve: preserve codeml, alignment and tree results
+    :param times: number of times to perform codeml estimation
+    :param min_length: minimum gap-stripped alignment length to consider
+    :param method: weighting method
+    :param aligner: alignment method
+    :param output_dir: output directory
+    :return: nada
+    """
     # Pairwise analysis pipeline
     logging.info('Performing analysis on gene family {}'.format(family_id))
 
