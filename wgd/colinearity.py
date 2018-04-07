@@ -26,11 +26,82 @@ import os
 import subprocess
 import logging
 import pandas as pd
+from operator import itemgetter
+
+
+def gff_parser(gff_file, feature='mRNA', gene_attribute='Parent'):
+    # This is a GFF parser with as sole purpose to write out gene list files
+    # for I-ADHoRe 3.0. It should work with GFF3, GFF2 and GTF files and follows
+    # standard nomenclature (wikipedia). It assumes that the ninth column (the
+    # attributes section) is a semicolon separated list of attributes in
+    # 'attribute_key=value' format.
+    all_features = set()
+    genome = {}
+
+    with open(gff_file, 'r') as f:
+        i = 0
+        for line in f:
+            # count lines
+            i += 1
+
+            # ignore comments
+            if line.startswith('#'):
+                continue
+            line = line.strip().split('\t')
+
+            if len(line) != 9:
+                raise IndexError
+
+            if line[2] == feature:
+                sequence = line[0]
+                start = line[3]
+                end = line[4]
+                strand = line[6]
+
+                # get the feature attributes
+                attributes = line[8].split(';')
+                attributes = {
+                    x.split('=')[0]: x.split('=')[1] for x in attributes
+                    if len(x.split('=')) == 2
+                }
+
+                if gene_attribute not in attributes:
+                    logging.error('Attribute {0} not found in GFF line {1}'
+                                  ''.format(gene_attribute, i))
+
+                # store information (why?, if the sole purpose is to write out
+                # gene lists we might as well write them here? However if the
+                # gff file would not be sorted (which is seldomly the case), it
+                # is better to store and sort first
+                if sequence not in genome:
+                    genome[sequence] = []
+                genome[sequence].append((
+                    attributes[gene_attribute],
+                    int(start), int(end),
+                    strand
+                ))
+
+                all_features.add(attributes[gene_attribute])
+
+    # sort the features on every sequence
+    for v in genome.values():
+        v.sort(key=itemgetter(1))
+
+    return genome, all_features
 
 
 # WRITE FILES AND CONFIG -------------------------------------------------------
-
 def write_gene_lists(genome, output_dir='gene_lists'):
+    if not os.path.exists(output_dir):
+        os.mkdir(output_dir)
+
+    for k, v in genome.items():
+        with open(os.path.join(output_dir, k + '.lst'), 'w') as o:
+            for feature in v:
+                o.write(feature[0] + feature[-1] + '\n')
+
+
+def _write_gene_lists(genome, output_dir='gene_lists'):
     """
     Write out the gene lists
 
@@ -139,30 +210,27 @@ def write_config_adhore(
     return
 
 
-def get_anchor_pairs(anchors_file, ks_distribution=None,
+def get_anchor_pairs(anchors, ks_distribution=None,
                      out_file='anchors_ks.csv'):
     """
     Get anchor pairs and their corresponding Ks values (if provided)
 
-    :param anchors_file: anchorpoints.txt output from I-ADHoRe 3.0
+    :param anchors: anchorpoints.txt output from I-ADHoRe 3.0
     :param ks_distribution: Ks distribution dataf rame
+    :param out_file: output file name
     :return: pandas dataframe(s): anchors and data frame
     """
-    if not os.path.exists(anchors_file):
-        logging.error('Anchor points file: `{}` not found'.format(anchors_file))
-    else:
-        logging.info('Anchor points file found.')
-
-    anchors = pd.read_csv(anchors_file, sep='\t', index_col=0)[
-        ['gene_x', 'gene_y']]
+    anchors = anchors[['gene_x', 'gene_y']]
 
     # give the pairs an identifier
     ids = []
     for x in anchors.index:
         ids.append("-".join(
             sorted([anchors.loc[x]['gene_x'], anchors.loc[x]['gene_y']])))
-    anchors['pair_id'] = ids
 
+    # TODO: gives SettingWithCopyWarning
+    anchors['pair_id'] = ids
+    
     if type(ks_distribution) == pd.DataFrame:
         ids_ = []
         for x in ks_distribution.index:

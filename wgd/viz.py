@@ -184,7 +184,7 @@ def syntenic_dotplot(df, output_file=None):
         ax.plot(x, y, color='k', alpha=0.5)
         ax.plot(y, x, color='k', alpha=0.5)
 
-    sns.despine(offset=5)  #,  trim=True)
+    sns.despine(offset=5, trim=True)
 
     if output_file:
         fig.savefig(output_file, dpi=200, bbox_inches='tight')

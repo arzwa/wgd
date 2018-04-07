@@ -83,17 +83,17 @@ def cli(verbosity, logfile):
     """
     if not logfile:
         coloredlogs.install(
-                fmt='%(asctime)s: %(levelname)s\t%(message)s',
-                level=verbosity.upper(), stream=sys.stdout
+            fmt='%(asctime)s: %(levelname)s\t%(message)s',
+            level=verbosity.upper(), stream=sys.stdout
         )
     else:
         print('Logs will be written to {}'.format(logfile))
         logging.basicConfig(
-                filename=logfile,
-                filemode='a',
-                format='%(asctime)s: %(levelname)s\t%(message)s',
-                datefmt='%H:%M:%S',
-                level=verbosity.upper()
+            filename=logfile,
+            filemode='a',
+            format='%(asctime)s: %(levelname)s\t%(message)s',
+            datefmt='%H:%M:%S',
+            level=verbosity.upper()
         )
 
     # get round problem with python multiprocessing library that can set all cpu
@@ -243,11 +243,11 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None,
         for i in range(len(sequence_files)):
             if cds:
                 protein_seqs = translate_cds(read_fasta(
-                        sequence_files[i], prefix=ids[i]))
+                    sequence_files[i], prefix=ids[i]))
                 protein_sequences.append(protein_seqs)
             else:
                 protein_sequences.append(read_fasta(
-                        sequence_files[i], prefix=ids[i]))
+                    sequence_files[i], prefix=ids[i]))
 
         # blast
         logging.info('Writing blastdb sequences to db.fasta.')
@@ -265,12 +265,12 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None,
         # start the blast
         logging.info('Performing all-vs.-all Blastp (this might take a while)')
         blast_results = all_v_all_blast(
-                query, db, output_dir,
-                output_file='{}.blast.tsv'.format(
-                        '_'.join([os.path.basename(x) for x in sequence_files])
-                ),
-                eval_cutoff=eval_cutoff,
-                n_threads=n_threads
+            query, db, output_dir,
+            output_file='{}.blast.tsv'.format(
+                '_'.join([os.path.basename(x) for x in sequence_files])
+            ),
+            eval_cutoff=eval_cutoff,
+            n_threads=n_threads
         )
         logging.info('Blast done')
 
@@ -292,9 +292,9 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None,
                      ''.format(inflation_factor))
         ava_graph = ava_blast_to_abc(blast_results)
         mcl_out = run_mcl_ava(
-                ava_graph, output_dir=output_dir,
-                output_file='{}.mcl'.format(os.path.basename(blast_results)),
-                inflation=inflation_factor
+            ava_graph, output_dir=output_dir,
+            output_file='{}.mcl'.format(os.path.basename(blast_results)),
+            inflation=inflation_factor
         )
         logging.info('Done')
         return mcl_out
@@ -424,7 +424,7 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None,
         software.append('phyml')
     if can_i_run_software(software) == 1:
         logging.error(
-                'Could not run all required external software, exit here.')
+            'Could not run all required external software, exit here.')
         return 1
 
     # input check
@@ -443,15 +443,15 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None,
 
     if os.path.exists(output_directory):
         logging.warning(
-                'Output directory already exists, will possibly overwrite')
+            'Output directory already exists, will possibly overwrite')
     else:
         os.mkdir(output_directory)
 
     if os.path.exists(tmp_dir):
         logging.warning(
-                'tmp directory already exists, be sure not to run two analyses '
-                'simultaneously in the same tmp directory as this will mess up '
-                'the results!')
+            'tmp directory already exists, be sure not to run two analyses '
+            'simultaneously in the same tmp directory as this will mess up '
+            'the results!')
     else:
         os.mkdir(tmp_dir)
 
@@ -483,21 +483,21 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None,
         # rub, rst and rst1 files
         logging.info('Started one-vs-one ortholog Ks analysis')
         results = ks_analysis_one_vs_one(
-                cds_seqs, protein_seqs, gene_families,
-                tmp_dir, output_directory,
-                muscle, codeml, async=async,
-                n_threads=n_threads, preserve=preserve,
-                times=times, min_length=min_msa_length,
-                aligner=aligner
+            cds_seqs, protein_seqs, gene_families,
+            tmp_dir, output_directory,
+            muscle, codeml, async=async,
+            n_threads=n_threads, preserve=preserve,
+            times=times, min_length=min_msa_length,
+            aligner=aligner
         )
         results.round(5).to_csv(
-                os.path.join(output_directory, '{}.ks.tsv'.format(base)),
-                sep='\t')
+            os.path.join(output_directory, '{}.ks.tsv'.format(base)),
+            sep='\t')
 
         logging.info('Generating plots')
         plot_selection(results, output_file=os.path.join(output_directory,
                                                          '{}.ks.png'.format(
-                                                                 base)),
+                                                             base)),
                        title=os.path.basename(gene_families))
 
         logging.info('Done')
@@ -509,24 +509,24 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None,
         # non-unique file names to the working dir
         logging.info('Started whole paranome Ks analysis')
         results = ks_analysis_paranome(
-                cds_seqs, protein_seqs, gene_families,
-                tmp_dir, output_directory,
-                muscle, codeml, preserve=preserve,
-                times=times, aligner=aligner,
-                ignore_prefixes=ignore_prefixes,
-                async=async, n_threads=n_threads,
-                min_length=min_msa_length,
-                method=weighting_method,
-                pairwise=pairwise
+            cds_seqs, protein_seqs, gene_families,
+            tmp_dir, output_directory,
+            muscle, codeml, preserve=preserve,
+            times=times, aligner=aligner,
+            ignore_prefixes=ignore_prefixes,
+            async=async, n_threads=n_threads,
+            min_length=min_msa_length,
+            method=weighting_method,
+            pairwise=pairwise
         )
         results.round(5).to_csv(
-                os.path.join(output_directory, '{}.ks.tsv'.format(base)),
-                sep='\t')
+            os.path.join(output_directory, '{}.ks.tsv'.format(base)),
+            sep='\t')
 
         logging.info('Generating plots')
         plot_selection(results, output_file=os.path.join(output_directory,
                                                          '{}.ks.png'.format(
-                                                                 base)),
+                                                             base)),
                        title=os.path.basename(gene_families))
 
         logging.info('Done')
@@ -544,14 +544,14 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None,
 @click.option('--ks_distribution', '-ks', default=None,
               help="Ks distribution for the whole paranome of the species of "
                    "interest, csv file as generated using `wgd ks`.")
-@click.option('--keyword', '-kw', default='mRNA',
+@click.option('--feature', '-f', default='mRNA',
               help="Keyword for parsing the genes from the GFF file (column 3)."
                    " (Default = 'mRNA').")
-@click.option('--id_string', '-id', default='ID',
+@click.option('--gene_attribute', '-ga', default='Parent',
               help="Keyword for parsing the gene IDs from the GFF file (column "
-                   "9). (Default = 'ID').")
-def syn(gff_file, gene_families, output_dir, ks_distribution, keyword,
-        id_string):
+                   "9). (Default = 'Parent').")
+def syn(gff_file, gene_families, output_dir, ks_distribution, feature,
+        gene_attribute):
     """
     Co-linearity analyses.
 
@@ -565,12 +565,12 @@ def syn(gff_file, gene_families, output_dir, ks_distribution, keyword,
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
     """
-    syn_(gff_file, gene_families, output_dir, ks_distribution, keyword,
-         id_string)
+    syn_(gff_file, gene_families, output_dir, ks_distribution, feature,
+         gene_attribute)
 
 
-def syn_(gff_file, families, output_dir, ks_distribution, keyword='mRNA',
-         id_string='Parent'):
+def syn_(gff_file, families, output_dir, ks_distribution, feature='mRNA',
+         gene_attribute='Parent'):
     """
     Co-linearity analysis with I-ADHoRe 3.0
     For usage in the ``wgd`` CLI.
@@ -580,23 +580,22 @@ def syn_(gff_file, families, output_dir, ks_distribution, keyword='mRNA',
         :py:func:`blast_`
     :param output_dir: output directory
     :param ks_distribution: Ks distribution tsv file, see :py:func:`ks_`
-    :param keyword: keyword for entities of interest in the GFF file, e.g.
+    :param feature: keyword for entities of interest in the GFF file, e.g.
         'CDS' or 'mRNA'
-    :param id_string: ID string for the gene ID in the GFF (9th column), e.g.
-        'ID' or 'Parent'
+    :param gene_attribute: attribute key for the gene ID in the GFF (9th
+        column), e.g. 'ID' or 'Parent'
     :return: nothing at all
     """
     # lazy imports
     from wgd.colinearity import write_families_file, write_gene_lists, \
-        write_config_adhore, run_adhore
-    from wgd.colinearity import get_anchor_pairs
+        write_config_adhore, run_adhore, get_anchor_pairs, gff_parser
     from wgd.viz import plot_selection, syntenic_dotplot, \
         syntenic_dotplot_ks_colored
 
     # software check
     if can_i_run_software(['i-adhore']) == 1:
-       logging.error('Could not run all software, exit here.')
-       return 1
+        logging.error('Could not run all software, exit here.')
+        return 1
 
     # input check
     if not gff_file:
@@ -611,7 +610,7 @@ def syn_(gff_file, families, output_dir, ks_distribution, keyword='mRNA',
 
     if os.path.exists(output_dir):
         logging.warning(
-                'Output directory already exists, will possibly overwrite')
+            'Output directory already exists, will possibly overwrite')
 
     else:
         os.mkdir(output_dir)
@@ -619,75 +618,65 @@ def syn_(gff_file, families, output_dir, ks_distribution, keyword='mRNA',
 
     # parse the gff
     logging.info("Parsing GFF file")
-    genome = Genome()
     try:
-        genome.parse_plaza_gff(gff_file, keyword=keyword, id_string=id_string)
+        genome, all_genes = gff_parser(
+            gff_file, feature=feature, gene_attribute=gene_attribute)
     except IndexError:
-        logging.error('Invalid GFF file, be sure to have 9 columns, with your '
-                      'features of interest marked by the ')
-        logging.error('keyword {0} (set with the -kw option) in the third '
-                      'column and the gene to which it refers '.format(keyword))
-        logging.error('identified by {0}=gene in the ; separated string in the '
-                      'last column.'.format(id_string))
-        return
+        logging.error('Invalid GFF file, number of columns != 9')
+        logging.error('Aborted')
+        return 1
 
     # generate necessary files for i-adhore
     logging.info("Writing gene lists")
-    all_genes = write_gene_lists(
-            genome, os.path.join(output_dir, 'gene_lists'))
+    write_gene_lists(genome, os.path.join(output_dir, 'gene_lists'))
 
     logging.info("Writing families file")
-    write_families_file(families, all_genes,
-                        os.path.join(output_dir, 'families.tsv'))
+    write_families_file(
+        families, all_genes, os.path.join(output_dir, 'families.tsv'))
 
     logging.info("Writing configuration file")
-    write_config_adhore(os.path.join(output_dir, 'gene_lists'),
-                        os.path.join(output_dir, 'families.tsv'),
-                        config_file_name=os.path.join(output_dir,
-                                                      'adhore.conf'),
-                        output_path=os.path.join(output_dir, 'i-adhore-out'))
+    write_config_adhore(
+        os.path.join(output_dir, 'gene_lists'),
+        os.path.join(output_dir, 'families.tsv'),
+        config_file_name=os.path.join(output_dir, 'adhore.conf'),
+        output_path=os.path.join(output_dir, 'i-adhore-out'))
 
     # run i-adhore
     logging.info("Running I-ADHoRe 3.0")
     run_adhore(os.path.join(output_dir, 'adhore.conf'))
 
     # dotplot
+    multiplicons = pd.read_csv(os.path.join(
+        output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t')
     logging.info('Drawing co-linearity dotplot')
-    syntenic_dotplot(
-            pd.read_csv(
-                    os.path.join(output_dir, 'i-adhore-out',
-                                 'multiplicons.txt'),
-                    sep='\t'),
-            output_file=os.path.join(output_dir, '{}.dotplot.png'.format(
-                    os.path.basename(families))))
+    syntenic_dotplot(multiplicons, output_file=os.path.join(
+        output_dir, '{}.dotplot.png'.format(os.path.basename(families))))
 
-    # Ks distribution for acnhors and Ks colored dotplot
+    # Ks distribution for anchors and Ks colored dotplot
     if ks_distribution:
-        logging.info("Constructing Ks distribution for anchors")
-        ks, anchors = get_anchor_pairs(
-                os.path.join(output_dir, 'i-adhore-out', 'anchorpoints.txt'),
-                pd.read_csv(ks_distribution, index_col=0, sep='\t'),
-                out_file=os.path.join(output_dir, '{}.ks_anchors.tsv'.format(
-                        os.path.basename(families)))
-        )
+        # input files
+        anchor_points = pd.read_csv(os.path.join(
+            output_dir, 'i-adhore-out', 'anchorpoints.txt'), sep='\t')
+        ks_dist = pd.read_csv(ks_distribution, index_col=0, sep='\t')
 
-        syntenic_dotplot_ks_colored(
-                pd.read_csv(os.path.join(output_dir, 'i-adhore-out',
-                                         'multiplicons.txt'), sep='\t'),
-                pd.read_csv(os.path.join(output_dir, 'i-adhore-out',
-                                         'anchorpoints.txt'), sep='\t'),
-                anchors, output_file=os.path.join(output_dir,
-                                                  '{}.dotplot.ks.png'.format(
-                                                          os.path.basename(
-                                                                  families)))
-        )
+        # output file names
+        ks_out = os.path.join(output_dir, '{}.ks_anchors.tsv'.format(
+                    os.path.basename(families)))
+        dotplot_out = os.path.join(output_dir, '{}.dotplot.ks.png'.format(
+            os.path.basename(families)))
+        hist = os.path.join(output_dir, '{}.ks_anchors.png'.format(
+            os.path.basename(families)))
+
+        # output and plots
+        logging.info("Constructing Ks distribution for anchors")
+        ks, anchors = get_anchor_pairs(anchor_points, ks_dist, ks_out)
+
+        logging.info("Generating Ks colored dotplot")
+        syntenic_dotplot_ks_colored(multiplicons, anchor_points, anchors,
+                                    output_file=dotplot_out)
 
         logging.info("Generating histogram")
-        plot_selection([ks, anchors], alphas=[0.2, 0.7],
-                       output_file=os.path.join(output_dir,
-                                                '{}.ks_anchors.png'.format(
-                                                        os.path.basename(
-                                                                families))),
+        plot_selection([ks, anchors], alphas=[0.2, 0.7], output_file=hist,
                        title=os.path.basename(families),
                        labels=['Whole paranome', 'Anchors'])
 
@@ -767,7 +756,7 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma,
 
     if not output_dir:
         output_dir = './{0}_mixture_{1}'.format(
-                method, datetime.datetime.now().strftime("%d%m%y_%H%M%S"))
+            method, datetime.datetime.now().strftime("%d%m%y_%H%M%S"))
         logging.info('Output will be in {}'.format(output_dir))
         os.mkdir(output_dir)
 
@@ -801,13 +790,13 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma,
     else:
         logging.info('Started Gaussian Mixture modeling (GMM)')
         models_gmm, bic, aic, best = mixture_model_gmm(
-                df, Ks_range=ks_range, n=n_range[1], output_dir=output_dir,
-                output_file='gmm.mixture.png', n_init=n_init)
+            df, Ks_range=ks_range, n=n_range[1], output_dir=output_dir,
+            output_file='gmm.mixture.png', n_init=n_init)
 
     logging.info(
-            'Saving data frame with probabilities for each component to {}'.format(
-                    os.path.join(output_dir,
-                                 '{}.{}.tsv'.format(base_ks, method))))
+        'Saving data frame with probabilities for each component to {}'.format(
+            os.path.join(output_dir,
+                         '{}.{}.tsv'.format(base_ks, method))))
     df = get_component_probabilities(df, best)
     df.to_csv(os.path.join(output_dir, '{}.{}.tsv'.format(base_ks, method)),
               sep='\t')
@@ -817,9 +806,9 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma,
         for i in range(best.n_components):
             selected = df[df['p_component{}'.format(i + 1)] >= cut_off]
             get_paralogs_fasta(
-                    sequences, selected, os.path.join(
-                            output_dir, 'component{}.fasta'.format(i + 1)
-                    ), pairs=pairs
+                sequences, selected, os.path.join(
+                    output_dir, 'component{}.fasta'.format(i + 1)
+                ), pairs=pairs
             )
 
 
@@ -931,12 +920,12 @@ def viz_(ks_distributions, alpha_values, colors, labels, hist_type, title,
         colors = [x for x in colors.split(',')]
         if len(colors) != len(dists):
             logging.error(
-                    'Please provide as much colors as there are distributions')
+                'Please provide as much colors as there are distributions')
     if not labels:
         labels = dists_files
         if len(labels) != len(dists):
             logging.error(
-                    'Please provide as much labels as there are distributions')
+                'Please provide as much labels as there are distributions')
     else:
         labels = labels.split(',')
 
