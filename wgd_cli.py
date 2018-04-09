@@ -52,10 +52,14 @@ from wgd.utils import translate_cds, read_fasta, write_fasta, Genome, \
 
 # CLI ENTRY POINT --------------------------------------------------------------
 @click.group(context_settings={'help_option_names': ['-h', '--help']})
-@click.option('--verbosity', '-v', type=click.Choice(['info', 'debug']),
-              default='info', help="Verbosity level, default = info.")
-@click.option('--logfile', '-l', default=None,
-              help="File to write logs to (optional)")
+@click.option(
+    '--verbosity', '-v', type=click.Choice(['info', 'debug']),
+    default='info', help="Verbosity level, default = info."
+)
+@click.option(
+    '--logfile', '-l', default=None,
+    help="File to write logs to (optional)"
+)
 def cli(verbosity, logfile):
     """
     Welcome to the wgd command line interface!
@@ -107,27 +111,52 @@ def cli(verbosity, logfile):
 
 # BLAST AND MCL ----------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.option('--cds', is_flag=True, help='Sequences are CDS.')
-@click.option('--mcl', is_flag=True, help='Perform MCL clustering.')
-@click.option('--one_v_one', is_flag=True, help='Get one vs. one orthologs')
-@click.option('--sequences', '-s', default=None,
-              help='Input fasta files, as a comma separated string (e.g. '
-                   'x.fasta,y.fasta,z.fasta) or directory name.')
-@click.option('--species_ids', '-id', default=None,
-              help='Species identifiers for respective input sequence files, '
-                   'as a comma separated string (e.g. x,y,z). (optional)')
-@click.option('--blast_results', '-b', default=None,
-              help='Input precomputed tab separated blast results.')
-@click.option('--inflation_factor', '-I', default=2.0,
-              help="Inflation factor for MCL clustering. (Default = 2)")
-@click.option('--eval_cutoff', '-e', default=1e-10,
-              help="E-value cut-off for Blast results (Default = 1e-10)")
-@click.option('--output_dir', '-o', default='wgd_blast',
-              help='Output directory.')
-@click.option('--n_threads', '-n', default=4,
-              help='Number of threads used by blastp. (Default = 4)')
-def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results,
-          inflation_factor, eval_cutoff, output_dir, n_threads):
+@click.option(
+    '--cds', is_flag=True,
+    help='sequences are CDS'
+)
+@click.option(
+    '--mcl', is_flag=True,
+    help='perform MCL clustering'
+)
+@click.option(
+    '--one_v_one', is_flag=True,
+    help='get one vs. one orthologs'
+)
+@click.option(
+    '--sequences', '-s', default=None,
+    help='input fasta files, as a comma separated string (e.g. '
+         'x.fasta,y.fasta,z.fasta) or directory name.'
+)
+@click.option(
+    '--species_ids', '-id', default=None,
+    help='species identifiers for respective input sequence files, as a comma'
+         ' separated string (e.g. x,y,z). (optional)'
+)
+@click.option(
+    '--blast_results', '-b', default=None,
+    help='input precomputed tab separated blast results'
+)
+@click.option(
+    '--inflation_factor', '-I', default=2.0, show_default=True,
+    help="inflation factor for MCL clustering"
+)
+@click.option(
+    '--eval_cutoff', '-e', default=1e-10, show_default=True,
+    help="e-value cut-off for blast results"
+)
+@click.option(
+    '--output_dir', '-o', default='wgd_blast', show_default=True,
+    help='output directory'
+)
+@click.option(
+    '--n_threads', '-n', default=4, show_default=True,
+    help='number of threads used by blastp'
+)
+def blast(
+        cds, mcl, one_v_one, sequences, species_ids, blast_results,
+        inflation_factor, eval_cutoff, output_dir, n_threads
+):
     """
     All-vs.-all blastp (+ MCL) analysis.
 
@@ -150,9 +179,11 @@ def blast(cds, mcl, one_v_one, sequences, species_ids, blast_results,
            inflation_factor, eval_cutoff, output_dir, n_threads)
 
 
-def blast_(cds=True, mcl=True, one_v_one=False, sequences=None,
-           species_ids=None, blast_results=None, inflation_factor=2.0,
-           eval_cutoff=1e-10, output_dir='wgd_blast', n_threads=4):
+def blast_(
+        cds=True, mcl=True, one_v_one=False, sequences=None,
+        species_ids=None, blast_results=None, inflation_factor=2.0,
+        eval_cutoff=1e-10, output_dir='wgd_blast', n_threads=4
+):
     """
     All vs. all Blast pipeline. For usage in the ``wgd`` CLI.
 
@@ -304,53 +335,72 @@ def blast_(cds=True, mcl=True, one_v_one=False, sequences=None,
 
 # Ks ANALYSIS USING JOBLIB/ASYNC  ----------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.option('--gene_families', '-gf', default=None,
-              help='Gene families (paralogs or one-to-one orthologs). Every '
-                   'family should be provided as a tab separated line of gene '
-                   'IDs. See also `wgd blast`.')
-@click.option('--sequences', '-s', default=None,
-              help='CDS sequences file in fasta format. Multiple files should '
-                   'be specified separated by commas.')
-@click.option('--output_directory', '-o', default='ks.out',
-              help='Output directory. (Default = ks.out)')
-@click.option('--protein_sequences', '-ps', default=None,
-              help="Protein sequences fasta file. Optional since by default "
-                   "the CDS file will be translated (universal genetic code, "
-                   "with no ambiguous nucleotides). Multiple files should be "
-                   "specified separated by commas.")
-@click.option('--tmp_dir', '-tmp', default=None,
-              help="Path to store temporary files. (Default = automatically "
-                   "generated unique id)")
-@click.option('--aligner', '-a', default='muscle',
-              type=click.Choice(['muscle', 'prank']),
-              help='Aligner program to use, from fast to slow: muscle, prank. '
-                   '(Default = muscle)')
-@click.option('--times', '-t', default=1,
-              help="Number of times to perform ML estimation (for more stable "
-                   "estimates). (Default = 1)")
-@click.option('--min_msa_length', '-mml', default=100,
-              help="Minimum MSA length for Ks analysis. (Default = 100)")
-@click.option('--n_threads', '-n', default=4,
-              help="Number of threads to use.")
-@click.option('--wm', '-w', type=click.Choice(['alc', 'fasttree', 'phyml']),
-              default='fasttree',
-              help="Node weighting method, from fast to slow: alc, fasttree, "
-                   "phyml. (Default = fasttree) ")
-@click.option('--pairwise', is_flag=True,
-              help="Perform the analysis using a pairwise approach (see docs)")
-@click.option('--ignore_prefixes', is_flag=True,
-              help="Ignore gene ID prefixes (defined by the '|' symbol) in the "
-                   "gene families file.")
-@click.option('--one_v_one', is_flag=True,
-              help="One vs one ortholog distribution.")
-@click.option('--preserve', is_flag=True,
-              help="Keep multiple sequence alignment and codeml output. ")
-@click.option('--async', is_flag=True, default=False,
-              help="Use asyncio module for parallelization. (Default uses "
-                   "joblib)")
-def ks(gene_families, sequences, output_directory, protein_sequences, tmp_dir,
-       aligner, times, min_msa_length, n_threads, wm, pairwise,
-       ignore_prefixes, one_v_one, preserve, async):
+@click.option(
+    '--gene_families', '-gf', default=None,
+    type=click.Path(exists=True),
+    help='gene families (paralogs or one-to-one orthologs)'
+)
+@click.option(
+    '--sequences', '-s', default=None,
+    help='CDS sequences file in fasta format (multiple files should be '
+         'specified separated by commas)'
+)
+@click.option(
+    '--output_directory', '-o', default='ks.out', show_default=True,
+    help='output directory'
+)
+@click.option(
+    '--protein_sequences', '-ps', default=None,
+    help="protein sequences fasta file (optional)"
+)
+@click.option(
+    '--tmp_dir', '-tmp', default=None, show_default=True,
+    help="path to store temporary files"
+)
+@click.option(
+    '--aligner', '-a', default='muscle', show_default=True,
+    type=click.Choice(['muscle', 'prank']),
+    help='aligner program to use, from fast to slow: muscle, prank'
+)
+@click.option(
+    '--times', '-t', default=1, show_default=True,
+    help="number of times to perform ML estimation"
+)
+@click.option(
+    '--min_msa_length', '-mml', default=100, show_default=True,
+    help="minimum MSA length for Ks analysis"
+)
+@click.option(
+    '--n_threads', '-n', default=4, show_default=True,
+    help="number of threads to use"
+)
+@click.option(
+    '--wm', '-w', type=click.Choice(['alc', 'fasttree', 'phyml']),
+    default='fasttree', show_default=True,
+    help="node weighting method, from fast to slow: alc, fasttree, phyml"
+)
+@click.option(
+    '--pairwise', is_flag=True,
+    help="perform the analysis using a pairwise approach"
+)
+@click.option(
+    '--ignore_prefixes', is_flag=True,
+    help="ignore gene ID prefixes (defined by the '|' symbol) in the gene "
+         "families file."
+)
+@click.option(
+    '--one_v_one', is_flag=True,
+    help="one vs one ortholog distribution"
+)
+@click.option(
+    '--preserve', is_flag=True,
+    help="keep multiple sequence alignment, codeml output and trees"
+)
+def ks(
+        gene_families, sequences, output_directory, protein_sequences, tmp_dir,
+        aligner, times, min_msa_length, n_threads, wm, pairwise,
+        ignore_prefixes, one_v_one, preserve
+):
     """
     Ks distribution construction.
 
@@ -374,19 +424,23 @@ def ks(gene_families, sequences, output_directory, protein_sequences, tmp_dir,
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
     """
-    ks_(gene_families, sequences, output_directory, protein_sequences, tmp_dir,
+    ks_(
+        gene_families, sequences, output_directory, protein_sequences, tmp_dir,
         aligner, muscle='muscle', codeml='codeml',
         times=times, min_msa_length=min_msa_length,
         ignore_prefixes=ignore_prefixes, one_v_one=one_v_one,
-        preserve=preserve, async=async, n_threads=n_threads,
-        weighting_method=wm, pairwise=pairwise)
+        preserve=preserve, async=False, n_threads=n_threads,
+        weighting_method=wm, pairwise=pairwise
+    )
 
 
-def ks_(gene_families, sequences, output_directory, protein_sequences=None,
+def ks_(
+        gene_families, sequences, output_directory, protein_sequences=None,
         tmp_dir=None, aligner='muscle',
         muscle='muscle', codeml='codeml', times=1, min_msa_length=100,
         ignore_prefixes=False, one_v_one=False, pairwise=False,
-        preserve=False, async=False, n_threads=4, weighting_method='fasttree'):
+        preserve=False, async=False, n_threads=4, weighting_method='fasttree'
+):
     """
     Ks distribution construction pipeline. For usage in the ``wgd`` CLI.
 
@@ -535,23 +589,34 @@ def ks_(gene_families, sequences, output_directory, protein_sequences=None,
 
 # CO-LINEARITY -----------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.option('--gff_file', '-gff', default=None,
-              help='Annotation in gff3 format')
-@click.option('--gene_families', '-gf', default=None,
-              help='Gene families as outline per MCL analysis')
-@click.option('--output_dir', '-o', default='./coll_out',
-              help='Output directory')
-@click.option('--ks_distribution', '-ks', default=None,
-              help="Ks distribution for the whole paranome of the species of "
-                   "interest, csv file as generated using `wgd ks`.")
-@click.option('--feature', '-f', default='mRNA',
-              help="Keyword for parsing the genes from the GFF file (column 3)."
-                   " (Default = 'mRNA').")
-@click.option('--gene_attribute', '-ga', default='Parent',
-              help="Keyword for parsing the gene IDs from the GFF file (column "
-                   "9). (Default = 'Parent').")
-def syn(gff_file, gene_families, output_dir, ks_distribution, feature,
-        gene_attribute):
+@click.option(
+    '--gff_file', '-gff', default=None, type=click.Path(exists=True),
+    help='annotation in gff3 format'
+)
+@click.option(
+    '--gene_families', '-gf', default=None, type=click.Path(exists=True),
+    help='gene families'
+)
+@click.option(
+    '--output_dir', '-o', default='./coll_out', show_default=True,
+    help='output directory'
+)
+@click.option(
+    '--ks_distribution', '-ks', default=None,
+    help="paranome ks distribution tsv file (optional, see `wgd ks`)"
+)
+@click.option(
+    '--feature', '-f', default='mRNA', show_default=True,
+    help="keyword for parsing the genes from the GFF file (column 3)"
+)
+@click.option(
+    '--gene_attribute', '-ga', default='Parent', show_default=True,
+    help="keyword for parsing the gene IDs from the GFF file (column 9)"
+)
+def syn(
+        gff_file, gene_families, output_dir, ks_distribution, feature,
+        gene_attribute
+):
     """
     Co-linearity analyses.
 
@@ -565,12 +630,16 @@ def syn(gff_file, gene_families, output_dir, ks_distribution, feature,
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
     """
-    syn_(gff_file, gene_families, output_dir, ks_distribution, feature,
-         gene_attribute)
+    syn_(
+        gff_file, gene_families, output_dir, ks_distribution, feature,
+        gene_attribute
+    )
 
 
-def syn_(gff_file, families, output_dir, ks_distribution, feature='mRNA',
-         gene_attribute='Parent'):
+def syn_(
+        gff_file, families, output_dir, ks_distribution, feature='mRNA',
+        gene_attribute='Parent'
+):
     """
     Co-linearity analysis with I-ADHoRe 3.0
     For usage in the ``wgd`` CLI.
@@ -685,31 +754,52 @@ def syn_(gff_file, families, output_dir, ks_distribution, feature='mRNA',
 
 # MIXTURE MODELING -------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.option('--ks_distribution', '-ks', default=None,
-              help="Ks distribution csv file, as generated with `wgd ks`.")
-@click.option('--method', type=click.Choice(['gmm', 'bgmm']), default='gmm',
-              help="Mixture modeling method, default is `gmm` (Gaussian mixture"
-                   " model).")
-@click.option('--n_range', '-n', default='1,4',
-              help='Range of number of components to fit. Default = 1,4')
-@click.option('--ks_range', '-r', default='0.1,3',
-              help='Ks range to use for modeling. Default = 0.1,3')
-@click.option('--output_dir', '-o', default=None, help='Output directory')
-@click.option('--gamma', '-g', default=1,
-              help='Gamma parameter (inverse of regularization strength) for'
-                   ' bgmm models. Default = 1')
-@click.option('--sequences', '-s', default=None,
-              help='Corresponding sequence files, if provided then the paralogs'
-                   ' corresponding to each component will be in the output.')
-@click.option('--cut_off', '-c', default=0.95,
-              help='Minimum probability to belong to a particular component for'
-                   ' selected sequence files. Default = 0.95')
-@click.option('--n_init', '-ni', default=1,
-              help='Number of k-means initializations to perform, default = 1')
-@click.option('--pairs', is_flag=True,
-              help='Write fasta file for each gene pair.')
-def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma,
-        sequences, cut_off, pairs=False, n_init=1):
+@click.option(
+    '--ks_distribution', '-ks', default=None, type=click.Path(exists=True),
+    help="ks distribution csv file (see `wgd ks`)"
+)
+@click.option(
+    '--method', type=click.Choice(['gmm', 'bgmm']), default='gmm',
+    show_default=True,
+    help="mixture modeling method"
+)
+@click.option(
+    '--n_range', '-n', default='1,4', show_default=True,
+    help='range of number of components to fit'
+)
+@click.option(
+    '--ks_range', '-r', default='0.1,3', show_default=True,
+    help='Ks range to use for modeling'
+)
+@click.option(
+    '--output_dir', '-o', default=None,
+    help='output directory'
+)
+@click.option(
+    '--gamma', '-g', default=1, show_default=True,
+    help='gamma parameter for bgmm models'
+)
+@click.option(
+    '--sequences', '-s', default=None,
+    help='corresponding sequence files'
+)
+@click.option(
+    '--cut_off', '-c', default=0.95, show_default=True,
+    help='minimum probability to belong to a particular component for sequence '
+         'selection'
+)
+@click.option(
+    '--n_init', '-ni', default=1, show_default=True,
+    help='number of k-means initializations'
+)
+@click.option(
+    '--pairs', is_flag=True,
+    help='write fasta file for each gene pair.'
+)
+def mix(
+        ks_distribution, method, n_range, ks_range, output_dir, gamma,
+        sequences, cut_off, n_init, pairs
+):
     """
     Mixture modeling of Ks distributions.
 
@@ -720,12 +810,16 @@ def mix(ks_distribution, method, n_range, ks_range, output_dir, gamma,
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
     """
-    mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma,
-         sequences, cut_off, pairs, n_init=n_init)
+    mix_(
+        ks_distribution, method, n_range, ks_range, output_dir, gamma,
+        sequences, cut_off, pairs, n_init=n_init
+    )
 
 
-def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma,
-         sequences, cut_off=0.95, pairs=False, n_init=1):
+def mix_(
+        ks_distribution, method, n_range, ks_range, output_dir, gamma,
+        sequences, cut_off=0.95, pairs=False, n_init=1
+):
     """
     Mixture modeling using sklearn
 
@@ -813,28 +907,47 @@ def mix_(ks_distribution, method, n_range, ks_range, output_dir, gamma,
 
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.option('--ks_distributions', '-ks', default=None,
-              help="Comma-separated Ks distribution csv files, or a directory "
-                   "containing these, as generated with `wgd ks`.")
-@click.option('--alpha_values', '-a', default=None,
-              help="Comma-separated alpha values, optional.")
-@click.option('--colors', '-c', default=None,
-              help="Comma-separated colors, optional.")
-@click.option('--labels', '-l', default=None,
-              help="Comma-separated labels (for legend), optional.")
-@click.option('--hist_type', '-ht', default='barstacked',
-              type=click.Choice(['barstacked', 'step', 'stepfilled']),
-              help="Histogram type.")
-@click.option('--title', '-t', default='WGD histogram',
-              help="Plot title.")
-@click.option('--output_file', '-o', default='wgd_hist.png',
-              help="Output file, default='wgd_hist.png'.")
-@click.option('--interactive', '-i', is_flag=True,
-              help="Interactive visualization with bokeh.")
-@click.option('--outliers_included', '-oi', is_flag=True,
-              help="Use weights computed before outlier removal.")
-def viz(ks_distributions, alpha_values, colors, labels, hist_type, title,
-        output_file, interactive, outliers_included):
+@click.option(
+    '--ks_distributions', '-ks', default=None,
+    help="comma-separated Ks distribution csv files, or a directory containing"
+         " these (see `wgd ks`)"
+)
+@click.option(
+    '--alpha_values', '-a', default=None,
+    help="comma-separated alpha values (optional)"
+)
+@click.option(
+    '--colors', '-c', default=None,
+    help="comma-separated colors (optional)"
+)
+@click.option(
+    '--labels', '-l', default=None,
+    help="comma-separated labels (for legend, optional)")
+@click.option(
+    '--hist_type', '-ht', default='barstacked', show_default=True,
+    type=click.Choice(['barstacked', 'step', 'stepfilled']),
+    help="histogram type"
+)
+@click.option(
+    '--title', '-t', default='WGD histogram', show_default=True,
+    help="plot title"
+)
+@click.option(
+    '--output_file', '-o', default='wgd_hist.png', show_default=True,
+    help="output file"
+)
+@click.option(
+    '--interactive', '-i', is_flag=True,
+    help="interactive visualization with bokeh"
+)
+@click.option(
+    '--outliers_included', '-oi', is_flag=True,
+    help="use weights computed before outlier removal"
+)
+def viz(
+        ks_distributions, alpha_values, colors, labels, hist_type, title,
+        output_file, interactive, outliers_included
+):
     """
     Plot histograms/densities (interactively).
 
@@ -848,12 +961,16 @@ def viz(ks_distributions, alpha_values, colors, labels, hist_type, title,
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
     """
-    viz_(ks_distributions, alpha_values, colors, labels, hist_type, title,
-         output_file, interactive, outliers_included)
+    viz_(
+        ks_distributions, alpha_values, colors, labels, hist_type, title,
+        output_file, interactive, outliers_included
+    )
 
 
-def viz_(ks_distributions, alpha_values, colors, labels, hist_type, title,
-         output_file, interactive=False, outliers_included=False):
+def viz_(
+        ks_distributions, alpha_values, colors, labels, hist_type, title,
+        output_file, interactive=False, outliers_included=False
+):
     """
     Plot (stacked) histograms (interactively)
 
@@ -947,10 +1064,14 @@ def viz_(ks_distributions, alpha_values, colors, labels, hist_type, title,
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.argument('sequences', default=None)
 @click.argument('output_dir', default=None)
-@click.option('--gff_file', '-gff', default=None,
-              help="GFF file for co-linearity analysis.")
-@click.option('--n_threads', '-n', default=4,
-              help="Number of threads to use.")
+@click.option(
+    '--gff_file', '-gff', default=None,
+    help="GFF file for co-linearity analysis"
+)
+@click.option(
+    '--n_threads', '-n', default=4, show_default=True,
+    help="number of threads to use"
+)
 def pipeline_1(sequences, output_dir, gff_file, n_threads):
     """
     Standard workflow whole paranome Ks.
@@ -990,8 +1111,10 @@ def pipeline_1(sequences, output_dir, gff_file, n_threads):
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.argument('sequences', default=None)
 @click.argument('output_dir', default=None)
-@click.option('--n_threads', '-n', default=4,
-              help="Number of threads to use.")
+@click.option(
+    '--n_threads', '-n', default=4, show_default=True,
+    help="number of threads to use"
+)
 def pipeline_2(sequences, output_dir, n_threads):
     """
     Standard workflow one-vs-one ortholog Ks.
