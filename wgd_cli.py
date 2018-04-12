@@ -384,7 +384,7 @@ def blast_(
         help="perform the analysis using a pairwise approach"
 )
 @click.option(
-        '--max_pairwise', '-mp', default=10000, show_defaul=True,
+        '--max_pairwise', '-mp', default=10000, show_default=True,
         help="maximum number of pairwise combinations a family may have"
 )
 @click.option(
