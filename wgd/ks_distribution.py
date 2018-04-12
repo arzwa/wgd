@@ -629,7 +629,7 @@ def ks_analysis_paranome(
         prank_path='prank', preserve=True, times=1,
         ignore_prefixes=False, n_threads=4, async=False,
         min_length=100, method='alc', aligner='muscle',
-        pairwise=False, max_pairwise=10000, resume=False
+        pairwise=False, max_pairwise=10000
 ):
     """
     Calculate a Ks distribution for a whole paranome.
@@ -655,7 +655,6 @@ def ks_analysis_paranome(
     :param pairwise: perform pairwise (instead of gene family wise) analysis
     :param max_pairwise: maximum number of pairwise combinations a family can
         have.
-    :param resume: resume analysis from tmp directory
     :return: data frame
     """
     # ignore prefixes in gene families, since only one species -----------------
@@ -674,8 +673,7 @@ def ks_analysis_paranome(
                 os.mkdir(os.path.join(output_dir, 'trees'))
 
     # sort family ids by family size -------------------------------------------
-    sorted_families = sort_families_by_size(
-            protein, pairwise, max_pairwise, resume, tmp_dir)
+    sorted_families = sort_families_by_size(protein, pairwise, max_pairwise)
 
     # start analysis -----------------------------------------------------------
     logging.info('Started analysis in parallel (n_threads = {})'
@@ -738,7 +736,7 @@ def ks_analysis_paranome(
 
 
 def sort_families_by_size(
-        families, pairwise=False, max_pairwise=10000, resume=False, tmp=None
+        families, pairwise=False, max_pairwise=10000
 ):
     """
     Returns a list of non-singleton gene families ordered by size and apply some
@@ -748,8 +746,6 @@ def sort_families_by_size(
     :param pairwise: pairwise analysis
     :param max_pairwise: maximum number of pairwise combinations a family may
         have
-    :param resume: resume analysis from tmp dir
-    :param tmp: tmp dir
     :return: list of tuples [(family id, size)] sorted by size
     """
     sorted_families = []
@@ -770,14 +766,6 @@ def sort_families_by_size(
                 'Filtered out the {} largest gene families because n*(n-1)/2 > '
                 '`max_pairwise`'.format(n_families - len(sorted_families))
         )
-
-    # filter for resume
-    if resume:
-        dir_list = set([
-            x.split('.')[0].split('_')[1] for x in os.listdir(tmp)
-            if x.endswith('.Ks')
-        ])
-        sorted_families = [x for x in sorted_families if x[0] not in dir_list]
 
     return sorted_families
 

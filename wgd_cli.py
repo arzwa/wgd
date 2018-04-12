@@ -400,14 +400,10 @@ def blast_(
         '--preserve', is_flag=True,
         help="keep multiple sequence alignment, codeml output and trees"
 )
-@click.option(
-        '--resume', is_flag=True,
-        help="resume analysis from tmp directory"
-)
 def ks(
         gene_families, sequences, output_directory, protein_sequences, tmp_dir,
         aligner, times, min_msa_length, n_threads, wm, pairwise,
-        max_pairwise, ignore_prefixes, one_v_one, preserve, resume
+        max_pairwise, ignore_prefixes, one_v_one, preserve
 ):
     """
     Ks distribution construction.
@@ -439,7 +435,7 @@ def ks(
             times=times, min_msa_length=min_msa_length,
             ignore_prefixes=ignore_prefixes, one_v_one=one_v_one,
             preserve=preserve, async=False, n_threads=n_threads,
-            weighting_method=wm, pairwise=pairwise, resume=resume,
+            weighting_method=wm, pairwise=pairwise,
             max_pairwise=max_pairwise
     )
 
@@ -450,7 +446,7 @@ def ks_(
         muscle='muscle', codeml='codeml', times=1, min_msa_length=100,
         ignore_prefixes=False, one_v_one=False, pairwise=False,
         preserve=False, async=False, n_threads=4, weighting_method='fasttree',
-        resume=False, max_pairwise=10000
+        max_pairwise=10000
 ):
     """
     Ks distribution construction pipeline. For usage in the ``wgd`` CLI.
@@ -474,7 +470,6 @@ def ks_(
     :param async: use the async library for parallelization
     :param n_threads: number of CPU threads to use
     :param weighting_method: weighting method (fasttree, phyml or alc)
-    :param resume: resume from tmp directory
     :param max_pairwise: maximum number of pairwise combinations a gene family
         may have. This effectively filters out families of size n where
         n*(n-1)/2 exceeds `max_pairwise`.
@@ -517,14 +512,13 @@ def ks_(
         os.mkdir(output_directory)
 
     if os.path.exists(tmp_dir):
-        if not resume:
-            logging.warning(
-                    'tmp directory already exists, be sure not to run two '
-                    'analyses simultaneously in the same tmp directory as this '
-                    'will mess up the results!'
+            logging.info(
+                    'tmp directory already exists, will try to resume analysis.'
             )
-        else:
-            logging.info('Will resume from analysis in {}'.format(tmp_dir))
+            logging.warning(
+                    'Be sure not to run two analyses simultaneously in the same'
+                    ' tmp directory as this will mess up the results!'
+            )
     else:
         os.mkdir(tmp_dir)
 
@@ -592,7 +586,6 @@ def ks_(
                 method=weighting_method,
                 pairwise=pairwise,
                 max_pairwise=max_pairwise,
-                resume=resume
         )
         results.round(5).to_csv(
                 os.path.join(output_directory, '{}.ks.tsv'.format(base)),
