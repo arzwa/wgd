@@ -130,7 +130,7 @@ def cli(verbosity, logfile):
 )
 @click.option(
         '--species_ids', '-id', default=None,
-        help='species identifiers for respective input sequence files, as a comma'
+        help='species identifiers for respective input sequence files, as comma'
              ' separated string (e.g. x,y,z). (optional)'
 )
 @click.option(
@@ -512,13 +512,13 @@ def ks_(
         os.mkdir(output_directory)
 
     if os.path.exists(tmp_dir):
-            logging.info(
-                    'tmp directory already exists, will try to resume analysis.'
-            )
-            logging.warning(
-                    'Be sure not to run two analyses simultaneously in the same'
-                    ' tmp directory as this will mess up the results!'
-            )
+        logging.info(
+                'tmp directory already exists, will try to resume analysis.'
+        )
+        logging.warning(
+                'Be sure not to run two analyses simultaneously in the same'
+                ' tmp directory as this will mess up the results!'
+        )
     else:
         os.mkdir(tmp_dir)
 
@@ -592,10 +592,12 @@ def ks_(
                 sep='\t')
 
         logging.info('Generating plots')
-        plot_selection(results, output_file=os.path.join(output_directory,
-                                                         '{}.ks.png'.format(
-                                                                 base)),
-                       title=os.path.basename(gene_families))
+
+        plot_selection(
+                results, output_file=os.path.join(
+                        output_directory, '{}.ks.png'.format(base)
+                ), title=os.path.basename(gene_families)
+        )
 
         logging.info('Done')
         return os.path.join(output_directory, '{}.ks.tsv'.format(base))

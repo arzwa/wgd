@@ -702,27 +702,30 @@ def ks_analysis_paranome(
             for family in sorted_families]
         loop.run_until_complete(asyncio.gather(*tasks))
     else:
-        Parallel(n_jobs=n_threads)(
-                delayed(analysis_function)(
-                        family[0], protein[family[0]],
-                        nucleotide_sequences,
-                        tmp_dir,
-                        muscle_path,
-                        codeml_path,
-                        prank_path,
-                        preserve,
-                        times,
-                        min_length,
-                        method,
-                        aligner,
-                        output_dir
-                ) for family in sorted_families)
+        Parallel(n_jobs=n_threads)(delayed(analysis_function)(
+                family[0], protein[family[0]],
+                nucleotide_sequences,
+                tmp_dir,
+                muscle_path,
+                codeml_path,
+                prank_path,
+                preserve,
+                times,
+                min_length,
+                method,
+                aligner,
+                output_dir
+        ) for family in sorted_families)
     logging.info('Analysis done')
 
     logging.info('Making results data frame')
-    results_frame = pd.DataFrame(columns=['Paralog1', 'Paralog2', 'Family',
-                                          'WeightOutliersIncluded', 'Ks', 'Ka',
-                                          'Omega'])
+    results_frame = pd.DataFrame(
+            # is this necessary?
+            columns=[
+                'Paralog1', 'Paralog2', 'Family', 'WeightOutliersIncluded',
+                'Ks', 'Ka', 'Omega'
+            ]
+    )
 
     # count the number of analyzed pairs and get data frame --------------------
     counts = 0
@@ -777,7 +780,3 @@ def sort_families_by_size(
         )
 
     return sorted_families
-
-
-
-
