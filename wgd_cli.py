@@ -53,12 +53,12 @@ from wgd.utils import translate_cds, read_fasta, write_fasta, Genome, \
 # CLI ENTRY POINT --------------------------------------------------------------
 @click.group(context_settings={'help_option_names': ['-h', '--help']})
 @click.option(
-    '--verbosity', '-v', type=click.Choice(['info', 'debug']),
-    default='info', help="Verbosity level, default = info."
+        '--verbosity', '-v', type=click.Choice(['info', 'debug']),
+        default='info', help="Verbosity level, default = info."
 )
 @click.option(
-    '--logfile', '-l', default=None,
-    help="File to write logs to (optional)"
+        '--logfile', '-l', default=None,
+        help="File to write logs to (optional)"
 )
 def cli(verbosity, logfile):
     """
@@ -87,17 +87,17 @@ def cli(verbosity, logfile):
     """
     if not logfile:
         coloredlogs.install(
-            fmt='%(asctime)s: %(levelname)s\t%(message)s',
-            level=verbosity.upper(), stream=sys.stdout
+                fmt='%(asctime)s: %(levelname)s\t%(message)s',
+                level=verbosity.upper(), stream=sys.stdout
         )
     else:
         print('Logs will be written to {}'.format(logfile))
         logging.basicConfig(
-            filename=logfile,
-            filemode='a',
-            format='%(asctime)s: %(levelname)s\t%(message)s',
-            datefmt='%H:%M:%S',
-            level=verbosity.upper()
+                filename=logfile,
+                filemode='a',
+                format='%(asctime)s: %(levelname)s\t%(message)s',
+                datefmt='%H:%M:%S',
+                level=verbosity.upper()
         )
 
     # get round problem with python multiprocessing library that can set all cpu
@@ -112,46 +112,46 @@ def cli(verbosity, logfile):
 # BLAST AND MCL ----------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option(
-    '--cds', is_flag=True,
-    help='sequences are CDS'
+        '--cds', is_flag=True,
+        help='sequences are CDS'
 )
 @click.option(
-    '--mcl', is_flag=True,
-    help='perform MCL clustering'
+        '--mcl', is_flag=True,
+        help='perform MCL clustering'
 )
 @click.option(
-    '--one_v_one', is_flag=True,
-    help='get one vs. one orthologs'
+        '--one_v_one', is_flag=True,
+        help='get one vs. one orthologs'
 )
 @click.option(
-    '--sequences', '-s', default=None,
-    help='input fasta files, as a comma separated string (e.g. '
-         'x.fasta,y.fasta,z.fasta) or directory name.'
+        '--sequences', '-s', default=None,
+        help='input fasta files, as a comma separated string (e.g. '
+             'x.fasta,y.fasta,z.fasta) or directory name.'
 )
 @click.option(
-    '--species_ids', '-id', default=None,
-    help='species identifiers for respective input sequence files, as a comma'
-         ' separated string (e.g. x,y,z). (optional)'
+        '--species_ids', '-id', default=None,
+        help='species identifiers for respective input sequence files, as a comma'
+             ' separated string (e.g. x,y,z). (optional)'
 )
 @click.option(
-    '--blast_results', '-b', default=None,
-    help='input precomputed tab separated blast results'
+        '--blast_results', '-b', default=None,
+        help='input precomputed tab separated blast results'
 )
 @click.option(
-    '--inflation_factor', '-I', default=2.0, show_default=True,
-    help="inflation factor for MCL clustering"
+        '--inflation_factor', '-I', default=2.0, show_default=True,
+        help="inflation factor for MCL clustering"
 )
 @click.option(
-    '--eval_cutoff', '-e', default=1e-10, show_default=True,
-    help="e-value cut-off for blast results"
+        '--eval_cutoff', '-e', default=1e-10, show_default=True,
+        help="e-value cut-off for blast results"
 )
 @click.option(
-    '--output_dir', '-o', default='wgd_blast', show_default=True,
-    help='output directory'
+        '--output_dir', '-o', default='wgd_blast', show_default=True,
+        help='output directory'
 )
 @click.option(
-    '--n_threads', '-n', default=4, show_default=True,
-    help='number of threads used by blastp'
+        '--n_threads', '-n', default=4, show_default=True,
+        help='number of threads used by blastp'
 )
 def blast(
         cds, mcl, one_v_one, sequences, species_ids, blast_results,
@@ -274,11 +274,11 @@ def blast_(
         for i in range(len(sequence_files)):
             if cds:
                 protein_seqs = translate_cds(read_fasta(
-                    sequence_files[i], prefix=ids[i]))
+                        sequence_files[i], prefix=ids[i]))
                 protein_sequences.append(protein_seqs)
             else:
                 protein_sequences.append(read_fasta(
-                    sequence_files[i], prefix=ids[i]))
+                        sequence_files[i], prefix=ids[i]))
 
         # blast
         logging.info('Writing blastdb sequences to db.fasta.')
@@ -296,12 +296,12 @@ def blast_(
         # start the blast
         logging.info('Performing all-vs.-all Blastp (this might take a while)')
         blast_results = all_v_all_blast(
-            query, db, output_dir,
-            output_file='{}.blast.tsv'.format(
-                '_'.join([os.path.basename(x) for x in sequence_files])
-            ),
-            eval_cutoff=eval_cutoff,
-            n_threads=n_threads
+                query, db, output_dir,
+                output_file='{}.blast.tsv'.format(
+                        '_'.join([os.path.basename(x) for x in sequence_files])
+                ),
+                eval_cutoff=eval_cutoff,
+                n_threads=n_threads
         )
         logging.info('Blast done')
 
@@ -323,9 +323,9 @@ def blast_(
                      ''.format(inflation_factor))
         ava_graph = ava_blast_to_abc(blast_results)
         mcl_out = run_mcl_ava(
-            ava_graph, output_dir=output_dir,
-            output_file='{}.mcl'.format(os.path.basename(blast_results)),
-            inflation=inflation_factor
+                ava_graph, output_dir=output_dir,
+                output_file='{}.mcl'.format(os.path.basename(blast_results)),
+                inflation=inflation_factor
         )
         logging.info('Done')
         return mcl_out
@@ -336,70 +336,78 @@ def blast_(
 # Ks ANALYSIS USING JOBLIB/ASYNC  ----------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option(
-    '--gene_families', '-gf', default=None,
-    type=click.Path(exists=True),
-    help='gene families (paralogs or one-to-one orthologs)'
+        '--gene_families', '-gf', default=None,
+        type=click.Path(exists=True),
+        help='gene families (paralogs or one-to-one orthologs)'
 )
 @click.option(
-    '--sequences', '-s', default=None,
-    help='CDS sequences file in fasta format (multiple files should be '
-         'specified separated by commas)'
+        '--sequences', '-s', default=None,
+        help='CDS sequences file in fasta format (multiple files should be '
+             'specified separated by commas)'
 )
 @click.option(
-    '--output_directory', '-o', default='ks.out', show_default=True,
-    help='output directory'
+        '--output_directory', '-o', default='ks.out', show_default=True,
+        help='output directory'
 )
 @click.option(
-    '--protein_sequences', '-ps', default=None,
-    help="protein sequences fasta file (optional)"
+        '--protein_sequences', '-ps', default=None,
+        help="protein sequences fasta file (optional)"
 )
 @click.option(
-    '--tmp_dir', '-tmp', default=None, show_default=True,
-    help="path to store temporary files"
+        '--tmp_dir', '-tmp', default=None, show_default=True,
+        help="path to store temporary files"
 )
 @click.option(
-    '--aligner', '-a', default='muscle', show_default=True,
-    type=click.Choice(['muscle', 'prank']),
-    help='aligner program to use, from fast to slow: muscle, prank'
+        '--aligner', '-a', default='muscle', show_default=True,
+        type=click.Choice(['muscle', 'prank']),
+        help='aligner program to use, from fast to slow: muscle, prank'
 )
 @click.option(
-    '--times', '-t', default=1, show_default=True,
-    help="number of times to perform ML estimation"
+        '--times', '-t', default=1, show_default=True,
+        help="number of times to perform ML estimation"
 )
 @click.option(
-    '--min_msa_length', '-mml', default=100, show_default=True,
-    help="minimum MSA length for Ks analysis"
+        '--min_msa_length', '-mml', default=100, show_default=True,
+        help="minimum MSA length for Ks analysis"
 )
 @click.option(
-    '--n_threads', '-n', default=4, show_default=True,
-    help="number of threads to use"
+        '--n_threads', '-n', default=4, show_default=True,
+        help="number of threads to use"
 )
 @click.option(
-    '--wm', '-w', type=click.Choice(['alc', 'fasttree', 'phyml']),
-    default='fasttree', show_default=True,
-    help="node weighting method, from fast to slow: alc, fasttree, phyml"
+        '--wm', '-w', type=click.Choice(['alc', 'fasttree', 'phyml']),
+        default='fasttree', show_default=True,
+        help="node weighting method, from fast to slow: alc, fasttree, phyml"
 )
 @click.option(
-    '--pairwise', is_flag=True,
-    help="perform the analysis using a pairwise approach"
+        '--pairwise', is_flag=True,
+        help="perform the analysis using a pairwise approach"
 )
 @click.option(
-    '--ignore_prefixes', is_flag=True,
-    help="ignore gene ID prefixes (defined by the '|' symbol) in the gene "
-         "families file."
+        '--max_pairwise', '-mp', default=10000, show_defaul=True,
+        help="maximum number of pairwise combinations a family may have"
 )
 @click.option(
-    '--one_v_one', is_flag=True,
-    help="one vs one ortholog distribution"
+        '--ignore_prefixes', is_flag=True,
+        help="ignore gene ID prefixes (defined by the '|' symbol) in the gene "
+             "families file."
 )
 @click.option(
-    '--preserve', is_flag=True,
-    help="keep multiple sequence alignment, codeml output and trees"
+        '--one_v_one', is_flag=True,
+        help="one vs one ortholog distribution"
+)
+@click.option(
+        '--preserve', is_flag=True,
+        help="keep multiple sequence alignment, codeml output and trees"
+)
+@click.option(
+        '--resume', is_flag=True,
+        help="resume analysis from tmp directory"
 )
 def ks(
         gene_families, sequences, output_directory, protein_sequences, tmp_dir,
         aligner, times, min_msa_length, n_threads, wm, pairwise,
-        ignore_prefixes, one_v_one, preserve
+        max_pairwise, ignore_prefixes, one_v_one, preserve, resume
 ):
     """
     Ks distribution construction.
@@ -425,12 +433,14 @@ def ks(
     This program comes with ABSOLUTELY NO WARRANTY;
     """
     ks_(
-        gene_families, sequences, output_directory, protein_sequences, tmp_dir,
-        aligner, muscle='muscle', codeml='codeml',
-        times=times, min_msa_length=min_msa_length,
-        ignore_prefixes=ignore_prefixes, one_v_one=one_v_one,
-        preserve=preserve, async=False, n_threads=n_threads,
-        weighting_method=wm, pairwise=pairwise
+            gene_families, sequences, output_directory, protein_sequences,
+            tmp_dir,
+            aligner, muscle='muscle', codeml='codeml',
+            times=times, min_msa_length=min_msa_length,
+            ignore_prefixes=ignore_prefixes, one_v_one=one_v_one,
+            preserve=preserve, async=False, n_threads=n_threads,
+            weighting_method=wm, pairwise=pairwise, resume=resume,
+            max_pairwise=max_pairwise
     )
 
 
@@ -439,7 +449,8 @@ def ks_(
         tmp_dir=None, aligner='muscle',
         muscle='muscle', codeml='codeml', times=1, min_msa_length=100,
         ignore_prefixes=False, one_v_one=False, pairwise=False,
-        preserve=False, async=False, n_threads=4, weighting_method='fasttree'
+        preserve=False, async=False, n_threads=4, weighting_method='fasttree',
+        resume=False, max_pairwise=10000
 ):
     """
     Ks distribution construction pipeline. For usage in the ``wgd`` CLI.
@@ -463,6 +474,10 @@ def ks_(
     :param async: use the async library for parallelization
     :param n_threads: number of CPU threads to use
     :param weighting_method: weighting method (fasttree, phyml or alc)
+    :param resume: resume from tmp directory
+    :param max_pairwise: maximum number of pairwise combinations a gene family
+        may have. This effectively filters out families of size n where
+        n*(n-1)/2 exceeds `max_pairwise`.
     :return: output file name
     """
     # lazy imports
@@ -478,7 +493,7 @@ def ks_(
         software.append('phyml')
     if can_i_run_software(software) == 1:
         logging.error(
-            'Could not run all required external software, exit here.')
+                'Could not run all required external software, exit here.')
         return 1
 
     # input check
@@ -497,15 +512,19 @@ def ks_(
 
     if os.path.exists(output_directory):
         logging.warning(
-            'Output directory already exists, will possibly overwrite')
+                'Output directory already exists, will possibly overwrite')
     else:
         os.mkdir(output_directory)
 
     if os.path.exists(tmp_dir):
-        logging.warning(
-            'tmp directory already exists, be sure not to run two analyses '
-            'simultaneously in the same tmp directory as this will mess up '
-            'the results!')
+        if not resume:
+            logging.warning(
+                    'tmp directory already exists, be sure not to run two '
+                    'analyses simultaneously in the same tmp directory as this '
+                    'will mess up the results!'
+            )
+        else:
+            logging.info('Will resume from analysis in {}'.format(tmp_dir))
     else:
         os.mkdir(tmp_dir)
 
@@ -537,21 +556,21 @@ def ks_(
         # rub, rst and rst1 files
         logging.info('Started one-vs-one ortholog Ks analysis')
         results = ks_analysis_one_vs_one(
-            cds_seqs, protein_seqs, gene_families,
-            tmp_dir, output_directory,
-            muscle, codeml, async=async,
-            n_threads=n_threads, preserve=preserve,
-            times=times, min_length=min_msa_length,
-            aligner=aligner
+                cds_seqs, protein_seqs, gene_families,
+                tmp_dir, output_directory,
+                muscle, codeml, async=async,
+                n_threads=n_threads, preserve=preserve,
+                times=times, min_length=min_msa_length,
+                aligner=aligner
         )
         results.round(5).to_csv(
-            os.path.join(output_directory, '{}.ks.tsv'.format(base)),
-            sep='\t')
+                os.path.join(output_directory, '{}.ks.tsv'.format(base)),
+                sep='\t')
 
         logging.info('Generating plots')
         plot_selection(results, output_file=os.path.join(output_directory,
                                                          '{}.ks.png'.format(
-                                                             base)),
+                                                                 base)),
                        title=os.path.basename(gene_families))
 
         logging.info('Done')
@@ -563,24 +582,26 @@ def ks_(
         # non-unique file names to the working dir
         logging.info('Started whole paranome Ks analysis')
         results = ks_analysis_paranome(
-            cds_seqs, protein_seqs, gene_families,
-            tmp_dir, output_directory,
-            muscle, codeml, preserve=preserve,
-            times=times, aligner=aligner,
-            ignore_prefixes=ignore_prefixes,
-            async=async, n_threads=n_threads,
-            min_length=min_msa_length,
-            method=weighting_method,
-            pairwise=pairwise
+                cds_seqs, protein_seqs, gene_families,
+                tmp_dir, output_directory,
+                muscle, codeml, preserve=preserve,
+                times=times, aligner=aligner,
+                ignore_prefixes=ignore_prefixes,
+                async=async, n_threads=n_threads,
+                min_length=min_msa_length,
+                method=weighting_method,
+                pairwise=pairwise,
+                max_pairwise=max_pairwise,
+                resume=resume
         )
         results.round(5).to_csv(
-            os.path.join(output_directory, '{}.ks.tsv'.format(base)),
-            sep='\t')
+                os.path.join(output_directory, '{}.ks.tsv'.format(base)),
+                sep='\t')
 
         logging.info('Generating plots')
         plot_selection(results, output_file=os.path.join(output_directory,
                                                          '{}.ks.png'.format(
-                                                             base)),
+                                                                 base)),
                        title=os.path.basename(gene_families))
 
         logging.info('Done')
@@ -590,28 +611,28 @@ def ks_(
 # CO-LINEARITY -----------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option(
-    '--gff_file', '-gff', default=None, type=click.Path(exists=True),
-    help='annotation in gff3 format'
+        '--gff_file', '-gff', default=None, type=click.Path(exists=True),
+        help='annotation in gff3 format'
 )
 @click.option(
-    '--gene_families', '-gf', default=None, type=click.Path(exists=True),
-    help='gene families'
+        '--gene_families', '-gf', default=None, type=click.Path(exists=True),
+        help='gene families'
 )
 @click.option(
-    '--output_dir', '-o', default='./coll_out', show_default=True,
-    help='output directory'
+        '--output_dir', '-o', default='./coll_out', show_default=True,
+        help='output directory'
 )
 @click.option(
-    '--ks_distribution', '-ks', default=None,
-    help="paranome ks distribution tsv file (optional, see `wgd ks`)"
+        '--ks_distribution', '-ks', default=None,
+        help="paranome ks distribution tsv file (optional, see `wgd ks`)"
 )
 @click.option(
-    '--feature', '-f', default='mRNA', show_default=True,
-    help="keyword for parsing the genes from the GFF file (column 3)"
+        '--feature', '-f', default='mRNA', show_default=True,
+        help="keyword for parsing the genes from the GFF file (column 3)"
 )
 @click.option(
-    '--gene_attribute', '-ga', default='Parent', show_default=True,
-    help="keyword for parsing the gene IDs from the GFF file (column 9)"
+        '--gene_attribute', '-ga', default='Parent', show_default=True,
+        help="keyword for parsing the gene IDs from the GFF file (column 9)"
 )
 def syn(
         gff_file, gene_families, output_dir, ks_distribution, feature,
@@ -631,8 +652,8 @@ def syn(
     This program comes with ABSOLUTELY NO WARRANTY;
     """
     syn_(
-        gff_file, gene_families, output_dir, ks_distribution, feature,
-        gene_attribute
+            gff_file, gene_families, output_dir, ks_distribution, feature,
+            gene_attribute
     )
 
 
@@ -679,7 +700,7 @@ def syn_(
 
     if os.path.exists(output_dir):
         logging.warning(
-            'Output directory already exists, will possibly overwrite')
+                'Output directory already exists, will possibly overwrite')
 
     else:
         os.mkdir(output_dir)
@@ -689,7 +710,7 @@ def syn_(
     logging.info("Parsing GFF file")
     try:
         genome, all_genes = gff_parser(
-            gff_file, feature=feature, gene_attribute=gene_attribute)
+                gff_file, feature=feature, gene_attribute=gene_attribute)
     except IndexError:
         logging.error('Invalid GFF file, number of columns != 9')
         logging.error('Aborted')
@@ -701,14 +722,14 @@ def syn_(
 
     logging.info("Writing families file")
     write_families_file(
-        families, all_genes, os.path.join(output_dir, 'families.tsv'))
+            families, all_genes, os.path.join(output_dir, 'families.tsv'))
 
     logging.info("Writing configuration file")
     write_config_adhore(
-        os.path.join(output_dir, 'gene_lists'),
-        os.path.join(output_dir, 'families.tsv'),
-        config_file_name=os.path.join(output_dir, 'adhore.conf'),
-        output_path=os.path.join(output_dir, 'i-adhore-out'))
+            os.path.join(output_dir, 'gene_lists'),
+            os.path.join(output_dir, 'families.tsv'),
+            config_file_name=os.path.join(output_dir, 'adhore.conf'),
+            output_path=os.path.join(output_dir, 'i-adhore-out'))
 
     # run i-adhore
     logging.info("Running I-ADHoRe 3.0")
@@ -716,25 +737,25 @@ def syn_(
 
     # dotplot
     multiplicons = pd.read_csv(os.path.join(
-        output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t')
+            output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t')
     logging.info('Drawing co-linearity dotplot')
     syntenic_dotplot(multiplicons, output_file=os.path.join(
-        output_dir, '{}.dotplot.png'.format(os.path.basename(families))))
+            output_dir, '{}.dotplot.png'.format(os.path.basename(families))))
 
     # Ks distribution for anchors and Ks colored dotplot
     if ks_distribution:
         # input files
         anchor_points = pd.read_csv(os.path.join(
-            output_dir, 'i-adhore-out', 'anchorpoints.txt'), sep='\t')
+                output_dir, 'i-adhore-out', 'anchorpoints.txt'), sep='\t')
         ks_dist = pd.read_csv(ks_distribution, index_col=0, sep='\t')
 
         # output file names
         ks_out = os.path.join(output_dir, '{}.ks_anchors.tsv'.format(
-                    os.path.basename(families)))
+                os.path.basename(families)))
         dotplot_out = os.path.join(output_dir, '{}.dotplot.ks.png'.format(
-            os.path.basename(families)))
+                os.path.basename(families)))
         hist = os.path.join(output_dir, '{}.ks_anchors.png'.format(
-            os.path.basename(families)))
+                os.path.basename(families)))
 
         # output and plots
         logging.info("Constructing Ks distribution for anchors")
@@ -755,46 +776,46 @@ def syn_(
 # MIXTURE MODELING -------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option(
-    '--ks_distribution', '-ks', default=None, type=click.Path(exists=True),
-    help="ks distribution csv file (see `wgd ks`)"
+        '--ks_distribution', '-ks', default=None, type=click.Path(exists=True),
+        help="ks distribution csv file (see `wgd ks`)"
 )
 @click.option(
-    '--method', type=click.Choice(['gmm', 'bgmm']), default='gmm',
-    show_default=True,
-    help="mixture modeling method"
+        '--method', type=click.Choice(['gmm', 'bgmm']), default='gmm',
+        show_default=True,
+        help="mixture modeling method"
 )
 @click.option(
-    '--n_range', '-n', default='1,4', show_default=True,
-    help='range of number of components to fit'
+        '--n_range', '-n', default='1,4', show_default=True,
+        help='range of number of components to fit'
 )
 @click.option(
-    '--ks_range', '-r', default='0.1,3', show_default=True,
-    help='Ks range to use for modeling'
+        '--ks_range', '-r', default='0.1,3', show_default=True,
+        help='Ks range to use for modeling'
 )
 @click.option(
-    '--output_dir', '-o', default=None,
-    help='output directory'
+        '--output_dir', '-o', default=None,
+        help='output directory'
 )
 @click.option(
-    '--gamma', '-g', default=1, show_default=True,
-    help='gamma parameter for bgmm models'
+        '--gamma', '-g', default=1, show_default=True,
+        help='gamma parameter for bgmm models'
 )
 @click.option(
-    '--sequences', '-s', default=None,
-    help='corresponding sequence files'
+        '--sequences', '-s', default=None,
+        help='corresponding sequence files'
 )
 @click.option(
-    '--cut_off', '-c', default=0.95, show_default=True,
-    help='minimum probability to belong to a particular component for sequence '
-         'selection'
+        '--cut_off', '-c', default=0.95, show_default=True,
+        help='minimum probability to belong to a particular component for sequence '
+             'selection'
 )
 @click.option(
-    '--n_init', '-ni', default=1, show_default=True,
-    help='number of k-means initializations'
+        '--n_init', '-ni', default=1, show_default=True,
+        help='number of k-means initializations'
 )
 @click.option(
-    '--pairs', is_flag=True,
-    help='write fasta file for each gene pair.'
+        '--pairs', is_flag=True,
+        help='write fasta file for each gene pair.'
 )
 def mix(
         ks_distribution, method, n_range, ks_range, output_dir, gamma,
@@ -811,8 +832,8 @@ def mix(
     This program comes with ABSOLUTELY NO WARRANTY;
     """
     mix_(
-        ks_distribution, method, n_range, ks_range, output_dir, gamma,
-        sequences, cut_off, pairs, n_init=n_init
+            ks_distribution, method, n_range, ks_range, output_dir, gamma,
+            sequences, cut_off, pairs, n_init=n_init
     )
 
 
@@ -850,7 +871,7 @@ def mix_(
 
     if not output_dir:
         output_dir = './{0}_mixture_{1}'.format(
-            method, datetime.datetime.now().strftime("%d%m%y_%H%M%S"))
+                method, datetime.datetime.now().strftime("%d%m%y_%H%M%S"))
         logging.info('Output will be in {}'.format(output_dir))
         os.mkdir(output_dir)
 
@@ -884,13 +905,13 @@ def mix_(
     else:
         logging.info('Started Gaussian Mixture modeling (GMM)')
         models_gmm, bic, aic, best = mixture_model_gmm(
-            df, Ks_range=ks_range, n=n_range[1], output_dir=output_dir,
-            output_file='gmm.mixture.png', n_init=n_init)
+                df, Ks_range=ks_range, n=n_range[1], output_dir=output_dir,
+                output_file='gmm.mixture.png', n_init=n_init)
 
     logging.info(
-        'Saving data frame with probabilities for each component to {}'.format(
-            os.path.join(output_dir,
-                         '{}.{}.tsv'.format(base_ks, method))))
+            'Saving data frame with probabilities for each component to {}'.format(
+                    os.path.join(output_dir,
+                                 '{}.{}.tsv'.format(base_ks, method))))
     df = get_component_probabilities(df, best)
     df.to_csv(os.path.join(output_dir, '{}.{}.tsv'.format(base_ks, method)),
               sep='\t')
@@ -900,49 +921,49 @@ def mix_(
         for i in range(best.n_components):
             selected = df[df['p_component{}'.format(i + 1)] >= cut_off]
             get_paralogs_fasta(
-                sequences, selected, os.path.join(
-                    output_dir, 'component{}.fasta'.format(i + 1)
-                ), pairs=pairs
+                    sequences, selected, os.path.join(
+                            output_dir, 'component{}.fasta'.format(i + 1)
+                    ), pairs=pairs
             )
 
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option(
-    '--ks_distributions', '-ks', default=None,
-    help="comma-separated Ks distribution csv files, or a directory containing"
-         " these (see `wgd ks`)"
+        '--ks_distributions', '-ks', default=None,
+        help="comma-separated Ks distribution csv files, or a directory containing"
+             " these (see `wgd ks`)"
 )
 @click.option(
-    '--alpha_values', '-a', default=None,
-    help="comma-separated alpha values (optional)"
+        '--alpha_values', '-a', default=None,
+        help="comma-separated alpha values (optional)"
 )
 @click.option(
-    '--colors', '-c', default=None,
-    help="comma-separated colors (optional)"
+        '--colors', '-c', default=None,
+        help="comma-separated colors (optional)"
 )
 @click.option(
-    '--labels', '-l', default=None,
-    help="comma-separated labels (for legend, optional)")
+        '--labels', '-l', default=None,
+        help="comma-separated labels (for legend, optional)")
 @click.option(
-    '--hist_type', '-ht', default='barstacked', show_default=True,
-    type=click.Choice(['barstacked', 'step', 'stepfilled']),
-    help="histogram type"
+        '--hist_type', '-ht', default='barstacked', show_default=True,
+        type=click.Choice(['barstacked', 'step', 'stepfilled']),
+        help="histogram type"
 )
 @click.option(
-    '--title', '-t', default='WGD histogram', show_default=True,
-    help="plot title"
+        '--title', '-t', default='WGD histogram', show_default=True,
+        help="plot title"
 )
 @click.option(
-    '--output_file', '-o', default='wgd_hist.png', show_default=True,
-    help="output file"
+        '--output_file', '-o', default='wgd_hist.png', show_default=True,
+        help="output file"
 )
 @click.option(
-    '--interactive', '-i', is_flag=True,
-    help="interactive visualization with bokeh"
+        '--interactive', '-i', is_flag=True,
+        help="interactive visualization with bokeh"
 )
 @click.option(
-    '--outliers_included', '-oi', is_flag=True,
-    help="use weights computed before outlier removal"
+        '--outliers_included', '-oi', is_flag=True,
+        help="use weights computed before outlier removal"
 )
 def viz(
         ks_distributions, alpha_values, colors, labels, hist_type, title,
@@ -962,8 +983,8 @@ def viz(
     This program comes with ABSOLUTELY NO WARRANTY;
     """
     viz_(
-        ks_distributions, alpha_values, colors, labels, hist_type, title,
-        output_file, interactive, outliers_included
+            ks_distributions, alpha_values, colors, labels, hist_type, title,
+            output_file, interactive, outliers_included
     )
 
 
@@ -1044,12 +1065,12 @@ def viz_(
         colors = [x for x in colors.split(',')]
         if len(colors) != len(dists):
             logging.error(
-                'Please provide as much colors as there are distributions')
+                    'Please provide as much colors as there are distributions')
     if not labels:
         labels = dists_files
         if len(labels) != len(dists):
             logging.error(
-                'Please provide as much labels as there are distributions')
+                    'Please provide as much labels as there are distributions')
     else:
         labels = labels.split(',')
 
@@ -1065,12 +1086,12 @@ def viz_(
 @click.argument('sequences', default=None)
 @click.argument('output_dir', default=None)
 @click.option(
-    '--gff_file', '-gff', default=None,
-    help="GFF file for co-linearity analysis"
+        '--gff_file', '-gff', default=None,
+        help="GFF file for co-linearity analysis"
 )
 @click.option(
-    '--n_threads', '-n', default=4, show_default=True,
-    help="number of threads to use"
+        '--n_threads', '-n', default=4, show_default=True,
+        help="number of threads to use"
 )
 def pipeline_1(sequences, output_dir, gff_file, n_threads):
     """
@@ -1112,8 +1133,8 @@ def pipeline_1(sequences, output_dir, gff_file, n_threads):
 @click.argument('sequences', default=None)
 @click.argument('output_dir', default=None)
 @click.option(
-    '--n_threads', '-n', default=4, show_default=True,
-    help="number of threads to use"
+        '--n_threads', '-n', default=4, show_default=True,
+        help="number of threads to use"
 )
 def pipeline_2(sequences, output_dir, n_threads):
     """

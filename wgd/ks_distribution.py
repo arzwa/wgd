@@ -629,7 +629,7 @@ def ks_analysis_paranome(
         prank_path='prank', preserve=True, times=1,
         ignore_prefixes=False, n_threads=4, async=False,
         min_length=100, method='alc', aligner='muscle',
-        pairwise=False
+        pairwise=False, max_pairwise=10000, resume=False
 ):
     """
     Calculate a Ks distribution for a whole paranome.
@@ -641,6 +641,7 @@ def ks_analysis_paranome(
     :param output_dir: output directory
     :param muscle_path: path to muscle executable
     :param codeml_path: path to codeml executable
+    :param prank_path: path to prank executable
     :param preserve: preserve intermediate results (muscle, codeml)
     :param times: number of times to perform codeml analysis
     :param ignore_prefixes: ignore prefixes in paralog/gene family file
@@ -650,7 +651,11 @@ def ks_analysis_paranome(
     :param method: method to use, from fast to slow: ``alc``, ``fasttree``,
         ``phyml``
     :param aligner: alignment program to use (muscle|prank)
-    :param n_threads: number of CPU cores to use
+    :param n_threads: number of CPU cores to use:
+    :param pairwise: perform pairwise (instead of gene family wise) analysis
+    :param max_pairwise: maximum number of pairwise combinations a family can
+        have.
+    :param resume: resume analysis from tmp directory
     :return: data frame
     """
     # ignore prefixes in gene families, since only one species -----------------
@@ -669,7 +674,8 @@ def ks_analysis_paranome(
                 os.mkdir(os.path.join(output_dir, 'trees'))
 
     # sort family ids by family size -------------------------------------------
-    sorted_families = sort_families_by_size(protein)
+    sorted_families = sort_families_by_size(
+            protein, pairwise, max_pairwise, resume, tmp_dir)
 
     # start analysis -----------------------------------------------------------
     logging.info('Started analysis in parallel (n_threads = {})'
@@ -711,7 +717,7 @@ def ks_analysis_paranome(
                                           'WeightOutliersIncluded', 'Ks', 'Ka',
                                           'Omega'])
 
-    # count the number of analyzed pairs ---------------------------------------
+    # count the number of analyzed pairs and get data frame --------------------
     counts = 0
     for f in os.listdir(tmp_dir):
         if f[-3:] == '.Ks':
@@ -731,15 +737,50 @@ def ks_analysis_paranome(
     return results_frame
 
 
-def sort_families_by_size(families):
+def sort_families_by_size(
+        families, pairwise=False, max_pairwise=10000, resume=False, tmp=None
+):
     """
-    Returns a list of non-singleton gene famileis ordered by size.
+    Returns a list of non-singleton gene families ordered by size and apply some
+    filters
 
     :param families: nested gene family dictionary {family: {gene: sequence}}
+    :param pairwise: pairwise analysis
+    :param max_pairwise: maximum number of pairwise combinations a family may
+        have
+    :param resume: resume analysis from tmp dir
+    :param tmp: tmp dir
     :return: list of tuples [(family id, size)] sorted by size
     """
     sorted_families = []
     for k, v in families.items():
         if len(v.keys()) > 1:
             sorted_families.append((k, len(v.keys())))
-    return sorted(sorted_families, key=itemgetter(1), reverse=True)
+
+    sorted_families = sorted(sorted_families, key=itemgetter(1), reverse=True)
+    n_families = len(sorted_families)
+
+    # filter for pairwise analysis
+    if pairwise:
+        sorted_families = [
+            x for x in sorted_families
+            if x[1] * (x[1] - 1) * 0.5 <= max_pairwise
+        ]
+        logging.warning(
+                'Filtered out the {} largest gene families because n*(n-1)/2 > '
+                '`max_pairwise`'.format(n_families - len(sorted_families))
+        )
+
+    # filter for resume
+    if resume:
+        dir_list = set([
+            x.split('.')[0].split('_')[1] for x in os.listdir(tmp)
+            if x.endswith('.Ks')
+        ])
+        sorted_families = [x for x in sorted_families if x[0] not in dir_list]
+
+    return sorted_families
+
+
+
+
