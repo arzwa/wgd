@@ -409,7 +409,16 @@ def analyse_family_pairwise(
     :param output_dir: output directory
     :return: nada
     """
-    # Pairwise analysis pipeline
+    # pre-processing -----------------------------------------------------------
+    if os.path.isfile(os.path.join(tmp, family_id + '.Ks')):
+        logging.info('Found {}.Ks in tmp directory, will use this'
+                     ''.format(family_id))
+        return
+
+    if len(list(family.keys())) < 2:
+        logging.debug("Skipping singleton gene family {}.".format(family_id))
+        return
+
     logging.info('Performing analysis on gene family {}'.format(family_id))
 
     # multiple sequence alignment ----------------------------------------------
