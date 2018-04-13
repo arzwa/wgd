@@ -56,10 +56,10 @@ def _weighting(pairwise_estimates, msa=None, method='alc'):
         (not if method=``alc``)
     """
     if pairwise_estimates is None:
-        return None, None
+        return None, None, None
 
     if pairwise_estimates['Ks'].shape[0] < 2:
-        return None, None
+        return None, None, None
 
     pairwise_distances = None
     tree_path = None
@@ -91,10 +91,10 @@ def _calculate_weights(clustering, pairwise_estimates, pairwise_distances=None):
     """
     This is a patch for weight calculation in the pairwise approach
 
-    :param clustering:
-    :param pairwise_estimates:
-    :param pairwise_distances:
-    :return:
+    :param clustering: clustering array
+    :param pairwise_estimates: pairwise Ks estimates array
+    :param pairwise_distances: pairwise distances array
+    :return: data frame
     """
     # None -> None
     if pairwise_estimates is None or clustering is None:
@@ -119,12 +119,15 @@ def _calculate_weights(clustering, pairwise_estimates, pairwise_distances=None):
             for j in nodes[node_2]:
                 if pairwise_distances:
                     distance = pairwise_distances[i][j]
-                pair = '_'.join(sorted([pairwise_estimates.index[j],
-                                        pairwise_estimates.index[i]]))
-                weights[pair] = {'WeightOutliersIncluded': 0,
-                                 'WeightOutliersExcluded': 0,
-                                 'Outlier': 'TRUE',
-                                 'Distance': distance}
+                pair = '_'.join(sorted([
+                    pairwise_estimates.index[j], pairwise_estimates.index[i]
+                ]))
+                weights[pair] = {
+                    'WeightOutliersIncluded': 0,
+                    'WeightOutliersExcluded': 0,
+                    'Outlier': 'TRUE',
+                    'Distance': distance
+                }
                 weights[pair]['WeightOutliersIncluded'] = weight
                 if pairwise_estimates.iloc[i, j] > 5:
                     out.add(grouping_node)
@@ -140,8 +143,9 @@ def _calculate_weights(clustering, pairwise_estimates, pairwise_distances=None):
             weight = 1 / (len(nodes[node_1]) * len(nodes[node_2]))
             for i in nodes[node_1]:
                 for j in nodes[node_2]:
-                    pair = '_'.join(sorted([pairwise_estimates.index[j],
-                                            pairwise_estimates.index[i]]))
+                    pair = '_'.join(sorted([
+                        pairwise_estimates.index[j], pairwise_estimates.index[i]
+                    ]))
                     weights[pair]['WeightOutliersExcluded'] = weight
                     weights[pair]['Outlier'] = 'FALSE'
 
@@ -411,8 +415,9 @@ def analyse_family_pairwise(
     """
     # pre-processing -----------------------------------------------------------
     if os.path.isfile(os.path.join(tmp, family_id + '.Ks')):
-        logging.info('Found {}.Ks in tmp directory, will use this'
-                     ''.format(family_id))
+        logging.info(
+                'Found {}.Ks in tmp directory, will use this'.format(family_id)
+        )
         return
 
     if len(list(family.keys())) < 2:
@@ -425,11 +430,15 @@ def analyse_family_pairwise(
     align = MSA(muscle=muscle, tmp=tmp, prank=prank)
     if aligner == 'prank':
         logging.debug('Aligner is prank, will perform codon alignment')
-        family = {k: nucleotide[k] for k in family.keys() if len(nucleotide[k])
-                  % 3 == 0}
+        family = {
+            k: nucleotide[k] for k in family.keys()
+            if len(nucleotide[k]) % 3 == 0
+        }
 
-    logging.debug('Performing multiple sequence alignment ({0}) on gene family '
-                  '{1}.'.format(aligner, family_id))
+    logging.debug(
+            'Performing multiple sequence alignment ({0}) on gene family '
+            '{1}.'.format(aligner, family_id)
+    )
     msa_path_protein, msa_dict = align.run_aligner(
             family, file=family_id, aligner=aligner, return_dict=True)
     pairwise_alignments = get_pairwise_nucleotide_alignments(
@@ -443,9 +452,10 @@ def analyse_family_pairwise(
     ks_mat = {g: {h: np.nan for h in family.keys()} for g in family.keys()}
     for pair in pairwise_alignments:
         pairwise_msa, g1, g2, l_stripped, l_unstripped, stats = pair
-        codeml_ = Codeml(codeml=codeml, tmp=tmp, id=family_id + str(i))
-        logging.debug('Performing codeml analysis on gene family {}'
-                      ''.format(family_id))
+        codeml_ = Codeml(codeml=codeml, tmp=tmp, id=family_id + '.' + str(i))
+        logging.debug(
+                'Performing codeml analysis on gene family {}'.format(family_id)
+        )
         results_dict, codeml_out = codeml_.run_codeml(
                 os.path.basename(pairwise_msa), preserve=preserve, times=times
         )
@@ -457,7 +467,7 @@ def analyse_family_pairwise(
         if preserve:
             with open(codeml_out, 'r') as f:
                 codeml_out_string += f.read()
-        subprocess.run(['rm', codeml_out])
+        os.remove(codeml_out)
 
         # store results
         family_dict['_'.join(sorted([g1, g2]))] = {
@@ -513,24 +523,27 @@ def analyse_family_pairwise(
     # otherwise the distance between the gene pair is not computed correctly.
     # Also, apparently PhyML breaks on families of two members.
     clustering, pairwise_distances, tree_path = _weighting(
-            {'Ks': ks_mat}, msa=msa_path_protein, method=method)
+            {'Ks': ks_mat}, msa=msa_path_protein, method=method
+    )
     weights = _calculate_weights(clustering, ks_mat, pairwise_distances)
-    pd.merge(family_df, weights, left_index=True, right_index=True,
-             how='outer').to_csv(os.path.join(tmp, family_id + '.Ks'))
+    pd.merge(
+            family_df, weights, left_index=True, right_index=True, how='outer'
+    ).to_csv(os.path.join(tmp, family_id + '.Ks'))
 
     # preserve -----------------------------------------------------------------
     if preserve:
-        subprocess.run(
-                ['mv', msa_path_protein, os.path.join(output_dir, 'msa')])
+        base = os.path.basename(msa_path_protein)
+        os.rename(msa_path_protein, os.path.join(output_dir, 'msa', base))
         if tree_path:
-            subprocess.run(['mv', tree_path, os.path.join(output_dir, 'trees')])
-        with open(os.path.join(
-                output_dir, 'codeml', family_id + '.codeml'), 'w') as f:
+            base = os.path.basename(tree_path)
+            os.rename(tree_path, os.path.join(output_dir, 'trees', base))
+        codeml_path = os.path.join(output_dir, 'codeml', family_id + '.codeml')
+        with open(codeml_path, 'w') as f:
             f.write(codeml_out_string)
     else:
-        subprocess.run(['rm', msa_path_protein])
+        os.remove(msa_path_protein)
         if tree_path:
-            subprocess.run(['rm', tree_path])
+            os.remove(tree_path)
 
     return
 

@@ -99,7 +99,7 @@ def _strip_gaps(msa_dict):
                 logging.warning(
                         "Seems there are unequal string lengths after alignment in "
                         "this gene family. Occurred at gene: {}.".format(
-                            gene_ID))
+                                gene_ID))
                 return None
             if msa_dict[gene_ID][i] == '-':
                 indices.add(i)
@@ -114,8 +114,9 @@ def _strip_gaps(msa_dict):
     return msa_dict
 
 
-def multiple_sequence_aligment_nucleotide(msa_protein, nucleotide_sequences,
-                                          min_length=100, aligner='muscle'):
+def multiple_sequence_aligment_nucleotide(
+        msa_protein, nucleotide_sequences, min_length=100, aligner='muscle'
+):
     """
     Make a nucleotide multiple sequence alignment based on a protein alignment
 
