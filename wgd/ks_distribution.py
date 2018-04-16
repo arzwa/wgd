@@ -525,6 +525,10 @@ def analyse_family_pairwise(
     clustering, pairwise_distances, tree_path = _weighting(
             {'Ks': ks_mat}, msa=msa_path_protein, method=method
     )
+    if not clustering:
+        logging.warning('No Ks estimates for {}'.format(family_id))
+        return
+
     weights = _calculate_weights(clustering, ks_mat, pairwise_distances)
     pd.merge(
             family_df, weights, left_index=True, right_index=True, how='outer'
