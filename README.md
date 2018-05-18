@@ -2,6 +2,24 @@
 
 Copyright (C) 2018 Arthur Zwaenepoel
 
+# TO DO
+
+- It is not necessary to strip gaps, as gaps are treated as missing data!
+
+- So I think the best approach is just run codeml on a full codon alignment,
+save the pairwise alignment length for ech pair, filter out those that are 
+too short and proceed as normal. This will be equivalent as the pairwise 
+method but way faster!
+
+- We could also use codeml with tree! So first infer a tree with codonphyml,
+then run codeml on the full alignment + tree, and finally collect ds values 
+and weights. This seems to me the most consistent approach. As pairwise 
+estimates are actually inconsistent when sequences are related in a tree 
+structure!
+
+- Am I using the best model for Ks estimation? Gamma rates? If using full 
+alignment, do I need to use F3x4?
+
 # Whole genome duplication analysis
 
 Python package and command line interface (CLI) for the analysis
