@@ -126,7 +126,8 @@ def _calculate_weights(clustering, pairwise_estimates, pairwise_distances=None):
                     'WeightOutliersIncluded': 0,
                     'WeightOutliersExcluded': 0,
                     'Outlier': 'TRUE',
-                    'Distance': distance
+                    'Distance': distance,
+                    'Node': grouping_node
                 }
                 weights[pair]['WeightOutliersIncluded'] = weight
                 if pairwise_estimates.iloc[i, j] > 5:
@@ -525,7 +526,7 @@ def analyse_family_pairwise(
     clustering, pairwise_distances, tree_path = _weighting(
             {'Ks': ks_mat}, msa=msa_path_protein, method=method
     )
-    if not clustering:
+    if clustering is None:
         logging.warning('No Ks estimates for {}'.format(family_id))
         return
 

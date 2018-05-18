@@ -313,6 +313,7 @@ def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
     :param labels: a list of labels for the corresponding distributions
     :return: bokeh app
     """
+    # TODO currently broken?
     from bokeh.io import curdoc
     from bokeh.layouts import widgetbox, layout
     from bokeh.models.widgets import Select, TextInput, Slider, Div
@@ -341,7 +342,7 @@ def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
                 c = [c[-1]]
         return c
 
-    def get_data(df, var, scale, r1, r2):
+    def get_data(df, var, scale, r1, r2, weights='WeightOutliersIncluded'):
         df = df[df[var] > r1]
         df = df[df[var] < r2]
         data = df[var].dropna()

@@ -48,8 +48,9 @@ def can_i_run_software(software):
             with open(tmp_file, 'w') as o:
                 o.write('test')
             command = ['codeml', tmp_file]
-        elif s in ['blastp', 'makeblastdb', 'blast', 'prank', 'muscle',
-                   'i-adhore']:
+        elif s == 'prank':
+            command = [s, '--help']
+        elif s in ['blastp', 'makeblastdb', 'blast', 'muscle', 'i-adhore']:
             command = [s, '-version']
         else:
             command = [s, '--version']

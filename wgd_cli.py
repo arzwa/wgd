@@ -28,15 +28,18 @@ workflow one would perform to do these tasks.
 The CLI is organized with a Click command that wraps a function with the same
 name followed by an underscore, this is chosen mostly so that the pipeline
 commands can reuse code.
+
+TODO:
+    (1) codeml treats gaps as missing data, so it is not necessary to strip gaps
+        when estimating Ks values!
+    (2) The most consistent approach would be to estimate a tree using
+        codonphyml on a codon alignment from PRANK, and use that tree in codeml
+        to estimate pairwise Ks values. Implement this.
+    (3) Use biopython for all sequence handling
+    (4) Use tmp files to keep track of the outputs from subprocesses, because
+        using PIPE might result in hangs.
 """
-# TODO: replace codeml module by BioPython's PAML wrapper
 
-# TODO: use biopython for sequence handling
-
-# TODO: the occasional hangs might be due to the use of subprocess.PIPE to
-# TODO: store the stdout and stderr of subprocesses. It might be better to use
-# TODO: tempfiles (from the tempfile module) to keep track of the output of
-# TODO: subprocesses
 # keep these imports to a minimum to speed up initial CLI loading
 import click
 import logging
