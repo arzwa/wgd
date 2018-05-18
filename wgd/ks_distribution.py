@@ -56,10 +56,10 @@ def _weighting(pairwise_estimates, msa=None, method='alc'):
         (not if method=``alc``)
     """
     if pairwise_estimates is None:
-        return None, None
+        return None, None, None
 
     if pairwise_estimates['Ks'].shape[0] < 2:
-        return None, None
+        return None, None, None
 
     pairwise_distances = None
     tree_path = None
@@ -91,10 +91,10 @@ def _calculate_weights(clustering, pairwise_estimates, pairwise_distances=None):
     """
     This is a patch for weight calculation in the pairwise approach
 
-    :param clustering:
-    :param pairwise_estimates:
-    :param pairwise_distances:
-    :return:
+    :param clustering: clustering array
+    :param pairwise_estimates: pairwise Ks estimates array
+    :param pairwise_distances: pairwise distances array
+    :return: data frame
     """
     # None -> None
     if pairwise_estimates is None or clustering is None:
@@ -119,12 +119,15 @@ def _calculate_weights(clustering, pairwise_estimates, pairwise_distances=None):
             for j in nodes[node_2]:
                 if pairwise_distances:
                     distance = pairwise_distances[i][j]
-                pair = '_'.join(sorted([pairwise_estimates.index[j],
-                                        pairwise_estimates.index[i]]))
-                weights[pair] = {'WeightOutliersIncluded': 0,
-                                 'WeightOutliersExcluded': 0,
-                                 'Outlier': 'TRUE',
-                                 'Distance': distance}
+                pair = '_'.join(sorted([
+                    pairwise_estimates.index[j], pairwise_estimates.index[i]
+                ]))
+                weights[pair] = {
+                    'WeightOutliersIncluded': 0,
+                    'WeightOutliersExcluded': 0,
+                    'Outlier': 'TRUE',
+                    'Distance': distance
+                }
                 weights[pair]['WeightOutliersIncluded'] = weight
                 if pairwise_estimates.iloc[i, j] > 5:
                     out.add(grouping_node)
@@ -140,8 +143,9 @@ def _calculate_weights(clustering, pairwise_estimates, pairwise_distances=None):
             weight = 1 / (len(nodes[node_1]) * len(nodes[node_2]))
             for i in nodes[node_1]:
                 for j in nodes[node_2]:
-                    pair = '_'.join(sorted([pairwise_estimates.index[j],
-                                            pairwise_estimates.index[i]]))
+                    pair = '_'.join(sorted([
+                        pairwise_estimates.index[j], pairwise_estimates.index[i]
+                    ]))
                     weights[pair]['WeightOutliersExcluded'] = weight
                     weights[pair]['Outlier'] = 'FALSE'
 
@@ -409,18 +413,32 @@ def analyse_family_pairwise(
     :param output_dir: output directory
     :return: nada
     """
-    # Pairwise analysis pipeline
+    # pre-processing -----------------------------------------------------------
+    if os.path.isfile(os.path.join(tmp, family_id + '.Ks')):
+        logging.info(
+                'Found {}.Ks in tmp directory, will use this'.format(family_id)
+        )
+        return
+
+    if len(list(family.keys())) < 2:
+        logging.debug("Skipping singleton gene family {}.".format(family_id))
+        return
+
     logging.info('Performing analysis on gene family {}'.format(family_id))
 
     # multiple sequence alignment ----------------------------------------------
     align = MSA(muscle=muscle, tmp=tmp, prank=prank)
     if aligner == 'prank':
         logging.debug('Aligner is prank, will perform codon alignment')
-        family = {k: nucleotide[k] for k in family.keys() if len(nucleotide[k])
-                  % 3 == 0}
+        family = {
+            k: nucleotide[k] for k in family.keys()
+            if len(nucleotide[k]) % 3 == 0
+        }
 
-    logging.debug('Performing multiple sequence alignment ({0}) on gene family '
-                  '{1}.'.format(aligner, family_id))
+    logging.debug(
+            'Performing multiple sequence alignment ({0}) on gene family '
+            '{1}.'.format(aligner, family_id)
+    )
     msa_path_protein, msa_dict = align.run_aligner(
             family, file=family_id, aligner=aligner, return_dict=True)
     pairwise_alignments = get_pairwise_nucleotide_alignments(
@@ -434,9 +452,10 @@ def analyse_family_pairwise(
     ks_mat = {g: {h: np.nan for h in family.keys()} for g in family.keys()}
     for pair in pairwise_alignments:
         pairwise_msa, g1, g2, l_stripped, l_unstripped, stats = pair
-        codeml_ = Codeml(codeml=codeml, tmp=tmp, id=family_id + str(i))
-        logging.debug('Performing codeml analysis on gene family {}'
-                      ''.format(family_id))
+        codeml_ = Codeml(codeml=codeml, tmp=tmp, id=family_id + '.' + str(i))
+        logging.debug(
+                'Performing codeml analysis on gene family {}'.format(family_id)
+        )
         results_dict, codeml_out = codeml_.run_codeml(
                 os.path.basename(pairwise_msa), preserve=preserve, times=times
         )
@@ -448,7 +467,7 @@ def analyse_family_pairwise(
         if preserve:
             with open(codeml_out, 'r') as f:
                 codeml_out_string += f.read()
-        subprocess.run(['rm', codeml_out])
+        os.remove(codeml_out)
 
         # store results
         family_dict['_'.join(sorted([g1, g2]))] = {
@@ -504,24 +523,31 @@ def analyse_family_pairwise(
     # otherwise the distance between the gene pair is not computed correctly.
     # Also, apparently PhyML breaks on families of two members.
     clustering, pairwise_distances, tree_path = _weighting(
-            {'Ks': ks_mat}, msa=msa_path_protein, method=method)
+            {'Ks': ks_mat}, msa=msa_path_protein, method=method
+    )
+    if not clustering:
+        logging.warning('No Ks estimates for {}'.format(family_id))
+        return
+
     weights = _calculate_weights(clustering, ks_mat, pairwise_distances)
-    pd.merge(family_df, weights, left_index=True, right_index=True,
-             how='outer').to_csv(os.path.join(tmp, family_id + '.Ks'))
+    pd.merge(
+            family_df, weights, left_index=True, right_index=True, how='outer'
+    ).to_csv(os.path.join(tmp, family_id + '.Ks'))
 
     # preserve -----------------------------------------------------------------
     if preserve:
-        subprocess.run(
-                ['mv', msa_path_protein, os.path.join(output_dir, 'msa')])
+        base = os.path.basename(msa_path_protein)
+        os.rename(msa_path_protein, os.path.join(output_dir, 'msa', base))
         if tree_path:
-            subprocess.run(['mv', tree_path, os.path.join(output_dir, 'trees')])
-        with open(os.path.join(
-                output_dir, 'codeml', family_id + '.codeml'), 'w') as f:
+            base = os.path.basename(tree_path)
+            os.rename(tree_path, os.path.join(output_dir, 'trees', base))
+        codeml_path = os.path.join(output_dir, 'codeml', family_id + '.codeml')
+        with open(codeml_path, 'w') as f:
             f.write(codeml_out_string)
     else:
-        subprocess.run(['rm', msa_path_protein])
+        os.remove(msa_path_protein)
         if tree_path:
-            subprocess.run(['rm', tree_path])
+            os.remove(tree_path)
 
     return
 
@@ -629,7 +655,7 @@ def ks_analysis_paranome(
         prank_path='prank', preserve=True, times=1,
         ignore_prefixes=False, n_threads=4, async=False,
         min_length=100, method='alc', aligner='muscle',
-        pairwise=False
+        pairwise=False, max_pairwise=10000
 ):
     """
     Calculate a Ks distribution for a whole paranome.
@@ -641,6 +667,7 @@ def ks_analysis_paranome(
     :param output_dir: output directory
     :param muscle_path: path to muscle executable
     :param codeml_path: path to codeml executable
+    :param prank_path: path to prank executable
     :param preserve: preserve intermediate results (muscle, codeml)
     :param times: number of times to perform codeml analysis
     :param ignore_prefixes: ignore prefixes in paralog/gene family file
@@ -650,7 +677,10 @@ def ks_analysis_paranome(
     :param method: method to use, from fast to slow: ``alc``, ``fasttree``,
         ``phyml``
     :param aligner: alignment program to use (muscle|prank)
-    :param n_threads: number of CPU cores to use
+    :param n_threads: number of CPU cores to use:
+    :param pairwise: perform pairwise (instead of gene family wise) analysis
+    :param max_pairwise: maximum number of pairwise combinations a family can
+        have.
     :return: data frame
     """
     # ignore prefixes in gene families, since only one species -----------------
@@ -669,7 +699,7 @@ def ks_analysis_paranome(
                 os.mkdir(os.path.join(output_dir, 'trees'))
 
     # sort family ids by family size -------------------------------------------
-    sorted_families = sort_families_by_size(protein)
+    sorted_families = sort_families_by_size(protein, pairwise, max_pairwise)
 
     # start analysis -----------------------------------------------------------
     logging.info('Started analysis in parallel (n_threads = {})'
@@ -689,29 +719,32 @@ def ks_analysis_paranome(
             for family in sorted_families]
         loop.run_until_complete(asyncio.gather(*tasks))
     else:
-        Parallel(n_jobs=n_threads)(
-                delayed(analysis_function)(
-                        family[0], protein[family[0]],
-                        nucleotide_sequences,
-                        tmp_dir,
-                        muscle_path,
-                        codeml_path,
-                        prank_path,
-                        preserve,
-                        times,
-                        min_length,
-                        method,
-                        aligner,
-                        output_dir
-                ) for family in sorted_families)
+        Parallel(n_jobs=n_threads)(delayed(analysis_function)(
+                family[0], protein[family[0]],
+                nucleotide_sequences,
+                tmp_dir,
+                muscle_path,
+                codeml_path,
+                prank_path,
+                preserve,
+                times,
+                min_length,
+                method,
+                aligner,
+                output_dir
+        ) for family in sorted_families)
     logging.info('Analysis done')
 
     logging.info('Making results data frame')
-    results_frame = pd.DataFrame(columns=['Paralog1', 'Paralog2', 'Family',
-                                          'WeightOutliersIncluded', 'Ks', 'Ka',
-                                          'Omega'])
+    results_frame = pd.DataFrame(
+            # is this necessary?
+            columns=[
+                'Paralog1', 'Paralog2', 'Family', 'WeightOutliersIncluded',
+                'Ks', 'Ka', 'Omega'
+            ]
+    )
 
-    # count the number of analyzed pairs ---------------------------------------
+    # count the number of analyzed pairs and get data frame --------------------
     counts = 0
     for f in os.listdir(tmp_dir):
         if f[-3:] == '.Ks':
@@ -731,15 +764,36 @@ def ks_analysis_paranome(
     return results_frame
 
 
-def sort_families_by_size(families):
+def sort_families_by_size(
+        families, pairwise=False, max_pairwise=10000
+):
     """
-    Returns a list of non-singleton gene famileis ordered by size.
+    Returns a list of non-singleton gene families ordered by size and apply some
+    filters
 
     :param families: nested gene family dictionary {family: {gene: sequence}}
+    :param pairwise: pairwise analysis
+    :param max_pairwise: maximum number of pairwise combinations a family may
+        have
     :return: list of tuples [(family id, size)] sorted by size
     """
     sorted_families = []
     for k, v in families.items():
         if len(v.keys()) > 1:
             sorted_families.append((k, len(v.keys())))
-    return sorted(sorted_families, key=itemgetter(1), reverse=True)
+
+    sorted_families = sorted(sorted_families, key=itemgetter(1), reverse=True)
+    n_families = len(sorted_families)
+
+    # filter for pairwise analysis
+    if pairwise:
+        sorted_families = [
+            x for x in sorted_families
+            if x[1] * (x[1] - 1) * 0.5 <= max_pairwise
+        ]
+        logging.warning(
+                'Filtered out the {} largest gene families because n*(n-1)/2 > '
+                '`max_pairwise`'.format(n_families - len(sorted_families))
+        )
+
+    return sorted_families

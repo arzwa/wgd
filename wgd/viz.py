@@ -34,10 +34,12 @@ import matplotlib.patheffects as pe
 import pandas as pd
 
 
-def plot_selection(dists, output_file=None, alphas=None, colors=None,
-                   labels=None, ks_range=(0.1, 5), offset=5,
-                   title='Species genus', weights='WeightOutliersIncluded',
-                   **kwargs):
+def plot_selection(
+        dists, output_file=None, alphas=None, colors=None,
+        labels=None, ks_range=(0.1, 5), offset=5,
+        title='Species genus', weights='WeightOutliersExcluded',
+        **kwargs
+):
     """
     Plot a panel from the `all.csv` output from the Ks analysis.
 
@@ -75,55 +77,70 @@ def plot_selection(dists, output_file=None, alphas=None, colors=None,
     # ks
     ax = fig.add_subplot(221)
     # get the bin edges
-    bins = \
-    np.histogram(np.hstack(tuple([dist['Ks'] for dist in dists])), bins=40)[1]
-    for i in range(len(dists)):
-        ax.hist(dists[i]['Ks'], bins, alpha=alphas[i], color=colors[i],
-                rwidth=0.8,
-                weights=dists[i][weights], label=labels[i],
-                **kwargs)
+    bins = np.histogram(
+            np.hstack(tuple([dist['Ks'] for dist in dists])), bins=40
+    )[1]
+    for i, df in enumerate(dists):
+        df = df.dropna()
+        ax.hist(
+                df['Ks'], bins, alpha=alphas[i], color=colors[i],
+                rwidth=0.8, weights=df[weights], label=labels[i],
+                **kwargs
+        )
     sns.despine(offset=offset, trim=True)
     ax.set_xlabel('$K_S$')
 
     # ka
     ax = fig.add_subplot(222)
     # get the bin edges
-    bins = \
-    np.histogram(np.hstack(tuple([np.log10(dist['Ks']) for dist in dists])),
-                 bins=40)[1]
-    for i in range(len(dists)):
-        ax.hist(np.log10(dists[i]['Ks']), bins, alpha=alphas[i],
+    bins = np.histogram(
+            np.hstack(tuple([np.log10(dist['Ks']) for dist in dists])),
+            bins=40
+    )[1]
+    for i, df in enumerate(dists):
+        df = df.dropna()
+        ax.hist(
+                np.log10(df['Ks']), bins, alpha=alphas[i],
                 color=colors[i], rwidth=0.8,
-                weights=dists[i][weights], label=labels[i],
-                **kwargs)
+                weights=df[weights], label=labels[i],
+                **kwargs
+        )
     sns.despine(offset=offset, trim=True)
     ax.set_xlabel('$log_{10}(K_s)$')
 
     # log(ka)
     ax = fig.add_subplot(223)
     # get the bin edges
-    bins = \
-    np.histogram(np.hstack(tuple([np.log10(dist['Ka']) for dist in dists])),
-                 bins=40)[1]
-    for i in range(len(dists)):
-        ax.hist(np.log10(dists[i]['Ka']), bins, alpha=alphas[i],
+    bins = np.histogram(
+            np.hstack(tuple([np.log10(dist['Ka']) for dist in dists])),
+            bins=40
+    )[1]
+    for i, df in enumerate(dists):
+        df = df.dropna()
+        ax.hist(
+                np.log10(df['Ka']), bins, alpha=alphas[i],
                 color=colors[i], rwidth=0.8,
-                weights=dists[i][weights], label=labels[i],
-                **kwargs)
+                weights=df[weights], label=labels[i],
+                **kwargs
+        )
     sns.despine(offset=offset, trim=True)
     ax.set_xlabel('$log_{10}(K_A)$')
 
     # log(w)
     ax = fig.add_subplot(224)
     # get the bin edges
-    bins = \
-    np.histogram(np.hstack(tuple([np.log10(dist['Omega']) for dist in dists])),
-                 bins=40)[1]
-    for i in range(len(dists)):
-        ax.hist(np.log10(dists[i]['Omega']), bins, alpha=alphas[i],
+    bins = np.histogram(
+                np.hstack(tuple([np.log10(dist['Omega']) for dist in dists])),
+                bins=40
+    )[1]
+    for i, df in enumerate(dists):
+        df = df.dropna()
+        ax.hist(
+                np.log10(df['Omega']), bins, alpha=alphas[i],
                 color=colors[i], rwidth=0.8,
-                weights=dists[i][weights], label=labels[i],
-                **kwargs)
+                weights=df[weights], label=labels[i],
+                **kwargs
+        )
     sns.despine(offset=offset, trim=True)
     ax.set_xlabel('$log_{10}(\omega)$')
 
@@ -359,15 +376,17 @@ def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
     hist_alpha = Slider(title="Histogram alpha value", start=0, end=1,
                         value=0.6, step=0.1)
     color_choice = Select(
-        options=['binary', 'hsv', 'hot', 'magma', 'viridis', 'Greens', 'spring',
-                 'autumn',
-                 'copper', 'cool', 'winter', 'pink', 'summer', 'bone', 'RdBu',
-                 'RdYlGn',
-                 'coolwarm', 'inferno', 'Pastel1', 'Pastel2', 'tab10',
-                 'gnuplot', 'brg',
-                 'gist_ncar', 'jet', 'rainbow', 'nipy_spectral', 'ocean',
-                 'cubehelix'],
-        value='binary', title='Color map')
+            options=['binary', 'hsv', 'hot', 'magma', 'viridis', 'Greens',
+                     'spring',
+                     'autumn',
+                     'copper', 'cool', 'winter', 'pink', 'summer', 'bone',
+                     'RdBu',
+                     'RdYlGn',
+                     'coolwarm', 'inferno', 'Pastel1', 'Pastel2', 'tab10',
+                     'gnuplot', 'brg',
+                     'gist_ncar', 'jet', 'rainbow', 'nipy_spectral', 'ocean',
+                     'cubehelix'],
+            value='binary', title='Color map')
 
     # set up figure
     p1 = figure(plot_width=1000, plot_height=700,

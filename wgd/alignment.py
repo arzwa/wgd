@@ -54,14 +54,14 @@ def _nucleotide_msa_from_protein_msa(
 
     if len(list(lengths)) != 1:
         logging.warning(
-            "Not all sequences have the same length after alignment!")
+                "Not all sequences have the same length after alignment!")
         return None
 
     for gene_ID in protein_msa_sequences.keys():
         protein = protein_msa_sequences[gene_ID]
         if gene_ID not in nucleotide_sequences.keys():
             logging.warning(
-                "Gene {} not found in nucleotide fasta!".format(gene_ID))
+                    "Gene {} not found in nucleotide fasta!".format(gene_ID))
         else:
             nucleotide = nucleotide_sequences[gene_ID]
             nucleotide_msa_sequence = ''
@@ -97,8 +97,9 @@ def _strip_gaps(msa_dict):
             # Prevent index error, raise warning instead
             if i >= len(msa_dict[gene_ID]):
                 logging.warning(
-                    "Seems there are unequal string lengths after alignment in "
-                    "this gene family. Occurred at gene: {}.".format(gene_ID))
+                        "Seems there are unequal string lengths after alignment in "
+                        "this gene family. Occurred at gene: {}.".format(
+                                gene_ID))
                 return None
             if msa_dict[gene_ID][i] == '-':
                 indices.add(i)
@@ -113,8 +114,9 @@ def _strip_gaps(msa_dict):
     return msa_dict
 
 
-def multiple_sequence_aligment_nucleotide(msa_protein, nucleotide_sequences,
-                                          min_length=100, aligner='muscle'):
+def multiple_sequence_aligment_nucleotide(
+        msa_protein, nucleotide_sequences, min_length=100, aligner='muscle'
+):
     """
     Make a nucleotide multiple sequence alignment based on a protein alignment
 
@@ -169,12 +171,16 @@ def multiple_sequence_aligment_nucleotide(msa_protein, nucleotide_sequences,
     return [msa_nuc, int(l_unstripped), int(l_stripped), alignment_stats]
 
 
-def get_pairwise_nucleotide_alignments(msa_protein, nucleotide_sequences,
-                                       min_length=100, aligner='muscle'):
+def get_pairwise_nucleotide_alignments(
+        msa_protein, nucleotide_sequences, min_length=100, aligner='muscle'
+):
     """
+    Get all pairwise alignments from a multiple sequence alignment.
 
-    :param msa_protein:
-    :param nucleotide_sequences:
+    :param msa_protein: multiple sequence alignment dictionary
+    :param nucleotide_sequences: nucleotide sequences dictionary
+    :param min_length: minimum gap-stripped alignment length
+    :param aligner: alignment software
     :return: a list with file names
     """
     if not os.path.isfile(msa_protein):
@@ -210,10 +216,10 @@ def get_pairwise_nucleotide_alignments(msa_protein, nucleotide_sequences,
             continue
 
         elif len(list(pair_dict.values())[0]) < min_length:
-            logging.warning('Stripped alignment for gene {0} and gene {1} '
-                            'too short (< {2} nucleotides)'.format(
-                    pair[0], pair[1], min_length
-            ))
+            logging.warning(
+                    'Stripped alignment for gene {0} and gene {1} too short (<'
+                    ' {2} nucleotides)'.format(pair[0], pair[1], min_length)
+            )
             continue
 
         l_stripped = len(list(pair_dict.values())[0])
@@ -222,8 +228,10 @@ def get_pairwise_nucleotide_alignments(msa_protein, nucleotide_sequences,
         # write alignment
         file_name = msa_protein + '.' + str(i) + '.nuc'
         write_alignment_codeml(pair_dict, file_name)
-        pairwise_alignments.append((file_name, pair[0], pair[1],
-                                    l_stripped, l_unstripped, alignment_stats))
+        pairwise_alignments.append((
+            file_name, pair[0], pair[1],
+            l_stripped, l_unstripped, alignment_stats
+        ))
         i += 1
 
     return pairwise_alignments
@@ -313,7 +321,7 @@ class MSA:
 
         if not os.path.isdir(self.tmp):
             raise NotADirectoryError(
-                'tmp directory {} not found!'.format(self.tmp))
+                    'tmp directory {} not found!'.format(self.tmp))
 
     def run_aligner(self, sequences, aligner='muscle', file=None,
                     return_dict=False):
@@ -348,8 +356,8 @@ class MSA:
         # error
         else:
             logging.error(
-                '{} is not a dictionary and also not a file path'.format(
-                    sequences))
+                    '{} is not a dictionary and also not a file path'.format(
+                            sequences))
             return None
 
         target_path_msa = os.path.join(self.tmp, '{}.msa'.format(file_name))
