@@ -334,34 +334,41 @@ def translate_cds(sequence_dict):
     }
     protein_dict = {}
 
-    with ProgressBar(max_value=len(sequence_dict.keys()) + 1) as pb:
+    with ProgressBar(
+            max_value=len(sequence_dict.keys()) + 1, redirect_stdout=True,
+            redirect_stderr=True
+    ) as pb:
         j = 0
+        total = 0
         for key, val in sequence_dict.items():
             j += 1
             aa_seq = ''
             if len(val) % 3 != 0:
-                logging.warning('Sequence length is not a multiple of 3 for '
+                print('Sequence length is not a multiple of 3 for '
                                 'gene {}!'.format(key))
+                total += 1
             invalid = False
             for i in range(0, len(val), 3):
                 if val[i:i + 3] not in aa_dict.keys():
-                    logging.warning('Invalid codon {0:>3} in sequence {1}'
+                    print('Invalid codon {0:>3} in sequence {1}'
                                     ''.format(val[i:i + 3], key))
                     invalid = True
+                    total += 1
                     break
                 else:
                     if aa_dict[val[i:i + 3]] == '' and i+3 != len(val):
-                        logging.warning('In-frame STOP codon in sequence {0} '
+                        print('In-frame STOP codon in sequence {0} '
                                         'at position {1}:{2}'
                                         ''.format(key, i, i+3))
                         invalid = True
+                        total += 1
                         break
                     aa_seq += aa_dict[val[i:i + 3]]
             if invalid:
                 continue
             protein_dict[key] = aa_seq
             pb.update(j)
-
+    logging.warning("There were {} warnings during translation".format(total))
     return protein_dict
 
 

@@ -413,7 +413,7 @@ def ks(
 
     Ks distribution construction for a set of paralogs or one-to-one orthologs.
     This implementation uses either the joblib or the asyncio library for
-    parallellization. Requires both ``codeml`` and ``muscle``. Depending on the
+    parallelization. Requires both ``codeml`` and ``muscle``. Depending on the
     weighting method chosen (``wm`` option) ``phyml`` or ``FastTree`` might also
     be required.
 

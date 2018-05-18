@@ -26,7 +26,7 @@ Contact: arzwa@psb.vib-ugent.be
 from .codeml import Codeml
 from .alignment import MSA, multiple_sequence_aligment_nucleotide
 from .alignment import get_pairwise_nucleotide_alignments, \
-    pairwise_alignment_stats
+    pairwise_alignment_stats, prepare_aln
 from .utils import process_gene_families, get_sequences, write_fasta
 from .phy import run_phyml, phylogenetic_tree_to_cluster_format, run_fasttree, \
     average_linkage_clustering
@@ -253,6 +253,10 @@ def add_alignment_stats(df, stats, l, l_stripped):
     return df
 
 
+def add_alignment_stats_(df, stats):
+    df.pd.DataFrame.from_dict(stats)
+
+
 # ANALYSE WHOLE FAMILY ---------------------------------------------------------
 def analyse_family(
         family_id, family, nucleotide, tmp='./', muscle='muscle',
@@ -289,24 +293,24 @@ def analyse_family(
         logging.info('Found {}.Ks in tmp directory, will use this'
                      ''.format(family_id))
         return
-
     if len(list(family.keys())) < 2:
         logging.debug("Skipping singleton gene family {}.".format(family_id))
         return
-
     logging.info('Performing analysis on gene family {}'.format(family_id))
 
     # multiple sequence alignment ----------------------------------------------
     align = MSA(muscle=muscle, tmp=tmp, prank=prank)
     if aligner == 'prank':
         logging.debug('Aligner is prank, will perform codon alignment')
-        family = {k: nucleotide[k] for k in family.keys() if len(nucleotide[k])
-                  % 3 == 0}
-
+        family = {k: nucleotide[k]
+                  for k in family.keys() if len(nucleotide[k]) % 3 == 0}
     logging.debug('Performing multiple sequence alignment ({0}) on gene family '
                   '{1}.'.format(aligner, family_id))
-    msa_path_protein = align.run_aligner(
-            family, file=family_id, aligner=aligner)
+    msa_path_protein = align.run_aligner(family, file=family_id, aligner=aligner)
+
+    # TODO rewrite self-contained alignment handler
+    msa_path, stats = prepare_aln(msa_path_protein, nucleotide, aligner)
+    """
     msa_out = multiple_sequence_aligment_nucleotide(
             msa_path_protein, nucleotide, min_length=min_length, aligner=aligner
     )
@@ -317,6 +321,7 @@ def analyse_family(
 
     else:
         msa_path, l, l_stripped, alignment_stats = msa_out
+    """
 
     # Calculate Ks values (codeml) ---------------------------------------------
     codeml = Codeml(codeml=codeml, tmp=tmp, id=family_id)
@@ -332,8 +337,11 @@ def analyse_family(
     if clustering is not None:
         out = _calculate_weighted_ks(
                 clustering, results_dict, pairwise_distances=pairwise_distances,
-                family_id=family_id)
+                family_id=family_id
+        )
+        """
         out = add_alignment_stats(out, alignment_stats, l, l_stripped)
+        """
         out.to_csv(os.path.join(tmp, family_id + '.Ks'))
 
     # preserve or remove data --------------------------------------------------

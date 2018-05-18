@@ -25,14 +25,82 @@ alignment as PRANK are a bit more involved). To add another aligner, only the
 :py:meth:`MSA.run_aligner` method should be modified to include the aligner of
 interest.
 """
-# TODO: use BioPython alignIO stuff
+# TODO: use BioPython alignIO stuff + rewrite stats for alignments
 
 from .utils import read_fasta
+from Bio import AlignIO
 import os
 import subprocess
 import logging
 import itertools
 
+
+# REWRITE
+def prepare_aln(msa_file, nuc_seqs, aligner):
+    with open(msa_file, 'r') as f:
+        aln = AlignIO.read(f, "fasta")
+        if aligner != "prank":
+            aln = pal2nal(aln, nuc_seqs)
+        stats = pairwise_alignment_stats_(aln)
+    out_path = msa_file + '.nuc'
+    write_alignment_codeml(aln, out_path)
+    return out_path, stats
+
+
+def pal2nal(pal, nuc_seqs):
+    nal = {}
+    nal_ = ''
+    for protein in pal:
+        if protein.name not in nuc_seqs:
+            logging.warning(
+                    "Sequence {} in protein alignment not found in CDS "
+                    "sequences".format(protein.name)
+            )
+        else:
+            nuc = nuc_seqs[protein.name]
+            nal_ = ''
+            j = 0
+            for i in range(len(protein.seq)):
+                if protein[i] == '-':
+                    nal_ += '---'
+                else:
+                    nal_ += nuc[j:j + 3]
+                    j += 3
+            nal[protein.name] = nal_
+    return nal
+
+
+def pairwise_alignment_stats_(aln):
+    pairs = itertools.combinations(list(aln.keys()), 2)
+    stats_dict = {}
+    aln_len = len(list(aln.values())[0])
+
+    # loop over all pairs in the alignment
+    for pair in pairs:
+        id1, id2 = pair
+        s1, s2 = strip_gaps_pair(aln[id1], aln[id2])
+        identity = (len(s1) - hamming_distance(s1, s2)) / len(s1)
+        stats_dict["_".join(sorted(pair))] = {
+            "AlignmentIdentity": identity,
+            "AlignmentLength": aln_len,
+            "AlignmentLengthStripped": len(s1),
+            "AlignmentCoverage": len(s1)/aln_len
+        }
+    return stats_dict
+
+
+def strip_gaps_pair(s1, s2):
+    s1_, s2_ = '', ''
+    for i in range(len(s1)):
+        if s1[i] == s2[i] == '-':
+            continue
+        else:
+            s1_ += s1[i]
+            s2_ += s2[i]
+    return s1_, s2_
+
+
+# OLD --------------------------------------------------------------------------
 
 def _nucleotide_msa_from_protein_msa(
         protein_msa_sequences, nucleotide_sequences):
@@ -115,7 +183,8 @@ def _strip_gaps(msa_dict):
 
 
 def multiple_sequence_aligment_nucleotide(
-        msa_protein, nucleotide_sequences, min_length=100, aligner='muscle'
+        msa_protein, nucleotide_sequences, min_length=100, aligner='muscle',
+        strip_gaps=True
 ):
     """
     Make a nucleotide multiple sequence alignment based on a protein alignment
@@ -136,8 +205,9 @@ def multiple_sequence_aligment_nucleotide(
     # back-translate
     protein_msa_sequences = read_fasta(msa_protein)
     if aligner != 'prank':
-        nucleotide_msa = _nucleotide_msa_from_protein_msa(protein_msa_sequences,
-                                                          nucleotide_sequences)
+        nucleotide_msa = _nucleotide_msa_from_protein_msa(
+                protein_msa_sequences, nucleotide_sequences
+        )
     else:
         nucleotide_msa = protein_msa_sequences
 
@@ -149,11 +219,10 @@ def multiple_sequence_aligment_nucleotide(
     l_unstripped = len(list(nucleotide_msa.values())[0])
 
     # strip gaps ---------------------------------------------------------------
-    nucleotide_msa = _strip_gaps(nucleotide_msa)
-
+    if strip_gaps:
+        nucleotide_msa = _strip_gaps(nucleotide_msa)
     if nucleotide_msa is None:  # probably not necessary
         return None
-
     elif len(list(nucleotide_msa.values())[0]) < min_length:
         return None
 
@@ -161,8 +230,10 @@ def multiple_sequence_aligment_nucleotide(
 
     msa_nuc = msa_protein + '.nuc'
     with open(msa_nuc, 'w') as o:
-        o.write("\t{0}\t{1}\n".format(len(nucleotide_msa.keys()),
-                                      len(list(nucleotide_msa.values())[0])))
+        o.write("\t{0}\t{1}\n".format(
+                len(nucleotide_msa.keys()),
+                len(list(nucleotide_msa.values())[0]))
+        )
         for gene_ID in nucleotide_msa.keys():
             o.write("{}\n".format(gene_ID))
             o.write(nucleotide_msa[gene_ID])
@@ -268,7 +339,6 @@ def pairwise_alignment_stats(msa, pair=False):
                 # % identity
                 stats_pair = [(len(d[id1]) - hamming_distance(d[id1], d[id2]))
                               / len(d[id1]), len(d[id1]) / len(seqs[i][1])]
-                # coverage
                 stats[id1][id2] = stats_pair
             except:
                 stats[id1][id2] = [0, 0]
