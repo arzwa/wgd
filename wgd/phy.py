@@ -135,7 +135,8 @@ def phylogenetic_tree_to_cluster_format(tree, pairwise_estimates):
             id_map[node.name] = node.name  # add identity map for renamed nodes
             # to id_map for line below
             pairwise_distances[node.name] = {
-                id_map[x.name]: node.get_distance(x) for x in t.get_leaves()}
+                id_map[x.name]: node.get_distance(x) for x in t.get_leaves()
+            }
         else:
             node.name = n
             n += 1

@@ -25,9 +25,7 @@ alignment as PRANK are a bit more involved). To add another aligner, only the
 :py:meth:`MSA.run_aligner` method should be modified to include the aligner of
 interest.
 """
-# TODO: use BioPython alignIO stuff + rewrite stats for alignments
-
-from .utils import read_fasta, write_fasta
+from .utils import read_fasta, write_fasta, log_subprocess
 import os
 import subprocess
 import logging
@@ -48,9 +46,9 @@ def prepare_aln(msa_file, nuc_seqs):
     """
     with open(msa_file, 'r') as f:
         aln = read_fasta(msa_file)
-        if not nuc_seqs:
+        if nuc_seqs:
             aln = pal2nal(aln, nuc_seqs)
-        stats = pairwise_alignment_stats_(aln)
+        stats = pairwise_alignment_stats(aln)
     out_path = msa_file + '.nuc'
     write_alignment_codeml(aln, out_path)
     return out_path, stats
@@ -86,7 +84,34 @@ def pal2nal(pal, nuc_seqs):
     return nal
 
 
-def pairwise_alignment_stats_(aln):
+def get_pairwise_alns(aln, nuc_seqs, min_length=3):
+    """
+    Get all pairwise alignments and pairwise statistics.
+
+    :param aln: alignment file
+    :param nuc_seqs: nucleotide sequences dictionary
+    :param min_length: minimum stripped alignment length necessary to include
+        a pair
+    """
+    aln = read_fasta(aln)
+    pairwise_alns = []
+    pairs = itertools.combinations(list(aln.keys()), 2)
+    stats_dict = {}
+    for pair in pairs:
+        id1, id2 = pair
+        pid = '_'.join(sorted([id1, id2]))
+        seqs = {x: aln[x] for x in (id1, id2)}
+        if nuc_seqs:
+            seqs = pal2nal(seqs, nuc_seqs)
+        stats_dict[pid] = get_stats(seqs[id1], seqs[id2])
+        s1, s2 = strip_gaps_pair(seqs[id1], seqs[id2])
+        if len(s1) < min_length or len(s2) < min_length:
+            continue
+        pairwise_alns.append((pid, {id1: s1, id2: s2}))
+    return pairwise_alns, stats_dict
+
+
+def pairwise_alignment_stats(aln):
     """
     Get pairwise alignment statistics.
 
@@ -95,21 +120,26 @@ def pairwise_alignment_stats_(aln):
     """
     pairs = itertools.combinations(list(aln.keys()), 2)
     stats_dict = {}
-    aln_len = len(list(aln.values())[0])
 
     # loop over all pairs in the alignment
     for pair in pairs:
         id1, id2 = pair
-        s1, s2 = strip_gaps_pair(aln[id1], aln[id2])
-        identity = (len(s1) - hamming_distance(s1, s2)) / len(s1)
-        stats_dict["_".join(sorted(pair))] = {
-            "AlignmentIdentity": identity,
-            "AlignmentLength": aln_len,
-            "AlignmentLengthStripped": len(s1),
-            "AlignmentCoverage": len(s1)/aln_len
-        }
+        stats_dict['_'.join(sorted(pair))] = get_stats(aln[id1], aln[id2])
     return stats_dict
 
+
+def get_stats(s1, s2):
+    s1_, s2_ = strip_gaps_pair(s1, s2)
+    if len(s1_) == 0:
+        identity = 0
+    else:
+        identity = (len(s1_) - hamming_distance(s1_, s2_)) / len(s1_)
+    return {
+        "AlignmentIdentity": identity,
+        "AlignmentLength": len(s1),
+        "AlignmentLengthStripped": len(s1_),
+        "AlignmentCoverage": len(s1_)/len(s1)
+    }
 
 def strip_gaps_pair(s1, s2):
     """
@@ -142,79 +172,81 @@ def hamming_distance(s1, s2):
     return sum(el1 != el2 for el1, el2 in zip(s1, s2))
 
 
-class MSA:
+def write_alignment_codeml(alignment, file_name):
     """
-    Multiple multiple sequence alignment (MSA) programs python wrappers.
-    Currently only runs with default settings.
+    Write an alignment file for codeml
+
+    :param alignment: alignment dictionary
+    :param file_name: output file name
     """
+    with open(file_name, 'w') as o:
+        o.write("\t{0}\t{1}\n".format(
+                len(alignment.keys()), len(list(alignment.values())[0])))
+        for gene_ID in alignment.keys():
+            o.write("{}\n".format(gene_ID))
+            o.write(alignment[gene_ID])
+            o.write("\n")
+    from time import sleep
 
-    def __init__(self, muscle='muscle', prank='prank', tmp='./'):
-        """
-        Muscle wrapper init.
 
-        :param muscle: path to Muscle executable, will by defult look for Muscle
-            in the system PATH
-        :param prank: path to PRANK executable
-        :param tmp: directory to store temporary files.
-        """
-        self.muscle = muscle
-        self.prank = prank
-        self.tmp = tmp
+def align_muscle(in_file, out_file, bin_path='muscle'):
+    """
+    Perform multiple sequence alignment with MUSCLE
 
-        if not os.path.isdir(self.tmp):
-            raise NotADirectoryError(
-                    'tmp directory {} not found!'.format(self.tmp))
+    :param bin_path: path to MUSCLE executable
+    :param in_file: input fasta file
+    :param out_file: output fasta file
+    """
+    cmd = [bin_path, '-in', in_file, '-out', out_file]
+    out = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    log_subprocess("MUSCLE", out)
+    return out_file
 
-    def run_aligner(self, sequences, aligner='muscle', file=None,
-                    return_dict=False):
-        """
-        Run MSA on sequences stored in dictionary with a particular aligner
 
-        :param sequences: dictionary of sequences or input fasta file
-        :param file: output file name, if not provided output is dictionary
-        :param aligner: alignment software to use (prank|muscle)
-        :return: MSA file
-        """
-        if not file:
-            file_name = 'msa'
-        else:
-            file_name = file
+def align_prank(in_file, out_file, bin_path='prank'):
+    """
+    Perform multiple sequence alignment with PRANK
 
-        # sequences provided in dictionary
-        if type(sequences) == dict:
-            target_path_fasta = os.path.join(
-                self.tmp, '{}.fasta'.format(file_name)
-            )
-            write_fasta(sequences, target_path_fasta)
+    :param bin_path: path to PRANK executable
+    :param in_file: input fasta file
+    :param out_file: output fasta file
+    """
+    cmd = [bin_path, '-codon', '-d=' + in_file, '-o=' + out_file]    
+    out = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    log_subprocess("PRANK", out)
+    return out_file
 
-        # sequences provided as fasta file
-        elif os.path.isfile(sequences):
-            target_path_fasta = sequences
 
-        # error
-        else:
-            logging.error('{} is dictionary nor file path'.format(sequences))
-            return None
+def align_mafft(in_file, out_file, bin_path='mafft'):
+    """
+    Perform multiple sequence alignment with MAFFT
 
-        target_path_msa = os.path.join(self.tmp, '{}.msa'.format(file_name))
+    :param bin_path: path to MAFFT executable
+    :param in_file: input fasta file
+    :param out_file: output fasta file
+    """
+    cmd = [bin_path, '--maxiterate', '1000', '--localpair', in_file]
+    out = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    log_subprocess("PRANK", out)
+    with open(out_file, 'w') as f: f.write(out.stdout.decode('utf-8'))
+    return out_file
 
-        if aligner == 'muscle':
-            subprocess.run([
-                self.muscle, '-quiet', '-in', target_path_fasta, '-out',
-                target_path_msa
-            ], stdout=subprocess.PIPE, stderr=subprocess.PIPE
-            )
-        elif aligner == 'prank':
-            subprocess.run([self.prank, '-codon', '-d=' + target_path_fasta,
-                            '-o=' + target_path_msa],
-                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            subprocess.run(['mv', '{}.best.fas'.format(target_path_msa),
-                            target_path_msa])
 
-        subprocess.run(['rm', target_path_fasta], stdout=subprocess.PIPE)
+def align(in_file, out_file, aligner):
+    """
+    Alignment wrapper
 
-        if return_dict:
-            out = read_fasta(target_path_msa)
-            return target_path_msa, out
-
-        return target_path_msa
+    :param aligner: alignment program
+    :param in_file: input fasta file
+    :param out_file: output fasta file
+    """
+    if not os.path.isfile(in_file):
+        logging.warning("File not found {}".format(in_file))
+        return None
+    if aligner == 'prank':
+        out = align_prank(in_file, out_file)
+    elif aligner == 'mafft':
+        out = align_mafft(in_file, out_file)
+    else:
+        out = align_muscle(in_file, out_file)
+    return out

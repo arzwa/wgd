@@ -362,7 +362,7 @@ def blast_(
 )
 @click.option(
         '--aligner', '-a', default='muscle', show_default=True,
-        type=click.Choice(['muscle', 'prank']),
+        type=click.Choice(['muscle', 'prank', 'mafft']),
         help='aligner program to use, from fast to slow: muscle, prank'
 )
 @click.option(
@@ -508,20 +508,13 @@ def ks_(
     tmp_dir = os.path.abspath(tmp_dir)
     gene_families = os.path.abspath(gene_families)
 
+    # some warnings
     if os.path.exists(output_directory):
-        logging.warning(
-                'Output directory already exists, will possibly overwrite')
+        logging.warning('Output directory exists, will possibly overwrite')
     else:
         os.mkdir(output_directory)
-
     if os.path.exists(tmp_dir):
-        logging.info(
-                'tmp directory already exists, will try to resume analysis.'
-        )
-        logging.warning(
-                'Be sure not to run two analyses simultaneously in the same'
-                ' tmp directory as this will mess up the results!'
-        )
+        logging.info('tmp directory exists, will try to resume analysis.')
     else:
         os.mkdir(tmp_dir)
 
@@ -565,10 +558,11 @@ def ks_(
                 sep='\t')
 
         logging.info('Generating plots')
-        plot_selection(results, output_file=os.path.join(output_directory,
-                                                         '{}.ks.png'.format(
-                                                                 base)),
-                       title=os.path.basename(gene_families))
+        plot_selection(
+            results, output_file=os.path.join(
+                output_directory, '{}.ks.png'.format(base)
+            ), title=os.path.basename(gene_families)
+        )
 
         logging.info('Done')
         return os.path.join(output_directory, '{}.ks.tsv'.format(base))

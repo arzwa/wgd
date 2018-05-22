@@ -333,7 +333,7 @@ class Codeml:
         else:
             if results is not None:
                 return results['results'], os.path.abspath(self.out_file)
-            return None
+            return None, None
 
 
 
