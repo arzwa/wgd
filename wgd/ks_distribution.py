@@ -105,6 +105,25 @@ def _weighting(pairwise_estimates, msa=None, method='alc'):
     return clustering, pairwise_distances, tree_path
 
 
+def _divide_in_subfamilies(ks_matrix, threshold=5):
+    """
+    Divide a family into subfamilies for which pairwise Ks estimates do not 
+    exceed the given threshold.
+
+    :param ks_matrix: pairwise Ks estimates matrix
+    :param threshold: Ks threshold
+    """
+    # get adjacency list
+    adj = {}
+    for g in ks_matrix.index:
+        row = ks_matrix.loc[g]
+        adj[g] = set([i for i in row.index if row.loc[i] < 5])
+    
+    # get all strongly connected components 
+    # https://www.geeksforgeeks.org/strongly-connected-components/
+
+
+
 def _calculate_weights(clustering, pairwise_estimates, pairwise_distances=None):
     """
     This is a patch for weight calculation in the pairwise approach
@@ -332,6 +351,8 @@ def analyse_family(
     if not results_dict:
         logging.warning('No codeml results for {}!'.format(family_id))
         return
+
+    # Subdivide families -------------------------------------------------------
 
     # Calculate weights according to method ------------------------------------
     clustering, pairwise_distances, tree_path = _weighting(
