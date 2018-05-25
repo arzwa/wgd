@@ -1,5 +1,7 @@
 #!/usr/bin/python3.5
 """
+--------------------------------------------------------------------------------
+
 Copyright (C) 2018 Arthur Zwaenepoel
 
 This program is free software: you can redistribute it and/or modify
@@ -17,13 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Contact: arzwa@psb.vib-ugent.be
 
-Alignment related tools.
-
-Contribution note: It is trivial to add support for another aligner (besides
-MUSCLE and PRANK). Especially when it's for amino acid alignments (codon
-alignment as PRANK are a bit more involved). To add another aligner, only the
-:py:meth:`MSA.run_aligner` method should be modified to include the aligner of
-interest.
+--------------------------------------------------------------------------------
 """
 from .utils import read_fasta, write_fasta, log_subprocess
 import os

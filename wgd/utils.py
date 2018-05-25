@@ -1,5 +1,7 @@
 #!/usr/bin/python3.5
 """
+--------------------------------------------------------------------------------
+
 Copyright (C) 2018 Arthur Zwaenepoel
 
 This program is free software: you can redistribute it and/or modify
@@ -16,6 +18,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Contact: arzwa@psb.vib-ugent.be
+
+--------------------------------------------------------------------------------
+
+Every package has it's utils module, right?
 """
 import os
 import logging
@@ -309,11 +315,13 @@ def translate_cds(sequence_dict):
     """
     Just another CDS to protein translater. Will give warnings when in-frame
     stop codons are found, invalid codons are found, or when the sequence length
-    is not a multiple of three.
+    is not a multiple of three. Will translate the full sequence or until an
+    unspecified or in-frame codon is encountered.
 
     :param sequence_dict: dictionary with gene IDs and CDS sequences
     :return: dictionary with gene IDs and proteins sequences
     """
+    # TODO I should just use the Biopython translator
     aa_dict = {
         'ATA': 'I', 'ATC': 'I', 'ATT': 'I', 'ATG': 'M',
         'ACA': 'T', 'ACC': 'T', 'ACG': 'T', 'ACT': 'T',
@@ -344,22 +352,19 @@ def translate_cds(sequence_dict):
             j += 1
             aa_seq = ''
             if len(val) % 3 != 0:
-                print('Sequence length is not a multiple of 3 for '
-                                'gene {}!'.format(key))
+                print('Sequence length != multiple of 3 for {}!'.format(key))
                 total += 1
             invalid = False
             for i in range(0, len(val), 3):
                 if val[i:i + 3] not in aa_dict.keys():
-                    print('Invalid codon {0:>3} in sequence {1}'
-                                    ''.format(val[i:i + 3], key))
+                    print('Invalid codon {0:>3} in {1}'.format(val[i:i+3], key))
                     invalid = True
                     total += 1
                     break
                 else:
                     if aa_dict[val[i:i + 3]] == '' and i+3 != len(val):
-                        print('In-frame STOP codon in sequence {0} '
-                                        'at position {1}:{2}'
-                                        ''.format(key, i, i+3))
+                        print('In-frame STOP codon in {0} at position {1}:{2}'
+                              ''.format(key, i, i+3))
                         invalid = True
                         total += 1
                         break
@@ -370,7 +375,6 @@ def translate_cds(sequence_dict):
             pb.update(j)
     logging.warning("There were {} warnings during translation".format(total))
     return protein_dict
-
 
 
 def write_fasta(seq_dict, output_file):

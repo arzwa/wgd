@@ -1,4 +1,6 @@
 """
+--------------------------------------------------------------------------------
+
 Copyright (C) 2018 Arthur Zwaenepoel
 
 This program is free software: you can redistribute it and/or modify
@@ -16,9 +18,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Contact: arzwa@psb.vib-ugent.be
 
+--------------------------------------------------------------------------------
+
 The ``viz`` module collects several common visualization functions for ``wgd``
 as well as the interactive boke application for plotting multiple Ks
 distributions with kernel density estimates interactively.
+
+This hasn't been updated in a while and might have some bugs at some points.
+
 """
 import plumbum as pb
 import matplotlib

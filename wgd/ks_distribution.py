@@ -1,5 +1,5 @@
 """
-`wgd` WGD analysis in python
+--------------------------------------------------------------------------------
 
 Copyright (C) 2018 Arthur Zwaenepoel
 
@@ -17,6 +17,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Contact: arzwa@psb.vib-ugent.be
+
+--------------------------------------------------------------------------------
 """
 # TODO: other outlier detection approaches
 # TODO: alignment stripping as in Vanneste 2013
@@ -118,10 +120,37 @@ def _divide_in_subfamilies(ks_matrix, threshold=5):
     for g in ks_matrix.index:
         row = ks_matrix.loc[g]
         adj[g] = set([i for i in row.index if row.loc[i] < 5])
-    
-    # get all strongly connected components 
-    # https://www.geeksforgeeks.org/strongly-connected-components/
 
+    # get connected components
+    connected_components = _get_connected_components(adj)
+
+
+def _get_connected_components(adj):
+    """
+    Get connected components from an adjacency list using a DFS.
+
+    :param adj: adjacency list (dictionary actually)
+    :return: connected components
+    """
+    connected_components = []
+    component = set()
+
+    def dfs_util(v):
+        visited[v] = True
+        component.add(v)
+        for vv in adj[v]:
+            if not visited[vv]:
+                dfs_util(vv)
+
+    vertices = list(adj.keys())
+    visited = {x: False for x in vertices}
+    for v in vertices:
+        if not visited[v]:
+            dfs_util(v)
+            connected_components.append(component)
+            component = set()
+
+    return connected_components
 
 
 def _calculate_weights(clustering, pairwise_estimates, pairwise_distances=None):

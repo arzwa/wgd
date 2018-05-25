@@ -19,6 +19,7 @@
 .idea/**/uiDesigner.xml
 
 .vscode/
+doc/build/
 
 # Gradle:
 .idea/**/gradle.xml
