@@ -1,5 +1,7 @@
 #!/usr/bin/python3.5
 """
+--------------------------------------------------------------------------------
+
 Copyright (C) 2018 Arthur Zwaenepoel
 
 This program is free software: you can redistribute it and/or modify
@@ -17,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Contact: arzwa@psb.vib-ugent.be
 
-Markov clustering (MCL) related functions
+--------------------------------------------------------------------------------
 """
 
 from .utils import process_gene_families, log_subprocess, uniq_id

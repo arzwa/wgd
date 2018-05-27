@@ -1,5 +1,7 @@
 #!/usr/bin/python3.5
 """
+--------------------------------------------------------------------------------
+
 Copyright (C) 2018 Arthur Zwaenepoel
 
 This program is free software: you can redistribute it and/or modify
@@ -16,6 +18,12 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Contact: arzwa@psb.vib-ugent.be
+
+--------------------------------------------------------------------------------
+
+This hasn't been update in a while and might be broken in some features. I
+recommend doing the mixture modeling in a Jupyter notebook using ``sklearn``
+instead of using the CLI provide here.
 """
 import numpy as np
 import peakutils
