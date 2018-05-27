@@ -2,7 +2,7 @@
 """
 Arthur Zwaenepoel
 
-Version 1.1:
+Version 0.1:
     - Rewrite of Ks distribution construction
     - Implementation of one-vs-one ortholog Ks distributions
     - Phylogenetic trees for weighting (FastTree & PhyML)
@@ -29,7 +29,7 @@ from setuptools import setup
 
 setup(
     name='wgd',
-    version='1.1',
+    version='0.1.1',
     packages=['wgd'],
     url='http://github.com/arzwa/wgd',
     license='GPL',
