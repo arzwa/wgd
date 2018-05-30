@@ -185,7 +185,7 @@ def _calculate_weights(clustering, pairwise_estimates, pairwise_distances=None):
             for j in nodes[node_2]:
                 if pairwise_distances:
                     distance = pairwise_distances[i][j]
-                pair = '_'.join(sorted([
+                pair = '__'.join(sorted([
                     pairwise_estimates.index[j], pairwise_estimates.index[i]
                 ]))
                 weights[pair] = {
@@ -210,7 +210,7 @@ def _calculate_weights(clustering, pairwise_estimates, pairwise_distances=None):
             weight = 1 / (len(nodes[node_1]) * len(nodes[node_2]))
             for i in nodes[node_1]:
                 for j in nodes[node_2]:
-                    pair = '_'.join(sorted([
+                    pair = '__'.join(sorted([
                         pairwise_estimates.index[j], pairwise_estimates.index[i]
                     ]))
                     weights[pair]['WeightOutliersExcluded'] = weight
@@ -255,9 +255,9 @@ def _calculate_weighted_ks(clustering, pairwise_estimates,
                     distance = pairwise_distances[i][j]
                 p1 = pairwise_estimates['Ks'].index[i]
                 p2 = pairwise_estimates['Ks'].index[j]
-                pair = "_".join(sorted([p1, p2]))
+                pair = "__".join(sorted([p1, p2]))
                 weights[pair] = [
-                    p1, p2, family_id.split("_")[-1], weight,
+                    p1, p2, family_id.split("__")[-1], weight,
                     pairwise_estimates['Ks'].iloc[i, j],
                     pairwise_estimates['Ka'].iloc[i, j],
                     pairwise_estimates['Omega'].iloc[i, j],
@@ -280,7 +280,7 @@ def _calculate_weighted_ks(clustering, pairwise_estimates,
                 for j in nodes[node_2]:
                     p1 = pairwise_estimates['Ks'].index[i]
                     p2 = pairwise_estimates['Ks'].index[j]
-                    pair = "_".join(sorted([p1, p2]))
+                    pair = "__".join(sorted([p1, p2]))
                     weights[pair][-2] = weight
                     weights[pair][-1] = 'FALSE'
 
@@ -497,7 +497,7 @@ def analyse_family_pairwise(
     ks_mat = {g: {h: np.nan for h in family.keys()} for g in family.keys()}
     for i, pair in enumerate(alns):
         pid, seqs = pair
-        g1, g2 = pid.split('_')
+        g1, g2 = pid.split('__')
         pairwise_msa = write_fasta(seqs, msa_path + '.' + str(i))
         codeml_ = Codeml(codeml=codeml, tmp=tmp, id=family_id + '.' + str(i))
         logging.debug('Performing codeml analysis for {}'.format(family_id))
@@ -679,7 +679,7 @@ def ks_analysis_one_vs_one(
 
     # rename the index of the data_frame to gene1_gene2 (alphabetically) -------
     new_index = results_frame[['Paralog1', 'Paralog2']].apply(
-            lambda x: '_'.join(sorted(x)), axis=1)
+            lambda x: '__'.join(sorted(x)), axis=1)
     results_frame.index = new_index
 
     return results_frame
@@ -795,7 +795,7 @@ def ks_analysis_paranome(
 
     # rename the index of the data_frame to gene1_gene2 (alphabetically) -------
     new_index = results_frame[['Paralog1', 'Paralog2']].apply(
-            lambda x: '_'.join(sorted(x)), axis=1)
+            lambda x: '__'.join(sorted(x)), axis=1)
     results_frame.index = new_index
 
     return results_frame

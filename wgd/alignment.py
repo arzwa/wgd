@@ -95,7 +95,7 @@ def get_pairwise_alns(aln, nuc_seqs, min_length=3):
     stats_dict = {}
     for pair in pairs:
         id1, id2 = pair
-        pid = '_'.join(sorted([id1, id2]))
+        pid = '__'.join(sorted([id1, id2]))
         seqs = {x: aln[x] for x in (id1, id2)}
         if nuc_seqs:
             seqs = pal2nal(seqs, nuc_seqs)
@@ -120,7 +120,7 @@ def pairwise_alignment_stats(aln):
     # loop over all pairs in the alignment
     for pair in pairs:
         id1, id2 = pair
-        stats_dict['_'.join(sorted(pair))] = get_stats(aln[id1], aln[id2])
+        stats_dict['__'.join(sorted(pair))] = get_stats(aln[id1], aln[id2])
     return stats_dict
 
 
