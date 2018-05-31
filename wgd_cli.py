@@ -1,6 +1,6 @@
 #!/usr/bin/python3.5
 """
-`wgd` WGD analysis in python
+--------------------------------------------------------------------------------
 
 Copyright (C) 2018 Arthur Zwaenepoel
 
@@ -19,26 +19,106 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Contact: arzwa@psb.vib-ugent.be
 
-The idea behind the wgd CLI is to provide script-like programs bundled under one
-command (`wgd`) for common WGD analyses for which the wgd package provides the
-underlying modular functionalities. Note that this is quite verbosely coded on
-purpose, and includes lots of logging messages. It reflects the kind of 'manual'
-workflow one would perform to do these tasks.
+--------------------------------------------------------------------------------
 
-The CLI is organized with a Click command that wraps a function with the same
-name followed by an underscore, this is chosen mostly so that the pipeline
-commands can reuse code.
+The **command line interface** (CLI) is the main way to interact with the `wgd`
+package. The CLI is organized with a Click command that wraps a function with
+the same name followed by an underscore (this is chosen mostly so that the
+pipeline commands can reuse code from other subcommands).
 
-TODO:
-    (1) codeml treats gaps as missing data, so it is not necessary to strip gaps
-        when estimating Ks values!
-    (2) The most consistent approach would be to estimate a tree using
-        codonphyml on a codon alignment from PRANK, and use that tree in codeml
-        to estimate pairwise Ks values. Implement this.
-    (3) Use biopython for all sequence handling
-    (4) Use tmp files to keep track of the outputs from subprocesses, because
-        using PIPE might result in hangs.
+Upon successful installation you should be able to run::
+
+    $ wgd -h
+
+    Usage: wgd [OPTIONS] COMMAND [ARGS]...
+
+    Welcome to the wgd command line interface!
+
+                           _______
+                           \\  ___ `'.
+           _     _ .--./)   ' |--.\\  \\
+     /\\    \\\\   ///.''\\\\    | |    \\  '
+     `\\\\  //\\\\ //| |  | |   | |     |  '
+       \\`//  \\'/  \\`-' /    | |     |  |
+        \\|   |/   /("'`     | |     ' .'
+         '        \\ '---.   | |___.' /'
+                   /'""'.\\ /_______.'/
+                  ||     ||\\_______|/
+                  \\'. __//
+                   `'---'
+
+    wgd  Copyright (C) 2018 Arthur Zwaenepoel
+    This program comes with ABSOLUTELY NO WARRANTY;
+    This is free software, and you are welcome to redistribute it
+    under certain conditions;
+
+    Contact: arzwa@psb.vib-ugent.be
+
+    Options:
+    -v, --verbosity [info|debug]  Verbosity level, default = info.
+    -l, --logfile TEXT            File to write logs to (optional)
+    -h, --help                    Show this message and exit.
+
+    Commands:
+    blast       All-vs.-all blastp (+ MCL) analysis.
+    ks          Ks distribution construction.
+    mix         Mixture modeling of Ks distributions.
+    pipeline_1  Standard workflow whole paranome Ks.
+    pipeline_2  Standard workflow one-vs-one ortholog Ks.
+    syn         Co-linearity analyses.
+    viz         Plot histograms/densities (interactively).
+
+
+Note that the verbose flag can be set before the subcommands::
+
+    $ wgd --verbose [silent|info|debug] [COMMAND]
+
+Which sets the verbosity for the logging.
+
+All commands are equipped with usage instructions and documentation of options
+and arguments, which can be viewed by using the ``--help`` or ``-h`` flag (e.g.
+``wgd ks --help``). These should be quite self-explanatory, but for further
+documentation you can refer to the documentation of the specific functions that
+are called. These can be found on this page (e.g. the function called by
+``wgd blast`` is :py:func:`wgd_cli.blast_`.
+
+``wgd`` is still under development, you may find some functions broken or
+containing bugs, especially in those where the documentation explicitly
+indicates that this might be the case.
+
+Example
+=======
+
+Here is a small example on how to use the package through the CLI. This is a
+workflow for constructing a |Ks| distribution for a fasta file with CDS
+sequences called ``penguin.cds.fasta``.
+
+(1) Get the paranome, i.e. perform all-against-all Blastp and MCL clustering,
+notice how we specify to use 8 threads::
+
+    $ wgd blast --cds --mcl -s penguin.cds.fasta -o ./ -n 8
+
+(2) Construct a Ks distribution, use PhyML for inferring the phylogenetic
+trees used in the node weighting procedure::
+
+    $ wgd ks -gf ./penguin.cds.fasta.mcl -s penguin.cds.fasta -o ./ -n 8 \
+--pairwise --wm phyml
+
+--------------------------------------------------------------------------------
+
+Reference
+=========
 """
+# TODO:
+#   (1) codeml treats gaps as missing data, so it is not necessary to strip gaps
+#       when estimating Ks values!
+#   (2) The most consistent approach would be to estimate a tree using
+#       codonphyml on a codon alignment from PRANK, and use that tree in codeml
+#       to estimate pairwise Ks values. Implement this.
+#   (3) Use biopython for all sequence handling
+#   (4) Use tmp files to keep track of the outputs from subprocesses, because
+#       using PIPE might result in hangs.
+
 
 # keep these imports to a minimum to speed up initial CLI loading
 import click
@@ -188,23 +268,25 @@ def blast_(
         eval_cutoff=1e-10, output_dir='wgd_blast', n_threads=4
 ):
     """
-    All vs. all Blast pipeline. For usage in the ``wgd`` CLI.
+    All vs. all Blast pipeline. For usage in the ``wgd`` CLI. Can be used to
+    perform all vs. all Blast, MCL clustering and one vs. one ortholog
+    delineation.
 
-    :param cds: boolean, provided sequences are CDS
+    :param cds: boolean, indicates that the provided sequences are CDS
     :param mcl: boolean, perform MCL clustering
-    :param one_v_one: boolean, identify one vs. one orthologs (reciprocal best
-        hits)
+    :param one_v_one: boolean, identify whether one vs. one orthologs are to be
+        inferred (reciprocal best hits) (True) or a paranome (False).
     :param sequences: CDS fasta files, if multiple (for one vs. one ortholog
         identification), then as a comma-separated string e.g.
-        ath.fasta,aly.fasta
+        ``ath.fasta,aly.fasta``
     :param species_ids: comma-separated species ids, optional for one-vs-one
-        ortholog delineation
+        ortholog delineation (will prefix the sequence IDs in that case).
     :param blast_results: precomputed blast results (tab separated blast output
         style)
     :param inflation_factor: inflation factor for MCL clustering
     :param eval_cutoff: e-value cut off for blastp analysis
     :param output_dir: output directory
-    :param n_threads: number of CPU threads to use
+    :param n_threads: number of threads to use
     :return: output file name
     """
     # lazy imports
@@ -362,7 +444,7 @@ def blast_(
 )
 @click.option(
         '--aligner', '-a', default='muscle', show_default=True,
-        type=click.Choice(['muscle', 'prank']),
+        type=click.Choice(['muscle', 'prank', 'mafft']),
         help='aligner program to use, from fast to slow: muscle, prank'
 )
 @click.option(
@@ -456,10 +538,11 @@ def ks_(
 
     :param gene_families: gene families, i.e. tab separated paralogs or
         one-vs-one orthologs (see :py:func:`blast_`)
-    :param sequences: CDS fasta files, if multiple (one-vs.-one ortholog
-        distribution) then as a comma separated string
+    :param sequences: CDS fasta files, if multiple (for constructing one-vs.-one
+        ortholog distribution) then as a comma separated string
     :param output_directory: output directory
-    :param protein_sequences: potein sequences (optional)
+    :param protein_sequences: protein sequences (optional), by default CDS files
+        are translated using the standard genetic code.
     :param tmp_dir: tmp directory name (optional)
     :param muscle: path to MUSCLE executable
     :param codeml: path to codeml executable
@@ -468,10 +551,10 @@ def ks_(
     :param min_msa_length: minimum multiple sequence alignment length
     :param ignore_prefixes: ignore prefixes defined by '|' in gene IDs
     :param one_v_one: boolean, one-vs.-one ortholog analysis
-    :param preserve: boolean, preserve codeml output files and multiple sequence
-        alignments?
-    :param async: use the async library for parallelization
-    :param n_threads: number of CPU threads to use
+    :param preserve: boolean, preserve codeml output files, multiple sequence
+        alignments and trees?
+    :param async: use the async library for parallelization (not recommended)
+    :param n_threads: number of threads to use
     :param weighting_method: weighting method (fasttree, phyml or alc)
     :param max_pairwise: maximum number of pairwise combinations a gene family
         may have. This effectively filters out families of size n where
@@ -508,20 +591,13 @@ def ks_(
     tmp_dir = os.path.abspath(tmp_dir)
     gene_families = os.path.abspath(gene_families)
 
+    # some warnings
     if os.path.exists(output_directory):
-        logging.warning(
-                'Output directory already exists, will possibly overwrite')
+        logging.warning('Output directory exists, will possibly overwrite')
     else:
         os.mkdir(output_directory)
-
     if os.path.exists(tmp_dir):
-        logging.info(
-                'tmp directory already exists, will try to resume analysis.'
-        )
-        logging.warning(
-                'Be sure not to run two analyses simultaneously in the same'
-                ' tmp directory as this will mess up the results!'
-        )
+        logging.info('tmp directory exists, will try to resume analysis.')
     else:
         os.mkdir(tmp_dir)
 
@@ -565,10 +641,11 @@ def ks_(
                 sep='\t')
 
         logging.info('Generating plots')
-        plot_selection(results, output_file=os.path.join(output_directory,
-                                                         '{}.ks.png'.format(
-                                                                 base)),
-                       title=os.path.basename(gene_families))
+        plot_selection(
+            results, output_file=os.path.join(
+                output_directory, '{}.ks.png'.format(base)
+            ), title=os.path.basename(gene_families)
+        )
 
         logging.info('Done')
         return os.path.join(output_directory, '{}.ks.tsv'.format(base))
@@ -660,11 +737,11 @@ def syn_(
         gene_attribute='Parent'
 ):
     """
-    Co-linearity analysis with I-ADHoRe 3.0
-    For usage in the ``wgd`` CLI.
+    Co-linearity analysis with I-ADHoRe 3.0. For usage in the ``wgd`` CLI.
 
-    :param gff_file: GFF annotation file
-    :param families: gene families as tab seperated gene IDs, see
+    :param gff_file: GFF3 annotation file (see the annotation files on PLAZA as
+        an example)
+    :param families: gene families as tab separated gene IDs, see
         :py:func:`blast_`
     :param output_dir: output directory
     :param ks_distribution: Ks distribution tsv file, see :py:func:`ks_`
@@ -840,7 +917,8 @@ def mix_(
         sequences, cut_off=0.95, pairs=False, n_init=1
 ):
     """
-    Mixture modeling using sklearn
+    Mixture modeling using sklearn. NOTE: This hasn't been update in a while
+    and might be broken!
 
     :param ks_distribution: Ks distribution tsv file
     :param method: mixture modeling method, either 'bgmm' or 'gmm'

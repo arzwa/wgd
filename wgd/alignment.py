@@ -1,5 +1,7 @@
 #!/usr/bin/python3.5
 """
+--------------------------------------------------------------------------------
+
 Copyright (C) 2018 Arthur Zwaenepoel
 
 This program is free software: you can redistribute it and/or modify
@@ -17,18 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Contact: arzwa@psb.vib-ugent.be
 
-Alignment related tools.
-
-Contribution note: It is trivial to add support for another aligner (besides
-MUSCLE and PRANK). Especially when it's for amino acid alignments (codon
-alignment as PRANK are a bit more involved). To add another aligner, only the
-:py:meth:`MSA.run_aligner` method should be modified to include the aligner of
-interest.
+--------------------------------------------------------------------------------
 """
-# TODO: use BioPython alignIO stuff + rewrite stats for alignments
-
-from .utils import read_fasta
-from Bio import AlignIO
+from .utils import read_fasta, write_fasta, log_subprocess
 import os
 import subprocess
 import logging
@@ -36,63 +29,125 @@ import itertools
 
 
 # REWRITE
-def prepare_aln(msa_file, nuc_seqs, aligner):
+def prepare_aln(msa_file, nuc_seqs):
+    """
+    Main wrapper function for alignments for Ks distributions, takes an 
+    alignment file as input (protein or nucleotide), and returns a nucleotide 
+    alignment (codon) file and pairwise alignment statistics.
+
+    :param msa_file: multiple sequence alignment file path
+    :param nuc_seqs: nucleotide sequences (set to ``None`` if input is a 
+        nucleotide alignment).
+    :return: file path to nucleotide alignment, pairwise alignment statistics
+    """
     with open(msa_file, 'r') as f:
-        aln = AlignIO.read(f, "fasta")
-        if aligner != "prank":
+        aln = read_fasta(msa_file)
+        if nuc_seqs:
             aln = pal2nal(aln, nuc_seqs)
-        stats = pairwise_alignment_stats_(aln)
+        stats = pairwise_alignment_stats(aln)
     out_path = msa_file + '.nuc'
     write_alignment_codeml(aln, out_path)
     return out_path, stats
 
 
 def pal2nal(pal, nuc_seqs):
+    """
+    Protein alignment to nucleotide alignment converter.
+
+    :param pal: protein alignment dictionary
+    :param nuc_seqs: nucleotide sequences
+    :return: nucleotide alignment dictionary
+    """
     nal = {}
     nal_ = ''
-    for protein in pal:
-        if protein.name not in nuc_seqs:
+    for pid, seq in pal.items():
+        if pid not in nuc_seqs:
             logging.warning(
-                    "Sequence {} in protein alignment not found in CDS "
-                    "sequences".format(protein.name)
+                "Sequence {} in protein alignment not found in CDS sequences"
+                "".format(pid)
             )
         else:
-            nuc = nuc_seqs[protein.name]
+            nuc = nuc_seqs[pid]
             nal_ = ''
             j = 0
-            for i in range(len(protein.seq)):
-                if protein[i] == '-':
+            for i in range(len(seq)):
+                if seq[i] == '-':
                     nal_ += '---'
                 else:
                     nal_ += nuc[j:j + 3]
                     j += 3
-            nal[protein.name] = nal_
+            nal[pid] = nal_
     return nal
 
 
-def pairwise_alignment_stats_(aln):
+def get_pairwise_alns(aln, nuc_seqs, min_length=3):
+    """
+    Get all pairwise alignments and pairwise statistics.
+
+    :param aln: alignment file
+    :param nuc_seqs: nucleotide sequences dictionary
+    :param min_length: minimum stripped alignment length necessary to include
+        a pair
+    """
+    aln = read_fasta(aln)
+    pairwise_alns = []
     pairs = itertools.combinations(list(aln.keys()), 2)
     stats_dict = {}
-    aln_len = len(list(aln.values())[0])
+    for pair in pairs:
+        id1, id2 = pair
+        pid = '__'.join(sorted([id1, id2]))
+        seqs = {x: aln[x] for x in (id1, id2)}
+        if nuc_seqs:
+            seqs = pal2nal(seqs, nuc_seqs)
+        stats_dict[pid] = get_stats(seqs[id1], seqs[id2])
+        s1, s2 = strip_gaps_pair(seqs[id1], seqs[id2])
+        if len(s1) < min_length or len(s2) < min_length:
+            continue
+        pairwise_alns.append((pid, {id1: s1, id2: s2}))
+    return pairwise_alns, stats_dict
+
+
+def pairwise_alignment_stats(aln):
+    """
+    Get pairwise alignment statistics.
+
+    :param aln: alignment dictionary
+    :return: dictionary with pairwise statistics
+    """
+    pairs = itertools.combinations(list(aln.keys()), 2)
+    stats_dict = {}
 
     # loop over all pairs in the alignment
     for pair in pairs:
         id1, id2 = pair
-        s1, s2 = strip_gaps_pair(aln[id1], aln[id2])
-        identity = (len(s1) - hamming_distance(s1, s2)) / len(s1)
-        stats_dict["_".join(sorted(pair))] = {
-            "AlignmentIdentity": identity,
-            "AlignmentLength": aln_len,
-            "AlignmentLengthStripped": len(s1),
-            "AlignmentCoverage": len(s1)/aln_len
-        }
+        stats_dict['__'.join(sorted(pair))] = get_stats(aln[id1], aln[id2])
     return stats_dict
 
 
+def get_stats(s1, s2):
+    s1_, s2_ = strip_gaps_pair(s1, s2)
+    if len(s1_) == 0:
+        identity = 0
+    else:
+        identity = (len(s1_) - hamming_distance(s1_, s2_)) / len(s1_)
+    return {
+        "AlignmentIdentity": identity,
+        "AlignmentLength": len(s1),
+        "AlignmentLengthStripped": len(s1_),
+        "AlignmentCoverage": len(s1_)/len(s1)
+    }
+
 def strip_gaps_pair(s1, s2):
+    """
+    Strip gaps for an aligned sequence pair.
+
+    :param s1: sequence 1
+    :param s2: sequence 2
+    :return: two stripped sequences
+    """
     s1_, s2_ = '', ''
     for i in range(len(s1)):
-        if s1[i] == s2[i] == '-':
+        if s1[i] == '-' or s2[i] == '-':
             continue
         else:
             s1_ += s1[i]
@@ -100,215 +155,26 @@ def strip_gaps_pair(s1, s2):
     return s1_, s2_
 
 
-# OLD --------------------------------------------------------------------------
-
-def _nucleotide_msa_from_protein_msa(
-        protein_msa_sequences, nucleotide_sequences):
+def hamming_distance(s1, s2):
     """
-    Make a nucleotide multiple sequence alignment from a protein multiple
-    sequence alignment
-
-    :param protein_msa_sequences: dictionary with protein sequences (aligned)
-    :param nucleotide_sequences: dictionary with nucleotide sequences
-        (unaligned)
-    :return: dictionary with nucleotide sequences (aligned)
+    Return the Hamming distance between equal-length sequences
+    
+    :param s1: string 1
+    :param s2: string 2
+    :return: the Hamming distances between s1 and s2
     """
-    nucleotide_msa = {}
-    lengths = set()
-
-    for seq in protein_msa_sequences.values():
-        length = len(seq)
-        lengths.add(length)
-
-    if len(list(lengths)) != 1:
-        logging.warning(
-                "Not all sequences have the same length after alignment!")
-        return None
-
-    for gene_ID in protein_msa_sequences.keys():
-        protein = protein_msa_sequences[gene_ID]
-        if gene_ID not in nucleotide_sequences.keys():
-            logging.warning(
-                    "Gene {} not found in nucleotide fasta!".format(gene_ID))
-        else:
-            nucleotide = nucleotide_sequences[gene_ID]
-            nucleotide_msa_sequence = ''
-            j = 0
-            for i in range(len(protein)):
-                if protein[i] == '-':
-                    nucleotide_msa_sequence += '---'
-                else:
-                    nucleotide_msa_sequence += nucleotide[j:j + 3]
-                    j += 3
-            nucleotide_msa[gene_ID] = nucleotide_msa_sequence
-
-    return nucleotide_msa
-
-
-def _strip_gaps(msa_dict):
-    """
-    Strip gap positions from a multiple sequence alignment (MSA).
-    Finds the positions in the strings that have a gap and removes them in all
-    sequences.
-
-    :param msa_dict: dictionary with aligned nucleotide sequences.
-    """
-    if msa_dict is None:
-        return None
-    if len(list(msa_dict.values())) == 0:
-        return None
-
-    indices = set()
-    length = len(list(msa_dict.values())[0])
-    for i in range(length):
-        for gene_ID in msa_dict.keys():
-            # Prevent index error, raise warning instead
-            if i >= len(msa_dict[gene_ID]):
-                logging.warning(
-                        "Seems there are unequal string lengths after alignment in "
-                        "this gene family. Occurred at gene: {}.".format(
-                                gene_ID))
-                return None
-            if msa_dict[gene_ID][i] == '-':
-                indices.add(i)
-    indices = list(indices)
-
-    for gene_ID in msa_dict.keys():
-        sequence_list = [i for i in msa_dict[gene_ID]]
-        for index in sorted(indices, reverse=True):
-            del sequence_list[index]
-        msa_dict[gene_ID] = ''.join(sequence_list)
-
-    return msa_dict
-
-
-def multiple_sequence_aligment_nucleotide(
-        msa_protein, nucleotide_sequences, min_length=100, aligner='muscle',
-        strip_gaps=True
-):
-    """
-    Make a nucleotide multiple sequence alignment based on a protein alignment
-
-    :param msa_protein: dictionary of aligned protein sequences
-    :param nucleotide_sequences: nucleotide sequence dictionary
-    :param min_length: minimum alignment length to consider
-    :param aligner: alignment program used, if prank, than msa_protein will be
-        interpreted as codon alignment
-    :return: nucleotide MSA, length, stripped length
-    """
-    if not os.path.isfile(msa_protein):
-        logging.warning('MSA file {} not found!'.format(msa_protein))
-        return None
-
-    # Back-translate -----------------------------------------------------------
-    # if aligner is prank than the family is codon aligned so no need to
-    # back-translate
-    protein_msa_sequences = read_fasta(msa_protein)
-    if aligner != 'prank':
-        nucleotide_msa = _nucleotide_msa_from_protein_msa(
-                protein_msa_sequences, nucleotide_sequences
-        )
-    else:
-        nucleotide_msa = protein_msa_sequences
-
-    if nucleotide_msa is None:
-        return None
-
-    # get alignment statistics for quality control -----------------------------
-    alignment_stats = pairwise_alignment_stats(nucleotide_msa)
-    l_unstripped = len(list(nucleotide_msa.values())[0])
-
-    # strip gaps ---------------------------------------------------------------
-    if strip_gaps:
-        nucleotide_msa = _strip_gaps(nucleotide_msa)
-    if nucleotide_msa is None:  # probably not necessary
-        return None
-    elif len(list(nucleotide_msa.values())[0]) < min_length:
-        return None
-
-    l_stripped = len(list(nucleotide_msa.values())[0])
-
-    msa_nuc = msa_protein + '.nuc'
-    with open(msa_nuc, 'w') as o:
-        o.write("\t{0}\t{1}\n".format(
-                len(nucleotide_msa.keys()),
-                len(list(nucleotide_msa.values())[0]))
-        )
-        for gene_ID in nucleotide_msa.keys():
-            o.write("{}\n".format(gene_ID))
-            o.write(nucleotide_msa[gene_ID])
-            o.write("\n")
-
-    return [msa_nuc, int(l_unstripped), int(l_stripped), alignment_stats]
-
-
-def get_pairwise_nucleotide_alignments(
-        msa_protein, nucleotide_sequences, min_length=100, aligner='muscle'
-):
-    """
-    Get all pairwise alignments from a multiple sequence alignment.
-
-    :param msa_protein: multiple sequence alignment dictionary
-    :param nucleotide_sequences: nucleotide sequences dictionary
-    :param min_length: minimum gap-stripped alignment length
-    :param aligner: alignment software
-    :return: a list with file names
-    """
-    if not os.path.isfile(msa_protein):
-        logging.warning('MSA file {} not found!'.format(msa_protein))
-        return None
-
-    pairwise_alignments = []
-
-    # back-translate -----------------------------------------------------------
-    # if aligner is prank than the family is codon aligned so no need to
-    # back-translate
-    protein_msa_sequences = read_fasta(msa_protein)
-    if aligner != 'prank':
-        nucleotide_msa = _nucleotide_msa_from_protein_msa(protein_msa_sequences,
-                                                          nucleotide_sequences)
-    else:
-        nucleotide_msa = protein_msa_sequences
-
-    if nucleotide_msa is None:
-        return None
-
-    # get all alignment pairs with gap-stripped length > min_length ------------
-    pairs = itertools.combinations(list(nucleotide_msa.keys()), 2)
-    i = 1
-    for pair in pairs:
-        pair_dict = {pair[0]: nucleotide_msa[pair[0]],
-                     pair[1]: nucleotide_msa[pair[1]]}
-        # strip gaps
-        l_unstripped = len(list(pair_dict.values())[0])
-        pair_dict = _strip_gaps(pair_dict)
-
-        if pair_dict is None:  # probably not necessary
-            continue
-
-        elif len(list(pair_dict.values())[0]) < min_length:
-            logging.warning(
-                    'Stripped alignment for gene {0} and gene {1} too short (<'
-                    ' {2} nucleotides)'.format(pair[0], pair[1], min_length)
-            )
-            continue
-
-        l_stripped = len(list(pair_dict.values())[0])
-        alignment_stats = pairwise_alignment_stats(pair_dict, pair=True)
-
-        # write alignment
-        file_name = msa_protein + '.' + str(i) + '.nuc'
-        write_alignment_codeml(pair_dict, file_name)
-        pairwise_alignments.append((
-            file_name, pair[0], pair[1],
-            l_stripped, l_unstripped, alignment_stats
-        ))
-        i += 1
-
-    return pairwise_alignments
+    if len(s1) != len(s2):
+        raise ValueError("Undefined for sequences of unequal length")
+    return sum(el1 != el2 for el1, el2 in zip(s1, s2))
 
 
 def write_alignment_codeml(alignment, file_name):
+    """
+    Write an alignment file for codeml
+
+    :param alignment: alignment dictionary
+    :param file_name: output file name
+    """
     with open(file_name, 'w') as o:
         o.write("\t{0}\t{1}\n".format(
                 len(alignment.keys()), len(list(alignment.values())[0])))
@@ -316,138 +182,67 @@ def write_alignment_codeml(alignment, file_name):
             o.write("{}\n".format(gene_ID))
             o.write(alignment[gene_ID])
             o.write("\n")
+    from time import sleep
 
 
-def pairwise_alignment_stats(msa, pair=False):
+def align_muscle(in_file, out_file, bin_path='muscle'):
     """
-    Get pairwise stats from MSA.
-    Return as  dictionary {Gene1: {Gene2: [0.8, 0.7], Gene3: [...], ...}
+    Perform multiple sequence alignment with MUSCLE
 
-    :param msa: MSA dictionary
-    :return: dictionary
+    :param bin_path: path to MUSCLE executable
+    :param in_file: input fasta file
+    :param out_file: output fasta file
     """
-    stats = {}
-    stats_pair = None
-    seqs = [(x, msa[x]) for x in sorted(msa.keys())]
-
-    for i in range(len(seqs)):
-        stats[seqs[i][0]] = {}
-        for j in range(i, len(seqs)):
-            id1, id2 = seqs[i][0], seqs[j][0]
-            d = _strip_gaps({id1: seqs[i][1], id2: seqs[j][1]})
-            try:
-                # % identity
-                stats_pair = [(len(d[id1]) - hamming_distance(d[id1], d[id2]))
-                              / len(d[id1]), len(d[id1]) / len(seqs[i][1])]
-                stats[id1][id2] = stats_pair
-            except:
-                stats[id1][id2] = [0, 0]
-    if pair:
-        return stats_pair
-
-    return stats
+    cmd = [bin_path, '-in', in_file, '-out', out_file]
+    out = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    log_subprocess("MUSCLE", out)
+    return out_file
 
 
-def hamming_distance(s1, s2):
-    """Return the Hamming distance between equal-length sequences"""
-    if len(s1) != len(s2):
-        raise ValueError("Undefined for sequences of unequal length")
-    return sum(el1 != el2 for el1, el2 in zip(s1, s2))
-
-
-class MSA:
+def align_prank(in_file, out_file, bin_path='prank'):
     """
-    Multiple multiple sequence alignment (MSA) programs python wrappers.
-    Currently only runs with default settings.
+    Perform multiple sequence alignment with PRANK
 
-    Usage examples
-
-    * Sequences in dictionary, output as dictionary::
-
-        >>> MSA().run_aligner({'bear_gene': 'BEARBEAR', 'hare_gene': 'HAREERAH', 'yeast_gene': 'BEERBEARBEER'})
-        {'bear_gene': '----BEARBEAR-',
-        'hare_gene': '-----HAREERAH',
-        'yeast_gene': 'BEERBEARBEER-'}
-
-    * Sequences in fasta file, output as fasta file ``(msa.fasta)``::
-
-        >>> msa = MSA()
-        >>> msa.run_aligner('./sequences.fasta', './msa.fasta')
-
+    :param bin_path: path to PRANK executable
+    :param in_file: input fasta file
+    :param out_file: output fasta file
     """
+    cmd = [bin_path, '-codon', '-d=' + in_file, '-o=' + out_file]    
+    out = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    log_subprocess("PRANK", out)
+    return out_file
 
-    def __init__(self, muscle='muscle', prank='prank', tmp='./'):
-        """
-        Muscle wrapper init.
 
-        :param muscle: path to Muscle executable, will by defult look for Muscle
-            in the system PATH
-        :param prank: path to PRANK executable
-        :param tmp: directory to store temporary files.
-        """
-        self.muscle = muscle
-        self.prank = prank
-        self.tmp = tmp
+def align_mafft(in_file, out_file, bin_path='mafft'):
+    """
+    Perform multiple sequence alignment with MAFFT
 
-        if not os.path.isdir(self.tmp):
-            raise NotADirectoryError(
-                    'tmp directory {} not found!'.format(self.tmp))
+    :param bin_path: path to MAFFT executable
+    :param in_file: input fasta file
+    :param out_file: output fasta file
+    """
+    cmd = [bin_path, '--maxiterate', '1000', '--localpair', in_file]
+    out = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    log_subprocess("PRANK", out)
+    with open(out_file, 'w') as f: f.write(out.stdout.decode('utf-8'))
+    return out_file
 
-    def run_aligner(self, sequences, aligner='muscle', file=None,
-                    return_dict=False):
-        """
-        Run MSA on sequences stored in dictionary with a particular aligner
 
-        :param sequences: dictionary of sequences or input fasta file
-        :param file: output file name, if not provided output is dictionary
-        :param aligner: alignment software to use (prank|muscle)
-        :return: MSA file
-        """
-        if not file:
-            file_name = 'msa'
-        else:
-            file_name = file
+def align(in_file, out_file, aligner):
+    """
+    Alignment wrapper
 
-        # sequences provided in dictionary
-        if type(sequences) == dict:
-            target_path_fasta = os.path.join(self.tmp,
-                                             '{}.fasta'.format(file_name))
-
-            with open(target_path_fasta, 'w') as o:
-                for gene in sequences.keys():
-                    o.write('>{}\n'.format(gene))
-                    o.write(sequences[gene])
-                    o.write('\n')
-
-        # sequences provided as fasta file
-        elif os.path.isfile(sequences):
-            target_path_fasta = sequences
-
-        # error
-        else:
-            logging.error(
-                    '{} is not a dictionary and also not a file path'.format(
-                            sequences))
-            return None
-
-        target_path_msa = os.path.join(self.tmp, '{}.msa'.format(file_name))
-
-        if aligner == 'muscle':
-            subprocess.run(
-                    [self.muscle, '-quiet', '-in', target_path_fasta, '-out',
-                     target_path_msa],
-                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        elif aligner == 'prank':
-            subprocess.run([self.prank, '-codon', '-d=' + target_path_fasta,
-                            '-o=' + target_path_msa],
-                           stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            subprocess.run(['mv', '{}.best.fas'.format(target_path_msa),
-                            target_path_msa])
-
-        subprocess.run(['rm', target_path_fasta], stdout=subprocess.PIPE)
-
-        if return_dict:
-            out = read_fasta(target_path_msa)
-            return target_path_msa, out
-
-        return target_path_msa
+    :param aligner: alignment program
+    :param in_file: input fasta file
+    :param out_file: output fasta file
+    """
+    if not os.path.isfile(in_file):
+        logging.warning("File not found {}".format(in_file))
+        return None
+    if aligner == 'prank':
+        out = align_prank(in_file, out_file)
+    elif aligner == 'mafft':
+        out = align_mafft(in_file, out_file)
+    else:
+        out = align_muscle(in_file, out_file)
+    return out
