@@ -827,9 +827,9 @@ def syn_(
         # output file names
         ks_out = os.path.join(output_dir, '{}.ks_anchors.tsv'.format(
                 os.path.basename(families)))
-        dotplot_out = os.path.join(output_dir, '{}.dotplot.ks.png'.format(
+        dotplot_out = os.path.join(output_dir, '{}.dotplot.ks.pdf'.format(
                 os.path.basename(families)))
-        hist = os.path.join(output_dir, '{}.ks_anchors.png'.format(
+        hist = os.path.join(output_dir, '{}.ks_anchors.pdf'.format(
                 os.path.basename(families)))
 
         # output and plots
