@@ -36,12 +36,179 @@ from sklearn.model_selection import GridSearchCV
 import scipy.stats as ss
 import plumbum as pb
 import matplotlib
-
 if not 'DISPLAY' in pb.local.env:
     matplotlib.use('Agg')  # use this backend when no X server
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+
+def reflected_kde(data_frame, min_ks, max_ks, out_file):
+    """
+    Perform Kernel density estimation (KDE) with reflected data.
+    """
+    df = data_frame.groupby(['Family', 'Node']).mean()
+    ks = np.array(df['Ks'])
+    ks = ks[ks >= min_ks]
+    ks = list(ks[ks <= max_ks])
+    ks_reflected = ks + list(-1*np.array(ks))
+    ks = np.array(ks)
+    
+    fig, ax = plt.subplots(figsize=(6,3))
+    ax = sns.distplot(
+        ks_reflected, bins=int(max_ks*50), ax = ax, 
+        hist_kws={"rwidth": 0.8, "color": "k", "alpha": 0.2}, 
+        color="forestgreen", label="Reflected"
+    )
+    ax.set_xlim(min_ks, max_ks)
+    ax.set_yticks([])
+    sns.despine(offset=5, trim=True)
+    fig.savefig(out_file, bbox_inches='tight')
+
+
+def gmm(X, n, **kwargs):
+    """
+    Compute Gaussian mixtures for different numbers of components
+    """
+    # fit models with 1 to n components
+    N = np.arange(1, n + 1)
+    models = [None for i in range(len(N))]
+
+    for i in range(len(N)):
+        models[i] = mixture.GaussianMixture(
+            n_components=N[i], covariance_type='full', max_iter=100, **kwargs
+        ).fit(X)
+
+    # compute the AIC and the BIC
+    aic = [m.aic(X) for m in models]
+    bic = [m.bic(X) for m in models]
+    best = models[np.argmin(bic)]
+    
+    return models, bic, aic, best
+
+
+def plot_mixture(model, data, ax, l=0.1, u=5, color='black', alpha=0.2, 
+                 log=False, bins=25, alpha_l1=1):
+    """
+    Plot a mixture model. Assumes a log-transformed model and data
+    and will back-transform.
+    
+    Note from scipy docs: 
+    ---------------------
+    A common parametrization for a lognormal random variable Y 
+    is in terms of the mean, mu, and standard deviation, sigma, 
+    of the unique normally distributed random variable X such 
+    that exp(X) = Y. This parametrization corresponds to setting 
+    s = sigma and scale = exp(mu).
+    
+    So since we fit a normal mixture on the logscale, we can get
+    the lognormal by setting scale to np.exp(mean[k]) and s to 
+    np.sqrt(variance[k]) for component k.
+    """
+    x = np.linspace(l, u, 1000).reshape((-1, 1))
+    if not log:
+        data = np.exp(data)
+    data = data[data >= l]
+    data = data[data <= u]
+    bins = ax.hist(
+        data, bins, rwidth=0.8, color=color, alpha=alpha, density=True)
+    maxy = max(bins[0])
+    means = model.means_
+    varcs = model.covariances_
+    weights = model.weights_
+    mix = None
+    first = True
+    for k in range(len(means)):
+        if not log:
+            curve = ss.lognorm.pdf(
+                x, scale=np.exp(means[k]), s=np.sqrt(varcs[k])) * weights[k]
+        else:
+            curve = ss.norm.pdf(
+                x, loc=means[k], scale=np.sqrt(varcs[k])) * weights[k]
+        ax.plot(x, curve, '--k', color='black', alpha=0.4)
+        if first:
+            mix = curve
+            first = False
+        else:
+            mix += curve
+    ax.plot(x, mix, color='black', alpha=alpha_l1)
+    return ax
+
+
+def inspect_aic(aic):
+    """
+    Evaluate the information criterion results for mixture models.
+    """
+    im = np.argmin(aic) 
+    print("min(AIC) = {:.2f} for model {}".format(aic[im], im+1))
+    print("Relative probabilities compared to model {}:".format(im+1))
+    print("   /                          \\")
+    print("   |      (min(AIC) - AICi)/2 |")
+    print("   | p = e                    |")
+    print("   \                          /")
+    for i, aic_i in enumerate(aic):
+        p_i = np.exp((aic[im] - aic_i)/2)
+        print(". model{:>4}: p = {:.4f}".format(i+1, p_i))
+    print()
+        
+        
+def inspect_bic(bic):
+    im = np.argmin(bic)
+    l = [
+        "0 to  2:   Very weak",
+        "2 to  6:    Positive",
+        "6 to 10:      Strong",
+        "    >10: Very Strong"
+    ]
+    print("Delta BIC assessment: ")
+    print("min(BIC) = {:.2f}".format(bic[im]))
+    for i, bic_i in enumerate(bic):
+        dbic = bic_i - bic[im]
+        j = 0
+        if dbic > 2: j = 1
+        if dbic > 6: j = 2
+        if dbic > 10: j = 3
+        print(". model{:>4}: delta(BIC) = {:>8.2f} ({})".format(i+1, dbic, l[j]))
+    print()
+        
+        
+def plot_probs(m, ax, l=0.01, u=5, ylab=True):
+    """
+    Plot posterior component probabilities
+    """
+    x = np.linspace(l, u, 1000).reshape(-1, 1)
+    p = m.predict_proba(np.log(x))
+    p = p.cumsum(1).T
+    x = np.linspace(l, u, 1000)
+    order = tuple(np.argsort(m.means_.reshape((1, -1)))[0])
+    alphas = np.linspace(0.2, 1, p.shape[0])[order,]
+    for i, array in enumerate(p):
+        if i == 0:
+            ax.fill_between(
+                x, 0, p[i], color='gray', alpha=alphas[i], label=str(i+1))
+        elif i == len(alphas) - 1:
+            ax.fill_between(
+                x, p[i-1], 1, color='gray', alpha=alphas[i], label=str(i+1))
+        else:
+            ax.fill_between(
+                x, p[i-1], p[i], color='gray', alpha=alphas[i], label=str(i+1))
+    ax.set_xlim(l, u)
+    ax.set_ylim(0, 1)
+    ax.set_xlabel('$K_S$')
+    if ylab:
+        ax.set_ylabel('$P(class|K_S)$')
+    ax.legend(frameon=True)
+    return ax
+
+
+def plot_aic(aic, ax):
+    ax.plot(np.arange(1,len(aic)+1), aic, color='k', marker='o')
+    ax.set_xticks(list(range(1,len(aic)+1)))
+    ax.grid(ls=":")
+    return ax
+
+
+
+# OLD API ======================================================================
 
 def weighted_to_unweighted(data_frame):
     """

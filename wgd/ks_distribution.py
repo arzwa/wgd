@@ -261,7 +261,7 @@ def _calculate_weighted_ks(clustering, pairwise_estimates,
                     pairwise_estimates['Ks'].iloc[i, j],
                     pairwise_estimates['Ka'].iloc[i, j],
                     pairwise_estimates['Omega'].iloc[i, j],
-                    distance, 0, 'TRUE'
+                    distance, grouping_node, 0, 'TRUE'
                 ]
 
                 if pairwise_estimates['Ks'].iloc[i, j] > 5:
@@ -286,8 +286,8 @@ def _calculate_weighted_ks(clustering, pairwise_estimates,
 
     df = pd.DataFrame.from_dict(weights, orient='index')
     df.columns = ['Paralog1', 'Paralog2', 'Family', 'WeightOutliersIncluded', 
-                  'Ks', 'Ka', 'Omega', 'Distance', 'WeightOutliersExcluded', 
-                  'Outlier']
+                  'Ks', 'Ka', 'Omega', 'Distance', 'Node', 
+                  'WeightOutliersExcluded', 'Outlier']
 
     return df
 

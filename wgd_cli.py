@@ -131,6 +131,9 @@ import coloredlogs
 import subprocess
 from wgd.utils import translate_cds, read_fasta, write_fasta, Genome, \
     can_i_run_software
+import warnings
+warnings.filterwarnings("ignore", message="numpy.dtype size changed")
+warnings.filterwarnings("ignore", message="numpy.ufunc size changed")
 
 
 # CLI ENTRY POINT --------------------------------------------------------------
