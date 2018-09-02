@@ -40,7 +40,6 @@ import numpy as np
 import pandas as pd
 import os
 import logging
-import asyncio
 import subprocess as sp
 
 
@@ -324,9 +323,8 @@ def add_alignment_stats_(df, stats):
 
 # ANALYSE WHOLE FAMILY ---------------------------------------------------------
 def analyse_family(
-        family_id, family, nucleotide, tmp='./', muscle='muscle',
-        codeml='codeml', prank='prank', preserve=False, times=1,
-        min_length=100, method='alc', aligner='muscle',
+        family_id, family, nucleotide, tmp='./', codeml='codeml',
+        preserve=False, times=1, min_length=100, method='alc', aligner='muscle',
         output_dir='./out'
 ):
     """
@@ -340,14 +338,10 @@ def analyse_family(
     :param family: dictionary with sequences of paralogs
     :param nucleotide: nucleotide (CDS) sequences dictionary
     :param tmp: tmp directory
-    :param muscle: muscle path
     :param codeml: codeml path
-    :param prank: prank path
     :param preserve: preserve intermediate files
     :param times: number of times to perform ML estimation of Ks, Ka and omega
         values
-    :param min_length: minimum length of the stripped multiple sequence
-        alignment
     :param method: weighting method, from fast to slow: ``alc``, ``fasttree``,
         ``phyml``
     :param aligner: alignment program
@@ -409,10 +403,9 @@ def analyse_family(
 
 # PAIRWISE ANALYSIS ------------------------------------------------------------
 def analyse_family_pairwise(
-        family_id, family, nucleotide, tmp='./', muscle='muscle',
-        codeml='codeml', prank='prank', preserve=False, times=1,
-        min_length=100, method='alc', aligner='muscle',
-        output_dir='./out'
+        family_id, family, nucleotide, tmp='./', codeml='codeml',
+        preserve=False, times=1, min_length=100, method='alc',
+        aligner='muscle', output_dir='./out'
 ):
     """
     Perform Ks analysis for one gene family using teh pairwise approach. The
@@ -461,9 +454,7 @@ def analyse_family_pairwise(
     :param family: gene family sequence dictionary
     :param nucleotide: nucleotide sequences
     :param tmp: tmp directory
-    :param muscle: muscle executable
     :param codeml: codeml executable
-    :param prank: prank executable
     :param preserve: preserve codeml, alignment and tree results
     :param times: number of times to perform codeml estimation
     :param min_length: minimum gap-stripped alignment length to consider
@@ -590,12 +581,9 @@ def analyse_family_pairwise(
 
 
 def ks_analysis_one_vs_one(
-        nucleotide_sequences, protein_sequences,
-        gene_families, tmp_dir='./tmp',
-        output_dir='./ks.out', muscle_path='muscle',
-        codeml_path='codeml', prank_path='prank',
-        aligner='muscle', preserve=True, times=1,
-        n_threads=4, async=False, min_length=100
+        nucleotide_sequences, protein_sequences, gene_families, tmp_dir='./tmp',
+        output_dir='./ks.out', codeml_path='codeml', aligner='muscle',
+        preserve=True, times=1, n_threads=4
 ):
     """
     Calculate a Ks distribution for one vs. one orthologs.
@@ -605,14 +593,11 @@ def ks_analysis_one_vs_one(
     :param paralogs: file with paralog families
     :param tmp_dir: tmp directory
     :param output_dir: output directory
-    :param muscle_path: path to muscle executable
     :param codeml_path: path to codeml executable
-    :param prank_path: path to prank executable
     :param preserve: preserve intermediate results (muscle, codeml)
     :param times: number of times to perform codeml analysis
     :param ignore_prefixes: ignore prefixes in paralog/gene family file
         (e.g. in ath|AT1G45000, ath| will be ignored)
-    :param async: use asyncio library for parallelization
     :param min_length: minimum MSA length
     :param aligner: aligner to use (muslce|prank)
     :param n_threads: number of CPU cores to use
@@ -632,32 +617,18 @@ def ks_analysis_one_vs_one(
 
     # start analysis -----------------------------------------------------------
     logging.info('Started analysis in parallel')
-    if async:
-        loop = asyncio.get_event_loop()
-        tasks = [loop.run_in_executor(
-                None, analyse_family, family, protein[family],
-                nucleotide_sequences, tmp_dir, muscle_path,
-                codeml_path, prank_path, preserve, times,
-                min_length, 'alc', aligner, output_dir)
-            for family in protein.keys()]
-        loop.run_until_complete(asyncio.gather(*tasks))
-
-    else:
-        Parallel(n_jobs=n_threads)(
-                delayed(analyse_family)(
-                        family, protein[family],
-                        nucleotide_sequences,
-                        tmp_dir,
-                        muscle_path,
-                        codeml_path,
-                        prank_path,
-                        preserve,
-                        times,
-                        min_length,
-                        'alc',
-                        aligner,
-                        output_dir) for family
-                in protein.keys())
+    Parallel(n_jobs=n_threads)(
+            delayed(analyse_family)(
+                    family, protein[family],
+                    nucleotide_sequences,
+                    tmp_dir,
+                    codeml_path,
+                    preserve,
+                    times,
+                    'alc',
+                    aligner,
+                    output_dir) for family
+            in protein.keys())
     logging.info('Analysis done')
 
     logging.info('Making results data frame')
@@ -687,10 +658,8 @@ def ks_analysis_one_vs_one(
 
 def ks_analysis_paranome(
         nucleotide_sequences, protein_sequences, paralogs,
-        tmp_dir='./tmp', output_dir='./ks.out',
-        muscle_path='muscle', codeml_path='codeml',
-        prank_path='prank', preserve=True, times=1,
-        ignore_prefixes=False, n_threads=4, async=False,
+        tmp_dir='./tmp', output_dir='./ks.out', codeml_path='codeml',
+        preserve=True, times=1, ignore_prefixes=False, n_threads=4,
         min_length=100, method='alc', aligner='muscle',
         pairwise=False, max_pairwise=10000
 ):
@@ -702,14 +671,11 @@ def ks_analysis_paranome(
     :param paralogs: file with paralog families
     :param tmp_dir: tmp directory
     :param output_dir: output directory
-    :param muscle_path: path to muscle executable
     :param codeml_path: path to codeml executable
-    :param prank_path: path to prank executable
     :param preserve: preserve intermediate results (muscle, codeml)
     :param times: number of times to perform codeml analysis
     :param ignore_prefixes: ignore prefixes in paralog/gene family file
         (e.g. in ath|AT1G45000, ath| will be ignored)
-    :param async: use asyncio library for parallelization
     :param min_length: minimum MSA length
     :param method: method to use, from fast to slow: ``alc``, ``fasttree``,
         ``phyml``
@@ -746,30 +712,18 @@ def ks_analysis_paranome(
     else:
         analysis_function = analyse_family
 
-    if async:
-        loop = asyncio.get_event_loop()
-        tasks = [loop.run_in_executor(
-                None, analysis_function, family[0], protein[family[0]],
-                nucleotide_sequences, tmp_dir, muscle_path,
-                codeml_path, prank_path, preserve, times,
-                min_length, method, aligner, output_dir)
-            for family in sorted_families]
-        loop.run_until_complete(asyncio.gather(*tasks))
-    else:
-        Parallel(n_jobs=n_threads)(delayed(analysis_function)(
-                family[0], protein[family[0]],
-                nucleotide_sequences,
-                tmp_dir,
-                muscle_path,
-                codeml_path,
-                prank_path,
-                preserve,
-                times,
-                min_length,
-                method,
-                aligner,
-                output_dir
-        ) for family in sorted_families)
+    Parallel(n_jobs=n_threads)(delayed(analysis_function)(
+            family[0], protein[family[0]],
+            nucleotide_sequences,
+            tmp_dir,
+            codeml_path,
+            preserve,
+            times,
+            min_length,
+            method,
+            aligner,
+            output_dir
+    ) for family in sorted_families)
     logging.info('Analysis done')
 
     logging.info('Making results data frame')

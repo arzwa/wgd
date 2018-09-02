@@ -129,8 +129,7 @@ import datetime
 import pandas as pd
 import coloredlogs
 import subprocess
-from wgd.utils import translate_cds, read_fasta, write_fasta, Genome, \
-    can_i_run_software
+from wgd.utils import translate_cds, read_fasta, write_fasta, can_i_run_software
 import warnings
 warnings.filterwarnings("ignore", message="numpy.dtype size changed")
 warnings.filterwarnings("ignore", message="numpy.ufunc size changed")
@@ -173,17 +172,17 @@ def cli(verbosity, logfile):
     """
     if not logfile:
         coloredlogs.install(
-                fmt='%(asctime)s: %(levelname)s\t%(message)s',
-                level=verbosity.upper(), stream=sys.stdout
+            fmt='%(asctime)s: %(levelname)s\t%(message)s',
+            level=verbosity.upper(), stream=sys.stdout
         )
     else:
         print('Logs will be written to {}'.format(logfile))
         logging.basicConfig(
-                filename=logfile,
-                filemode='a',
-                format='%(asctime)s: %(levelname)s\t%(message)s',
-                datefmt='%H:%M:%S',
-                level=verbosity.upper()
+            filename=logfile,
+            filemode='a',
+            format='%(asctime)s: %(levelname)s\t%(message)s',
+            datefmt='%H:%M:%S',
+            level=verbosity.upper()
         )
 
     # get round problem with python multiprocessing library that can set all cpu
@@ -518,11 +517,10 @@ def ks(
     """
     ks_(
             gene_families, sequences, output_directory, protein_sequences,
-            tmp_dir,
-            aligner, muscle='muscle', codeml='codeml',
+            tmp_dir, aligner, codeml='codeml',
             times=times, min_msa_length=min_msa_length,
             ignore_prefixes=ignore_prefixes, one_v_one=one_v_one,
-            preserve=preserve, async=False, n_threads=n_threads,
+            preserve=preserve, n_threads=n_threads,
             weighting_method=wm, pairwise=pairwise,
             max_pairwise=max_pairwise
     )
@@ -530,11 +528,10 @@ def ks(
 
 def ks_(
         gene_families, sequences, output_directory, protein_sequences=None,
-        tmp_dir=None, aligner='muscle',
-        muscle='muscle', codeml='codeml', times=1, min_msa_length=100,
-        ignore_prefixes=False, one_v_one=False, pairwise=False,
-        preserve=False, async=False, n_threads=4, weighting_method='fasttree',
-        max_pairwise=10000
+        tmp_dir=None, aligner='muscle', codeml='codeml', times=1,
+        min_msa_length=100, ignore_prefixes=False, one_v_one=False,
+        pairwise=False, preserve=False, n_threads=4,
+        weighting_method='fasttree', max_pairwise=10000
 ):
     """
     Ks distribution construction pipeline. For usage in the ``wgd`` CLI.
@@ -633,10 +630,9 @@ def ks_(
         logging.info('Started one-vs-one ortholog Ks analysis')
         results = ks_analysis_one_vs_one(
                 cds_seqs, protein_seqs, gene_families,
-                tmp_dir, output_directory,
-                muscle, codeml, async=async,
+                tmp_dir, output_directory, codeml,
                 n_threads=n_threads, preserve=preserve,
-                times=times, min_length=min_msa_length,
+                times=times,
                 aligner=aligner
         )
         results.round(5).to_csv(
@@ -646,7 +642,7 @@ def ks_(
         logging.info('Generating plots')
         plot_selection(
             results, output_file=os.path.join(
-                output_directory, '{}.ks.png'.format(base)
+                output_directory, '{}.ks.pdf'.format(base)
             ), title=os.path.basename(gene_families)
         )
 
@@ -661,10 +657,10 @@ def ks_(
         results = ks_analysis_paranome(
                 cds_seqs, protein_seqs, gene_families,
                 tmp_dir, output_directory,
-                muscle, codeml, preserve=preserve,
+                codeml, preserve=preserve,
                 times=times, aligner=aligner,
                 ignore_prefixes=ignore_prefixes,
-                async=async, n_threads=n_threads,
+                n_threads=n_threads,
                 min_length=min_msa_length,
                 method=weighting_method,
                 pairwise=pairwise,
@@ -678,7 +674,7 @@ def ks_(
 
         plot_selection(
                 results, output_file=os.path.join(
-                        output_directory, '{}.ks.png'.format(base)
+                        output_directory, '{}.ks.pdf'.format(base)
                 ), title=os.path.basename(gene_families)
         )
 
@@ -818,7 +814,7 @@ def syn_(
             output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t')
     logging.info('Drawing co-linearity dotplot')
     syntenic_dotplot(multiplicons, output_file=os.path.join(
-            output_dir, '{}.dotplot.png'.format(os.path.basename(families))))
+            output_dir, '{}.dotplot.pdf'.format(os.path.basename(families))))
 
     # Ks distribution for anchors and Ks colored dotplot
     if ks_distribution:
@@ -972,7 +968,7 @@ def mix_(
         logging.info('Started Bayesian Gaussian Mixture modeling (BGMM)')
         models_bgmm = mixture_model_bgmm(df, n_range=n_range, plot_save=True,
                                          output_dir=output_dir,
-                                         output_file='bgmm.mixture.png',
+                                         output_file='bgmm.mixture.pdf',
                                          Ks_range=ks_range, gamma=gamma,
                                          n_init=n_init)
         best = models_bgmm[-1]
@@ -985,7 +981,7 @@ def mix_(
         logging.info('Started Gaussian Mixture modeling (GMM)')
         models_gmm, bic, aic, best = mixture_model_gmm(
                 df, Ks_range=ks_range, n=n_range[1], output_dir=output_dir,
-                output_file='gmm.mixture.png', n_init=n_init)
+                output_file='gmm.mixture.pdf', n_init=n_init)
 
     logging.info(
             'Saving data frame with probabilities for each component to {}'.format(
@@ -1033,7 +1029,7 @@ def mix_(
         help="plot title"
 )
 @click.option(
-        '--output_file', '-o', default='wgd_hist.png', show_default=True,
+        '--output_file', '-o', default='wgd_hist.pdf', show_default=True,
         help="output file"
 )
 @click.option(
@@ -1172,7 +1168,7 @@ def viz_(
         '--n_threads', '-n', default=4, show_default=True,
         help="number of threads to use"
 )
-def pipeline_1(sequences, output_dir, gff_file, n_threads):
+def wf1(sequences, output_dir, gff_file, n_threads):
     """
     Standard workflow whole paranome Ks.
 
@@ -1215,7 +1211,7 @@ def pipeline_1(sequences, output_dir, gff_file, n_threads):
         '--n_threads', '-n', default=4, show_default=True,
         help="number of threads to use"
 )
-def pipeline_2(sequences, output_dir, n_threads):
+def wf2(sequences, output_dir, n_threads):
     """
     Standard workflow one-vs-one ortholog Ks.
 
