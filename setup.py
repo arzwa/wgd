@@ -43,7 +43,6 @@ setup(
         'seaborn',
         'coloredlogs',
         'fastcluster',
-        'peakutils',
         'numpy',
         'sklearn',
         'scipy',
@@ -52,8 +51,9 @@ setup(
         'fastcluster',
         'pandas',
         'progressbar2',
-        'joblib',
+        'joblib==0.11', # 0.12 seems to break the logging in parallel for loops
         'ete3',
+        'bokeh'
     ],
     entry_points='''
         [console_scripts]

@@ -546,7 +546,7 @@ def visualize_adhore_circos_js(output_dir):
         o.write(circos_js)
 
 
-# HTML/JAVSCRIPT TEMPLATES ---------------------------------------------------------------------------------------------
+# HTML/JAVSCRIPT TEMPLATES -----------------------------------------------------
 
 wgd_adhore_html = """
 <!DOCTYPE html>

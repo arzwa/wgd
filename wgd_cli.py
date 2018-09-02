@@ -109,16 +109,15 @@ trees used in the node weighting procedure::
 Reference
 =========
 """
-# TODO:
+# TODO's & IDEAS:
 #   (1) codeml treats gaps as missing data, so it is not necessary to strip gaps
 #       when estimating Ks values!
 #   (2) The most consistent approach would be to estimate a tree using
 #       codonphyml on a codon alignment from PRANK, and use that tree in codeml
-#       to estimate pairwise Ks values. Implement this.
+#       to estimate pairwise Ks values.
 #   (3) Use biopython for all sequence handling
 #   (4) Use tmp files to keep track of the outputs from subprocesses, because
 #       using PIPE might result in hangs.
-
 
 # keep these imports to a minimum to speed up initial CLI loading
 import click
@@ -126,11 +125,11 @@ import logging
 import sys
 import os
 import datetime
+import warnings
 import pandas as pd
 import coloredlogs
 import subprocess
 from wgd.utils import translate_cds, read_fasta, write_fasta, can_i_run_software
-import warnings
 warnings.filterwarnings("ignore", message="numpy.dtype size changed")
 warnings.filterwarnings("ignore", message="numpy.ufunc size changed")
 
@@ -238,33 +237,33 @@ def cli(verbosity, logfile):
         '--n_threads', '-n', default=4, show_default=True,
         help='number of threads used by blastp'
 )
-def blast(
+def mcl(
         cds, mcl, one_v_one, sequences, species_ids, blast_results,
         inflation_factor, eval_cutoff, output_dir, n_threads
 ):
     """
-    All-vs.-all blastp (+ MCL) analysis.
+    All-vs.-all blastp + MCL analysis.
 
     Requires blastp, makeblastdb (ncbi-blast+ suite) and mcl.
 
     Example 1 - whole paranome delineation:
 
-        wgd blast --cds --mcl -s thorny_devil.fasta -o thorny_devil_blast_out
+        wgd mcl --cds --mcl -s thorny_devil.fasta -o thorny_devil_blast_out
 
     Example 2 - one vs. one ortholog delineation:
 
-        wgd blast --cds --one_v_one -s equus_ferus.fasta,ursus_arctos.fasta
+        wgd mcl --cds --one_v_one -s equus_ferus.fasta,ursus_arctos.fasta
         -id horse,bear -e 1e-8 -o bear_horse_out
 
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
     """
     # lazy imports
-    blast_(cds, mcl, one_v_one, sequences, species_ids, blast_results,
+    blast_mcl(cds, mcl, one_v_one, sequences, species_ids, blast_results,
            inflation_factor, eval_cutoff, output_dir, n_threads)
 
 
-def blast_(
+def blast_mcl(
         cds=True, mcl=True, one_v_one=False, sequences=None,
         species_ids=None, blast_results=None, inflation_factor=2.0,
         eval_cutoff=1e-10, output_dir='wgd_blast', n_threads=4
@@ -487,7 +486,7 @@ def blast_(
         '--preserve', is_flag=True,
         help="keep multiple sequence alignment, codeml output and trees"
 )
-def ks(
+def ksd(
         gene_families, sequences, output_directory, protein_sequences, tmp_dir,
         aligner, times, min_msa_length, n_threads, wm, pairwise,
         max_pairwise, ignore_prefixes, one_v_one, preserve
@@ -503,19 +502,19 @@ def ks(
 
     Example 1 - whole paranome Ks distribution:
 
-        wgd ks -gf fringilla_coelebs.mcl -s fringilla_coelebs.cds.fasta -o
+        wgd ksd -gf fringilla_coelebs.mcl -s fringilla_coelebs.cds.fasta -o
             finch_ks_out --n_threads 8
 
     Example 2 - one vs. one ortholog Ks distribution:
 
-        wgd ks -gf beaver_eagle -s
+        wgd ksd -gf beaver_eagle -s
         castor_fiber.cds.fasta,aquila_chrysaetos.cds.fasta
         -o beaver_eagle_ks_out
 
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
     """
-    ks_(
+    ksd_(
             gene_families, sequences, output_directory, protein_sequences,
             tmp_dir, aligner, codeml='codeml',
             times=times, min_msa_length=min_msa_length,
@@ -526,7 +525,7 @@ def ks(
     )
 
 
-def ks_(
+def ksd_(
         gene_families, sequences, output_directory, protein_sequences=None,
         tmp_dir=None, aligner='muscle', codeml='codeml', times=1,
         min_msa_length=100, ignore_prefixes=False, one_v_one=False,
@@ -719,8 +718,8 @@ def syn(
 
     Example:
 
-        wgd syn -gff ailuropoda.gff -gf ailuropoda.paranome.mcl -ks panda.ks -o
-        panda.anchors_out
+        wgd syn -gff ailuropoda.gff -gf ailuropoda.paranome.mcl -ks panda.ks
+            -o panda.anchors_out
 
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
@@ -847,6 +846,57 @@ def syn_(
     logging.info("Done")
 
 
+# KDE FITTING ------------------------------------------------------------------
+@cli.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.option(
+    '--ks_distribution', '-ks', default=None, type=click.Path(exists=True),
+    help="ks distribution csv file (see `wgd ks`)"
+)
+@click.option(
+    '--filters', '-f', nargs=3, type=float, default=(0., 0., 0.),
+    help="Data frame filters", show_default=True
+)
+@click.option(
+    '--ks_range', '-r', nargs=2, default=(0,3), show_default=True, type=float,
+    help='Ks range to use for modeling'
+)
+@click.option(
+    '--bandwidth', '-bw', default=None, show_default=True, type=float,
+    help="Bandwidth for Gaussian KDE, by default Scott's rule is used"
+)
+@click.option(
+    '--bins', '-b', default=25, show_default=True, type=int,
+    help="Number of histogram bins."
+)
+@click.option(
+    '--output_file', '-o', default="kde.pdf", show_default=True,
+    help='output file'
+)
+def kde(
+        ks_distribution, filters, ks_range, bandwidth, bins, output_file
+):
+    """
+    Fit a KDE.
+
+    This accounts for boundary effects.
+
+    wgd  Copyright (C) 2018 Arthur Zwaenepoel
+    This program comes with ABSOLUTELY NO WARRANTY;
+    """
+    kde_(ks_distribution, filters, ks_range, bandwidth, bins, output_file)
+
+
+def kde_(ks_distribution, filters, ks_range, bandwidth, bins, output_file):
+    from wgd.modeling import prepare_data, reflected_kde
+    df = pd.read_csv(ks_distribution, index_col=0, sep='\t')
+    df = prepare_data(
+        df, filters[0], filters[1], filters[2],
+        ks_range[0], ks_range[1]
+    )
+    reflected_kde(df, ks_range[0], ks_range[1], bandwidth, bins, output_file)
+    pass
+
+
 # MIXTURE MODELING -------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option(
@@ -863,7 +913,7 @@ def syn_(
         help='range of number of components to fit'
 )
 @click.option(
-        '--ks_range', '-r', default='0.1,3', show_default=True,
+        '--ks_range', '-r', default='0,3', show_default=True,
         help='Ks range to use for modeling'
 )
 @click.option(
@@ -906,8 +956,8 @@ def mix(
     This program comes with ABSOLUTELY NO WARRANTY;
     """
     mix_(
-            ks_distribution, method, n_range, ks_range, output_dir, gamma,
-            sequences, cut_off, pairs, n_init=n_init
+        ks_distribution, method, n_range, ks_range, output_dir, gamma,
+        sequences, cut_off, pairs, n_init=n_init
     )
 
 
@@ -1187,12 +1237,12 @@ def wf1(sequences, output_dir, gff_file, n_threads):
 
     # wgd blast
     blast_dir = os.path.join(output_dir, 'wgd_blast')
-    mcl_out = blast_(cds=True, mcl=True, sequences=sequences,
+    mcl_out = blast_mcl(cds=True, mcl=True, sequences=sequences,
                      n_threads=n_threads, output_dir=blast_dir)
 
     # wgd ks
     ks_dir = os.path.join(output_dir, 'wgd_ks')
-    ks_results = ks_(gene_families=mcl_out, sequences=sequences,
+    ks_results = ksd_(gene_families=mcl_out, sequences=sequences,
                      n_threads=n_threads, output_directory=ks_dir)
 
     # wgd syn
@@ -1229,13 +1279,13 @@ def wf2(sequences, output_dir, n_threads):
 
     # wgd blast
     blast_dir = os.path.join(output_dir, 'wgd_blast')
-    ovo_out = blast_(cds=True, one_v_one=True, mcl=False, sequences=sequences,
+    ovo_out = blast_mcl(cds=True, one_v_one=True, mcl=False, sequences=sequences,
                      n_threads=n_threads,
                      output_dir=blast_dir)
 
     # wgd ks
     ks_dir = os.path.join(output_dir, 'wgd_ks')
-    ks_(gene_families=ovo_out, sequences=sequences, n_threads=n_threads,
+    ksd_(gene_families=ovo_out, sequences=sequences, n_threads=n_threads,
         output_directory=ks_dir, one_v_one=True)
 
     return

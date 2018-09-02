@@ -20,10 +20,9 @@ Contact: arzwa@psb.vib-ugent.be
 
 --------------------------------------------------------------------------------
 """
-# TODO: other outlier detection approaches
-# TODO: alignment stripping as in Vanneste 2013
+# TODO: alignment stripping as in Vanneste 2013 (is this necessary?)
 # TODO: add functionality to use custom alignments
-# TODO: divide in subfamilies using graph based approach!
+# TODO: divide in subfamilies using graph based approach
 #   this is as in Lynch & Conery 2003, construct a graph (adjacency matrix?)
 #   where nodes are genes and edges are drawn between nodes for which Ks < 5
 #   then find the connected components in this graph to find subfamilies!

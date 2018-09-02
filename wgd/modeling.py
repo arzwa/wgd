@@ -42,26 +42,47 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-def reflected_kde(data_frame, min_ks, max_ks, out_file):
+def prepare_data(df, aln_id, aln_len, aln_cov, min_ks, max_ks):
+    # pre node-grouping filters
+    df = df[df["AlignmentCoverage"] >= aln_cov]
+    df = df[df["AlignmentIdentity"] >= aln_id]
+    df = df[df["AlignmentLength"] >= aln_len]
+
+    # grouping
+    df = df.groupby(['Family', 'Node']).mean()
+
+    # Ks range filters
+    df = df[df["Ks"] >= min_ks]
+    df = df[df["Ks"] <= max_ks]
+
+    return df
+
+
+def reflected_kde(df, min_ks, max_ks, bandwidth, bins, out_file):
     """
     Perform Kernel density estimation (KDE) with reflected data.
+    The data frame is assumed to be grouped already by 'Node'.
     """
-    df = data_frame.groupby(['Family', 'Node']).mean()
     ks = np.array(df['Ks'])
-    ks = ks[ks >= min_ks]
-    ks = list(ks[ks <= max_ks])
-    ks_reflected = ks + list(-1*np.array(ks))
-    ks = np.array(ks)
-    
-    fig, ax = plt.subplots(figsize=(6,3))
-    ax = sns.distplot(
-        ks_reflected, bins=int(max_ks*50), ax = ax, 
-        hist_kws={"rwidth": 0.8, "color": "k", "alpha": 0.2}, 
-        color="forestgreen", label="Reflected"
-    )
+    ks_reflected = np.array(list(ks) + list(-1*np.array(ks)))
+    fig, ax = plt.subplots(figsize=(12,6))
+    if bandwidth:
+        ax = sns.distplot(
+            ks_reflected, bins=bins * 2, ax=ax,
+            hist_kws={"rwidth": 0.8, "color": "k", "alpha": 0.2},
+            kde_kws={"bw": bandwidth},
+            color="k"
+        )
+    else:
+        ax = sns.distplot(
+            ks_reflected, bins=bins*2, ax = ax,
+            hist_kws={"rwidth": 0.8, "color": "k", "alpha": 0.2},
+            color="k"
+        )
     ax.set_xlim(min_ks, max_ks)
-    ax.set_yticks([])
-    sns.despine(offset=5, trim=True)
+    sns.despine(offset=5, trim=False)
+    ax.set_ylabel("Density")
+    ax.set_xlabel("$K_{\mathrm{S}}$")
     fig.savefig(out_file, bbox_inches='tight')
 
 
