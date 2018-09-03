@@ -29,10 +29,10 @@ To use as a Python package as well as to find additional documentation
 for the CLI, please consult the docs at
 http://wgd.readthedocs.io/en/latest/
 
-# Citation
+## Citation
 
 Until this package is described in a formal publication, please cite 
-this repository.
+this repository if you use the software in your research.
 
 **Note:** This package is still in development, a new and substantially 
 improved version will soon be released.
