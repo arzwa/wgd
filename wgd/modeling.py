@@ -21,6 +21,8 @@ Contact: arzwa@psb.vib-ugent.be
 
 --------------------------------------------------------------------------------
 """
+#TODO reflection should be adapted to work correctly when minimum is not zero!
+
 import numpy as np
 import logging
 from sklearn import mixture

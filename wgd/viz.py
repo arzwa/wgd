@@ -24,7 +24,8 @@ The ``viz`` module collects several common visualization functions for ``wgd``
 as well as the interactive boke application for plotting multiple Ks
 distributions with kernel density estimates interactively.
 """
-# TODO redundant code for the colore vs. non-colored dotplot
+# TODO redundant code for the color vs. non-colored dotplot
+# TODO reflection in bokeh densities should work when minimum is non zero
 import plumbum as pb
 import matplotlib
 
@@ -334,16 +335,16 @@ def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
 
     # helper functions
     def get_colors(cmap_choice='binary'):
-        too_light = ['binary', 'hot', 'copper', 'pink', 'summer', 'bone',
-                     'Pastel1', 'Pastel2', 'gist_ncar',
-                     'nipy_spectral', 'Greens']
+        too_light = [
+            'binary', 'hot', 'copper', 'pink', 'summer', 'bone', 'Pastel1',
+            'Pastel2', 'gist_ncar', 'nipy_spectral', 'Greens'
+        ]
         cmap = cm.get_cmap(cmap_choice, len(ks_distributions))
         if cmap_choice in too_light:
             cmap = cm.get_cmap(cmap_choice, len(ks_distributions) * 4)
         c = []
         for i in range(cmap.N):
-            rgb = cmap(i)[
-                  :3]  # will return rgba, we take only first 3 so we get rgb
+            rgb = cmap(i)[:3]  # will return rgba, but we need only rgb
             c.append(matplotlib.colors.rgb2hex(rgb))
         if cmap_choice in too_light:
             if len(ks_distributions) > 1:
@@ -352,17 +353,19 @@ def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
                 c = [c[-1]]
         return c
 
-    def get_data(df, var, scale, r1, r2, weights='WeightOutliersIncluded'):
-        df = df[df[var] > r1]
-        df = df[df[var] < r2]
+    def get_data(df, var, scale, r1, r2):
+        df = df[df[var] >= r1]
+        df = df[df[var] <= r2]
         data = df[var].dropna()
         if scale == 'log10':
             data = np.log10(data)
-        weights = df[weights]
-        return data, weights, df
+        return data, df
 
     # get the distributions
-    dists = [pd.read_csv(x, sep='\t') for x in ks_distributions]
+    dists = [
+        pd.read_csv(x, sep='\t').groupby(['Family', 'Node']).mean()
+        for x in ks_distributions
+    ]
     if labels:
         labels = labels.split(',')
     else:
@@ -380,6 +383,7 @@ def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
     r1 = TextInput(title="Minimum", value='0.1')
     r2 = TextInput(title="Maximum", value='5')
     bins = TextInput(title="Bins", value='50')
+    bandwidth = TextInput(title="Bandwidth", value='0.1')
     line = Slider(title="Lines", start=0, end=1, value=0.3, step=0.1)
     density = Slider(title="Kernel density", start=0, end=2, value=0, step=1)
     density_alpha = Slider(title="Density alpha value", start=0, end=1,
@@ -387,17 +391,15 @@ def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
     hist_alpha = Slider(title="Histogram alpha value", start=0, end=1,
                         value=0.6, step=0.1)
     color_choice = Select(
-            options=['binary', 'hsv', 'hot', 'magma', 'viridis', 'Greens',
-                     'spring',
-                     'autumn',
-                     'copper', 'cool', 'winter', 'pink', 'summer', 'bone',
-                     'RdBu',
-                     'RdYlGn',
-                     'coolwarm', 'inferno', 'Pastel1', 'Pastel2', 'tab10',
-                     'gnuplot', 'brg',
-                     'gist_ncar', 'jet', 'rainbow', 'nipy_spectral', 'ocean',
-                     'cubehelix'],
-            value='binary', title='Color map')
+        options=[
+            'binary', 'hsv', 'hot', 'magma', 'viridis', 'Greens',
+            'spring', 'autumn', 'copper', 'cool', 'winter', 'pink',
+            'summer', 'bone', 'RdBu', 'RdYlGn', 'coolwarm', 'inferno',
+            'Pastel1', 'Pastel2', 'tab10', 'gnuplot', 'brg', 'gist_ncar',
+            'jet', 'rainbow', 'nipy_spectral', 'ocean', 'cubehelix'
+        ],
+        value='binary', title='Color map'
+    )
 
     # set up figure
     p1 = figure(plot_width=1000, plot_height=700,
@@ -413,7 +415,6 @@ def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
     hist_dict = {}
     density_dict = {}
     all_data = []
-    all_weights = []
 
     # set up callbacks
     def update(selected=None):
@@ -424,24 +425,22 @@ def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
         p1.legend.items = []
 
         all_data = []
-        all_weights = []
         for i in range(len(dists)):
             df = dists[i]
-            data, weights, df = get_data(df, var.value, scale.value,
-                                         float(r1.value), float(r2.value))
+            data, df = get_data(
+                df, var.value, scale.value, float(r1.value), float(r2.value))
             all_data.append(data)
-            all_weights.append(weights)
-        edges = np.histogram(np.hstack(tuple(all_data)), bins=int(bins.value))[
-            1]
+
+        edges = np.histogram(
+            np.hstack(tuple(all_data)), bins=int(bins.value))[1]
 
         for i in range(len(dists)):
             if density.value == 0:
-                hist = np.histogram(all_data[i], bins=int(bins.value),
-                                    weights=all_weights[i])[0]
+                hist = np.histogram(all_data[i], bins=int(bins.value))[0]
                 p1.yaxis.axis_label = '# paralogs'
             else:
-                hist = np.histogram(all_data[i], bins=int(bins.value),
-                                    weights=all_weights[i], density=True)[0]
+                hist = np.histogram(
+                    all_data[i], bins=int(bins.value), density=True)[0]
                 p1.yaxis.axis_label = 'density'
 
             if i in density_dict:
@@ -449,32 +448,34 @@ def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
                 density_dict[i].data_source.data['y'] = []
 
             if density.value == 1 or density.value == 2:
-                kde = gaussian_kde(np.array(all_data[i]),
-                                   weights=np.array(all_weights[i]),
-                                   bw_method='scott')
-                x = np.linspace(float(r1.value) + 0.000001, float(r2.value),
-                                1000)
+                X = np.array(all_data[i])
+                X = np.hstack([X, X*-1])
+                kde = gaussian_kde(X, bw_method=float(bandwidth.value))
+                x = np.linspace(
+                    float(r1.value) + 0.000001, float(r2.value), 1000)
                 if scale.value == 'log10':
                     x = np.log10(x)
-                pdf = list(kde(x))
+                pdf = np.array(kde(x)) * 2
                 pdf[np.argmin(x)] = 0
                 pdf[np.argmax(x)] = 0
 
-                density_dict[i] = p1.patch(x=x, y=pdf, fill_color=c[i],
-                                           line_width=2, line_color=c[i],
-                                           alpha=density_alpha.value,
-                                           legend=labels[i])
+                density_dict[i] = p1.patch(
+                    x=x, y=pdf, fill_color=c[i], line_width=2, line_color=c[i],
+                    alpha=density_alpha.value, legend=labels[i]
+                )
 
             if i in hist_dict:
                 remove_plot(hist_dict, i)
 
             if density.value == 1 or density.value == 0:
-                hist_dict[i] = p1.quad(top=hist, bottom=0, left=edges[:-1],
-                                       right=edges[1:], fill_color=c[i],
-                                       line_color=c[i],
-                                       fill_alpha=hist_alpha.value,
-                                       line_alpha=line.value,
-                                       legend=labels[i])
+                hist_dict[i] = p1.quad(
+                    top=hist, bottom=0, left=edges[:-1],
+                    right=edges[1:], fill_color=c[i],
+                    line_color=c[i],
+                    fill_alpha=hist_alpha.value,
+                    line_alpha=line.value,
+                    legend=labels[i]
+                )
 
             p1.legend.label_text_font_style = "italic"
             p1.legend.click_policy = "hide"
@@ -508,6 +509,7 @@ def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
         update()
 
     var.on_change('value', bins_update)
+    bandwidth.on_change('value', bins_update)
     scale.on_change('value', bins_update)
     r1.on_change('value', bins_update)
     r2.on_change('value', bins_update)
@@ -520,7 +522,7 @@ def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
 
     # set up layout
     widgets1 = widgetbox(var, scale, color_choice, line, density, hist_alpha,
-                         density_alpha, r1, r2, bins,
+                         density_alpha, r1, r2, bins, bandwidth,
                          sizing_mode='fixed')
     l = layout([
         [div],
