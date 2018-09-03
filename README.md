@@ -34,5 +34,5 @@ http://wgd.readthedocs.io/en/latest/
 Until this package is described in a formal publication, please cite 
 this repository.
 
-**Note:** This packge is still in development, a new and substantially 
+**Note:** This package is still in development, a new and substantially 
 improved version will soon be released.
