@@ -28,3 +28,11 @@ a command (e.g. `ks`) run
 To use as a Python package as well as to find additional documentation
 for the CLI, please consult the docs at
 http://wgd.readthedocs.io/en/latest/
+
+# Citation
+
+Until this package is described in a formal publication, please cite 
+this repository.
+
+**Note:** This packge is still in development, a new and substantially 
+improved version will soon be released.
