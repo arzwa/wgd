@@ -124,7 +124,6 @@ import click
 import logging
 import sys
 import os
-import datetime
 import warnings
 import pandas as pd
 import coloredlogs
@@ -692,7 +691,7 @@ def ksd_(
         help='gene families'
 )
 @click.option(
-        '--output_dir', '-o', default='./coll_out', show_default=True,
+        '--output_dir', '-o', default='./wgd_syn', show_default=True,
         help='output directory'
 )
 @click.option(
@@ -707,9 +706,14 @@ def ksd_(
         '--gene_attribute', '-ga', default='Parent', show_default=True,
         help="keyword for parsing the gene IDs from the GFF file (column 9)"
 )
+@click.option(
+        '--min_length', '-ml', default=250, show_default=True,
+        help="minimum length of a genomic element (in numbers of genes) to be "
+             "included in dotplot."
+)
 def syn(
         gff_file, gene_families, output_dir, ks_distribution, feature,
-        gene_attribute
+        gene_attribute, min_length
 ):
     """
     Co-linearity analyses.
@@ -726,13 +730,13 @@ def syn(
     """
     syn_(
             gff_file, gene_families, output_dir, ks_distribution, feature,
-            gene_attribute
+            gene_attribute, min_length
     )
 
 
 def syn_(
         gff_file, families, output_dir, ks_distribution, feature='mRNA',
-        gene_attribute='Parent'
+        gene_attribute='Parent', min_length=250
 ):
     """
     Co-linearity analysis with I-ADHoRe 3.0. For usage in the ``wgd`` CLI.
@@ -750,10 +754,11 @@ def syn_(
     :return: nothing at all
     """
     # lazy imports
-    from wgd.colinearity import write_families_file, write_gene_lists, \
-        write_config_adhore, run_adhore, get_anchor_pairs, gff_parser
-    from wgd.viz import plot_selection, syntenic_dotplot, \
-        syntenic_dotplot_ks_colored
+    from wgd.colinearity import write_families_file, write_gene_lists
+    from wgd.colinearity import write_config_adhore, run_adhore
+    from wgd.colinearity import get_anchor_pairs, gff_parser
+    from wgd.viz import plot_selection, syntenic_dotplot
+    from wgd.viz import syntenic_dotplot_ks_colored
 
     # software check
     if can_i_run_software(['i-adhore']) == 1:
@@ -773,7 +778,7 @@ def syn_(
 
     if os.path.exists(output_dir):
         logging.warning(
-                'Output directory already exists, will possibly overwrite')
+            'Output directory already exists, will possibly overwrite')
 
     else:
         os.mkdir(output_dir)
@@ -812,8 +817,10 @@ def syn_(
     multiplicons = pd.read_csv(os.path.join(
             output_dir, 'i-adhore-out', 'multiplicons.txt'), sep='\t')
     logging.info('Drawing co-linearity dotplot')
-    syntenic_dotplot(multiplicons, output_file=os.path.join(
-            output_dir, '{}.dotplot.pdf'.format(os.path.basename(families))))
+    syntenic_dotplot(
+            multiplicons, min_length=min_length, output_file=os.path.join(
+            output_dir, '{}.dotplot.pdf'.format(os.path.basename(families)))
+    )
 
     # Ks distribution for anchors and Ks colored dotplot
     if ks_distribution:
@@ -832,11 +839,14 @@ def syn_(
 
         # output and plots
         logging.info("Constructing Ks distribution for anchors")
+        # FIXME this is annoyingly slow and gives a SettingWithCopyWarning
         ks, anchors = get_anchor_pairs(anchor_points, ks_dist, ks_out)
 
         logging.info("Generating Ks colored dotplot")
-        syntenic_dotplot_ks_colored(multiplicons, anchor_points, anchors,
-                                    output_file=dotplot_out)
+        syntenic_dotplot_ks_colored(
+                multiplicons, anchor_points, anchors,
+                output_file=dotplot_out, min_length=min_length
+        )
 
         logging.info("Generating histogram")
         plot_selection([ks, anchors], alphas=[0.2, 0.7], output_file=hist,
@@ -848,13 +858,13 @@ def syn_(
 
 # KDE FITTING ------------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.option(
-    '--ks_distribution', '-ks', default=None, type=click.Path(exists=True),
-    help="ks distribution csv file (see `wgd ks`)"
+@click.argument(
+    'ks_distribution', type=click.Path(exists=True), default=None
 )
 @click.option(
     '--filters', '-f', nargs=3, type=float, default=(0., 0., 0.),
-    help="Data frame filters", show_default=True
+    help="Data frame filters (alignment identity, length and coverage)",
+    show_default=True
 )
 @click.option(
     '--ks_range', '-r', nargs=2, default=(0,3), show_default=True, type=float,
@@ -876,9 +886,9 @@ def kde(
         ks_distribution, filters, ks_range, bandwidth, bins, output_file
 ):
     """
-    Fit a KDE.
+    Fit a KDE to a Ks distribution.
 
-    This accounts for boundary effects.
+    This accounts for boundary effects by applying reflection around zero.
 
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
@@ -889,206 +899,187 @@ def kde(
 def kde_(ks_distribution, filters, ks_range, bandwidth, bins, output_file):
     from wgd.modeling import prepare_data, reflected_kde
     df = pd.read_csv(ks_distribution, index_col=0, sep='\t')
-    df = prepare_data(
-        df, filters[0], filters[1], filters[2],
-        ks_range[0], ks_range[1]
-    )
+    df = prepare_data(df, filters[0], filters[1], filters[2],
+                      ks_range[0], ks_range[1])
     reflected_kde(df, ks_range[0], ks_range[1], bandwidth, bins, output_file)
     pass
 
 
 # MIXTURE MODELING -------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.option(
-        '--ks_distribution', '-ks', default=None, type=click.Path(exists=True),
-        help="ks distribution csv file (see `wgd ks`)"
+@click.argument(
+    'ks_distribution', type=click.Path(exists=True), default=None
 )
 @click.option(
-        '--method', type=click.Choice(['gmm', 'bgmm']), default='gmm',
-        show_default=True,
-        help="mixture modeling method"
+    '--filters', '-f', nargs=3, type=float, default=(0., 0., 0.),
+    help="Data frame filters (alignment identity, length and coverage)",
+    show_default=True
 )
 @click.option(
-        '--n_range', '-n', default='1,4', show_default=True,
-        help='range of number of components to fit'
+    '--ks_range', '-r', nargs=2, default=(0.005,3), show_default=True, type=float,
+    help='Ks range to use for modeling'
 )
 @click.option(
-        '--ks_range', '-r', default='0,3', show_default=True,
-        help='Ks range to use for modeling'
+    '--bins', '-b', default=50, show_default=True, type=int,
+    help="Number of histogram bins."
 )
 @click.option(
-        '--output_dir', '-o', default=None,
-        help='output directory'
+    '--output_dir', '-o', default="wgd_mix", show_default=True,
+    help='output directory'
 )
 @click.option(
-        '--gamma', '-g', default=1, show_default=True,
-        help='gamma parameter for bgmm models'
+    '--method', type=click.Choice(['gmm', 'bgmm']), default='gmm',
+    show_default=True, help="mixture modeling method"
 )
 @click.option(
-        '--sequences', '-s', default=None,
-        help='corresponding sequence files'
+    '--components', '-n', nargs=2, default=(1, 4), show_default=True,
+    help='range of number of components to fit'
 )
 @click.option(
-        '--cut_off', '-c', default=0.95, show_default=True,
-        help='minimum probability to belong to a particular component for sequence '
-             'selection'
+    '--gamma', '-g', default=1e-3, show_default=True,
+    help='gamma parameter for bgmm models'
 )
 @click.option(
-        '--n_init', '-ni', default=1, show_default=True,
-        help='number of k-means initializations'
+    '--n_init', '-ni', default=1, show_default=True,
+    help='number of k-means initializations'
 )
 @click.option(
-        '--pairs', is_flag=True,
-        help='write fasta file for each gene pair.'
+    '--max_iter', '-mi', default=1000, show_default=True,
+    help='maximum number of iterations'
 )
 def mix(
-        ks_distribution, method, n_range, ks_range, output_dir, gamma,
-        sequences, cut_off, n_init, pairs
+        ks_distribution, filters, ks_range, bins, output_dir, method,
+        components, gamma, n_init, max_iter
 ):
     """
     Mixture modeling of Ks distributions.
-
-    Example:
-
-        wgd mix -ks lama.ks.tsv --method gmm -n 2,5
 
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
     """
     mix_(
-        ks_distribution, method, n_range, ks_range, output_dir, gamma,
-        sequences, cut_off, pairs, n_init=n_init
+            ks_distribution, filters, ks_range, method, components, bins,
+            output_dir, gamma, n_init, max_iter
     )
 
 
 def mix_(
-        ks_distribution, method, n_range, ks_range, output_dir, gamma,
-        sequences, cut_off=0.95, pairs=False, n_init=1
+        ks_distribution, filters, ks_range, method, components, bins, output_dir,
+        gamma, n_init, max_iter
 ):
     """
-    Mixture modeling using sklearn. NOTE: This hasn't been update in a while
-    and might be broken!
+    Mixture modeling tools.
 
-    :param ks_distribution: Ks distribution tsv file
-    :param method: mixture modeling method, either 'bgmm' or 'gmm'
-    :param n_range: range of number of components to fit
-    :param ks_range: range of Ks values to fit model to
+    :param ks_distribution: Ks distribution data frame
+    :param filters: alignment stats filters
+    :param ks_range: Ks range used for models
+    :param method: mixture modeling method, Bayesian/ordinary Gaussian mixtures
+    :param components: number of components to use (tuple: (min, max))
+    :param bins: number histogram bins for visualization
     :param output_dir: output directory
-    :param gamma: gamma parameter for regulaization in BGMM (lower, stronger
-        regularization)
-    :param sequences: fasta file (if provided will write component-wise fasta
-        files)
-    :param cut_off: posterior probability cut-off for component-wise paralog
-        identification
-    :param pairs: write out fasta files for every gene pair
-    :param n_init: number of k-means initializations to perform
+    :param gamma: gamma parameter for BGMM
+    :param n_init: number of k-means initializations (best is kept)
+    :param max_iter: number of iterations
     :return: nada
     """
-    # lazy imports
-    from wgd.modeling import mixture_model_bgmm, mixture_model_gmm, \
-        get_component_probabilities
-    from wgd.utils import get_paralogs_fasta
+    from wgd.modeling import prepare_data, get_array_for_mixture, fit_gmm
+    from wgd.modeling import inspect_aic, inspect_bic, plot_aic_bic
+    from wgd.modeling import plot_all_models_gmm, get_component_probabilities
+    from wgd.modeling import fit_bgmm, plot_all_models_bgmm
 
-    if not ks_distribution:
-        logging.error('No Ks distribution provided! Run `wgd mix --help` for '
-                      'usage instructions.')
-        return 1
-
-    if not output_dir:
-        output_dir = './{0}_mixture_{1}'.format(
-                method, datetime.datetime.now().strftime("%d%m%y_%H%M%S"))
-        logging.info('Output will be in {}'.format(output_dir))
+    # make output dir if needed
+    if not os.path.exists(output_dir):
+        logging.info("Making directory {}".format(output_dir))
         os.mkdir(output_dir)
 
-    elif not os.path.isdir(output_dir):
-        os.mkdir(output_dir)
-
-    logging.info("Reading Ks distribution")
-    base_ks = os.path.basename(ks_distribution)
+    # prepare data frame
+    logging.info("Preparing data frame")
     df = pd.read_csv(ks_distribution, index_col=0, sep='\t')
-    ks_range = [float(x) for x in ks_range.strip().split(',')]
-    n_range = [int(x) for x in n_range.strip().split(',')]
+    df = prepare_data(df, filters[0], filters[1], filters[2],
+                      ks_range[0], ks_range[1])
+    X = get_array_for_mixture(df)
 
-    df = df[df['Ks'] < ks_range[1]]
-    df = df[df['Ks'] > ks_range[0]]
-    df = df.drop_duplicates(keep='first')
-    df = df.dropna()
+    logging.info(" .. max_iter = {}".format(max_iter))
+    logging.info(" .. n_init   = {}".format(n_init))
 
-    if method == 'bgmm':
-        logging.info('Started Bayesian Gaussian Mixture modeling (BGMM)')
-        models_bgmm = mixture_model_bgmm(df, n_range=n_range, plot_save=True,
-                                         output_dir=output_dir,
-                                         output_file='bgmm.mixture.pdf',
-                                         Ks_range=ks_range, gamma=gamma,
-                                         n_init=n_init)
-        best = models_bgmm[-1]
-        logging.info('Bayesian Gaussian mixture option, will take the highest '
-                     'number of ')
-        logging.info('components as best model under assumption of sufficient '
-                     'regularization.')
+    # GMM method
+    if method == "gmm":
+        logging.info("Method is GMM, interpret best model with caution!")
+        models, bic, aic, best = fit_gmm(
+                X, components[0], components[1], max_iter=max_iter,
+                n_init=n_init
+        )
+        inspect_aic(aic)
+        inspect_bic(bic)
+        logging.info("Plotting AIC & BIC")
+        plot_aic_bic(aic, bic, os.path.join(output_dir, "aic_bic.pdf"))
+        logging.info("Plotting mixtures")
+        plot_all_models_gmm(models, X, ks_range[0], ks_range[1], bins=bins,
+                        out_file=os.path.join(output_dir, "gmms.pdf"))
 
+    # BGMM method
     else:
-        logging.info('Started Gaussian Mixture modeling (GMM)')
-        models_gmm, bic, aic, best = mixture_model_gmm(
-                df, Ks_range=ks_range, n=n_range[1], output_dir=output_dir,
-                output_file='gmm.mixture.pdf', n_init=n_init)
+        logging.info("Method is BGMM, weights are informative for best model")
+        logging.info(" .. gamma    = {}".format(gamma))
+        models = fit_bgmm(
+                X, components[0], components[1], gamma=gamma,
+                max_iter=max_iter, n_init=n_init
+        )
+        logging.info("Plotting mixtures")
+        plot_all_models_bgmm(models, X, ks_range[0], ks_range[1], bins=bins,
+                            out_file=os.path.join(output_dir, "bgmms.pdf"))
+        logging.warning("Method is BGMM, unable to choose best model!")
+        logging.info("Taking model with most components for the component-wise"
+                     "probability output file.")
+        logging.info("To get the output file for a particular number of "
+                     "components, run wgd mix again ")
+        logging.info("with the desired component number as maximum.")
+        best = models[-1]
 
-    logging.info(
-            'Saving data frame with probabilities for each component to {}'.format(
-                    os.path.join(output_dir,
-                                 '{}.{}.tsv'.format(base_ks, method))))
-    df = get_component_probabilities(df, best)
-    df.to_csv(os.path.join(output_dir, '{}.{}.tsv'.format(base_ks, method)),
-              sep='\t')
-
-    if sequences:
-        logging.info('Saving fasta file for each component')
-        for i in range(best.n_components):
-            selected = df[df['p_component{}'.format(i + 1)] >= cut_off]
-            get_paralogs_fasta(
-                    sequences, selected, os.path.join(
-                            output_dir, 'component{}.fasta'.format(i + 1)
-                    ), pairs=pairs
-            )
+    # save component probabilities
+    logging.info("Writing component-wise probabilities to file")
+    new_df = get_component_probabilities(df, best)
+    new_df.round(5).to_csv(os.path.join(
+            output_dir, "ks_{}.tsv".format(method)), sep="\t")
 
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option(
-        '--ks_distributions', '-ks', default=None,
-        help="comma-separated Ks distribution csv files, or a directory containing"
-             " these (see `wgd ks`)"
+    '--ks_distributions', '-ks', default=None,
+    help="comma-separated Ks distribution csv files, or a directory containing"
+         " these (see `wgd ks`)"
 )
 @click.option(
-        '--alpha_values', '-a', default=None,
-        help="comma-separated alpha values (optional)"
+    '--alpha_values', '-a', default=None,
+    help="comma-separated alpha values (optional)"
 )
 @click.option(
-        '--colors', '-c', default=None,
-        help="comma-separated colors (optional)"
+    '--colors', '-c', default=None,
+    help="comma-separated colors (optional)"
 )
 @click.option(
-        '--labels', '-l', default=None,
-        help="comma-separated labels (for legend, optional)")
+    '--labels', '-l', default=None,
+    help="comma-separated labels (for legend, optional)")
 @click.option(
-        '--hist_type', '-ht', default='barstacked', show_default=True,
-        type=click.Choice(['barstacked', 'step', 'stepfilled']),
-        help="histogram type"
+    '--hist_type', '-ht', default='barstacked', show_default=True,
+    type=click.Choice(['barstacked', 'step', 'stepfilled']),
+    help="histogram type"
 )
 @click.option(
-        '--title', '-t', default='WGD histogram', show_default=True,
-        help="plot title"
+    '--title', '-t', default='WGD histogram', show_default=True,
+    help="plot title"
 )
 @click.option(
-        '--output_file', '-o', default='wgd_hist.pdf', show_default=True,
-        help="output file"
+    '--output_file', '-o', default='wgd_hist.pdf', show_default=True,
+    help="output file"
 )
 @click.option(
-        '--interactive', '-i', is_flag=True,
-        help="interactive visualization with bokeh"
+    '--interactive', '-i', is_flag=True,
+    help="interactive visualization with bokeh"
 )
 @click.option(
-        '--outliers_included', '-oi', is_flag=True,
-        help="use weights computed before outlier removal"
+    '--outliers_included', '-oi', is_flag=True,
+    help="use weights computed before outlier removal"
 )
 def viz(
         ks_distributions, alpha_values, colors, labels, hist_type, title,

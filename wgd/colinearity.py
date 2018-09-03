@@ -71,8 +71,8 @@ def gff_parser(gff_file, feature='mRNA', gene_attribute='Parent'):
                 }
 
                 if gene_attribute not in attributes:
-                    logging.error('Attribute {0} not found in GFF line {1}'
-                                  ''.format(gene_attribute, i))
+                    logging.warning('Attribute {0} not found in GFF line {1}'
+                                    ''.format(gene_attribute, i))
 
                 # store information (why?, if the sole purpose is to write out
                 # gene lists we might as well write them here? However if the
@@ -226,25 +226,11 @@ def get_anchor_pairs(anchors, ks_distribution=None,
     :return: pandas dataframe(s): anchors and data frame
     """
     anchors = anchors[['gene_x', 'gene_y']]
-
-    # give the pairs an identifier
-    ids = []
-    for x in anchors.index:
-        ids.append("-".join(
-            sorted([anchors.loc[x]['gene_x'], anchors.loc[x]['gene_y']])))
-
-    # TODO: gives SettingWithCopyWarning
-    anchors['pair_id'] = ids
+    ids = anchors.apply(lambda x: '__'.join(sorted(x)), axis=1)
     
     if type(ks_distribution) == pd.DataFrame:
-        ids_ = []
-        for x in ks_distribution.index:
-            ids_.append("-".join(sorted(
-                    [ks_distribution.loc[x]['Paralog1'],
-                     ks_distribution.loc[x]['Paralog2']])))
-
-        ks_distribution.index = ids_
-        ks_anchors = ks_distribution.ix[anchors['pair_id']]
+        ks_anchors = ks_distribution.loc[
+            ks_distribution.index.intersection(ids)]
 
         if out_file:
             ks_anchors.to_csv(out_file, sep='\t')

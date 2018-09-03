@@ -23,10 +23,8 @@ Contact: arzwa@psb.vib-ugent.be
 The ``viz`` module collects several common visualization functions for ``wgd``
 as well as the interactive boke application for plotting multiple Ks
 distributions with kernel density estimates interactively.
-
-This hasn't been updated in a while and might have some bugs at some points.
-
 """
+# TODO redundant code for the colore vs. non-colored dotplot
 import plumbum as pb
 import matplotlib
 
@@ -42,10 +40,10 @@ import pandas as pd
 
 
 def plot_selection(
-        dists, output_file=None, alphas=None, colors=None,
-        labels=None, ks_range=(0.1, 5), offset=5,
-        title='Species genus', weights='WeightOutliersExcluded',
-        **kwargs
+    dists, output_file=None, alphas=None, colors=None,
+    labels=None, ks_range=(0.05, 5), offset=5,
+    title='Species genus', weights='WeightOutliersExcluded',
+    **kwargs
 ):
     """
     Plot a panel from the `all.csv` output from the Ks analysis.
@@ -62,7 +60,7 @@ def plot_selection(
     :param kwargs: keyword arguments for :py:func:`matplotlib.pyplot.hist`
     :return: :py:class:`matplotlib.pyplot.Figure` object
     """
-    fig = plt.figure(figsize=(12, 10))
+    fig = plt.figure(figsize=(15, 9.27))
 
     if type(dists) != list:
         dists = [dists]
@@ -95,7 +93,7 @@ def plot_selection(
                 **kwargs
         )
     sns.despine(offset=offset, trim=True)
-    ax.set_xlabel('$K_S$')
+    ax.set_xlabel('$K_{\mathrm{S}}$')
 
     # ka
     ax = fig.add_subplot(222)
@@ -113,7 +111,7 @@ def plot_selection(
                 **kwargs
         )
     sns.despine(offset=offset, trim=True)
-    ax.set_xlabel('$log_{10}(K_s)$')
+    ax.set_xlabel('$\mathrm{log_{10}}(K_{\mathrm{S}})$')
 
     # log(ka)
     ax = fig.add_subplot(223)
@@ -131,7 +129,7 @@ def plot_selection(
                 **kwargs
         )
     sns.despine(offset=offset, trim=True)
-    ax.set_xlabel('$log_{10}(K_A)$')
+    ax.set_xlabel('$\mathrm{log_{10}}(K_{\mathrm{A}})$')
 
     # log(w)
     ax = fig.add_subplot(224)
@@ -149,12 +147,13 @@ def plot_selection(
                 **kwargs
         )
     sns.despine(offset=offset, trim=True)
-    ax.set_xlabel('$log_{10}(\omega)$')
+    ax.set_xlabel('$\mathrm{log_{10}}(\omega)$')
 
     if labels[0]:
         plt.legend()
 
     fig.suptitle(title)
+    fig.tight_layout()
 
     if output_file:
         fig.savefig(output_file, dpi=300, bbox_inches='tight')
@@ -162,7 +161,7 @@ def plot_selection(
     return fig
 
 
-def syntenic_dotplot(df, output_file=None):
+def syntenic_dotplot(df, min_length=250, output_file=None):
     """
     Syntenic dotplot function
 
@@ -180,7 +179,8 @@ def syntenic_dotplot(df, output_file=None):
     for key in sorted(genomic_elements_.keys()):
         length = max(list(df[df['list_x'] == key]['end_x']) + list(
                 df[df['list_y'] == key]['end_y']))
-        genomic_elements_[key] = length
+        if length >= min_length:
+            genomic_elements_[key] = length
 
     previous = 0
     genomic_elements = {}
@@ -190,15 +190,17 @@ def syntenic_dotplot(df, output_file=None):
         genomic_elements[kv[0]] = previous
         previous += kv[1]
 
-    x = [genomic_elements[key] for key in sorted(genomic_elements.keys())] + [
-        previous]
+    x = [genomic_elements[key] for key in sorted(genomic_elements.keys())]
+    x = list(set(x))  # FIXME hack
     ax.vlines(ymin=0, ymax=previous, x=x, linestyles='dotted', alpha=0.2)
     ax.hlines(xmin=0, xmax=previous, y=x, linestyles='dotted', alpha=0.2)
     ax.plot(x, x, color='k', alpha=0.2)
-    ax.set_xticks(x)
+    ax.set_xticks([])
     ax.set_yticks(x)
-    ax.set_xticklabels(x)
+    ax.set_xticklabels([]) #x, rotation=45)
     ax.set_yticklabels(x)
+    ax.set_xlim(0, max(x))
+    ax.set_ylim(0, max(x))
 
     for i in range(len(df)):
         row = df.iloc[i]
@@ -209,10 +211,8 @@ def syntenic_dotplot(df, output_file=None):
              [row['begin_x'], row['end_x']]]
         y = [genomic_elements[list_y] + x for x in
              [row['begin_y'], row['end_y']]]
-        ax.plot(x, y, color='k', alpha=0.5)
-        ax.plot(y, x, color='k', alpha=0.5)
-
-    sns.despine(offset=5, trim=True)
+        ax.plot(x, y, color='k', alpha=0.7)
+        ax.plot(y, x, color='k', alpha=0.7)
 
     if output_file:
         fig.savefig(output_file, dpi=200, bbox_inches='tight')
@@ -222,8 +222,9 @@ def syntenic_dotplot(df, output_file=None):
         return fig
 
 
-def syntenic_dotplot_ks_colored(df, an, ks, color_map='Spectral',
-                                output_file=None):
+def syntenic_dotplot_ks_colored(
+        df, an, ks, min_length=250, color_map='Spectral', output_file=None
+):
     """
     Syntenic dotplot with segment colored by mean Ks value
 
@@ -236,8 +237,8 @@ def syntenic_dotplot_ks_colored(df, an, ks, color_map='Spectral',
     """
     cmap = plt.get_cmap(color_map)
 
-    an['pair'] = an['gene_x'].astype(str) + '-' + an['gene_y']
-    an['pair'] = an['pair'].map(lambda x: '-'.join(sorted(x.split('-'))))
+    an["pair"] = an.apply(lambda x: '__'.join(
+            sorted([x["gene_x"], x["gene_y"]])), axis=1)
     genomic_elements_ = {x: 0 for x in
                          list(set(df['list_x']) | set(df['list_y'])) if
                          type(x) == str}
@@ -246,7 +247,7 @@ def syntenic_dotplot_ks_colored(df, an, ks, color_map='Spectral',
     for i in range(len(df)):
         row = df.iloc[i]
         pairs = an[an['multiplicon'] == row['id']]['pair']
-        mean_ks = np.mean(ks.loc[pairs]['Ks'])
+        mean_ks = np.mean(ks.loc[ks.index.intersection(pairs)]['Ks'])
         ks_multiplicons[row['id']] = mean_ks
         if mean_ks < 5:
             all_ks.append(mean_ks)
@@ -261,7 +262,8 @@ def syntenic_dotplot_ks_colored(df, an, ks, color_map='Spectral',
     for key in sorted(genomic_elements_.keys()):
         length = max(list(df[df['list_x'] == key]['end_x']) + list(
                 df[df['list_y'] == key]['end_y']))
-        genomic_elements_[key] = length
+        if length >= min_length:
+            genomic_elements_[key] = length
 
     previous = 0
     genomic_elements = {}
@@ -271,15 +273,17 @@ def syntenic_dotplot_ks_colored(df, an, ks, color_map='Spectral',
         genomic_elements[kv[0]] = previous
         previous += kv[1]
 
-    x = [genomic_elements[key] for key in sorted(genomic_elements.keys())] + [
-        previous]
+    x = [genomic_elements[key] for key in sorted(genomic_elements.keys())]
+    x = list(set(x))
     ax.vlines(ymin=0, ymax=previous, x=x, linestyles='dotted', alpha=0.2)
     ax.hlines(xmin=0, xmax=previous, y=x, linestyles='dotted', alpha=0.2)
     ax.plot(x, x, color='k', alpha=0.2)
-    ax.set_xticks(x)
+    ax.set_xticks([])
     ax.set_yticks(x)
-    ax.set_xticklabels(x)
+    ax.set_xticklabels([])
     ax.set_yticklabels(x)
+    ax.set_xlim(0, max(x))
+    ax.set_ylim(0, max(x))
 
     for i in range(len(df)):
         row = df.iloc[i]
@@ -301,7 +305,6 @@ def syntenic_dotplot_ks_colored(df, an, ks, color_map='Spectral',
 
     cbar = plt.colorbar(tmp, fraction=0.02, pad=0.01)
     cbar.ax.set_yticklabels(['{:.2f}'.format(x) for x in np.linspace(0, 5, 11)])
-    sns.despine(offset=5, trim=True)
 
     if output_file:
         fig.savefig(output_file, dpi=200, bbox_inches='tight')
