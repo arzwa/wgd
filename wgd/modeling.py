@@ -272,7 +272,7 @@ def inspect_bic(bic):
     ]
     logging.info("")
     logging.info("Delta BIC assessment: ")
-    logging.info("min(BIC) = {:.2f}".format(bic[im]))
+    logging.info("min(BIC) = {:.2f} for model {}".format(bic[im], im+1))
     for i, bic_i in enumerate(bic):
         dbic = bic_i - bic[im]
         j = 0
@@ -322,7 +322,7 @@ def plot_probs(m, ax, l=0.0, u=5, ylab=True):
     return ax
 
 
-def plot_aic_bic(aic, bic, out_file):
+def plot_aic_bic(aic, bic, min_n, max_n, out_file):
     """
     Plot AIC and BIC curves
 
@@ -331,17 +331,20 @@ def plot_aic_bic(aic, bic, out_file):
     :param out_file: output file
     :return: nada
     """
+    x_range = list(range(min_n, max_n+1))
     fig, axes = plt.subplots(1, 2, figsize=(12, 3))
     axes[0].plot(np.arange(1,len(aic)+1), aic, color='k', marker='o')
     axes[0].set_xticks(list(range(1,len(aic)+1)))
+    axes[0].set_xticklabels(x_range)
     axes[0].grid(ls=":")
     axes[0].set_ylabel("AIC")
-    axes[0].set_xlabel("model")
+    axes[0].set_xlabel("# components")
     axes[1].plot(np.arange(1, len(bic) + 1), bic, color='k', marker='o')
     axes[1].set_xticks(list(range(1, len(bic) + 1)))
+    axes[1].set_xticklabels(x_range)
     axes[1].grid(ls=":")
     axes[1].set_ylabel("BIC")
-    axes[1].set_xlabel("model")
+    axes[1].set_xlabel("# components")
     fig.tight_layout()
     fig.savefig(out_file)
 

@@ -682,37 +682,31 @@ def ksd_(
 
 # CO-LINEARITY -----------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.argument('gff_file', default=None, type=click.Path(exists=True))
+@click.argument('gene_families', default=None, type=click.Path(exists=True))
 @click.option(
-        '--gff_file', '-gff', default=None, type=click.Path(exists=True),
-        help='annotation in gff3 format'
-)
-@click.option(
-        '--gene_families', '-gf', default=None, type=click.Path(exists=True),
-        help='gene families'
+        '--ks_distribution', '-ks', default=None,
+        help="paranome ks distribution tsv file (optional, see `wgd ks`)"
 )
 @click.option(
         '--output_dir', '-o', default='./wgd_syn', show_default=True,
         help='output directory'
 )
 @click.option(
-        '--ks_distribution', '-ks', default=None,
-        help="paranome ks distribution tsv file (optional, see `wgd ks`)"
-)
-@click.option(
         '--feature', '-f', default='mRNA', show_default=True,
         help="keyword for parsing the genes from the GFF file (column 3)"
 )
 @click.option(
-        '--gene_attribute', '-ga', default='Parent', show_default=True,
+        '--gene_attribute', '-a', default='Parent', show_default=True,
         help="keyword for parsing the gene IDs from the GFF file (column 9)"
 )
 @click.option(
-        '--min_length', '-ml', default=250, show_default=True,
+        '--min_length', '-l', default=250, show_default=True,
         help="minimum length of a genomic element (in numbers of genes) to be "
              "included in dotplot."
 )
 def syn(
-        gff_file, gene_families, output_dir, ks_distribution, feature,
+        gff_file, gene_families, ks_distribution, output_dir, feature,
         gene_attribute, min_length
 ):
     """
@@ -1012,10 +1006,11 @@ def mix_(
         inspect_aic(aic)
         inspect_bic(bic)
         logging.info("Plotting AIC & BIC")
-        plot_aic_bic(aic, bic, os.path.join(output_dir, "aic_bic.pdf"))
+        plot_aic_bic(aic, bic, components[0], components[1],
+                     os.path.join(output_dir, "aic_bic.pdf"))
         logging.info("Plotting mixtures")
         plot_all_models_gmm(models, X, ks_range[0], ks_range[1], bins=bins,
-                        out_file=os.path.join(output_dir, "gmms.pdf"))
+                            out_file=os.path.join(output_dir, "gmms.pdf"))
 
     # BGMM method
     else:
