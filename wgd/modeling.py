@@ -21,8 +21,6 @@ Contact: arzwa@psb.vib-ugent.be
 
 --------------------------------------------------------------------------------
 """
-#TODO reflection should be adapted to work correctly when minimum is not zero!
-
 import numpy as np
 import logging
 from sklearn import mixture
@@ -75,6 +73,17 @@ def get_array_for_mixture(df):
     return X
 
 
+def reflect(data):
+    """
+    Reflect an array around it's left boundary
+
+    :param data: np.array
+    :return: np.array
+    """
+    reflection = -1*(data - np.min(data)) + np.min(data)
+    return np.hstack([data, reflection])
+
+
 def reflected_kde(df, min_ks, max_ks, bandwidth, bins, out_file):
     """
     Perform Kernel density estimation (KDE) with reflected data.
@@ -89,7 +98,7 @@ def reflected_kde(df, min_ks, max_ks, bandwidth, bins, out_file):
     :return: nada
     """
     ks = np.array(df['Ks'])
-    ks_reflected = np.array(list(ks) + list(-1*np.array(ks)))
+    ks_reflected = reflect(ks)
     fig, ax = plt.subplots(figsize=(9,4))
     if bandwidth:
         ax = sns.distplot(

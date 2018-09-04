@@ -25,7 +25,6 @@ as well as the interactive boke application for plotting multiple Ks
 distributions with kernel density estimates interactively.
 """
 # TODO redundant code for the color vs. non-colored dotplot
-# TODO reflection in bokeh densities should work when minimum is non zero
 import plumbum as pb
 import matplotlib
 
@@ -35,7 +34,6 @@ import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
 import seaborn as sns
-import os
 import matplotlib.patheffects as pe
 import pandas as pd
 
@@ -167,6 +165,7 @@ def syntenic_dotplot(df, min_length=250, output_file=None):
     Syntenic dotplot function
 
     :param df: multiplicons pandas data frame
+    :param min_length: minimum length of a genomic element
     :param output_file: output file name
     :return: figure
     """
@@ -232,6 +231,7 @@ def syntenic_dotplot_ks_colored(
     :param df: multiplicons pandas data frame
     :param an: anchorpoints pandas data frame
     :param ks: Ks distribution data frame
+    :param min_length: minimum length of a genomic element
     :param color_map: color map string
     :param output_file: output file name
     :return: figure
@@ -315,23 +315,25 @@ def syntenic_dotplot_ks_colored(
         return fig
 
 
-def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
+def histogram_bokeh(ks_distributions, labels):
     """
     Run an interactive bokeh application.
-    This requires a running bokeh server! Use ``bokeh serve &`` to start a bokeh server in the background.
+    This requires a running bokeh server! Use ``bokeh serve &`` to start a bokeh
+    server in the background.
 
     :param ks_distributions: a list of Ks distributions (pandas data frames)
     :param labels: a list of labels for the corresponding distributions
     :return: bokeh app
     """
-    # TODO currently broken?
     from bokeh.io import curdoc
     from bokeh.layouts import widgetbox, layout
     from bokeh.models.widgets import Select, TextInput, Slider, Div
+    from bokeh.models.widgets import CheckboxGroup
     from bokeh.plotting import figure, output_file, show
     from bokeh.client import push_session
     from pylab import cm, colors
     from .utils import gaussian_kde
+    from .modeling import reflect
 
     # helper functions
     def get_colors(cmap_choice='binary'):
@@ -385,7 +387,7 @@ def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
     bins = TextInput(title="Bins", value='50')
     bandwidth = TextInput(title="Bandwidth", value='0.1')
     line = Slider(title="Lines", start=0, end=1, value=0.3, step=0.1)
-    density = Slider(title="Kernel density", start=0, end=2, value=0, step=1)
+    density = CheckboxGroup(labels=["Histogram", "KDE"], active=[0])
     density_alpha = Slider(title="Density alpha value", start=0, end=1,
                            value=0.6, step=0.1)
     hist_alpha = Slider(title="Histogram alpha value", start=0, end=1,
@@ -421,6 +423,7 @@ def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
         redraw_plots()
 
     def redraw_plots():
+        print(density.active)
         c = get_colors(color_choice.value)
         p1.legend.items = []
 
@@ -435,7 +438,7 @@ def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
             np.hstack(tuple(all_data)), bins=int(bins.value))[1]
 
         for i in range(len(dists)):
-            if density.value == 0:
+            if density.active == [0]:
                 hist = np.histogram(all_data[i], bins=int(bins.value))[0]
                 p1.yaxis.axis_label = '# paralogs'
             else:
@@ -447,9 +450,8 @@ def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
                 density_dict[i].data_source.data['x'] = []
                 density_dict[i].data_source.data['y'] = []
 
-            if density.value == 1 or density.value == 2:
-                X = np.array(all_data[i])
-                X = np.hstack([X, X*-1])
+            if 1 in density.active:
+                X = reflect(all_data[i])
                 kde = gaussian_kde(X, bw_method=float(bandwidth.value))
                 x = np.linspace(
                     float(r1.value) + 0.000001, float(r2.value), 1000)
@@ -467,7 +469,7 @@ def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
             if i in hist_dict:
                 remove_plot(hist_dict, i)
 
-            if density.value == 1 or density.value == 0:
+            if 0 in density.active:
                 hist_dict[i] = p1.quad(
                     top=hist, bottom=0, left=edges[:-1],
                     right=edges[1:], fill_color=c[i],
@@ -516,12 +518,12 @@ def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
     line.on_change('value', feat_change)
     bins.on_change('value', bins_update)
     color_choice.on_change('value', feat_change)
-    density.on_change('value', bins_update)
+    density.on_change('active', bins_update)
     density_alpha.on_change('value', feat_change)
     hist_alpha.on_change('value', feat_change)
 
     # set up layout
-    widgets1 = widgetbox(var, scale, color_choice, line, density, hist_alpha,
+    widgets1 = widgetbox(var, scale, color_choice, density, line, hist_alpha,
                          density_alpha, r1, r2, bins, bandwidth,
                          sizing_mode='fixed')
     l = layout([
@@ -536,201 +538,20 @@ def histogram_bokeh(ks_distributions, labels, weights='WeightOutliersExcluded'):
     curdoc().add_root(l)
     session.show(l)  # open the document in a browser
     session.loop_until_closed()  # run forever
-    # bokeh_html(c, )
     return  # show(p1)
 
 
-def visualize_adhore_circos_js(output_dir):
-    """
-    Visualize intragenomic collinearity
-    """
-    with open(os.path.join(output_dir, 'vis.html'), 'w') as f:
-        f.write(wgd_adhore_html)
-
-    with open(os.path.join(output_dir, 'vis.js'), 'w') as o:
-        o.write(circos_js)
-
-
 # HTML/JAVSCRIPT TEMPLATES -----------------------------------------------------
-
-wgd_adhore_html = """
-<!DOCTYPE html>
-<meta charset="utf-8">
-<head>
-    <script src='https://cdn.rawgit.com/nicgirault/circosJS/v2/dist/circos.js'></script>
-    <script src="https://d3js.org/d3.v4.min.js"></script>
-    <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css"> 
-    <style>
-        body {
-          font: 10px sans-serif;
-        } 
-        .ticks {
-          font: 10px sans-serif;
-        }
-        .track,
-        .track-inset,
-        .track-overlay {
-          stroke-linecap: round;
-        }
-        .track {
-          stroke: #000;
-          stroke-opacity: 0.3;
-          stroke-width: 10px;
-        }
-        .track-inset {
-          stroke: #ddd;
-          stroke-width: 8px;
-        }
-        .track-overlay {
-          pointer-events: stroke;
-          stroke-width: 50px;
-          stroke: transparent;
-          cursor: crosshair;
-        }
-        .handle {
-          fill: #fff;
-          stroke: #000;
-          stroke-opacity: 0.5;
-          stroke-width: 1.25px;
-        }
-    </style>
-</head>
-<body>
-
-<div class="w3-card-4" style='margin-left:10%;margin-right:40%;margin-bottom:16px;margin-top:16px;'>
-	<header class="w3-container w3-green">
-  		<h1>Intragenomic collinearity</h1>
-	</header>
-
-	<div class="w3-container">
-        <p>
-		Minimum length (bp) <input style="width:100px;" type="range" min="0" max="1000000" step="1000" value="0">
-		</p>
-  		<svg id='chart' width='100%', height='800px'></svg>
-	</div>
-
-	<footer class="w3-container w3-green">
-  		<h5><code>wgd adhore</code> (Arthur Zwaenepoel - 2017)</h5>
-	</footer>
-</div> 
-
-<div class="w3-card-4" style='margin-left:10%;margin-right:40%;margin-bottom:16px;'>                                                        
-    <header class="w3-container w3-green">                                                                               
-        <h1><i>K<sub>S</sub></i> distribution</h1>                                                                              
-    </header>                                                                                                           
-
-    <div class="w3-container w3-margin">                                                                                          
-        <img src='histogram.png' width='100%'>
-	</div>                                                                                                              
-
-    <footer class="w3-container w3-green">                                                                               
-        <h5><code>wgd adhore</code> (Arthur Zwaenepoel - 2017)</h5>                                                       
-    </footer>                                                                                                           
-</div>
-
-
-    <script>
-      var circos = new Circos({
-        container: '#chart'
-      });
-    </script>
-    <script src='vis.js'></script>
-</body>
-</html>
-"""
-
-circos_js = """
-var minLength = 0;
-
-var drawCircos = function (error, genome, data) {
-    var width = 700;
-    var circos = new Circos({
-        container: '#chart',
-        width: width,
-        height: width
-    })
-
-    data = data.filter(function (d) {return parseInt(d.source_length) > minLength})
-
-    data = data.map(function (d) {
-        // I think here an if statement can be included for filtering a user defined 
-        // syntenic block length
-            return {
-                source: {
-                    id: d.source_id,
-                    start: parseInt(d.source_1),
-                    end: parseInt(d.source_2),
-                    color: d.color,
-                    label: d.label
-                },
-                target: {
-                    id: d.target_id,
-                    start: parseInt(d.target_1),
-                    end: parseInt(d.target_2),
-                    color: d.color
-                }
-            }
-
-    })
-
-    circos
-        .layout(
-            genome,
-            {
-                innerRadius: width/2 - 80,
-                outerRadius: width/2 - 40,
-                labels: {
-                    radialOffset: 70
-                },
-                ticks: {
-                    display: true,
-                    labelDenominator: 1000000
-                }
-            }
-        )
-        .chords(
-            'l1',
-            data,
-            {
-                opacity: 0.7,
-                color: function (d) {return d.source.color;},
-                tooltipContent: function (d) {
-                    return '<h3>' + d.source.id + ' > ' + d.target.id + ': ' + d.source.label + '</h3><i>(CTRL+C to copy to clipboard)</i>';
-                }
-            }
-        )
-        .render()
-    }
-
-var svg = d3.select('svg');
-
-d3.queue()
-    .defer(d3.json, "genome.json")
-    .defer(d3.tsv, "chords.tsv")
-    .await(drawCircos);
-
-d3.select("input[type=range]")
-    .on("input", inputted);
-
-function inputted() {
-      minLength = parseInt(this.value);
-      console.log(minLength);
-      svg.selectAll("*").remove();
-      d3.queue()
-        .defer(d3.json, "genome.json")
-        .defer(d3.tsv, "chords.tsv")
-        .await(drawCircos);
-}
-"""
-
 BOKEH_APP_DIV = """
 <div>
-    <h1><i>K<sub>S</sub> distribution visualization</i></h1>
+    <h1><i>K</i><sub>S</sub> distribution visualization</h1>
     <p> 
-        Use the widgets on the right to tune the plot in accordance with your desires.
-        You can click on the legend names to hide/show the relevant distribution.
-        Note that for more sensible legend names (by default the file names are used),
-        the <code>--label / -l</code> flag can come in handy. 
+        Use the widgets on the right to tune the plot in accordance with your 
+        desires. You can click on the legend names to hide/show the relevant 
+        distribution. Note that for more sensible legend names (by default the 
+        file names are used), the <code>--label / -l</code> flag can come in 
+        handy. Note that KDEs are corrected for boundary effects by reflection 
+        around the minimum <i>K</i><sub>S</sub> value.
     </p>
 </div>
 """

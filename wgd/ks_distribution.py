@@ -283,8 +283,8 @@ def _calculate_weighted_ks(clustering, pairwise_estimates,
                     weights[pair][-1] = 'FALSE'
 
     df = pd.DataFrame.from_dict(weights, orient='index')
-    df.columns = ['Paralog1', 'Paralog2', 'Family', 'WeightOutliersIncluded', 
-                  'Ks', 'Ka', 'Omega', 'Distance', 'Node', 
+    df.columns = ['Paralog1', 'Paralog2', 'Family', 'WeightOutliersIncluded',
+                  'Ks', 'Ka', 'Omega', 'Distance', 'Node',
                   'WeightOutliersExcluded', 'Outlier']
 
     return df
@@ -344,6 +344,7 @@ def analyse_family(
     :param method: weighting method, from fast to slow: ``alc``, ``fasttree``,
         ``phyml``
     :param aligner: alignment program
+    :param output_dir: output directory
     :return: ``csv`` file with results for the paralog family of interest
     """
     # pre-processing -----------------------------------------------------------
@@ -362,14 +363,14 @@ def analyse_family(
         family = _get_nucleotide_sequences(family, nucleotide)
     logging.debug('Performing MSA ({0}) for {1}'.format(aligner, family_id))
     ff = write_fasta(family, os.path.join(tmp, family_id + '.fasta'))
-    msa_path_protein = align(in_file=ff, out_file=ff+'.msa', aligner=aligner)
+    msa_path_protein = align(in_file=ff, out_file=ff + '.msa', aligner=aligner)
     msa_path, stats = prepare_aln(msa_path_protein, nucleotide)
 
     # Calculate Ks values (codeml) ---------------------------------------------
     codeml = Codeml(codeml=codeml, tmp=tmp, id=family_id)
     logging.debug('Performing codeml analysis on {}'.format(family_id))
     results_dict, codeml_out = codeml.run_codeml(
-        os.path.basename(msa_path), preserve=preserve, times=times)
+            os.path.basename(msa_path), preserve=preserve, times=times)
     if not results_dict:
         logging.warning('No codeml results for {}!'.format(family_id))
         return
@@ -377,11 +378,18 @@ def analyse_family(
     # Subdivide families -------------------------------------------------------
 
     # Calculate weights according to method ------------------------------------
-    clustering, pairwise_distances, tree_path = _weighting(
-            results_dict, msa=msa_path_protein, method=method)
+    if len(list(family.keys())) == 2 and method == "phyml":
+        # phyml breaks when only two genes are in a family
+        logging.debug("PhyML breaks with only two genes, do ALC instead.")
+        logging.debug("Distance will be in Ks units!")
+        clustering, pairwise_distances, tree_path = _weighting(
+                results_dict, msa=msa_path_protein, method="alc")
+    else:
+        clustering, pairwise_distances, tree_path = _weighting(
+                results_dict, msa=msa_path_protein, method=method)
     if clustering is not None:
         out = _calculate_weighted_ks(
-            clustering, results_dict, pairwise_distances, family_id
+                clustering, results_dict, pairwise_distances, family_id
         )
         out = add_alignment_stats_(out, stats)
         logging.debug(out)
@@ -415,7 +423,7 @@ def analyse_family_pairwise(
     that are non-trivial. A main point of importance is the weighting of
     multiple pairwise Ks estimates based on a phylogeny (or proxy thereof), with
     some authors that do not weight (naive pairwise Ks distributions). Some
-    authors use phylogentic trees, oter use hierarchical clustering for the
+    authors use phylogenetic trees, oter use hierarchical clustering for the
     weighting. Lastly some authors perform reweighting after outlier removal,
     others don't. Here the approach of Vanneste et al. (2013) and later papers
     is largely followed:
@@ -439,7 +447,7 @@ def analyse_family_pairwise(
     with most NaN values. These sequences are also removed from the aligment.
 
     (6) A weighting method is applied. Either a phylogenetic tree is constructed
-    for the faily or the Pairwise Ks matrix is clustered using average linkage
+    for the family or the Pairwise Ks matrix is clustered using average linkage
     clustering. Every Ks estimate for a duplication node is then weighted by the
     number of estimates that are present for that node such that the different
     estimates for the same duplication event result in  weight of 1 in total.
@@ -478,7 +486,7 @@ def analyse_family_pairwise(
         family = _get_nucleotide_sequences(family, nucleotide)
     logging.debug('Performing MSA ({0}) for {1}'.format(aligner, family_id))
     ff = write_fasta(family, os.path.join(tmp, family_id + '.fasta'))
-    msa_path = align(in_file=ff, out_file=ff+'.msa', aligner=aligner)
+    msa_path = align(in_file=ff, out_file=ff + '.msa', aligner=aligner)
     alns, stats = get_pairwise_alns(msa_path, nucleotide, min_length)
 
     # for every pair perform codeml analysis -----------------------------------
@@ -494,7 +502,7 @@ def analyse_family_pairwise(
         results_dict, codeml_out = codeml_.run_codeml(
                 os.path.basename(pairwise_msa), preserve=preserve, times=times)
         if preserve:
-            with open(codeml_out, 'r') as f: 
+            with open(codeml_out, 'r') as f:
                 codeml_out_string += f.read()
 
         # store results
@@ -539,19 +547,22 @@ def analyse_family_pairwise(
 
     # filter the alignment -----------------------------------------------------
     # remove the sequences that were filtered out from the Ks matrix from the
-    # alignment as well?
+    # alignment as well
     aln = read_fasta(msa_path)
     to_del = [k for k in aln.keys() if k not in ks_mat.index]
     for k in to_del: del aln[k]
     write_fasta(aln, msa_path)
 
     # weighting ----------------------------------------------------------------
-    # TODO: when only two family members, this is a bit of an overkill, but
-    # otherwise the distance between the gene pair is not computed correctly.
-    # Also, apparently PhyML breaks on families of two members.
-    clustering, pairwise_distances, tree_path = _weighting(
-            {'Ks': ks_mat}, msa=msa_path, method=method
-    )
+    if len(list(family.keys())) == 2 and method == "phyml":
+        # phyml breaks when only two genes are in a family
+        logging.debug("PhyML breaks with only two genes, do ALC instead.")
+        logging.debug("Distance will be in Ks units!")
+        clustering, pairwise_distances, tree_path = _weighting(
+                {'Ks': ks_mat}, msa=msa_path, method="alc")
+    else:
+        clustering, pairwise_distances, tree_path = _weighting(
+                {'Ks': ks_mat}, msa=msa_path, method=method)
     if clustering is None:
         logging.warning('No Ks estimates for {}'.format(family_id))
         return

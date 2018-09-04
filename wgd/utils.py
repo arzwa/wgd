@@ -171,6 +171,11 @@ def process_gene_families(gene_family_file, ignore_prefix=False):
 
 
 def uniq_id():
+    """
+    Get a unique ID which is not crazy long
+
+    :return: string
+    """
     from time import time
     return str(hex(int(time()*10000000))[2:])
 
@@ -280,20 +285,22 @@ def get_paralogs_fasta(input_fasta, selected_paralogs, output_fasta,
                 set(selected_paralogs['Paralog2'])
         with open(output_fasta, 'w') as f:
             for gene in list(genes):
-                ks_values = list(selected_paralogs[
-                                     selected_paralogs[
-                                         'Paralog1'] == gene]['Ks'])
-                ks_values += list(selected_paralogs[
-                                      selected_paralogs[
-                                          'Paralog2'] == gene]['Ks'])
+                ks_values = list(
+                        selected_paralogs[
+                            selected_paralogs['Paralog1'] == gene]['Ks']
+                )
+                ks_values += list(
+                        selected_paralogs[
+                            selected_paralogs['Paralog2'] == gene]['Ks']
+                )
                 ks_value, var = mean(ks_values), std(ks_values)
                 if gene in seqs.keys():
                     f.write('>{0} mean(Ks)={1:.5f};std(Ks)={2:.5f}\n{3}\n'
-                            ''.format(gene, float(ks_value), float(var),
-                                      seqs[gene]))
+                            ''.format(
+                            gene, float(ks_value), float(var), seqs[gene]))
                 else:
-                    logging.warning('Gene {} not found in fasta file!'.format(
-                            gene))
+                    logging.warning(
+                            'Gene {} not found in fasta file!'.format(gene))
 
     if pairs:
         for row in selected_paralogs.index:
@@ -303,8 +310,8 @@ def get_paralogs_fasta(input_fasta, selected_paralogs, output_fasta,
                 with open('{0}_{1}_{2:.3f}_{3}'.format(
                         p1, p2, selected_paralogs.loc[row]['Ks'], output_fasta),
                         'w') as o:
-                    o.write('>{0}\n{1}\n>{2}\n{3}'.format(p1, seqs[p1], p2,
-                                                          seqs[p2]))
+                    o.write('>{0}\n{1}\n>{2}\n{3}'.format(
+                            p1, seqs[p1], p2, seqs[p2]))
             else:
                 logging.warning('Gene not found in fasta file!')
 
@@ -369,8 +376,8 @@ def translate_cds(sequence_dict):
                         total += 1
                         break
                     aa_seq += aa_dict[val[i:i + 3]]
-            if invalid:
-                continue
+            # if invalid:
+            #    continue
             protein_dict[key] = aa_seq
             pb.update(j)
     logging.warning("There were {} warnings during translation".format(total))

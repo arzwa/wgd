@@ -32,41 +32,42 @@ Upon successful installation you should be able to run::
 
     Usage: wgd [OPTIONS] COMMAND [ARGS]...
 
-    Welcome to the wgd command line interface!
+      Welcome to the wgd command line interface!
 
-                           _______
-                           \\  ___ `'.
-           _     _ .--./)   ' |--.\\  \\
-     /\\    \\\\   ///.''\\\\    | |    \\  '
-     `\\\\  //\\\\ //| |  | |   | |     |  '
-       \\`//  \\'/  \\`-' /    | |     |  |
-        \\|   |/   /("'`     | |     ' .'
-         '        \\ '---.   | |___.' /'
-                   /'""'.\\ /_______.'/
-                  ||     ||\\_______|/
-                  \\'. __//
-                   `'---'
+                             _______
+                             \  ___ `'.
+             _     _ .--./)   ' |--.\  \
+       /\    \\   ///.''\\    | |    \  '
+       `\\  //\\ //| |  | |   | |     |  '
+         \`//  \'/  \`-' /    | |     |  |
+          \|   |/   /("'`     | |     ' .'
+           '        \ '---.   | |___.' /'
+                     /'""'.\ /_______.'/
+                    ||     ||\_______|/
+                    \'. __//
+                     `'---'
 
-    wgd  Copyright (C) 2018 Arthur Zwaenepoel
-    This program comes with ABSOLUTELY NO WARRANTY;
-    This is free software, and you are welcome to redistribute it
-    under certain conditions;
+      wgd  Copyright (C) 2018 Arthur Zwaenepoel
+      This program comes with ABSOLUTELY NO WARRANTY;
+      This is free software, and you are welcome to redistribute it
+      under certain conditions;
 
-    Contact: arzwa@psb.vib-ugent.be
+      Contact: arzwa@psb.vib-ugent.be
 
     Options:
-    -v, --verbosity [info|debug]  Verbosity level, default = info.
-    -l, --logfile TEXT            File to write logs to (optional)
-    -h, --help                    Show this message and exit.
+      -v, --verbosity [info|debug]  Verbosity level, default = info.
+      -l, --logfile TEXT            File to write logs to (optional)
+      -h, --help                    Show this message and exit.
 
     Commands:
-    blast       All-vs.-all blastp (+ MCL) analysis.
-    ks          Ks distribution construction.
-    mix         Mixture modeling of Ks distributions.
-    pipeline_1  Standard workflow whole paranome Ks.
-    pipeline_2  Standard workflow one-vs-one ortholog Ks.
-    syn         Co-linearity analyses.
-    viz         Plot histograms/densities (interactively).
+      kde  Fit a KDE to a Ks distribution.
+      ksd  Ks distribution construction.
+      mcl  All-vs.-all blastp + MCL analysis.
+      mix  Mixture modeling of Ks distributions.
+      syn  Co-linearity analyses.
+      viz  Plot histograms/densities (interactively).
+      wf1  Standard workflow whole paranome Ks.
+      wf2  Standard workflow one-vs-one ortholog Ks.
 
 
 Note that the verbose flag can be set before the subcommands::
@@ -76,15 +77,11 @@ Note that the verbose flag can be set before the subcommands::
 Which sets the verbosity for the logging.
 
 All commands are equipped with usage instructions and documentation of options
-and arguments, which can be viewed by using the ``--help`` or ``-h`` flag (e.g.
-``wgd ks --help``). These should be quite self-explanatory, but for further
-documentation you can refer to the documentation of the specific functions that
-are called. These can be found on this page (e.g. the function called by
-``wgd blast`` is :py:func:`wgd_cli.blast_`.
-
-``wgd`` is still under development, you may find some functions broken or
-containing bugs, especially in those where the documentation explicitly
-indicates that this might be the case.
+and arguments, which can be viewed by using the ``--help`` or ``-h`` flag. These
+should be quite self-explanatory, but for further documentation you can refer to
+the documentation of the specific functions that are called. These can be found
+on this page (e.g. the function called by ``wgd blast`` is
+:py:func:`wgd_cli.blast_`.
 
 Example
 =======
@@ -96,13 +93,13 @@ sequences called ``penguin.cds.fasta``.
 (1) Get the paranome, i.e. perform all-against-all Blastp and MCL clustering,
 notice how we specify to use 8 threads::
 
-    $ wgd blast --cds --mcl -s penguin.cds.fasta -o ./ -n 8
+    $ wgd mcl --cds --mcl -s penguin.cds.fasta -o ./ -n 8
 
-(2) Construct a Ks distribution, use PhyML for inferring the phylogenetic
+(2) Construct a |Ks| distribution, use PhyML for inferring the phylogenetic
 trees used in the node weighting procedure::
 
-    $ wgd ks -gf ./penguin.cds.fasta.mcl -s penguin.cds.fasta -o ./ -n 8 \
---pairwise --wm phyml
+    $ wgd ksd -o ./ -n 8 --pairwise --wm phyml ./penguin.cds.fasta.mcl \
+penguin.cds.fasta
 
 --------------------------------------------------------------------------------
 
@@ -110,14 +107,9 @@ Reference
 =========
 """
 # TODO's & IDEAS:
-#   (1) codeml treats gaps as missing data, so it is not necessary to strip gaps
-#       when estimating Ks values!
-#   (2) The most consistent approach would be to estimate a tree using
-#       codonphyml on a codon alignment from PRANK, and use that tree in codeml
-#       to estimate pairwise Ks values.
-#   (3) Use biopython for all sequence handling
-#   (4) Use tmp files to keep track of the outputs from subprocesses, because
-#       using PIPE might result in hangs.
+# - Use biopython for all sequence handling
+# - Use tmp files to keep track of the outputs from subprocesses, because using
+#   PIPE might result in hangs.
 
 # keep these imports to a minimum to speed up initial CLI loading
 import click
@@ -268,8 +260,8 @@ def blast_mcl(
         eval_cutoff=1e-10, output_dir='wgd_blast', n_threads=4
 ):
     """
-    All vs. all Blast pipeline. For usage in the ``wgd`` CLI. Can be used to
-    perform all vs. all Blast, MCL clustering and one vs. one ortholog
+    All vs. all Blast + MCL pipeline. For usage in the ``wgd`` CLI. Can be used
+    to perform all vs. all Blast, MCL clustering and one vs. one ortholog
     delineation.
 
     :param cds: boolean, indicates that the provided sequences are CDS
@@ -420,22 +412,14 @@ def blast_mcl(
 
 # Ks ANALYSIS USING JOBLIB/ASYNC  ----------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.option(
-        '--gene_families', '-gf', default=None,
-        type=click.Path(exists=True),
-        help='gene families (paralogs or one-to-one orthologs)'
-)
-@click.option(
-        '--sequences', '-s', default=None,
-        help='CDS sequences file in fasta format (multiple files should be '
-             'specified separated by commas)'
-)
+@click.argument('gene_families', nargs=1, type=click.Path(exists=True))
+@click.argument('sequences', nargs=-1, type=click.Path(exists=True))
 @click.option(
         '--output_directory', '-o', default='ks.out', show_default=True,
         help='output directory'
 )
 @click.option(
-        '--protein_sequences', '-ps', default=None,
+        '--protein_sequences', '-p', default=None,
         help="protein sequences fasta file (optional)"
 )
 @click.option(
@@ -453,7 +437,7 @@ def blast_mcl(
 )
 @click.option(
         '--min_msa_length', '-mml', default=100, show_default=True,
-        help="minimum MSA length for Ks analysis"
+        help="minimum MSA length for pairwise mode"
 )
 @click.option(
         '--n_threads', '-n', default=4, show_default=True,
@@ -501,14 +485,11 @@ def ksd(
 
     Example 1 - whole paranome Ks distribution:
 
-        wgd ksd -gf fringilla_coelebs.mcl -s fringilla_coelebs.cds.fasta -o
-            finch_ks_out --n_threads 8
+        wgd ksd --n_threads 8 fringilla_coelebs.mcl fringilla_coelebs.cds.fasta
 
     Example 2 - one vs. one ortholog Ks distribution:
 
-        wgd ksd -gf beaver_eagle -s
-        castor_fiber.cds.fasta,aquila_chrysaetos.cds.fasta
-        -o beaver_eagle_ks_out
+        wgd ksd -o beaver_eagle orthologs.tsv beaver.cds.fasta,eagle.cds.fasta
 
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
@@ -542,13 +523,14 @@ def ksd_(
     :param protein_sequences: protein sequences (optional), by default CDS files
         are translated using the standard genetic code.
     :param tmp_dir: tmp directory name (optional)
-    :param muscle: path to MUSCLE executable
+    :param aligner: aligner to use
     :param codeml: path to codeml executable
     :param times: number of times to iteratively perform ML estimation of Ks,
         Ka and omega values.
     :param min_msa_length: minimum multiple sequence alignment length
     :param ignore_prefixes: ignore prefixes defined by '|' in gene IDs
     :param one_v_one: boolean, one-vs.-one ortholog analysis
+    :param pairwise: run in pairwise mode
     :param preserve: boolean, preserve codeml output files, multiple sequence
         alignments and trees?
     :param async: use the async library for parallelization (not recommended)
@@ -600,7 +582,7 @@ def ksd_(
         os.mkdir(tmp_dir)
 
     logging.debug('Reading CDS sequences')
-    seq_list = [os.path.abspath(x) for x in sequences.strip().split(',')]
+    seq_list = [os.path.abspath(x) for x in sequences]
     cds_seqs = {}
     for seq_file in seq_list:
         cds_seqs.update(read_fasta(seq_file))
@@ -716,8 +698,7 @@ def syn(
 
     Example:
 
-        wgd syn -gff ailuropoda.gff -gf ailuropoda.paranome.mcl -ks panda.ks
-            -o panda.anchors_out
+        wgd syn -f gene -a id -ks panda.ks panda.gff panda.paranome.mcl
 
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
@@ -833,7 +814,6 @@ def syn_(
 
         # output and plots
         logging.info("Constructing Ks distribution for anchors")
-        # FIXME this is annoyingly slow and gives a SettingWithCopyWarning
         ks, anchors = get_anchor_pairs(anchor_points, ks_dist, ks_out)
 
         logging.info("Generating Ks colored dotplot")
@@ -1083,8 +1063,6 @@ def viz(
     """
     Plot histograms/densities (interactively).
 
-    This will be replaced by a novel distinct app.
-
     Requires a running bokeh server for interactive visualization.
     Run a bokeh serve instance (in the background) with `bokeh serve &`.
 
@@ -1162,7 +1140,7 @@ def viz_(
     # interactive bokeh visualization
     if interactive:
         from wgd.viz import histogram_bokeh
-        histogram_bokeh(dists_files, labels, weights)
+        histogram_bokeh(dists_files, labels)
         return
 
     # normal matplotlib plots
@@ -1208,7 +1186,7 @@ def wf1(sequences, output_dir, gff_file, n_threads):
     """
     Standard workflow whole paranome Ks.
 
-    Parameters used are the default parameters in `wgd blast`, `wgd ks` and if
+    Parameters used are the default parameters in `wgd mcl`, `wgd ksd` and if
     relevant `wgd syn`.
 
     Example:
@@ -1251,7 +1229,7 @@ def wf2(sequences, output_dir, n_threads):
     """
     Standard workflow one-vs-one ortholog Ks.
 
-    Parameters used are the default parameters in `wgd blast`, and `wgd ks`.
+    Parameters used are the default parameters in `wgd mcl`, and `wgd ksd`.
 
     Example:
 

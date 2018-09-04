@@ -8,5 +8,5 @@ Command line interface
     :private-members:
 
 
-.. |Ks| replace:: K\ :sub:`S`
-.. |Ka| replace:: K\ :sub:`A`
+.. |Ks| replace:: `K`\ :sub:`S`
+.. |Ka| replace:: `K`\ :sub:`A`
