@@ -20,19 +20,20 @@ Contact: arzwa@psb.vib-ugent.be
 
 --------------------------------------------------------------------------------
 """
-# TODO: alignment stripping as in Vanneste 2013 (is this necessary?)
-# TODO: add functionality to use custom alignments
-# TODO: divide in subfamilies using graph based approach
-#   this is as in Lynch & Conery 2003, construct a graph (adjacency matrix?)
-#   where nodes are genes and edges are drawn between nodes for which Ks < 5
-#   then find the connected components in this graph to find subfamilies!
+# Note that the reweighting method is still performed here for compatibility
+# reasons. However the recomputed weights are not used in other parts of the
+# wgd suite!
+
+# Ideas:
+#  - add functionality to use custom alignments?
+#  - add more advanced alignment stripping?
 
 # IMPORTS
 from .codeml import Codeml
 from .alignment import prepare_aln, align, get_pairwise_alns
 from .utils import process_gene_families, get_sequences, write_fasta, read_fasta
-from .phy import run_phyml, phylogenetic_tree_to_cluster_format, run_fasttree, \
-    average_linkage_clustering
+from .phy import run_phyml, phylogenetic_tree_to_cluster_format, run_fasttree
+from .phy import average_linkage_clustering
 from operator import itemgetter
 from joblib import Parallel, delayed
 import numpy as np
@@ -103,52 +104,6 @@ def _weighting(pairwise_estimates, msa=None, method='alc'):
 
     logging.debug('Clustering used for weighting: \n{}'.format(str(clustering)))
     return clustering, pairwise_distances, tree_path
-
-
-def _divide_in_subfamilies(ks_matrix, threshold=5):
-    """
-    Divide a family into subfamilies for which pairwise Ks estimates do not 
-    exceed the given threshold.
-
-    :param ks_matrix: pairwise Ks estimates matrix
-    :param threshold: Ks threshold
-    """
-    # get adjacency list
-    adj = {}
-    for g in ks_matrix.index:
-        row = ks_matrix.loc[g]
-        adj[g] = set([i for i in row.index if row.loc[i] < 5])
-
-    # get connected components
-    connected_components = _get_connected_components(adj)
-
-
-def _get_connected_components(adj):
-    """
-    Get connected components from an adjacency list using a DFS.
-
-    :param adj: adjacency list (dictionary actually)
-    :return: connected components
-    """
-    connected_components = []
-    component = set()
-
-    def dfs_util(v):
-        visited[v] = True
-        component.add(v)
-        for vv in adj[v]:
-            if not visited[vv]:
-                dfs_util(vv)
-
-    vertices = list(adj.keys())
-    visited = {x: False for x in vertices}
-    for v in vertices:
-        if not visited[v]:
-            dfs_util(v)
-            connected_components.append(component)
-            component = set()
-
-    return connected_components
 
 
 def _calculate_weights(clustering, pairwise_estimates, pairwise_distances=None):

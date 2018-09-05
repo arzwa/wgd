@@ -76,6 +76,11 @@ All information can be found here:
 
    Command line interface <wgd_cli>
 
+Here is a flow chart of the different analyses that can be performed using the
+wgd CLI:
+
+.. image:: flowchart.png
+
 
 Python package
 ==============

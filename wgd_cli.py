@@ -35,16 +35,16 @@ Upon successful installation you should be able to run::
       Welcome to the wgd command line interface!
 
                              _______
-                             \  ___ `'.
-             _     _ .--./)   ' |--.\  \
-       /\    \\   ///.''\\    | |    \  '
-       `\\  //\\ //| |  | |   | |     |  '
-         \`//  \'/  \`-' /    | |     |  |
-          \|   |/   /("'`     | |     ' .'
-           '        \ '---.   | |___.' /'
+                             \\  ___ `'.
+             _     _ .--./)   ' |--.\\  \\
+       /\\    \\   ///.''\\    | |    \\  '
+       `\\  //\\\\ //| |  | |   | |     |  '
+         \\`//  \\'/  \`-' /    | |     |  |
+          \\|   |/   /("'`     | |     ' .'
+           '        \\ '---.   | |___.' /'
                      /'""'.\ /_______.'/
-                    ||     ||\_______|/
-                    \'. __//
+                    ||     ||\\_______|/
+                    \\'. __//
                      `'---'
 
       wgd  Copyright (C) 2018 Arthur Zwaenepoel
@@ -121,6 +121,7 @@ import pandas as pd
 import coloredlogs
 import subprocess
 from wgd.utils import translate_cds, read_fasta, write_fasta, can_i_run_software
+
 warnings.filterwarnings("ignore", message="numpy.dtype size changed")
 warnings.filterwarnings("ignore", message="numpy.ufunc size changed")
 
@@ -162,17 +163,17 @@ def cli(verbosity, logfile):
     """
     if not logfile:
         coloredlogs.install(
-            fmt='%(asctime)s: %(levelname)s\t%(message)s',
-            level=verbosity.upper(), stream=sys.stdout
+                fmt='%(asctime)s: %(levelname)s\t%(message)s',
+                level=verbosity.upper(), stream=sys.stdout
         )
     else:
         print('Logs will be written to {}'.format(logfile))
         logging.basicConfig(
-            filename=logfile,
-            filemode='a',
-            format='%(asctime)s: %(levelname)s\t%(message)s',
-            datefmt='%H:%M:%S',
-            level=verbosity.upper()
+                filename=logfile,
+                filemode='a',
+                format='%(asctime)s: %(levelname)s\t%(message)s',
+                datefmt='%H:%M:%S',
+                level=verbosity.upper()
         )
 
     # get round problem with python multiprocessing library that can set all cpu
@@ -235,7 +236,9 @@ def mcl(
     """
     All-vs.-all blastp + MCL analysis.
 
-    Requires blastp, makeblastdb (ncbi-blast+ suite) and mcl.
+    Requires blastp, makeblastdb (ncbi-blast+ suite) and mcl. Note the two key
+    parameters, being the e-value cut-off and inflation factor. It is advised to
+    explore the effects of these on your analysis.
 
     Example 1 - whole paranome delineation:
 
@@ -251,7 +254,7 @@ def mcl(
     """
     # lazy imports
     blast_mcl(cds, mcl, one_v_one, sequences, species_ids, blast_results,
-           inflation_factor, eval_cutoff, output_dir, n_threads)
+              inflation_factor, eval_cutoff, output_dir, n_threads)
 
 
 def blast_mcl(
@@ -310,7 +313,9 @@ def blast_mcl(
     # all vs. all blast
     if not blast_results:
         # get sequences from directory
-        if os.path.isdir(sequences):
+        if type(sequences) == tuple:
+            sequence_files = sequences
+        elif os.path.isdir(sequences):
             sequence_files = sorted([os.path.join(sequences, x) for x
                                      in os.listdir(sequences) if
                                      x.endswith(('fa', 'fasta', 'tfa', 'faa'))])
@@ -327,8 +332,8 @@ def blast_mcl(
                          'not set, will perform all-vs.-all blast.')
 
         if len(sequence_files) != 2 and one_v_one:
-            logging.error('Please provide two or more fasta files for one-vs-'
-                          'one ortholog finding')
+            logging.error('Please two fasta files for one-vs-one ortholog '
+                          'finding')
             return
 
         if species_ids:
@@ -478,10 +483,10 @@ def ksd(
     Ks distribution construction.
 
     Ks distribution construction for a set of paralogs or one-to-one orthologs.
-    This implementation uses either the joblib or the asyncio library for
-    parallelization. Requires both ``codeml`` and ``muscle``. Depending on the
-    weighting method chosen (``wm`` option) ``phyml`` or ``FastTree`` might also
-    be required.
+    This implementation uses the joblib library for parallelization.
+    Requires both ``codeml`` and ``muscle|mafft|prank`` for alignment. Depending
+    on the weighting method  chosen (``wm`` option) ``phyml`` or ``FastTree``
+    might also be required.
 
     Example 1 - whole paranome Ks distribution:
 
@@ -621,9 +626,9 @@ def ksd_(
 
         logging.info('Generating plots')
         plot_selection(
-            results, output_file=os.path.join(
-                output_directory, '{}.ks.pdf'.format(base)
-            ), title=os.path.basename(gene_families)
+                results, output_file=os.path.join(
+                        output_directory, '{}.ks.svg'.format(base)
+                ), title=os.path.basename(gene_families)
         )
 
         logging.info('Done')
@@ -654,7 +659,7 @@ def ksd_(
 
         plot_selection(
                 results, output_file=os.path.join(
-                        output_directory, '{}.ks.pdf'.format(base)
+                        output_directory, '{}.ks.svg'.format(base)
                 ), title=os.path.basename(gene_families)
         )
 
@@ -694,7 +699,9 @@ def syn(
     """
     Co-linearity analyses.
 
-    Requires I-ADHoRe 3.0.
+    Requires I-ADHoRe 3.0 and a structural annotation in GFF format. Use the
+    ``--feature`` and ``--gene_attribute`` flags to ensure correspondence
+    between your CDS sequences and the right features in the GFF file!
 
     Example:
 
@@ -753,7 +760,7 @@ def syn_(
 
     if os.path.exists(output_dir):
         logging.warning(
-            'Output directory already exists, will possibly overwrite')
+                'Output directory already exists, will possibly overwrite')
 
     else:
         os.mkdir(output_dir)
@@ -794,7 +801,8 @@ def syn_(
     logging.info('Drawing co-linearity dotplot')
     syntenic_dotplot(
             multiplicons, min_length=min_length, output_file=os.path.join(
-            output_dir, '{}.dotplot.pdf'.format(os.path.basename(families)))
+                    output_dir,
+                    '{}.dotplot.svg'.format(os.path.basename(families)))
     )
 
     # Ks distribution for anchors and Ks colored dotplot
@@ -807,16 +815,16 @@ def syn_(
         # output file names
         ks_out = os.path.join(output_dir, '{}.ks_anchors.tsv'.format(
                 os.path.basename(families)))
-        dotplot_out = os.path.join(output_dir, '{}.dotplot.ks.pdf'.format(
+        dotplot_out = os.path.join(output_dir, '{}.dotplot.ks.svg'.format(
                 os.path.basename(families)))
-        hist = os.path.join(output_dir, '{}.ks_anchors.pdf'.format(
+        hist = os.path.join(output_dir, '{}.ks_anchors.svg'.format(
                 os.path.basename(families)))
 
         # output and plots
         logging.info("Constructing Ks distribution for anchors")
         ks, anchors = get_anchor_pairs(anchor_points, ks_dist, ks_out)
 
-        logging.info("Generating Ks colored dotplot")
+        logging.info("Generating Ks colored (median Ks) dotplot")
         syntenic_dotplot_ks_colored(
                 multiplicons, anchor_points, anchors,
                 output_file=dotplot_out, min_length=min_length
@@ -833,28 +841,29 @@ def syn_(
 # KDE FITTING ------------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.argument(
-    'ks_distribution', type=click.Path(exists=True), default=None
+        'ks_distribution', type=click.Path(exists=True), default=None
 )
 @click.option(
-    '--filters', '-f', nargs=3, type=float, default=(0., 0., 0.),
-    help="Data frame filters (alignment identity, length and coverage)",
-    show_default=True
+        '--filters', '-f', nargs=3, type=float, default=(0., 300., 0.),
+        help="Data frame filters (alignment identity, length and coverage)",
+        show_default=True
 )
 @click.option(
-    '--ks_range', '-r', nargs=2, default=(0,3), show_default=True, type=float,
-    help='Ks range to use for modeling'
+        '--ks_range', '-r', nargs=2, default=(0, 3), show_default=True,
+        type=float,
+        help='Ks range to use for modeling'
 )
 @click.option(
-    '--bandwidth', '-bw', default=None, show_default=True, type=float,
-    help="Bandwidth for Gaussian KDE, by default Scott's rule is used"
+        '--bandwidth', '-bw', default=None, show_default=True, type=float,
+        help="Bandwidth for Gaussian KDE, by default Scott's rule is used"
 )
 @click.option(
-    '--bins', '-b', default=25, show_default=True, type=int,
-    help="Number of histogram bins."
+        '--bins', '-b', default=25, show_default=True, type=int,
+        help="Number of histogram bins."
 )
 @click.option(
-    '--output_file', '-o', default="kde.pdf", show_default=True,
-    help='output file'
+        '--output_file', '-o', default="kde.svg", show_default=True,
+        help='output file'
 )
 def kde(
         ks_distribution, filters, ks_range, bandwidth, bins, output_file
@@ -862,7 +871,12 @@ def kde(
     """
     Fit a KDE to a Ks distribution.
 
-    This accounts for boundary effects by applying reflection around zero.
+    This accounts for boundary effects by applying reflection around the minimum
+    Ks value, removing spurious peaks in low Ks regions. Please modify the
+    bandwidth parameter if the KDE seems to be under- or overfitting.
+
+    Note that `wgd viz` allows interactive plotting of KDEs also and might be
+    more convenient for exploratory analysis.
 
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
@@ -871,10 +885,21 @@ def kde(
 
 
 def kde_(ks_distribution, filters, ks_range, bandwidth, bins, output_file):
-    from wgd.modeling import prepare_data, reflected_kde
+    """
+    Fit a KDE to a Ks distribution.
+
+    :param ks_distribution: Ks distribution file
+    :param filters: alignment filters
+    :param ks_range: Ks range
+    :param bandwidth: bandwidth
+    :param bins: number of histogram bins
+    :param output_file: output file
+    :return: nada
+    """
+    from wgd.modeling import filter_group_data, reflected_kde
     df = pd.read_csv(ks_distribution, index_col=0, sep='\t')
-    df = prepare_data(df, filters[0], filters[1], filters[2],
-                      ks_range[0], ks_range[1])
+    df = filter_group_data(df, filters[0], filters[1], filters[2],
+                           ks_range[0], ks_range[1])
     reflected_kde(df, ks_range[0], ks_range[1], bandwidth, bins, output_file)
     pass
 
@@ -882,44 +907,45 @@ def kde_(ks_distribution, filters, ks_range, bandwidth, bins, output_file):
 # MIXTURE MODELING -------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.argument(
-    'ks_distribution', type=click.Path(exists=True), default=None
+        'ks_distribution', type=click.Path(exists=True), default=None
 )
 @click.option(
-    '--filters', '-f', nargs=3, type=float, default=(0., 0., 0.),
-    help="Data frame filters (alignment identity, length and coverage)",
-    show_default=True
+        '--filters', '-f', nargs=3, type=float, default=(0., 300, 0.),
+        help="Data frame filters (alignment identity, length and coverage)",
+        show_default=True
 )
 @click.option(
-    '--ks_range', '-r', nargs=2, default=(0.005,3), show_default=True, type=float,
-    help='Ks range to use for modeling'
+        '--ks_range', '-r', nargs=2, default=(0.005, 3), show_default=True,
+        type=float,
+        help='Ks range to use for modeling'
 )
 @click.option(
-    '--bins', '-b', default=50, show_default=True, type=int,
-    help="Number of histogram bins."
+        '--bins', '-b', default=50, show_default=True, type=int,
+        help="Number of histogram bins."
 )
 @click.option(
-    '--output_dir', '-o', default="wgd_mix", show_default=True,
-    help='output directory'
+        '--output_dir', '-o', default="wgd_mix", show_default=True,
+        help='output directory'
 )
 @click.option(
-    '--method', type=click.Choice(['gmm', 'bgmm']), default='gmm',
-    show_default=True, help="mixture modeling method"
+        '--method', type=click.Choice(['gmm', 'bgmm']), default='gmm',
+        show_default=True, help="mixture modeling method"
 )
 @click.option(
-    '--components', '-n', nargs=2, default=(1, 4), show_default=True,
-    help='range of number of components to fit'
+        '--components', '-n', nargs=2, default=(1, 4), show_default=True,
+        help='range of number of components to fit'
 )
 @click.option(
-    '--gamma', '-g', default=1e-3, show_default=True,
-    help='gamma parameter for bgmm models'
+        '--gamma', '-g', default=1e-3, show_default=True,
+        help='gamma parameter for bgmm models'
 )
 @click.option(
-    '--n_init', '-ni', default=1, show_default=True,
-    help='number of k-means initializations'
+        '--n_init', '-ni', default=1, show_default=True,
+        help='number of k-means initializations'
 )
 @click.option(
-    '--max_iter', '-mi', default=1000, show_default=True,
-    help='maximum number of iterations'
+        '--max_iter', '-mi', default=1000, show_default=True,
+        help='maximum number of iterations'
 )
 def mix(
         ks_distribution, filters, ks_range, bins, output_dir, method,
@@ -927,6 +953,14 @@ def mix(
 ):
     """
     Mixture modeling of Ks distributions.
+
+    This provides means to fit Gaussian mixture models (GMMs) using an
+    expectation-maximization algorithm (EM, method=gmm) and variational Bayes
+    (VB, method=bgmm) algorithm. In the later case, regularizatoin is performed
+    with strength inversely proportional with the gamma parameter. A low gamma
+    value will lead to less active components in the mixture, which can be
+    observed by noting the weights for those components shrinking towards 0.
+    Note that histogram weighting is done after applying specified filters.
 
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
@@ -938,11 +972,13 @@ def mix(
 
 
 def mix_(
-        ks_distribution, filters, ks_range, method, components, bins, output_dir,
-        gamma, n_init, max_iter
+        ks_distribution, filters, ks_range, method, components, bins,
+        output_dir, gamma, n_init, max_iter
 ):
     """
     Mixture modeling tools.
+
+    Note that histogram weighting is done after applying specified filters.
 
     :param ks_distribution: Ks distribution data frame
     :param filters: alignment stats filters
@@ -956,7 +992,7 @@ def mix_(
     :param max_iter: number of iterations
     :return: nada
     """
-    from wgd.modeling import prepare_data, get_array_for_mixture, fit_gmm
+    from wgd.modeling import filter_group_data, get_array_for_mixture, fit_gmm
     from wgd.modeling import inspect_aic, inspect_bic, plot_aic_bic
     from wgd.modeling import plot_all_models_gmm, get_component_probabilities
     from wgd.modeling import fit_bgmm, plot_all_models_bgmm
@@ -969,8 +1005,8 @@ def mix_(
     # prepare data frame
     logging.info("Preparing data frame")
     df = pd.read_csv(ks_distribution, index_col=0, sep='\t')
-    df = prepare_data(df, filters[0], filters[1], filters[2],
-                      ks_range[0], ks_range[1])
+    df = filter_group_data(df, filters[0], filters[1], filters[2],
+                           ks_range[0], ks_range[1])
     X = get_array_for_mixture(df)
 
     logging.info(" .. max_iter = {}".format(max_iter))
@@ -987,10 +1023,10 @@ def mix_(
         inspect_bic(bic)
         logging.info("Plotting AIC & BIC")
         plot_aic_bic(aic, bic, components[0], components[1],
-                     os.path.join(output_dir, "aic_bic.pdf"))
+                     os.path.join(output_dir, "aic_bic.svg"))
         logging.info("Plotting mixtures")
         plot_all_models_gmm(models, X, ks_range[0], ks_range[1], bins=bins,
-                            out_file=os.path.join(output_dir, "gmms.pdf"))
+                            out_file=os.path.join(output_dir, "gmms.svg"))
 
     # BGMM method
     else:
@@ -1002,7 +1038,7 @@ def mix_(
         )
         logging.info("Plotting mixtures")
         plot_all_models_bgmm(models, X, ks_range[0], ks_range[1], bins=bins,
-                            out_file=os.path.join(output_dir, "bgmms.pdf"))
+                             out_file=os.path.join(output_dir, "bgmms.svg"))
         logging.warning("Method is BGMM, unable to choose best model!")
         logging.info("Taking model with most components for the component-wise"
                      "probability output file.")
@@ -1020,45 +1056,55 @@ def mix_(
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option(
-    '--ks_distributions', '-ks', default=None,
-    help="comma-separated Ks distribution csv files, or a directory containing"
-         " these (see `wgd ks`)"
+        '--ks_distributions', '-ks', default=None,
+        help="comma-separated Ks distribution csv files, or a directory containing"
+             " these (see `wgd ks`)"
 )
 @click.option(
-    '--alpha_values', '-a', default=None,
-    help="comma-separated alpha values (optional)"
+        '--alpha_values', '-a', default=None,
+        help="comma-separated alpha values (optional)"
 )
 @click.option(
-    '--colors', '-c', default=None,
-    help="comma-separated colors (optional)"
+        '--colors', '-c', default=None,
+        help="comma-separated colors (optional)"
 )
 @click.option(
-    '--labels', '-l', default=None,
-    help="comma-separated labels (for legend, optional)")
+        '--labels', '-l', default=None,
+        help="comma-separated labels (for legend, optional)")
 @click.option(
-    '--hist_type', '-ht', default='barstacked', show_default=True,
-    type=click.Choice(['barstacked', 'step', 'stepfilled']),
-    help="histogram type"
+        '--hist_type', '-ht', default='barstacked', show_default=True,
+        type=click.Choice(['barstacked', 'step', 'stepfilled']),
+        help="histogram type"
 )
 @click.option(
-    '--title', '-t', default='WGD histogram', show_default=True,
-    help="plot title"
+        '--title', '-t', default='WGD histogram', show_default=True,
+        help="plot title"
 )
 @click.option(
-    '--output_file', '-o', default='wgd_hist.pdf', show_default=True,
-    help="output file"
+        '--output_file', '-o', default='wgd_hist.svg', show_default=True,
+        help="output file"
 )
 @click.option(
-    '--interactive', '-i', is_flag=True,
-    help="interactive visualization with bokeh"
+        '--interactive', '-i', is_flag=True,
+        help="interactive visualization with bokeh"
 )
 @click.option(
-    '--outliers_included', '-oi', is_flag=True,
-    help="use weights computed before outlier removal"
+        '--filters', '-f', nargs=3, type=float, default=(0., 300, 0.),
+        help="Data frame filters (alignment identity, length and coverage)",
+        show_default=True
+)
+@click.option(
+        '--ks_range', '-r', nargs=2, default=(0.005, 3), show_default=True,
+        type=float,
+        help='Ks range to use for modeling'
+)
+@click.option(
+        '--bins', '-b', default=50, show_default=True, type=int,
+        help="Number of histogram bins."
 )
 def viz(
         ks_distributions, alpha_values, colors, labels, hist_type, title,
-        output_file, interactive, outliers_included
+        output_file, interactive, filters, ks_range, bins
 ):
     """
     Plot histograms/densities (interactively).
@@ -1073,13 +1119,13 @@ def viz(
     """
     viz_(
             ks_distributions, alpha_values, colors, labels, hist_type, title,
-            output_file, interactive, outliers_included
+            output_file, filters, ks_range, bins, interactive
     )
 
 
 def viz_(
         ks_distributions, alpha_values, colors, labels, hist_type, title,
-        output_file, interactive=False, outliers_included=False
+        output_file, filters, ks_range, bins, interactive=False
 ):
     """
     Plot (stacked) histograms (interactively)
@@ -1109,10 +1155,6 @@ def viz_(
         logging.error('You have to provide one or more computed Ks '
                       'distributions! See for example `wgd ks -h`')
         return 1
-    if outliers_included:
-        weights = 'WeightOutliersIncluded'
-    else:
-        weights = 'WeightOutliersExcluded'
 
     # directory provided
     if os.path.isdir(ks_distributions):
@@ -1130,7 +1172,7 @@ def viz_(
         # check if valid distributions
         try:
             d = pd.read_csv(i, sep='\t', index_col=0)
-            _ = d[['Ks', weights]]
+            _ = d[['Ks']]
             d = d.fillna(0)
             dists_files.append(i)
             dists.append(d)
@@ -1166,8 +1208,8 @@ def viz_(
     # make plot
     logging.info('Plotting Ks distributions overlay')
     plot_selection(dists, alphas=alpha_values, colors=colors, labels=labels,
-                   output_file=output_file, weights=weights,
-                   title=title, histtype=hist_type)
+                   output_file=output_file, title=title, histtype=hist_type,
+                   filters=filters, ks_range=ks_range, bins=bins)
     return
 
 
@@ -1202,12 +1244,12 @@ def wf1(sequences, output_dir, gff_file, n_threads):
     # wgd blast
     blast_dir = os.path.join(output_dir, 'wgd_blast')
     mcl_out = blast_mcl(cds=True, mcl=True, sequences=sequences,
-                     n_threads=n_threads, output_dir=blast_dir)
+                        n_threads=n_threads, output_dir=blast_dir)
 
     # wgd ks
     ks_dir = os.path.join(output_dir, 'wgd_ks')
-    ks_results = ksd_(gene_families=mcl_out, sequences=sequences,
-                     n_threads=n_threads, output_directory=ks_dir)
+    ks_results = ksd_(gene_families=mcl_out, sequences=[sequences],
+                      n_threads=n_threads, output_directory=ks_dir)
 
     # wgd syn
     if gff_file:
@@ -1219,7 +1261,7 @@ def wf1(sequences, output_dir, gff_file, n_threads):
 
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.argument('sequences', default=None)
+@click.argument('sequences', default=None, nargs=2)
 @click.argument('output_dir', default=None)
 @click.option(
         '--n_threads', '-n', default=4, show_default=True,
@@ -1243,14 +1285,15 @@ def wf2(sequences, output_dir, n_threads):
 
     # wgd blast
     blast_dir = os.path.join(output_dir, 'wgd_blast')
-    ovo_out = blast_mcl(cds=True, one_v_one=True, mcl=False, sequences=sequences,
-                     n_threads=n_threads,
-                     output_dir=blast_dir)
+    ovo_out = blast_mcl(cds=True, one_v_one=True, mcl=False,
+                        sequences=sequences,
+                        n_threads=n_threads,
+                        output_dir=blast_dir)
 
     # wgd ks
     ks_dir = os.path.join(output_dir, 'wgd_ks')
     ksd_(gene_families=ovo_out, sequences=sequences, n_threads=n_threads,
-        output_directory=ks_dir, one_v_one=True)
+         output_directory=ks_dir, one_v_one=True)
 
     return
 

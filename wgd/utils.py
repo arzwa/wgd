@@ -318,7 +318,7 @@ def get_paralogs_fasta(input_fasta, selected_paralogs, output_fasta,
     return
 
 
-def translate_cds(sequence_dict):
+def translate_cds(sequence_dict, skip_invalid=False):
     """
     Just another CDS to protein translater. Will give warnings when in-frame
     stop codons are found, invalid codons are found, or when the sequence length
@@ -326,6 +326,8 @@ def translate_cds(sequence_dict):
     unspecified or in-frame codon is encountered.
 
     :param sequence_dict: dictionary with gene IDs and CDS sequences
+    :param skip_invalid: bool, skip invalid CDS? (default translates to first
+        stop codon or end)
     :return: dictionary with gene IDs and proteins sequences
     """
     # TODO I should just use the Biopython translator
@@ -376,8 +378,8 @@ def translate_cds(sequence_dict):
                         total += 1
                         break
                     aa_seq += aa_dict[val[i:i + 3]]
-            # if invalid:
-            #    continue
+            if invalid and skip_invalid:
+                continue
             protein_dict[key] = aa_seq
             pb.update(j)
     logging.warning("There were {} warnings during translation".format(total))
