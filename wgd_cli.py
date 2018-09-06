@@ -88,18 +88,41 @@ Example
 
 Here is a small example on how to use the package through the CLI. This is a
 workflow for constructing a |Ks| distribution for a fasta file with CDS
-sequences called ``penguin.cds.fasta``.
+sequences called ``ath.cds.fasta``. File names may be different, but the point
+will be clear.
 
 (1) Get the paranome, i.e. perform all-against-all Blastp and MCL clustering,
 notice how we specify to use 8 threads::
 
-    $ wgd mcl --cds --mcl -s penguin.cds.fasta -o ./ -n 8
+    $ wgd mcl --cds --mcl -s ath.cds.fasta -o ./ -n 8
 
 (2) Construct a |Ks| distribution, use PhyML for inferring the phylogenetic
 trees used in the node weighting procedure::
 
-    $ wgd ksd -o ./ -n 8 --pairwise --wm phyml ./penguin.cds.fasta.mcl \
-penguin.cds.fasta
+    $ wgd ksd -o ./ -n 8 --pairwise --wm phyml ./ath.mcl ath.cds.fasta
+
+(3) Run I-ADHoRe and get an anchor-point |Ks| distribution, as well as dotplots.
+here we need a structural annotation in GFF format (see e.g.
+https://bioinformatics.psb.ugent.be/plaza/versions/plaza_v4_dicots/download/ for
+examples of such files)::
+
+    $ wgd syn ath.gff ath.mcl -ks ath.mcl.ks.tsv -f gene -a ID
+
+(4) Fit some gaussian mixture models with 1 to 5 components (default
+parameters)::
+
+    $ wgd mix ath.mcl.ks.tsv -n 1 5
+
+(5) Explore the full and anchor distribution with kernel density estimates
+interactively. First run a bokeh server in the background::
+
+    $ bokeh serve &
+
+next, execute the following command::
+
+    $ wgd viz -i -ks ath.mcl.ks.tsv,ath.mcl.ks_anchors.tsv -l full,anchors
+
+a tab in your default browser should appear.
 
 --------------------------------------------------------------------------------
 

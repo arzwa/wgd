@@ -149,7 +149,7 @@ def syntenic_dotplot(df, min_length=250, output_file=None):
         if type(x) == str
     }
 
-    fig = plt.figure(figsize=(10.5, 10))
+    fig = plt.figure(figsize=(6.5, 6))
     ax = fig.add_subplot(111)
 
     for key in sorted(genomic_elements_.keys()):
@@ -236,7 +236,7 @@ def syntenic_dotplot_ks_colored(
     tmp = plt.contourf(z, levels, cmap=cmap)
     plt.clf()
 
-    fig = plt.figure(figsize=(10.5, 10))
+    fig = plt.figure(figsize=(6.5, 6))
     ax = fig.add_subplot(111)
 
     for key in sorted(genomic_elements_.keys()):

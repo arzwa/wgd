@@ -63,10 +63,8 @@ You can find tools for the following analyses:
 2. Whole paranome |Ks| (and |Ka| and ω) distribution construction
 3. One-versus-one orthologs |Ks| (and |Ka| and ω;) distribution construction
 4. Mixture modeling of |Ks| distributions and WGD-specific paralog extraction
-5. Interactive visualization of (multiple) |Ks| distributions and kernel density
-estimates thereof
-6. Intragenomic co-linearity/synteny analysis and anchor based |Ks| distribution
-construction
+5. Interactive visualization of (multiple) |Ks| distributions and kernel density estimates thereof
+6. Intragenomic co-linearity/synteny analysis and anchor based |Ks| distribution construction
 7. Co-linearity dotplot construction
 
 All information can be found here:
