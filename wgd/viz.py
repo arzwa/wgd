@@ -32,6 +32,7 @@ if not 'DISPLAY' in pb.local.env:
     matplotlib.use('Agg')  # use this backend when no X server
 import matplotlib.pyplot as plt
 import matplotlib
+import logging
 import numpy as np
 import seaborn as sns
 # import matplotlib.patheffects as pe
@@ -162,22 +163,43 @@ def syntenic_dotplot(df, min_length=250, output_file=None):
     genomic_elements = {}
     sorted_ge = sorted(genomic_elements_.items(), key=lambda x: x[1],
                        reverse=True)
+    labels = [kv[0] for kv in sorted_ge if kv[1] >= min_length]
+
     for kv in sorted_ge:
         genomic_elements[kv[0]] = previous
         previous += kv[1]
 
     x = [genomic_elements[key] for key in sorted(genomic_elements.keys())]
-    x = list(set(x))  # FIXME hack
+    x = sorted(list(set(x)))  # FIXME hack
+    if len(x) == 0:
+        logging.warning("No multiplicons found!")
+        return
+
+    # plot layout stuff!
+    x = [genomic_elements[key] for key in sorted(genomic_elements.keys())]
+    x = sorted(list(set(x)))
     ax.vlines(ymin=0, ymax=previous, x=x, linestyles='dotted', alpha=0.2)
     ax.hlines(xmin=0, xmax=previous, y=x, linestyles='dotted', alpha=0.2)
     ax.plot(x, x, color='k', alpha=0.2)
-    ax.set_xticks([])
+    ax.set_xticks(x)
     ax.set_yticks(x)
-    ax.set_xticklabels([])  # x, rotation=45)
-    ax.set_yticklabels(x)
+    ax.set_xticklabels([])
+    ax.set_yticklabels([])
     ax.set_xlim(0, max(x))
     ax.set_ylim(0, max(x))
+    ax.set_xticks([(x[i] + x[i - 1]) / 2 for i in range(1, len(x))], minor=True)
+    ax.set_xticklabels(labels, minor=True, rotation=45)
+    ax.set_yticks([(x[i] + x[i - 1]) / 2 for i in range(1, len(x))], minor=True)
+    ax.set_yticklabels(labels, minor=True, rotation=45)
+    for tick in ax.xaxis.get_minor_ticks():
+        tick.tick1line.set_markersize(0)
+        tick.tick2line.set_markersize(0)
+        tick.label1.set_horizontalalignment('center')
+    for tick in ax.yaxis.get_minor_ticks():
+        tick.tick1line.set_markersize(0)
+        tick.tick2line.set_markersize(0)
 
+    # actual dots (or better, line segments)
     for i in range(len(df)):
         row = df.iloc[i]
         list_x, list_y = row['list_x'], row['list_y']
@@ -190,6 +212,7 @@ def syntenic_dotplot(df, min_length=250, output_file=None):
         ax.plot(x, y, color='k', alpha=0.7)
         ax.plot(y, x, color='k', alpha=0.7)
 
+    # saving
     if output_file:
         fig.savefig(output_file, dpi=200, bbox_inches='tight')
         plt.close()
@@ -213,7 +236,9 @@ def syntenic_dotplot_ks_colored(
     :return: figure
     """
     cmap = plt.get_cmap(color_map)
-
+    if len(an["gene_x"]) == 0:
+        logging.warning("No multiplicons found!")
+        return
     an["pair"] = an.apply(lambda x: '__'.join(
             sorted([x["gene_x"], x["gene_y"]])), axis=1)
     genomic_elements_ = {
@@ -249,22 +274,38 @@ def syntenic_dotplot_ks_colored(
     genomic_elements = {}
     sorted_ge = sorted(genomic_elements_.items(), key=lambda x: x[1],
                        reverse=True)
+    labels = [kv[0] for kv in sorted_ge if kv[1] >= min_length]
+
     for kv in sorted_ge:
         genomic_elements[kv[0]] = previous
         previous += kv[1]
 
+    # plot layout
     x = [genomic_elements[key] for key in sorted(genomic_elements.keys())]
-    x = list(set(x))
+    x = sorted(list(set(x)))
     ax.vlines(ymin=0, ymax=previous, x=x, linestyles='dotted', alpha=0.2)
     ax.hlines(xmin=0, xmax=previous, y=x, linestyles='dotted', alpha=0.2)
     ax.plot(x, x, color='k', alpha=0.2)
-    ax.set_xticks([])
+    ax.set_xticks(x)
     ax.set_yticks(x)
     ax.set_xticklabels([])
-    ax.set_yticklabels(x)
+    ax.set_yticklabels([])
     ax.set_xlim(0, max(x))
     ax.set_ylim(0, max(x))
+    ax.set_xticks([(x[i] + x[i - 1]) / 2 for i in range(1, len(x))], minor=True)
+    ax.set_xticklabels(labels, minor=True, rotation=45)
+    ax.set_yticks([(x[i] + x[i - 1]) / 2 for i in range(1, len(x))], minor=True)
+    ax.set_yticklabels(labels, minor=True, rotation=45)
+    for tick in ax.xaxis.get_minor_ticks():
+        tick.tick1line.set_markersize(0)
+        tick.tick2line.set_markersize(0)
+        tick.label1.set_horizontalalignment('center')
+    for tick in ax.yaxis.get_minor_ticks():
+        tick.tick1line.set_markersize(0)
+        tick.tick2line.set_markersize(0)
+        # tick.label1.set_horizontalalignment('center')
 
+    # the actual dots (or better, line segments)
     for i in range(len(df)):
         row = df.iloc[i]
         list_x, list_y = row['list_x'], row['list_y']
@@ -282,9 +323,11 @@ def syntenic_dotplot_ks_colored(
                 # path_effects=[pe.Stroke(linewidth=4, foreground='k'),
                               #pe.Normal()])
 
+    # colorbar
     cbar = plt.colorbar(tmp, fraction=0.02, pad=0.01)
     cbar.ax.set_yticklabels(['{:.2f}'.format(x) for x in np.linspace(0, 5, 11)])
 
+    # saving
     if output_file:
         fig.savefig(output_file, dpi=200, bbox_inches='tight')
         plt.close()

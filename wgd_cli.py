@@ -443,7 +443,7 @@ def blast_mcl(
 @click.argument('gene_families', nargs=1, type=click.Path(exists=True))
 @click.argument('sequences', nargs=-1, type=click.Path(exists=True))
 @click.option(
-        '--output_directory', '-o', default='ks.out', show_default=True,
+        '--output_directory', '-o', default='wgd_ksd', show_default=True,
         help='output directory'
 )
 @click.option(
@@ -703,11 +703,11 @@ def ksd_(
         help='output directory'
 )
 @click.option(
-        '--feature', '-f', default='mRNA', show_default=True,
+        '--feature', '-f', default='gene', show_default=True,
         help="keyword for parsing the genes from the GFF file (column 3)"
 )
 @click.option(
-        '--gene_attribute', '-a', default='Parent', show_default=True,
+        '--gene_attribute', '-a', default='ID', show_default=True,
         help="keyword for parsing the gene IDs from the GFF file (column 9)"
 )
 @click.option(
