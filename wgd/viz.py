@@ -28,6 +28,7 @@ distributions with kernel density estimates interactively.
 from .modeling import filter_group_data
 import plumbum as pb
 import matplotlib
+
 if not 'DISPLAY' in pb.local.env:
     matplotlib.use('Agg')  # use this backend when no X server
 import matplotlib.pyplot as plt
@@ -39,7 +40,8 @@ import seaborn as sns
 import pandas as pd
 
 
-def plot_dists(dists, var, scale, ax, alphas, colors, labels, bins=40, **kwargs):
+def plot_dists(dists, var, scale, ax, alphas, colors, labels, bins=40,
+               **kwargs):
     """
     Plot a bunch of histograms stacked on each other.
 
@@ -54,7 +56,7 @@ def plot_dists(dists, var, scale, ax, alphas, colors, labels, bins=40, **kwargs)
     :param kwargs: other args for plt.hist
     :return: ax
     """
-    xlabs = {"Ks" : "K_{\mathrm{S}}", "Ka": "K_{\mathrm{A}}", "Omega": "\omega"}
+    xlabs = {"Ks": "K_{\mathrm{S}}", "Ka": "K_{\mathrm{A}}", "Omega": "\omega"}
     data = [dist[var] for dist in dists]
     xlab = xlabs[var]
     if scale == "log10":
@@ -107,7 +109,8 @@ def plot_selection(
 
     # filtering and node-weighting
     for i in range(len(dists)):
-        dists[i] = filter_group_data(dists[i], filters[0], filters[1], filters[2],
+        dists[i] = filter_group_data(dists[i], filters[0], filters[1],
+                                     filters[2],
                                      ks_range[0], ks_range[1])
 
     # assemble the figure
@@ -116,7 +119,7 @@ def plot_selection(
     ax.set_xlim(0, ks_range[1])
     ax = fig.add_subplot(2, 2, 2)
     plot_dists(dists, "Ks", "log10", ax, alphas, colors, labels, bins, **kwargs)
-    ax.set_xlim(np.log10(ks_range[0]+1e-5), np.log10(ks_range[1]))
+    ax.set_xlim(np.log10(ks_range[0] + 1e-5), np.log10(ks_range[1]))
     ax = fig.add_subplot(2, 2, 3)
     plot_dists(dists, "Ka", "log10", ax, alphas, colors, labels, bins, **kwargs)
     ax = fig.add_subplot(2, 2, 4)
@@ -169,15 +172,14 @@ def syntenic_dotplot(df, min_length=250, output_file=None):
         genomic_elements[kv[0]] = previous
         previous += kv[1]
 
-    x = [genomic_elements[key] for key in sorted(genomic_elements.keys())]
+    x = [genomic_elements[key] for key in sorted(genomic_elements.keys())] + \
+        [previous]
     x = sorted(list(set(x)))  # FIXME hack
     if len(x) == 0:
         logging.warning("No multiplicons found!")
         return
 
     # plot layout stuff!
-    x = [genomic_elements[key] for key in sorted(genomic_elements.keys())]
-    x = sorted(list(set(x)))
     ax.vlines(ymin=0, ymax=previous, x=x, linestyles='dotted', alpha=0.2)
     ax.hlines(xmin=0, xmax=previous, y=x, linestyles='dotted', alpha=0.2)
     ax.plot(x, x, color='k', alpha=0.2)
@@ -222,7 +224,8 @@ def syntenic_dotplot(df, min_length=250, output_file=None):
 
 
 def syntenic_dotplot_ks_colored(
-        df, an, ks, min_length=250, color_map='Spectral', output_file=None
+        df, an, ks, min_length=50, color_map='Spectral', min_ks=0.05, max_ks=5,
+        output_file=None
 ):
     """
     Syntenic dotplot with segment colored by mean Ks value
@@ -232,6 +235,8 @@ def syntenic_dotplot_ks_colored(
     :param ks: Ks distribution data frame
     :param min_length: minimum length of a genomic element
     :param color_map: color map string
+    :param min_ks: minimum median Ks value
+    :param max_ks: maximum median Ks value
     :param output_file: output file name
     :return: figure
     """
@@ -253,8 +258,7 @@ def syntenic_dotplot_ks_colored(
         pairs = an[an['multiplicon'] == row['id']]['pair']
         med_ks = np.median(ks.loc[ks.index.intersection(pairs)]['Ks'])
         ks_multiplicons[row['id']] = med_ks
-        if med_ks < 5:
-            all_ks.append(med_ks)
+        all_ks.append(med_ks)
 
     z = [[0, 0], [0, 0]]
     levels = range(0, 101, 1)
@@ -281,7 +285,8 @@ def syntenic_dotplot_ks_colored(
         previous += kv[1]
 
     # plot layout
-    x = [genomic_elements[key] for key in sorted(genomic_elements.keys())]
+    x = [genomic_elements[key] for key in sorted(genomic_elements.keys())] + \
+        [previous]
     x = sorted(list(set(x)))
     ax.vlines(ymin=0, ymax=previous, x=x, linestyles='dotted', alpha=0.2)
     ax.hlines(xmin=0, xmax=previous, y=x, linestyles='dotted', alpha=0.2)
@@ -315,13 +320,15 @@ def syntenic_dotplot_ks_colored(
              [row['begin_x'], row['end_x']]]
         y = [genomic_elements[list_y] + x for x in
              [row['begin_y'], row['end_y']]]
-        ax.plot(x, y, alpha=0.9, linewidth=3,
-                color=cmap(ks_multiplicons[row['id']] / 5)),
-                # path_effects=[pe.Stroke(linewidth=4, foreground='k'), pe.Normal()])
-        ax.plot(y, x, alpha=0.9, linewidth=3,
-                color=cmap(ks_multiplicons[row['id']] / 5))
-                # path_effects=[pe.Stroke(linewidth=4, foreground='k'),
-                              #pe.Normal()])
+        med_ks = ks_multiplicons[row['id']]
+        if min_ks < med_ks <= max_ks:
+            ax.plot(x, y, alpha=0.9, linewidth=3,
+                    color=cmap(ks_multiplicons[row['id']] / 5)),
+            # path_effects=[pe.Stroke(linewidth=4, foreground='k'), pe.Normal()])
+            ax.plot(y, x, alpha=0.9, linewidth=3,
+                    color=cmap(ks_multiplicons[row['id']] / 5))
+            # path_effects=[pe.Stroke(linewidth=4, foreground='k'),
+            # pe.Normal()])
 
     # colorbar
     cbar = plt.colorbar(tmp, fraction=0.02, pad=0.01)
@@ -427,7 +434,7 @@ def histogram_bokeh(ks_distributions, labels):
             label="Don't adapt weights when filtering", active=False)
 
     # set up figure
-    p1 = figure(plot_width=1000, plot_height=700, # output_backend="svg",
+    p1 = figure(plot_width=1000, plot_height=700,  # output_backend="svg",
                 tools='pan,wheel_zoom,xwheel_zoom,ywheel_zoom,save')
     p1.xgrid.grid_line_color = None
     p1.ygrid.grid_line_color = None

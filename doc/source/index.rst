@@ -79,6 +79,53 @@ wgd CLI:
 
 .. image:: flowchart.png
 
+Citation
+========
+
+A publication of the ``wgd`` package is in preparation. Until it is published
+please cite the github repository.
+
+Further, for the specific tools in ``wgd``, please cite the following:
+If you use ``wgd mcl`` please cite::
+
+   - Altschul, S. F., Madden, T. L., Schäffer, A. A., Zhang, J., Zhang, Z., Miller, W.,
+   and Lipman, D. J. (1997). Gapped BLAST and PSI-BLAST: a new generation of
+   protein database search programs. Nucleic Acids Research, 25(17), 3389–3402.
+
+   - van Dongen, S. (2000). Graph Clustering by Flow Simulation. Ph.D. thesis,
+   University of Utrecht, Utrecht.
+
+For ``wgd ksd``, please cite::
+
+   - Yang, Z. (2007). PAML 4: Phylogenetic Analysis by Maximum Likelihood.
+   Molecular Biology and Evolution, 24(8), 1586–1591.
+
+   - [if using MUSCLE] Edgar, R. C. (2004). MUSCLE: multiple sequence alignment with high accuracy and
+   high throughput. Nucleic Acids Research, 32(5), 1792–1797.
+
+   - [if using MAFFT] Katoh, K. and Standley, D. M. (2013). MAFFT multiple sequence alignment software
+   version 7: improvements in performance and usability. Molecular Biology and
+   Evolution, 30(4), 772–780.
+
+   - [if using PRANK] Löytynoja, A. and Goldman, N. (2008). Phylogeny-Aware Gap Placement Prevents
+   Errors in Sequence Alignment and Evolutionary Analysis. Science, 320(5883),
+   1632–1635.
+
+   - [if using FastTree] 2825–2830.
+   Price, M. N., Dehal, P. S., and Arkin, A. P. (2010). FastTree 2 - Approximately
+   Maximum-Likelihood Trees for Large Alignments. PLOS ONE, 5(3), e9490.
+
+   - [if using PhyML] Guindon, S., Dufayard, J.-F., Lefort, V., Anisimova, M., Hordijk, W., and
+   Gascuel, O. (2010). New algorithms and methods to estimate maximum-likelihood
+   phylogenies: assessing the performance of PhyML 3.0. Systematic Biology, 59(3),
+   307–321.
+
+For ``wgd syn``, please cite::
+
+   - Proost, S., Fostier, J., De Witte, D., Dhoedt, B., Demeester, P., Van de Peer, Y., and
+   Vandepoele, K. (2012). i-ADHoRe 3.0 : fast and sensitive detection of genomic
+   homology in extremely large data sets. NUCLEIC ACIDS RESEARCH, 40(2).
+
 
 Python package
 ==============

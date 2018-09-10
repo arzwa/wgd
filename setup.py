@@ -2,10 +2,7 @@
 """
 Arthur Zwaenepoel
 
-Version 0.1:
-    - Rewrite of Ks distribution construction
-    - Implementation of one-vs-one ortholog Ks distributions
-    - Phylogenetic trees for weighting (FastTree & PhyML)
+Version 1.0
 
 Copyright (C) 2018 Arthur Zwaenepoel
 
@@ -27,15 +24,18 @@ Contact: arzwa@psb.vib-ugent.be
 
 from setuptools import setup
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 setup(
     name='wgd',
-    version='0.1.1',
+    version='1.0',
     packages=['wgd'],
     url='http://github.com/arzwa/wgd',
     license='GPL',
     author='Arthur Zwanepoel',
     author_email='arzwa@psb.vib-ugent.be',
-    description='MORPH bulk CLI',
+    description='wgd',
     py_modules=['wgd_cli'],
     include_package_data=True,
     install_requires=[

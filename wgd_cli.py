@@ -159,7 +159,8 @@ warnings.filterwarnings("ignore", message="numpy.ufunc size changed")
         '--logfile', '-l', default=None,
         help="File to write logs to (optional)"
 )
-def cli(verbosity, logfile):
+@click.option('--version', is_flag=True, help="Print version number")
+def cli(verbosity, logfile, version):
     """
     Welcome to the wgd command line interface!
 
@@ -205,6 +206,9 @@ def cli(verbosity, logfile):
         with open(os.devnull, "w") as f:
             subprocess.call("taskset -p 0xffffffffffff %d" % os.getpid(),
                             shell=True, stdout=f)
+
+    if version:
+        logging.info("This is wgd v1.0")
     pass
 
 
@@ -715,9 +719,13 @@ def ksd_(
         help="minimum length of a genomic element (in numbers of genes) to be "
              "included in dotplot."
 )
+@click.option(
+        '--ks_range', '-r', nargs=2, default=(0.05, 5), show_default=True,
+        type=float, help='Ks range to use for colored dotplot'
+)
 def syn(
         gff_file, gene_families, ks_distribution, output_dir, feature,
-        gene_attribute, min_length
+        gene_attribute, min_length, ks_range
 ):
     """
     Co-linearity analyses.
@@ -735,13 +743,13 @@ def syn(
     """
     syn_(
             gff_file, gene_families, output_dir, ks_distribution, feature,
-            gene_attribute, min_length
+            gene_attribute, min_length, ks_range
     )
 
 
 def syn_(
         gff_file, families, output_dir, ks_distribution, feature='mRNA',
-        gene_attribute='Parent', min_length=250
+        gene_attribute='Parent', min_length=250, ks_range=(0.05, 5)
 ):
     """
     Co-linearity analysis with I-ADHoRe 3.0. For usage in the ``wgd`` CLI.
@@ -849,8 +857,9 @@ def syn_(
 
         logging.info("Generating Ks colored (median Ks) dotplot")
         syntenic_dotplot_ks_colored(
-                multiplicons, anchor_points, anchors,
-                output_file=dotplot_out, min_length=min_length
+                multiplicons, anchor_points, anchors, min_ks=ks_range[0],
+                max_ks=ks_range[1], output_file=dotplot_out,
+                min_length=min_length
         )
 
         logging.info("Generating histogram")
