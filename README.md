@@ -48,3 +48,10 @@ running the executable directly (e.g. `wgd --help` doesn't work) you can
 circumvent this by directly calling the CLI, using `python3 ./wgd_cli.py
 --help` (assuming you are currently in the directory where you cloned
 wgd).
+
+## Citation
+
+Until this package is described in a formal publication, please cite
+this repository if you use the software in your research. For citation
+of the tools used in wgd, please consult the documentation at
+http://wgd.readthedocs.io/en/latest/.
