@@ -33,6 +33,7 @@ To use as a Python package as well as to find additional documentation
 and examples for the CLI, please consult the docs at
 http://wgd.readthedocs.io/en/latest/
 
+<<<<<<< HEAD
 ## Notes
 
 **Note on input data:** while the input data is rather straightforward
@@ -55,4 +56,12 @@ Until this package is described in a formal publication, please cite
 this repository if you use the software in your research. For citation
 of the tools used in wgd, please consult the documentation at
 http://wgd.readthedocs.io/en/latest/.
+=======
+## Citation
 
+Until this package is described in a formal publication, please cite 
+this repository if you use the software in your research.
+
+**Note:** This package is still in development, a new and substantially 
+improved version will soon be released.
+>>>>>>> 7f474334454a514201da756e8ec4c9f135429dd0

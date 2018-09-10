@@ -55,4 +55,3 @@ Until this package is described in a formal publication, please cite
 this repository if you use the software in your research. For citation
 of the tools used in wgd, please consult the documentation at
 http://wgd.readthedocs.io/en/latest/.
-
