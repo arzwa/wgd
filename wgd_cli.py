@@ -521,7 +521,7 @@ def ksd(
 
     Example 2 - one vs. one ortholog Ks distribution:
 
-        wgd ksd -o beaver_eagle orthologs.tsv beaver.cds.fasta,eagle.cds.fasta
+        wgd ksd -o beaver_eagle orthologs.tsv beaver.cds.fasta eagle.cds.fasta
 
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
@@ -910,6 +910,8 @@ def kde(
     Note that `wgd viz` allows interactive plotting of KDEs also and might be
     more convenient for exploratory analysis.
 
+    Not supported for one-vs.-one ortholog Ks distributions (but see `wgd viz`).
+
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
     """
@@ -993,6 +995,8 @@ def mix(
     value will lead to less active components in the mixture, which can be
     observed by noting the weights for those components shrinking towards 0.
     Note that histogram weighting is done after applying specified filters.
+
+    Not supported for one-vs-one ortholog Ks distributions.
 
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
