@@ -130,7 +130,6 @@ def _calculate_weights(clustering, pairwise_estimates, pairwise_distances=None):
             clustering[x, 0], clustering[x, 1], clustering[x, 2] * 2
         grouping_node = leaves + x
         nodes[grouping_node] = nodes[node_1] + nodes[node_2]
-        weight = 1 / (len(nodes[node_1]) * len(nodes[node_2]))
 
         # get for every pair the weight with outliers included and detect
         # outliers
@@ -144,30 +143,9 @@ def _calculate_weights(clustering, pairwise_estimates, pairwise_distances=None):
                 weights[pair] = {
                     'WeightOutliersIncluded': 0,
                     'WeightOutliersExcluded': 0,
-                    'Outlier': 'TRUE',
                     'Distance': distance,
                     'Node': grouping_node
                 }
-                weights[pair]['WeightOutliersIncluded'] = weight
-                if pairwise_estimates.iloc[i, j] > 5:
-                    out.add(grouping_node)
-
-    # reweigh after outlier removal
-    for node in out:
-        nodes.pop(node)
-
-    for x in range(clustering.shape[0]):
-        node_1, node_2 = clustering[x, 0], clustering[x, 1]
-        grouping_node = leaves + x
-        if grouping_node in nodes and node_1 in nodes and node_2 in nodes:
-            weight = 1 / (len(nodes[node_1]) * len(nodes[node_2]))
-            for i in nodes[node_1]:
-                for j in nodes[node_2]:
-                    pair = '__'.join(sorted([
-                        pairwise_estimates.index[j], pairwise_estimates.index[i]
-                    ]))
-                    weights[pair]['WeightOutliersExcluded'] = weight
-                    weights[pair]['Outlier'] = 'FALSE'
 
     return pd.DataFrame.from_dict(weights, orient='index')
 
@@ -200,7 +178,6 @@ def _calculate_weighted_ks(clustering, pairwise_estimates,
                                    clustering[x, 2] * 2
         grouping_node = leaves + x
         nodes[grouping_node] = nodes[node_1] + nodes[node_2]
-        weight = 1 / (len(nodes[node_1]) * len(nodes[node_2]))
 
         for i in nodes[node_1]:
             for j in nodes[node_2]:
@@ -210,37 +187,19 @@ def _calculate_weighted_ks(clustering, pairwise_estimates,
                 p2 = pairwise_estimates['Ks'].index[j]
                 pair = "__".join(sorted([p1, p2]))
                 weights[pair] = [
-                    p1, p2, family_id.split("__")[-1], weight,
+                    p1, p2, family_id.split("__")[-1],
                     pairwise_estimates['Ks'].iloc[i, j],
                     pairwise_estimates['Ka'].iloc[i, j],
                     pairwise_estimates['Omega'].iloc[i, j],
-                    distance, grouping_node, 0, 'TRUE'
+                    distance, grouping_node
                 ]
 
                 if pairwise_estimates['Ks'].iloc[i, j] > 5:
                     out.add(grouping_node)
 
-    # reweigh after outlier removal
-    for node in out:
-        nodes.pop(node)
-
-    for x in range(clustering.shape[0]):
-        node_1, node_2 = clustering[x, 0], clustering[x, 1]
-        grouping_node = leaves + x
-        if grouping_node in nodes and node_1 in nodes and node_2 in nodes:
-            weight = 1 / (len(nodes[node_1]) * len(nodes[node_2]))
-            for i in nodes[node_1]:
-                for j in nodes[node_2]:
-                    p1 = pairwise_estimates['Ks'].index[i]
-                    p2 = pairwise_estimates['Ks'].index[j]
-                    pair = "__".join(sorted([p1, p2]))
-                    weights[pair][-2] = weight
-                    weights[pair][-1] = 'FALSE'
-
     df = pd.DataFrame.from_dict(weights, orient='index')
-    df.columns = ['Paralog1', 'Paralog2', 'Family', 'WeightOutliersIncluded',
-                  'Ks', 'Ka', 'Omega', 'Distance', 'Node',
-                  'WeightOutliersExcluded', 'Outlier']
+    df.columns = ['Paralog1', 'Paralog2', 'Family',
+                  'Ks', 'Ka', 'Omega', 'Distance', 'Node']
 
     return df
 
@@ -598,8 +557,7 @@ def ks_analysis_one_vs_one(
 
     logging.info('Making results data frame')
     results_frame = pd.DataFrame(columns=['Paralog1', 'Paralog2', 'Family',
-                                          'WeightOutliersIncluded', 'Ks', 'Ka',
-                                          'Omega'])
+                                          'Ks', 'Ka','Omega'])
 
     # count the number of analyzed pairs ---------------------------------------
     counts = 0
@@ -617,6 +575,9 @@ def ks_analysis_one_vs_one(
     new_index = results_frame[['Paralog1', 'Paralog2']].apply(
             lambda x: '__'.join(sorted(x)), axis=1)
     results_frame.index = new_index
+
+    # adding weights for completeness
+    results_frame = compute_weights(results_frame)
 
     return results_frame
 
@@ -694,10 +655,7 @@ def ks_analysis_paranome(
     logging.info('Making results data frame')
     results_frame = pd.DataFrame(
             # is this necessary?
-            columns=[
-                'Paralog1', 'Paralog2', 'Family', 'WeightOutliersIncluded',
-                'Ks', 'Ka', 'Omega'
-            ]
+            columns=['Paralog1', 'Paralog2', 'Family', 'Ks', 'Ka', 'Omega']
     )
 
     # count the number of analyzed pairs and get data frame --------------------
@@ -716,6 +674,8 @@ def ks_analysis_paranome(
     new_index = results_frame[['Paralog1', 'Paralog2']].apply(
             lambda x: '__'.join(sorted(x)), axis=1)
     results_frame.index = new_index
+    logging.info("Computing weights, outlier cut-off at Ks > 5")
+    results_frame = compute_weights(results_frame)
 
     return results_frame
 
@@ -753,3 +713,17 @@ def sort_families_by_size(
         )
 
     return sorted_families
+
+
+def compute_weights(df, min_ks=0, max_ks=5, aln_id=0, aln_len=300, aln_cov=0):
+    df["WeightOutliersIncluded"] = 1 / df.groupby(['Family', 'Node'])[
+        'Ks'].transform('count')
+    df_ = df[df["Ks"] <= max_ks]
+    df_ = df_[df_["Ks"] >= min_ks]
+    df_ = df_[df_["AlignmentCoverage"] >= aln_cov]
+    df_ = df_[df_["AlignmentIdentity"] >= aln_id]
+    df_ = df_[df_["AlignmentLength"] >= aln_len]
+    df["WeightOutliersExcluded"] = np.zeros(len(df.index))
+    df.loc[df_.index, "WeightOutliersExcluded"] = 1 / df_.groupby(
+            ['Family', 'Node'])['Ks'].transform('count')
+    return df

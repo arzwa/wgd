@@ -26,6 +26,7 @@ distributions with kernel density estimates interactively.
 """
 # TODO redundant code for the color vs. non-colored dotplot
 from .modeling import filter_group_data
+from .ks_distribution import compute_weights
 import plumbum as pb
 import matplotlib
 
@@ -41,7 +42,7 @@ import pandas as pd
 
 
 def plot_dists(dists, var, scale, ax, alphas, colors, labels, bins=40,
-               **kwargs):
+               weighted=True, **kwargs):
     """
     Plot a bunch of histograms stacked on each other.
 
@@ -58,6 +59,7 @@ def plot_dists(dists, var, scale, ax, alphas, colors, labels, bins=40,
     """
     xlabs = {"Ks": "K_{\mathrm{S}}", "Ka": "K_{\mathrm{A}}", "Omega": "\omega"}
     data = [dist[var] for dist in dists]
+    weights = [dist["WeightOutliersExcluded"] for dist in dists]
     xlab = xlabs[var]
     if scale == "log10":
         data = [d[d > 0] for d in data]
@@ -65,7 +67,11 @@ def plot_dists(dists, var, scale, ax, alphas, colors, labels, bins=40,
         xlab = "\mathrm{log10}(" + xlab + ")"
     bins = np.histogram(np.hstack(tuple(data)), bins=bins)[1]
     for i, d in enumerate(data):
-        ax.hist(d, bins, alpha=alphas[i], color=colors[i], rwidth=0.8,
+        if weighted:
+            ax.hist(d, bins, alpha=alphas[i], color=colors[i], rwidth=0.8,
+                    label=labels[i], weights=weights[i], **kwargs)
+        else:
+            ax.hist(d, bins, alpha=alphas[i], color=colors[i], rwidth=0.8,
                 label=labels[i], **kwargs)
     ax.set_xlabel("$" + xlab + "$")
     ax.set_ylabel("Duplicates")
@@ -75,7 +81,7 @@ def plot_dists(dists, var, scale, ax, alphas, colors, labels, bins=40,
 def plot_selection(
         dists, output_file=None, alphas=None, colors=None, labels=None,
         ks_range=(0.05, 5), filters=(0, 300, 0), bins=50, title='Species genus',
-        **kwargs
+        weighted=True, **kwargs
 ):
     """
     Make a figure of histograms for multiple distributions and variables
@@ -109,22 +115,32 @@ def plot_selection(
 
     # filtering and node-weighting
     for i in range(len(dists)):
-        dists[i] = filter_group_data(dists[i], filters[0], filters[1],
-                                     filters[2],
-                                     ks_range[0], ks_range[1])
+        if weighted:
+            dists[i] = filter_compute_weights(
+                    dists[i], ks_range[0], ks_range[1],
+                    filters[0], filters[1], filters[2]
+            )
+        else:
+            dists[i] = filter_group_data(
+                    dists[i], filters[0], filters[1], filters[2],
+                    ks_range[0], ks_range[1]
+            )
 
     # assemble the figure
     ax = fig.add_subplot(2, 2, 1)
-    plot_dists(dists, "Ks", "", ax, alphas, colors, labels, bins, **kwargs)
+    plot_dists(dists, "Ks", "", ax, alphas, colors, labels, bins,
+               weighted, **kwargs)
     ax.set_xlim(0, ks_range[1])
     ax = fig.add_subplot(2, 2, 2)
-    plot_dists(dists, "Ks", "log10", ax, alphas, colors, labels, bins, **kwargs)
+    plot_dists(dists, "Ks", "log10", ax, alphas, colors, labels, bins,
+               weighted, **kwargs)
     ax.set_xlim(np.log10(ks_range[0] + 1e-5), np.log10(ks_range[1]))
     ax = fig.add_subplot(2, 2, 3)
-    plot_dists(dists, "Ka", "log10", ax, alphas, colors, labels, bins, **kwargs)
+    plot_dists(dists, "Ka", "log10", ax, alphas, colors, labels, bins,
+               weighted, **kwargs)
     ax = fig.add_subplot(2, 2, 4)
     plot_dists(dists, "Omega", "log10", ax, alphas, colors, labels, bins,
-               **kwargs)
+               weighted, **kwargs)
 
     if labels[0]:
         plt.legend(frameon=False)
@@ -137,6 +153,19 @@ def plot_selection(
         fig.savefig(output_file, dpi=300, bbox_inches='tight')
 
     return fig
+
+
+def filter_compute_weights(df, min_ks, max_ks, aln_id=0, aln_len=300, aln_cov=0):
+    df["WeightOutliersIncluded"] = 1 / df.groupby(['Family', 'Node'])[
+        'Ks'].transform('count')
+    df_ = df[df["Ks"] <= max_ks]
+    df_ = df_[df_["Ks"] >= min_ks]
+    df_ = df_[df_["AlignmentCoverage"] >= aln_cov]
+    df_ = df_[df_["AlignmentIdentity"] >= aln_id]
+    df_ = df_[df_["AlignmentLength"] >= aln_len]
+    df_["WeightOutliersExcluded"] = 1 / df_.groupby(
+            ['Family', 'Node'])['Ks'].transform('count')
+    return df_
 
 
 def syntenic_dotplot(df, min_length=250, output_file=None):

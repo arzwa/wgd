@@ -910,7 +910,10 @@ def kde(
     Note that `wgd viz` allows interactive plotting of KDEs also and might be
     more convenient for exploratory analysis.
 
-    Not supported for one-vs.-one ortholog Ks distributions (but see `wgd viz`).
+    Note that histogram weighting is done after applying specified filters. Also
+    note that mixture models are fitted to node-averaged (not weighted)
+    histograms. Not supported for one-vs.-one ortholog Ks distributions (but see
+    `wgd viz`).
 
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
@@ -1014,7 +1017,9 @@ def mix_(
     """
     Mixture modeling tools.
 
-    Note that histogram weighting is done after applying specified filters.
+    Note that histogram weighting is done after applying specified filters. Also
+    note that mixture models are fitted to node-averaged (not weighted)
+    histograms.
 
     :param ks_distribution: Ks distribution data frame
     :param filters: alignment stats filters
@@ -1138,9 +1143,14 @@ def mix_(
         '--bins', '-b', default=50, show_default=True, type=int,
         help="Number of histogram bins."
 )
+@click.option(
+        '--weighted', is_flag=True,
+        help="Plot node-weighted histograms instead of node-averaged [NA if "
+             "using --interactive]."
+)
 def viz(
         ks_distributions, alpha_values, colors, labels, hist_type, title,
-        output_file, interactive, filters, ks_range, bins
+        output_file, interactive, filters, ks_range, bins, weighted
 ):
     """
     Plot histograms/densities (interactively).
@@ -1155,16 +1165,17 @@ def viz(
     """
     viz_(
             ks_distributions, alpha_values, colors, labels, hist_type, title,
-            output_file, filters, ks_range, bins, interactive
+            output_file, filters, ks_range, bins, interactive, weighted
     )
 
 
 def viz_(
         ks_distributions, alpha_values, colors, labels, hist_type, title,
-        output_file, filters, ks_range, bins, interactive=False
+        output_file, filters, ks_range, bins, interactive=False, weighted=False
 ):
     """
-    Plot (stacked) histograms (interactively)
+    Plot (stacked) histograms (interactively). Add option to plot node-weighted
+    histograms in the same fashion.
 
     :param ks_distributions: a directory with ks distributions (other files are
         ignored) or a comma-separated string of file names
@@ -1245,7 +1256,8 @@ def viz_(
     logging.info('Plotting Ks distributions overlay')
     plot_selection(dists, alphas=alpha_values, colors=colors, labels=labels,
                    output_file=output_file, title=title, histtype=hist_type,
-                   filters=filters, ks_range=ks_range, bins=bins)
+                   filters=filters, ks_range=ks_range, bins=bins,
+                   weighted=weighted)
     return
 
 
