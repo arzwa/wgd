@@ -20,6 +20,11 @@ To install: clone the repo, navigate to it and install it with pip
     $ cd wgd
     $ pip install .
 
+Note that depending on your python installation and whether you're in a
+virtualenv, ``pip`` may default either to ``pip2`` or ``pip3``. If the
+above installatoin step fails, please try to use ``pip3`` instead of
+``pip``.
+
 For the command line interface, upon installation run
 
     $ wgd
@@ -28,6 +33,9 @@ to get a list of the available commands. To get usage instructions for
 a command (e.g. `ksd`) run
 
     $ wgd ksd --help
+
+For **external software** requirements: please consult the relevant section
+in the docs: https://wgd.readthedocs.io/en/latest/index.html#external-software
 
 To use as a Python package as well as to find additional documentation
 and examples for the CLI, please consult the docs at
@@ -54,5 +62,5 @@ wgd).
 Until this package is described in a formal publication, please cite
 this repository if you use the software in your research. For citation
 of the tools used in wgd, please consult the documentation at
-http://wgd.readthedocs.io/en/latest/.
+https://wgd.readthedocs.io/en/latest/index.html#citation.
 

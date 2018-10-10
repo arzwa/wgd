@@ -26,7 +26,6 @@ distributions with kernel density estimates interactively.
 """
 # TODO redundant code for the color vs. non-colored dotplot
 from .modeling import filter_group_data
-from .ks_distribution import compute_weights
 import plumbum as pb
 import matplotlib
 
@@ -54,6 +53,7 @@ def plot_dists(dists, var, scale, ax, alphas, colors, labels, bins=40,
     :param colors: color values
     :param labels: labels
     :param bins: bin number
+    :param weighted: plot a node-weighted histogram (node-averaged otherwise)
     :param kwargs: other args for plt.hist
     :return: ax
     """
@@ -64,6 +64,7 @@ def plot_dists(dists, var, scale, ax, alphas, colors, labels, bins=40,
     if scale == "log10":
         data = [d[d > 0] for d in data]
         data = [np.log10(x) for x in data]
+        weights = [w.loc[data[i].index] for i, w in enumerate(weights)]
         xlab = "\mathrm{log10}(" + xlab + ")"
     bins = np.histogram(np.hstack(tuple(data)), bins=bins)[1]
     for i, d in enumerate(data):
@@ -72,7 +73,7 @@ def plot_dists(dists, var, scale, ax, alphas, colors, labels, bins=40,
                     label=labels[i], weights=weights[i], **kwargs)
         else:
             ax.hist(d, bins, alpha=alphas[i], color=colors[i], rwidth=0.8,
-                label=labels[i], **kwargs)
+                    label=labels[i], **kwargs)
     ax.set_xlabel("$" + xlab + "$")
     ax.set_ylabel("Duplicates")
     return ax
@@ -95,6 +96,7 @@ def plot_selection(
     :param filters: alignment stats filters
     :param bins: number of bins
     :param title: plot title
+    :param weighted: plot a node-weighted histogram (node-averaged otherwise)
     :param kwargs: other arguments for plt.hist
     :return: figure
     """
@@ -116,11 +118,13 @@ def plot_selection(
     # filtering and node-weighting
     for i in range(len(dists)):
         if weighted:
+            logging.info("Will plot **node-weighted** histograms")
             dists[i] = filter_compute_weights(
                     dists[i], ks_range[0], ks_range[1],
                     filters[0], filters[1], filters[2]
             )
         else:
+            logging.info("Will plot **node-averaged** histograms")
             dists[i] = filter_group_data(
                     dists[i], filters[0], filters[1], filters[2],
                     ks_range[0], ks_range[1]

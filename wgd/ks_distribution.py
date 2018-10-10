@@ -543,21 +543,14 @@ def ks_analysis_one_vs_one(
     logging.info('Started analysis in parallel')
     Parallel(n_jobs=n_threads)(
             delayed(analyse_family)(
-                    family, protein[family],
-                    nucleotide_sequences,
-                    tmp_dir,
-                    codeml_path,
-                    preserve,
-                    times,
-                    'alc',
-                    aligner,
-                    output_dir) for family
-            in protein.keys())
+                    family, protein[family], nucleotide_sequences, tmp_dir,
+                    codeml_path, preserve, times, 'alc', aligner, output_dir
+            ) for family in protein.keys())
     logging.info('Analysis done')
 
     logging.info('Making results data frame')
-    results_frame = pd.DataFrame(columns=['Paralog1', 'Paralog2', 'Family',
-                                          'Ks', 'Ka','Omega'])
+    results_frame = pd.DataFrame(
+            columns=['Paralog1', 'Paralog2', 'Family', 'Ks', 'Ka','Omega'])
 
     # count the number of analyzed pairs ---------------------------------------
     counts = 0
@@ -639,22 +632,14 @@ def ks_analysis_paranome(
         analysis_function = analyse_family
 
     Parallel(n_jobs=n_threads)(delayed(analysis_function)(
-            family[0], protein[family[0]],
-            nucleotide_sequences,
-            tmp_dir,
-            codeml_path,
-            preserve,
-            times,
-            min_length,
-            method,
-            aligner,
+            family[0], protein[family[0]], nucleotide_sequences, tmp_dir,
+            codeml_path, preserve, times, min_length, method, aligner,
             output_dir
-    ) for family in sorted_families)
+        ) for family in sorted_families)
     logging.info('Analysis done')
 
     logging.info('Making results data frame')
     results_frame = pd.DataFrame(
-            # is this necessary?
             columns=['Paralog1', 'Paralog2', 'Family', 'Ks', 'Ka', 'Omega']
     )
 
