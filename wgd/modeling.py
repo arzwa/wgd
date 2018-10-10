@@ -402,6 +402,8 @@ def plot_bars_weights(model, ax):
                 horizontalalignment='center',
                 s='$\hat{{\mu}} = {:.2f}$'.format(np.exp(mn)[0])
         )
+    ax.set_ylabel("weight")
+    ax.set_xlabel("component")
     ax.set_ylim(0, 1)
     return ax
 

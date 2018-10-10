@@ -35,22 +35,23 @@ For ``wgd blast``:
 - MCL (https://micans.org/mcl/index.html). Get MCL using your package
   manager ``sudo apt-get install mcl`` or download it at the provided link.
 
-For ``wgd ks``:
+For ``wgd ks`` (most of these can also be installed with ``apt-get``):
 
 - One of the following multiple sequence alignment programs: MUSCLE, MAFFT or
-  PRANK
+  PRANK (``sudo apt-get install muscle mafft prank``)
 - CODEML from the PAML software package (Yang 1997). PAML can be downloaded
-  from the following link: http://abacus.gene.ucl.ac.uk/software/paml.html
+  from the following link: http://abacus.gene.ucl.ac.uk/software/paml.html. It
+  can also be installed using ``sudo apt-get install paml``.
 - For node weighting using phylogenetic trees, PhyML and FastTree are supported,
   but average linkage clustering (no external software needed) can be used as an
-  alternative
+  alternative. To install ``sudo apt-get install fasttree phyml``.
 
 For ``wgd syn``
 
 - i-ADHoRe 3.0 suite (http://bioinformatics.psb.ugent.be/beg/tools/i-adhore30)
 
 Of course, you don't need all of these tools installed for each feature of
-``wgd``.
+``wgd``. To install all tools using ``apt-get`` (except I-AdHoRe)::
 
 
 Command line tools

@@ -700,7 +700,7 @@ def sort_families_by_size(
     return sorted_families
 
 
-def compute_weights(df, min_ks=0, max_ks=5, aln_id=0, aln_len=300, aln_cov=0):
+def compute_weights(df, min_ks=0.005, max_ks=5, aln_id=0, aln_len=300, aln_cov=0):
     df["WeightOutliersIncluded"] = 1 / df.groupby(['Family', 'Node'])[
         'Ks'].transform('count')
     df_ = df[df["Ks"] <= max_ks]

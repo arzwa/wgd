@@ -41,7 +41,29 @@ To use as a Python package as well as to find additional documentation
 and examples for the CLI, please consult the docs at
 http://wgd.readthedocs.io/en/latest/
 
+## Singularity container
+
+A singularity container is available for ``wgd``, allowing all to use
+all tools in ``wgd`` except ``wgd syn``, without having to install all
+required software on your system. To install Singularity follow
+the instructions [here](https://www.sylabs.io/docs/)
+
+If you have singulaity installed (and you're in the virtual machine when
+running on Windows or Mac), you can run (from within the cloned repository)
+
+    sudo singularity build wgd.simg wgd.shub
+
+to build the container. Then your can use ``wgd`` as follows
+
+    singularity exec wgd.simg wgd <command>
+
 ## Notes
+
+**Bug tracking:** If the program crashes, exits unexpectedly or some
+unexpected results are obtained, please run it again with the
+``--verbosity debug`` flag *before* the subcommand of interest (*e.g.*
+``wgd --verbosity debug ksd gf.mcl cds.fasta``). If the anomaly persists,
+please open an issue on this GitHub site.
 
 **Note on input data:** while the input data is rather straightforward
 (a CDS fasta file will do for most analyses) it may be of interest that
@@ -51,11 +73,11 @@ files for sequence data and GFF files for structural annotation), please
 have a look [there](https://bioinformatics.psb.ugent.be/plaza/versions/plaza_v4_dicots/download/).
 
 **Note on virtualenv:** you can install wgd in a _virtual environment_
-(using `virtualenv`). If you would however encounter problems with
-running the executable directly (e.g. `wgd --help` doesn't work) you can
-circumvent this by directly calling the CLI, using `python3 ./wgd_cli.py
---help` (assuming you are currently in the directory where you cloned
-wgd).
+(using [`virtualenv`](https://virtualenv.pypa.io/en/stable/)). If you
+would however encounter problems with running the executable directly
+(e.g. `wgd --help` doesn't work) you can circumvent this by directly
+calling the CLI, using `python3 ./wgd_cli.py --help` (assuming you are
+currently in the directory where you cloned wgd).
 
 ## Citation
 

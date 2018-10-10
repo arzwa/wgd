@@ -113,6 +113,9 @@ parameters)::
 
     $ wgd mix ath.mcl.ks.tsv -n 1 5
 
+for more information on mixture modeling and some cautionary notes refer to
+:ref:`note_on_gmms`
+
 (5) Explore the full and anchor distribution with kernel density estimates
 interactively. First run a bokeh server in the background::
 
@@ -122,7 +125,8 @@ next, execute the following command::
 
     $ wgd viz -i -ks ath.mcl.ks.tsv,ath.mcl.ks_anchors.tsv -l full,anchors
 
-a tab in your default browser should appear.
+a tab in your default browser should appear. See :ref:`viz_info` for more
+information on vizualization with ``wgd viz``
 
 --------------------------------------------------------------------------------
 
