@@ -997,11 +997,15 @@ def mix(
 
     This provides means to fit Gaussian mixture models (GMMs) using an
     expectation-maximization algorithm (EM, method=gmm) and variational Bayes
-    (VB, method=bgmm) algorithm. In the later case, regularizatoin is performed
+    (VB, method=bgmm) algorithm. In the later case, regularization is performed
     with strength inversely proportional with the gamma parameter. A low gamma
     value will lead to less active components in the mixture, which can be
     observed by noting the weights for those components shrinking towards 0.
     Note that histogram weighting is done after applying specified filters.
+
+    Please interpret mixture model results with caution, for more
+    info, refer to https://wgd.readthedocs.io/en/latest/mix.html#a-note-on-mixtu
+    re-models-for-ks-distributions
 
     Not supported for one-vs-one ortholog Ks distributions.
 
@@ -1023,7 +1027,8 @@ def mix_(
 
     Note that histogram weighting is done after applying specified filters. Also
     note that mixture models are fitted to node-averaged (not weighted)
-    histograms.
+    histograms. Please interpret mixture model results with caution, for more
+    info, refer to :ref:`note_on_gmms`.
 
     :param ks_distribution: Ks distribution data frame
     :param filters: alignment stats filters
@@ -1122,7 +1127,7 @@ def mix_(
         help="histogram type"
 )
 @click.option(
-        '--title', '-t', default='WGD histogram', show_default=True,
+        '--title', '-t', default='', show_default=True,
         help="plot title"
 )
 @click.option(

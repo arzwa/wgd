@@ -81,7 +81,7 @@ def plot_dists(dists, var, scale, ax, alphas, colors, labels, bins=40,
 
 def plot_selection(
         dists, output_file=None, alphas=None, colors=None, labels=None,
-        ks_range=(0.05, 5), filters=(0, 300, 0), bins=50, title='Species genus',
+        ks_range=(0.05, 5), filters=(0, 300, 0), bins=50, title='',
         weighted=True, **kwargs
 ):
     """
@@ -149,7 +149,7 @@ def plot_selection(
     if labels[0]:
         plt.legend(frameon=False)
 
-    sns.despine(trim=True, offset=2)
+    sns.despine(offset=2)
     fig.suptitle(title)
     fig.tight_layout()
 

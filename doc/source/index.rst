@@ -44,14 +44,16 @@ For ``wgd ks`` (most of these can also be installed with ``apt-get``):
   can also be installed using ``sudo apt-get install paml``.
 - For node weighting using phylogenetic trees, PhyML and FastTree are supported,
   but average linkage clustering (no external software needed) can be used as an
-  alternative. To install ``sudo apt-get install fasttree phyml``.
+  alternative. To install ``sudo apt-get install fasttree phyml``. (Note that
+  FastTree should be executable as ``FastTree`` and not ``fasttree``, so please
+  specify an alias or symlink from the latter to the former if necessary.)
 
 For ``wgd syn``
 
 - i-ADHoRe 3.0 suite (http://bioinformatics.psb.ugent.be/beg/tools/i-adhore30)
 
 Of course, you don't need all of these tools installed for each feature of
-``wgd``. To install all tools using ``apt-get`` (except I-AdHoRe)::
+``wgd``.
 
 
 Command line tools
