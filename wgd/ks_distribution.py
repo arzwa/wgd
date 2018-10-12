@@ -570,7 +570,7 @@ def ks_analysis_one_vs_one(
     results_frame.index = new_index
 
     # adding weights for completeness
-    results_frame = set_weights_ovo(results_frame)
+    results_frame = compute_weights(results_frame)
 
     return results_frame
 
