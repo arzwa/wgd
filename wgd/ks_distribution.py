@@ -570,7 +570,7 @@ def ks_analysis_one_vs_one(
     results_frame.index = new_index
 
     # adding weights for completeness
-    results_frame = compute_weights(results_frame)
+    results_frame = set_weights_ovo(results_frame)
 
     return results_frame
 
@@ -701,6 +701,7 @@ def sort_families_by_size(
 
 
 def compute_weights(df, min_ks=0.005, max_ks=5, aln_id=0, aln_len=300, aln_cov=0):
+    df = df[~df.index.duplicated()]  # for safety
     df["WeightOutliersIncluded"] = 1 / df.groupby(['Family', 'Node'])[
         'Ks'].transform('count')
     df_ = df[df["Ks"] <= max_ks]
@@ -712,3 +713,4 @@ def compute_weights(df, min_ks=0.005, max_ks=5, aln_id=0, aln_len=300, aln_cov=0
     df.loc[df_.index, "WeightOutliersExcluded"] = 1 / df_.groupby(
             ['Family', 'Node'])['Ks'].transform('count')
     return df
+
