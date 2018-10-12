@@ -96,6 +96,7 @@ def get_one_v_one_orthologs_rbh(blast_file, output_dir):
                 one_v_one_orthologs[comb][gene_2] = (gene_1, e)
 
     last = None
+    seen = set()
     for comb, d in one_v_one_orthologs.items():
         logging.info('Writing one vs one orthologs to {}.tsv'.format(comb))
         with open(os.path.join(output_dir, '{}.ovo.tsv'.format(comb)),
@@ -105,7 +106,11 @@ def get_one_v_one_orthologs_rbh(blast_file, output_dir):
                     logging.warning('Gene {} not found in dictionary strangely '
                                     'enough?'.format(val[0]))
                 if key == d[val[0]][0]:  # RBH
-                    o.write('{0}\t{1}\n'.format(key, val[0]))
+                    kv = sorted([key, val[0]])
+                    id_ = "\t".join(kv)
+                    if id_ not in seen:  # prevent duplicate entries
+                        o.write('{0}\n'.format(id_))
+                        seen.add(id_)
                 else:
                     logging.debug('Best hit for {0} is {1} but for {1} is {2}'
                                   ''.format(key, val, d[val[0]][0]))
