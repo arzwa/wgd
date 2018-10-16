@@ -621,7 +621,9 @@ def ks_analysis_paranome(
                 os.mkdir(os.path.join(output_dir, 'trees'))
 
     # sort family ids by family size -------------------------------------------
-    sorted_families = sort_families_by_size(protein, pairwise, max_pairwise)
+    # NOTE: I changed thsi so that filtering is also performed in the
+    # non-pairwise analysis.
+    sorted_families = sort_families_by_size(protein, True, max_pairwise)
 
     # start analysis -----------------------------------------------------------
     logging.info('Started analysis in parallel (n_threads = {})'
@@ -696,6 +698,8 @@ def sort_families_by_size(
                 'Filtered out the {} largest gene families because n*(n-1)/2 > '
                 '`max_pairwise`'.format(n_families - len(sorted_families))
         )
+        logging.warning("If you want to analyse these large families anyhow, "
+                        "please raise the `max_pairwise` parameter. ")
 
     return sorted_families
 
