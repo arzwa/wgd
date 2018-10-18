@@ -868,7 +868,7 @@ def syn_(
 
         logging.info("Generating histogram")
         plot_selection([ks, anchors], alphas=[0.2, 0.7], output_file=hist,
-                       title=os.path.basename(families),
+                       title=os.path.basename(families), weighted=False,
                        labels=['Whole paranome', 'Anchors'])
 
     logging.info("Done")
