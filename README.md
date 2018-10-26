@@ -22,7 +22,7 @@ To install: clone the repo, navigate to it and install it with pip
 
 Note that depending on your python installation and whether you're in a
 virtualenv, ``pip`` may default either to ``pip2`` or ``pip3``. If the
-above installatoin step fails, please try to use ``pip3`` instead of
+above installation step fails, please try to use ``pip3`` instead of
 ``pip``.
 
 For the command line interface, upon installation run
