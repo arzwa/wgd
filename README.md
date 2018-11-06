@@ -81,7 +81,7 @@ currently in the directory where you cloned wgd).
 
 ## Citation
  
-Please cite us at 
+Please cite us at https://doi.org/10.1093/bioinformatics/bty915
 
 ```
 Arthur Zwaenepoel, Yves Van de Peer; wgd - simple command line tools for the analysis of ancient whole genome duplications, 
