@@ -53,7 +53,7 @@ running on Windows or Mac), you can run (from within the cloned repository)
 
     sudo singularity build wgd.simg wgd.shub
 
-to build the container. Then your can use ``wgd`` as follows
+to build the container. Then you can use ``wgd`` as follows
 
     singularity exec wgd.simg wgd <command>
 
@@ -80,9 +80,13 @@ calling the CLI, using `python3 ./wgd_cli.py --help` (assuming you are
 currently in the directory where you cloned wgd).
 
 ## Citation
+ 
+Please cite us at 
 
-Until this package is described in a formal publication, please cite
-this repository if you use the software in your research. For citation
-of the tools used in wgd, please consult the documentation at
+```
+Arthur Zwaenepoel, Yves Van de Peer; wgd - simple command line tools for the analysis of ancient whole genome duplications, Bioinformatics, , bty915, https://doi.org/10.1093/bioinformatics/bty915
+```
+
+For citation of the tools used in wgd, please consult the documentation at
 https://wgd.readthedocs.io/en/latest/index.html#citation.
 
