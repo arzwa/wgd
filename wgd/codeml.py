@@ -47,15 +47,12 @@ def _write_control(f, control_dict):
 
 def _parse_codeml_out(codeml_out):
     """
-    Parse the rst file to get pairwise Ks estimates
+    Parse the codeml output file to get pairwise Ks estimates
 
     :param codeml_out:
     :return: dictionary with CODEML results
     """
-    if codeml_out is None:
-        return None, None
-
-    if not os.path.isfile(codeml_out):
+    if (codeml_out is None) or (not os.path.isfile(codeml_out)):
         return None, None
 
     # compile regular expressions
@@ -67,14 +64,13 @@ def _parse_codeml_out(codeml_out):
 
     # read codeml output file
     with open(codeml_out, 'r') as f:
-        file_content = f.read()
-    codeml_results = file_content.split(
-            'pairwise comparison')[-1].split("\n\n\n")[1:]
+        fcont = f.read()
+    codeml_results = fcont.split('pairwise comparison')[-1].split("\n\n\n")[1:]
 
     columns = set()
     for pairwise_estimate in codeml_results:
-        gene_1, gene_2 = gene_pair_p.search(pairwise_estimate).group(1), \
-                         gene_pair_p.search(pairwise_estimate).group(2)
+        gene_1 = gene_pair_p.search(pairwise_estimate).group(1)
+        gene_2 = gene_pair_p.search(pairwise_estimate).group(2)
         columns.add(gene_1)
         columns.add(gene_2)
 
@@ -97,8 +93,8 @@ def _parse_codeml_out(codeml_out):
     ln_l = None
 
     for pairwise_estimate in codeml_results:
-        gene_1, gene_2 = gene_pair_p.search(pairwise_estimate).group(
-                1), gene_pair_p.search(pairwise_estimate).group(2)
+        gene_1 = gene_pair_p.search(pairwise_estimate).group(1)
+        gene_2 = gene_pair_p.search(pairwise_estimate).group(2)
         ks_value_m = ks_p.search(pairwise_estimate)
         ka_value_m = ka_p.search(pairwise_estimate)
         w_m = w_p.search(pairwise_estimate)
@@ -113,25 +109,23 @@ def _parse_codeml_out(codeml_out):
         else:
             logging.warning('No ln(L) value found!')
 
-        # On the PLAZA 4.0 Vitis vinifera genome I had an issue with a pattern
-        # match that was not retrieved. So now I check whether there is a match
-        # and give a warning. anyway this shouldn't be necessary! if there is
-        # codeml output, it should have the ks, ka and w values!
         if ks_value_m:
             ks_value = ks_value_m.group(1)
         else:
-            logging.warning("No Ks value found in codeml file!")
-            return None, None
+            logging.warning("No Ks value for {0} - {1}!".format(gene_1, gene_2))
+            ks_value = np.nan
 
         if ka_value_m:
             ka_value = ka_value_m.group(1)
         else:
-            return None, None
+            logging.warning("No Ka value for {0} - {1}!".format(gene_1, gene_2))
+            ka_value = np.nan
 
         if w_m:
             w = w_m.group(1)
         else:
-            return None, None
+            logging.warning("No ω value for {0} - {1}!".format(gene_1, gene_2))
+            w = np.nan
 
         results_dict['Ks'][gene_1][gene_2] = ks_value
         results_dict['Ks'][gene_2][gene_1] = ks_value
@@ -140,7 +134,7 @@ def _parse_codeml_out(codeml_out):
         results_dict['Omega'][gene_1][gene_2] = w
         results_dict['Omega'][gene_2][gene_1] = w
 
-    return {'results': results_dict, 'raw': file_content}, ln_l
+    return {'results': results_dict, 'raw': fcont}, ln_l
 
 
 class Codeml:

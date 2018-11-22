@@ -645,21 +645,19 @@ def ksd_(
         # rub, rst and rst1 files
         logging.info('Started one-vs-one ortholog Ks analysis')
         results = ks_analysis_one_vs_one(
-                cds_seqs, protein_seqs, gene_families,
-                tmp_dir, output_directory, codeml,
-                n_threads=n_threads, preserve=preserve,
-                times=times,
-                aligner=aligner
+            cds_seqs, protein_seqs, gene_families,
+            tmp_dir, output_directory, codeml,
+            n_threads=n_threads, preserve=preserve,
+            times=times,
+            aligner=aligner
         )
-        results.round(5).to_csv(
-                os.path.join(output_directory, '{}.ks.tsv'.format(base)),
-                sep='\t')
+        results.round(5).to_csv(os.path.join(
+            output_directory, '{}.ks.tsv'.format(base)), sep='\t')
 
         logging.info('Generating plots')
         plot_selection(
-                results, output_file=os.path.join(
-                        output_directory, '{}.ks.svg'.format(base)
-                ), title=os.path.basename(gene_families)
+            results, title=os.path.basename(gene_families),
+            output_file=os.path.join(output_directory, '{}.ks.svg'.format(base))
         )
 
         logging.info('Done')
@@ -671,27 +669,25 @@ def ksd_(
         # non-unique file names to the working dir
         logging.info('Started whole paranome Ks analysis')
         results = ks_analysis_paranome(
-                cds_seqs, protein_seqs, gene_families,
-                tmp_dir, output_directory,
-                codeml, preserve=preserve,
-                times=times, aligner=aligner,
-                ignore_prefixes=ignore_prefixes,
-                n_threads=n_threads,
-                min_length=min_msa_length,
-                method=weighting_method,
-                pairwise=pairwise,
-                max_pairwise=max_pairwise,
+            cds_seqs, protein_seqs, gene_families,
+            tmp_dir, output_directory,
+            codeml, preserve=preserve,
+            times=times, aligner=aligner,
+            ignore_prefixes=ignore_prefixes,
+            n_threads=n_threads,
+            min_length=min_msa_length,
+            method=weighting_method,
+            pairwise=pairwise,
+            max_pairwise=max_pairwise,
         )
-        results.round(5).to_csv(
-                os.path.join(output_directory, '{}.ks.tsv'.format(base)),
-                sep='\t')
+        results.round(5).to_csv(os.path.join(
+            output_directory, '{}.ks.tsv'.format(base)), sep='\t')
 
         logging.info('Generating plots')
 
         plot_selection(
-                results, output_file=os.path.join(
-                        output_directory, '{}.ks.svg'.format(base)
-                ), title=os.path.basename(gene_families)
+            results, title=os.path.basename(gene_families),
+            output_file=os.path.join(output_directory, '{}.ks.svg'.format(base))
         )
 
         logging.info('Done')
