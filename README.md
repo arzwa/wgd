@@ -71,6 +71,8 @@ the wgd suite was extensively tested with data from the PLAZA platform,
 so for examples of the right input data formats (in particular CDS fasta
 files for sequence data and GFF files for structural annotation), please
 have a look [there](https://bioinformatics.psb.ugent.be/plaza/versions/plaza_v4_dicots/download/).
+It is generally advised not to include pipe characters (`|`) in your gene 
+IDs, since these can have special meanings in certain parts of `wgd`.
 
 **Note on virtualenv:** you can install wgd in a _virtual environment_
 (using [`virtualenv`](https://virtualenv.pypa.io/en/stable/)). If you
