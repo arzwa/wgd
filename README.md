@@ -22,7 +22,7 @@ To install: clone the repo, navigate to it and install it with pip
 
 Note that depending on your python installation and whether you're in a
 virtualenv, ``pip`` may default either to ``pip2`` or ``pip3``. If the
-above installatoin step fails, please try to use ``pip3`` instead of
+above installation step fails, please try to use ``pip3`` instead of
 ``pip``.
 
 For the command line interface, upon installation run
@@ -53,7 +53,7 @@ running on Windows or Mac), you can run (from within the cloned repository)
 
     sudo singularity build wgd.simg wgd.shub
 
-to build the container. Then your can use ``wgd`` as follows
+to build the container. Then you can use ``wgd`` as follows
 
     singularity exec wgd.simg wgd <command>
 
@@ -80,9 +80,13 @@ calling the CLI, using `python3 ./wgd_cli.py --help` (assuming you are
 currently in the directory where you cloned wgd).
 
 ## Citation
+ 
+Please cite us at https://doi.org/10.1093/bioinformatics/bty915
 
-Until this package is described in a formal publication, please cite
-this repository if you use the software in your research. For citation
-of the tools used in wgd, please consult the documentation at
+```
+Zwaenepoel, A., and Van de Peer, Y. wgd - simple command line tools for the analysis of ancient whole genome duplications. Bioinformatics., bty915, https://doi.org/10.1093/bioinformatics/bty915
+```
+
+For citation of the tools used in wgd, please consult the documentation at
 https://wgd.readthedocs.io/en/latest/index.html#citation.
 
