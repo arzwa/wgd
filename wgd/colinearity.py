@@ -44,10 +44,7 @@ def gff_parser(gff_file, feature='mRNA', gene_attribute='Parent'):
     genome = {}
 
     with open(gff_file, 'r') as f:
-        i = 0
-        for line in f:
-            # count lines
-            i += 1
+        for i, line in enumerate(f):
 
             # ignore comments
             if line.startswith('#'):
@@ -62,6 +59,10 @@ def gff_parser(gff_file, feature='mRNA', gene_attribute='Parent'):
                 start = line[3]
                 end = line[4]
                 strand = line[6]
+                if strand != "+" and strand != "-":
+                    logging.warning("No strand information for line {}".format(
+                        i+1))
+                    continue
 
                 # get the feature attributes
                 attributes = line[8].split(';')
@@ -73,6 +74,7 @@ def gff_parser(gff_file, feature='mRNA', gene_attribute='Parent'):
                 if gene_attribute not in attributes:
                     logging.warning('Attribute {0} not found in GFF line {1}'
                                     ''.format(gene_attribute, i))
+                    continue
 
                 # store information (why?, if the sole purpose is to write out
                 # gene lists we might as well write them here? However if the
