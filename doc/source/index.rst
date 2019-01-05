@@ -11,16 +11,25 @@ developed for various analyses related to whole genome duplications (WGDs).
 Here the Python API is documented as well as the various command line
 utilities bundled in the ``wgd`` CLI.
 
-To install ``wgd``, clone the repository available at
-https://github.com/arzwa/wgd (where you can also find more detailed installation
-instructions), navigate into the repo, run ``pip install .``.
+Installation
+============
 
---------------------------------------------------------------------------------
+To install ``wgd``, go to the repository available at
+https://github.com/arzwa/wgd and follow installation instructions there.
 
-To **get started** with ``wgd`` head straight to the
-:ref:`command line interface page <wgd_cli>`
 
---------------------------------------------------------------------------------
+Example & information
+=====================
+
+- To **get started** with ``wgd`` head straight to the :ref:`command line
+  interface page <wgd_cli>`. 
+
+- For more **information** on |Ks| distributions and how
+  ``wgd`` computes them have a look at :ref:`these notes. <methods>` 
+
+- For an additional **step by step example**, we refer to the supplementary information
+  of our Bioinformatics Applications note paper (open access) at 
+  https://academic.oup.com/bioinformatics/advance-article/doi/10.1093/bioinformatics/bty915/5162749
 
 External software
 =================
@@ -85,10 +94,13 @@ wgd CLI:
 Citation
 ========
 
-A publication of the ``wgd`` package is in preparation. Until it is published
-please cite the github repository.
+If you use ``wgd``, please cite::
+    
+   - Zwaenepoel, A., and Van de Peer, Y. wgd - simple command line tools for 
+   the analysis of ancient whole genome duplications. Bioinformatics., bty915, 
+   https://doi.org/10.1093/bioinformatics/bty915
 
-Further, for the specific tools in ``wgd``, please cite the following:
+Furthermore, for the specific tools in ``wgd``, please cite the following:
 If you use ``wgd mcl`` please cite::
 
    - Altschul, S. F., Madden, T. L., Schäffer, A. A., Zhang, J., Zhang, Z., Miller, W.,

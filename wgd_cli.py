@@ -81,7 +81,10 @@ and arguments, which can be viewed by using the ``--help`` or ``-h`` flag. These
 should be quite self-explanatory, but for further documentation you can refer to
 the documentation of the specific functions that are called. These can be found
 on this page (e.g. the function called by ``wgd blast`` is
-:py:func:`wgd_cli.blast_`.
+:py:func:`wgd_cli.blast_`). 
+
+For more information on the methods used in ``wgd`` to compute |Ks| distributions,
+please refer to :ref:`methods`.
 
 Example
 =======
