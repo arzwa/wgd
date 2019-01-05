@@ -20,7 +20,10 @@ a genome) |Ks| distributions, but it also provides tools for the inference of
 intragenomic synteny and anchor points as well as downstream analyses and
 visualizations of whole paranome |Ks| distributions. On this page we provide
 some background information and informal explanations about the main functionality
-and methods, namely the inference of these so-called |Ks| distributions.
+and methods, namely the inference of these so-called |Ks| distributions. This
+is not a tutorial on how to use ``wgd``, for that, please have a look at the
+:ref:`command line interface <wgd_cli>` or at the supplementary material of 
+our Bioinformatics paper.
 
 What is a |Ks| distribution?
 ==============================
@@ -93,7 +96,7 @@ simple to perform. Below we elaborate on the main steps undertken in a
 Inferring duplicates
 --------------------
 
-First, we need to infer the duplicate genes in the genome. To this, end
+First, we need to infer the duplicate genes in the genome. To this end,
 commonly employed homolog clustering approaches are used in ``wgd mcl``.
 Since we are however not interested in multi-species gene families,
 these homolog clustering methods are used only within a particular
