@@ -75,7 +75,7 @@ def plot_dists(dists, var, scale, ax, alphas, colors, labels, bins=40,
             ax.hist(d, bins, alpha=alphas[i], color=colors[i], rwidth=0.8,
                     label=labels[i], **kwargs)
     ax.set_xlabel("$" + xlab + "$")
-    ax.set_ylabel("Duplicates")
+    ax.set_ylabel("Duplications")
     return ax
 
 
@@ -392,7 +392,7 @@ def histogram_bokeh(ks_distributions, labels):
     from bokeh.models.widgets import CheckboxGroup, Toggle
     from bokeh.plotting import figure, output_file, show
     from bokeh.client import push_session
-    from pylab import cm, colors
+    from pylab import cm
     from .utils import gaussian_kde
     from .modeling import reflect
 
@@ -473,7 +473,7 @@ def histogram_bokeh(ks_distributions, labels):
     p1.ygrid.grid_line_color = None
     p1.border_fill_color = 'white'
     p1.outline_line_color = None
-    p1.yaxis.axis_label = '# paralogs'
+    p1.yaxis.axis_label = 'Duplications'
     p1.xaxis.axis_label = 'Ks'
 
     # draw initial plot
@@ -505,7 +505,7 @@ def histogram_bokeh(ks_distributions, labels):
         for i in range(len(dists)):
             if density.active == [0]:
                 hist = np.histogram(all_data[i], bins=int(bins.value))[0]
-                p1.yaxis.axis_label = '# paralogs'
+                p1.yaxis.axis_label = 'Duplications'
             else:
                 hist = np.histogram(
                         all_data[i], bins=int(bins.value), density=True)[0]

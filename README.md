@@ -57,6 +57,10 @@ to build the container. Then you can use ``wgd`` as follows
 
     singularity exec wgd.simg wgd <command>
 
+## Changes
+
+- 08/01/2019: fixed ImportError for interactive histogram visualization
+
 ## Notes
 
 **Bug tracking:** If the program crashes, exits unexpectedly or some

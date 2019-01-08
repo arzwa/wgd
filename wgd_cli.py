@@ -140,6 +140,8 @@ Reference
 # - Use biopython for all sequence handling
 # - Use tmp files to keep track of the outputs from subprocesses, because using
 #   PIPE might result in hangs.
+# - Convert input CDS to uppercase (with warning), since wgd blast breaks with
+#   lowercase nucleotides
 
 # keep these imports to a minimum to speed up initial CLI loading
 import click
