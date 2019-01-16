@@ -51,7 +51,7 @@ the instructions [here](https://www.sylabs.io/docs/)
 If you have singulaity installed (and you're in the virtual machine when
 running on Windows or Mac), you can run (from within the cloned repository)
 
-    sudo singularity build wgd.simg wgd.shub
+    sudo singularity build Singularity wgd.shub
 
 to build the container. Then you can use ``wgd`` as follows
 
