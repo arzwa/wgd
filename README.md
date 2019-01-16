@@ -50,11 +50,11 @@ required software on your system. To install Singularity follow
 the instructions [here](https://www.sylabs.io/docs/)
 
 If you have singulaity installed (and you're in the virtual machine when
-running on Windows or Mac), you can run (from within the cloned repository)
+running on Windows or Mac), you can run the following to get the container
 
-    sudo singularity build wgd.simg Singularity
+    singularity pull --name wgd.simg shub://arzwa/wgd
 
-to build the container. Then you can use ``wgd`` as follows
+Then you can use ``wgd`` as follows
 
     singularity exec wgd.simg wgd <command>
 
