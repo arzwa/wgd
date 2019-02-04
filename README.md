@@ -1,4 +1,5 @@
-[![Documentation Status](https://readthedocs.org/projects/wgd/badge/?version=latest)](http://wgd.readthedocs.io/en/latest/?badge=latest) [![https://www.singularity-hub.org/static/img/hosted-singularity--hub-%23e32929.svg](hosted-singularity--hub-blue.svg)](https://singularity-hub.org/collections/2097)
+[![Documentation Status](https://readthedocs.org/projects/wgd/badge/?version=latest)](http://wgd.readthedocs.io/en/latest/?badge=latest) 
+[![Hosted](https://img.shields.io/badge/hosted-singularity--hub-blue.svg)](https://singularity-hub.org/collections/2097)
 
 
 Copyright (C) 2018 Arthur Zwaenepoel
