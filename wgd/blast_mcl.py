@@ -74,8 +74,12 @@ def get_one_v_one_orthologs_rbh(blast_file, output_dir):
     with open(blast_file, 'r') as f:
         for line in f:
             line = line.strip().split('\t')
-            sp_1, gene_1 = line[0].split('|')
-            sp_2, gene_2 = line[1].split('|')
+            gene_1 = line[0].split('|')
+            gene_2 = line[1].split('|')
+            sp_1 = gene_1[0]
+            sp_2 = gene_2[0]
+            gene_1 = "|".join(gene_1[1:])
+            gene_2 = "|".join(gene_2[1:])
             e = float(line[10])
 
             if sp_1 == sp_2:  # putative paralog

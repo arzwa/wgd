@@ -229,7 +229,7 @@ def check_dirs(tmp_dir, output_dir, prompt, preserve):
             os.mkdir(os.path.join(output_dir, 'codeml'))
 
 
-def read_fasta(fasta_file, prefix=None, split_on_pipe=True,
+def read_fasta(fasta_file, prefix=None, split_on_pipe=False,
                split_on_whitespace=True, raw=False):
     """
     Generic fasta file reader. Returns a dictionairy ``{ID: sequence, ID:
