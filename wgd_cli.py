@@ -1300,12 +1300,12 @@ def wf1(sequences, output_dir, gff_file, n_threads):
         os.mkdir(output_dir)
 
     # wgd blast
-    blast_dir = os.path.join(output_dir, 'wgd_blast')
+    blast_dir = os.path.join(output_dir, 'wgd_mcl')
     mcl_out = blast_mcl(cds=True, mcl=True, sequences=sequences,
                         n_threads=n_threads, output_dir=blast_dir)
 
     # wgd ks
-    ks_dir = os.path.join(output_dir, 'wgd_ks')
+    ks_dir = os.path.join(output_dir, 'wgd_ksd')
     ks_results = ksd_(gene_families=mcl_out, sequences=[sequences],
                       n_threads=n_threads, output_directory=ks_dir)
 
@@ -1333,7 +1333,7 @@ def wf2(sequences, output_dir, n_threads):
 
     Example:
 
-        wgd pipeline_2 -n 8 snail.fasta,whale.fasta snail_vs_whale_ks_out
+        wgd pipeline_2 -n 8 snail.fasta whale.fasta snail_vs_whale_ks_out
 
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
@@ -1342,14 +1342,14 @@ def wf2(sequences, output_dir, n_threads):
         os.mkdir(output_dir)
 
     # wgd blast
-    blast_dir = os.path.join(output_dir, 'wgd_blast')
+    blast_dir = os.path.join(output_dir, 'wgd_mcl')
     ovo_out = blast_mcl(cds=True, one_v_one=True, mcl=False,
                         sequences=sequences,
                         n_threads=n_threads,
                         output_dir=blast_dir)
 
     # wgd ks
-    ks_dir = os.path.join(output_dir, 'wgd_ks')
+    ks_dir = os.path.join(output_dir, 'wgd_ksd')
     ksd_(gene_families=ovo_out, sequences=sequences, n_threads=n_threads,
          output_directory=ks_dir, one_v_one=True)
 
