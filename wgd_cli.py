@@ -99,10 +99,10 @@ notice how we specify to use 8 threads::
 
     $ wgd mcl --cds --mcl -s ath.cds.fasta -o ./ -n 8
 
-(2) Construct a |Ks| distribution, use PhyML for inferring the phylogenetic
+(2) Construct a |Ks| distribution, use FastTree for inferring the phylogenetic
 trees used in the node weighting procedure::
 
-    $ wgd ksd -o ./ -n 8 --pairwise --wm phyml ./ath.mcl ath.cds.fasta
+    $ wgd ksd -o ./ -n 8 ./ath.mcl ath.cds.fasta
 
 (3) Run I-ADHoRe and get an anchor-point |Ks| distribution, as well as dotplots.
 here we need a structural annotation in GFF format (see e.g.
