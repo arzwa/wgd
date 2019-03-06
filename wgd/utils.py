@@ -254,7 +254,8 @@ def read_fasta(fasta_file, prefix=None, split_on_pipe=False,
             ID = gene.split("\n")[0]
             for char in invalid_chars:
                 if char in ID:
-                    raise ValueError("Gene ID contains illegal character '{}'".format(char))
+                    raise ValueError(
+                        "Gene ID '{0}' contains illegal character '{1}'".format(ID, char))
             if ID != '':
                 if split_on_pipe:
                     ID = ID.split("|")[0].strip()
