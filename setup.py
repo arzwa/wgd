@@ -39,21 +39,20 @@ setup(
     py_modules=['wgd_cli'],
     include_package_data=True,
     install_requires=[
-        'click',
-        'seaborn',
-        'coloredlogs',
-        'fastcluster',
-        'numpy',
+        'click>=7.0',
+        'seaborn>=0.9.0',
+        'coloredlogs>=10.0',
+        'fastcluster==1.1.25',
+        'numpy>=1.16',
         'sklearn',
-        'scipy',
-        'matplotlib',
-        'plumbum',
-        'fastcluster',
-        'pandas',
-        'progressbar2',
+        'scipy>=1.2',
+        'matplotlib>=3.0.2',
+        'plumbum>=1.6.7',
+        'pandas==0.24.1',
+        'progressbar2>=3.39',
         'joblib==0.11', # 0.12 seems to break the logging in parallel for loops
-        'ete3',
-        'bokeh'
+        'ete3>=3.1',
+        'bokeh>=1.0.4'
     ],
     entry_points='''
         [console_scripts]
