@@ -242,6 +242,7 @@ def read_fasta(fasta_file, prefix=None, split_on_pipe=False,
     :param raw: boolean, return raw fasta file (why would you want this?)
     :return: sequence dictionary
     """
+    invalid_chars = [":", ";"]
     sequence_dict = {}
 
     with open(fasta_file, 'r') as f:
@@ -251,6 +252,9 @@ def read_fasta(fasta_file, prefix=None, split_on_pipe=False,
         genes = f.read().split(">")
         for gene in genes:
             ID = gene.split("\n")[0]
+            for char in invalid_chars:
+                if char in ID:
+                    raise ValueError("Gene ID contains illegal character '{}'".format(char))
             if ID != '':
                 if split_on_pipe:
                     ID = ID.split("|")[0].strip()
