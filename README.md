@@ -13,8 +13,9 @@ Bioinformatics & evolutionary genomics group http://bioinformatics.psb.ugent.be/
 
 Python package and command line interface (CLI) for the analysis
 of whole genome duplications (WGDs). Tested with Python3.5 & Python3.6
-on Linux Ubuntu. If you don't have python or pip installed a simple
-`sudo apt-get install python3-pip` should do.
+on Linux Ubuntu (some issues have been reported for Python3.7). If you 
+don't have python or pip installed a simple `sudo apt-get install python3-pip` 
+should do.
 
 To install: clone the repo, navigate to it and install it with pip
 
