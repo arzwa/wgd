@@ -62,8 +62,8 @@ def _get_nucleotide_sequences(family, nucleotide):
 
 def _weighting(pairwise_estimates, msa=None, method='alc'):
     """
-    Wrapper for different weighting methods. The fastest method is average 
-    linkage clustering based on Ks values, other methods use phylogenetic trees 
+    Wrapper for different weighting methods. The fastest method is average
+    linkage clustering based on Ks values, other methods use phylogenetic trees
     (phyml or fasttree)
 
     :param pairwise_estimates: results dictionary from
@@ -659,7 +659,7 @@ def ks_analysis_paranome(
 
     # rename the index of the data_frame to gene1_gene2 (alphabetically) -------
     new_index = results_frame[['Paralog1', 'Paralog2']].apply(
-            lambda x: '__'.join(sorted(x)), axis=1)
+            lambda x: '__'.join(sorted([str(y) for y in x])), axis=1)
     results_frame.index = new_index
     logging.info("Computing weights, outlier cut-off at Ks > 5")
     results_frame = compute_weights(results_frame)
@@ -717,4 +717,3 @@ def compute_weights(df, min_ks=0.005, max_ks=5, aln_id=0, aln_len=300, aln_cov=0
     df.loc[df_.index, "WeightOutliersExcluded"] = 1 / df_.groupby(
             ['Family', 'Node'])['Ks'].transform('count')
     return df
-
