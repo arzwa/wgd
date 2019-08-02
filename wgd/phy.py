@@ -168,6 +168,11 @@ def average_linkage_clustering(pairwise_estimates):
     :return: average linkage clustering as performed with
         ``fastcluster.average``.
     """
+    # fill NaN values with something larger than all the rest, not a foolproof
+    # approach, but should be reasonable in most cases
+    if np.any(np.isnan(pairwise_estimates)):
+        logging.warning("Ks matrix contains NaN values, replaced with 1000")
+        pairwise_estimates.fillna(1000, inplace=True)
     clustering = fastcluster.average(pairwise_estimates)
 
     return clustering

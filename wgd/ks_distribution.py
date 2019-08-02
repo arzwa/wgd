@@ -566,7 +566,7 @@ def ks_analysis_one_vs_one(
 
     # rename the index of the data_frame to gene1_gene2 (alphabetically) -------
     new_index = results_frame[['Paralog1', 'Paralog2']].apply(
-            lambda x: '__'.join(sorted(x)), axis=1)
+            lambda x: '__'.join(sorted([str(y) for y in x])), axis=1)
     results_frame.index = new_index
 
     # adding weights for completeness
@@ -624,6 +624,9 @@ def ks_analysis_paranome(
     # NOTE: I changed thsi so that filtering is also performed in the
     # non-pairwise analysis.
     sorted_families = sort_families_by_size(protein, True, max_pairwise)
+    if len(sorted_families) == 0:
+        logging.error("No non-singleton gene families provided.")
+        exit()
 
     # start analysis -----------------------------------------------------------
     logging.info('Started analysis in parallel (n_threads = {})'
@@ -704,7 +707,8 @@ def sort_families_by_size(
     return sorted_families
 
 
-def compute_weights(df, min_ks=0.005, max_ks=5, aln_id=0, aln_len=300, aln_cov=0):
+def compute_weights(df, min_ks=0.005, max_ks=5, aln_id=0, aln_len=300,
+        aln_cov=0):
     df = df[~df.index.duplicated()]  # for safety
     df["WeightOutliersIncluded"] = 1 / df.groupby(['Family', 'Node'])[
         'Ks'].transform('count')
