@@ -221,6 +221,38 @@ def cli(verbosity, logfile, version):
     pass
 
 
+# Check and optionally refactor data -------------------------------------------
+@cli.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.argument('sequences', nargs=-1, type=click.Path(exists=True))
+@click.option('--rename', is_flag=True, help='rename sequences')
+@click.option('--prefix', default=None, help='prefix strings')
+@click.option('--out', default=None, help='output file name prefixes')
+def pre(sequences, rename, prefix, out):
+    """
+    Check and optionally rename CDS files
+    
+    Example usage (renaming)
+
+        wgd pre ath.cds.fasta vvi.cds.fasta --rename --prefix ath,vvi
+
+    Example usage (just checking files)
+
+        wgd pre ath.cds.fasta
+    """
+    from wgd.pre import check_cds
+    if prefix:
+        prefixes = prefix.split(",")
+    else:
+        prefixes = sequences
+    if out:
+        out = out.split(",")
+    else:
+        out = [s + ".pre" for s in sequences]
+    for i, seq in enumerate(sequences):
+        logging.info("({}) Checking {}".format(i, seq))
+        check_cds(seq, out[i] + ".good", out[i] + ".bad",
+                  rename=rename, prefix=prefixes[i])
+
 # BLAST AND MCL ----------------------------------------------------------------
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.option(
@@ -468,7 +500,7 @@ def blast_mcl(
         help="path to store temporary files"
 )
 @click.option(
-        '--aligner', '-a', default='muscle', show_default=True,
+        '--aligner', '-a', default='mafft', show_default=True,
         type=click.Choice(['muscle', 'prank', 'mafft']),
         help='aligner program to use, from fast to slow: muscle, prank'
 )
