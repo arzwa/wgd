@@ -243,7 +243,7 @@ def read_fasta(fasta_file, prefix=None, split_on_pipe=False,
     :param raw: boolean, return raw fasta file (why would you want this?)
     :return: sequence dictionary
     """
-    invalid_chars = [":", ";"]
+    invalid_chars = [":", ";", "?"]
     sequence_dict = {}
 
     with open(fasta_file, 'r') as f:
@@ -266,7 +266,7 @@ def read_fasta(fasta_file, prefix=None, split_on_pipe=False,
                     ID = prefix + '|' + ID
                 sequence = "".join(gene.split("\n")[1:])
                 sequence = sequence.replace('*', '')
-                sequence_dict[ID] = sequence
+                sequence_dict[ID] = sequence.upper()
 
     if '' in sequence_dict.keys():
         del sequence_dict['']
