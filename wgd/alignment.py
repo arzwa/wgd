@@ -46,8 +46,8 @@ def prepare_aln(msa_file, nuc_seqs):
             aln = pal2nal(aln, nuc_seqs)
         stats = pairwise_alignment_stats(aln)
     out_path = msa_file + '.nuc'
-    write_alignment_codeml(aln, out_path)
-    return out_path, stats
+    success = write_alignment_codeml(aln, out_path)
+    return out_path, stats, success
 
 
 def pal2nal(pal, nuc_seqs):
@@ -175,14 +175,17 @@ def write_alignment_codeml(alignment, file_name):
     :param alignment: alignment dictionary
     :param file_name: output file name
     """
+    n = len(alignment.keys())
+    if n == 0:
+        return False
+    m = len(list(alignment.values())[0])
     with open(file_name, 'w') as o:
-        o.write("\t{0}\t{1}\n".format(
-                len(alignment.keys()), len(list(alignment.values())[0])))
+        o.write("\t{0}\t{1}\n".format(n, m))
         for gene_ID in alignment.keys():
             o.write("{}\n".format(gene_ID))
             o.write(alignment[gene_ID])
             o.write("\n")
-    from time import sleep
+    return True
 
 
 def align_muscle(in_file, out_file, bin_path='muscle'):

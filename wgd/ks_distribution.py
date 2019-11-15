@@ -278,7 +278,9 @@ def analyse_family(
     logging.debug('Performing MSA ({0}) for {1}'.format(aligner, family_id))
     ff = write_fasta(family, os.path.join(tmp, family_id + '.fasta'))
     msa_path_protein = align(in_file=ff, out_file=ff + '.msa', aligner=aligner)
-    msa_path, stats = prepare_aln(msa_path_protein, nucleotide)
+    msa_path, stats, successful = prepare_aln(msa_path_protein, nucleotide)
+    if not successful:
+        logging.warning("Failed to obtain codon alignment for {}".format(family_id))
 
     # Calculate Ks values (codeml) ---------------------------------------------
     codeml = Codeml(codeml=codeml, tmp=tmp, id=family_id)
