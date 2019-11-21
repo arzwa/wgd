@@ -224,9 +224,9 @@ def align_mafft(in_file, out_file, bin_path='mafft'):
     :param in_file: input fasta file
     :param out_file: output fasta file
     """
-    cmd = [bin_path, '--maxiterate', '1000', '--localpair', in_file]
+    cmd = [bin_path, "--amino", '--maxiterate', '1000', '--localpair', in_file]
     out = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    log_subprocess("PRANK", out)
+    log_subprocess("MAFFT", out)
     with open(out_file, 'w') as f: f.write(out.stdout.decode('utf-8'))
     return out_file
 
