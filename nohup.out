@@ -1,0 +1,12 @@
+sending incremental file list
+
+sent 30,622 bytes  received 79 bytes  20,467.33 bytes/sec
+total size is 7,805,355,124  speedup is 254,237.81
+ssh: connect to host 192.168.0.149 port 22: Connection timed out
+rsync: connection unexpectedly closed (0 bytes received so far) [sender]
+rsync error: unexplained error (code 255) at io.c(235) [sender=3.1.2]
+rsync error: received SIGINT, SIGTERM, or SIGHUP (code 20) at rsync.c(644) [sender=3.1.2]
+sending incremental file list
+
+sent 30,626 bytes  received 83 bytes  8,774.00 bytes/sec
+total size is 7,805,355,124  speedup is 254,171.58
