@@ -44,6 +44,24 @@ To use as a Python package as well as to find additional documentation
 and examples for the CLI, please consult the docs at
 http://wgd.readthedocs.io/en/latest/
 
+## NEW: diamond support
+
+This has not been thoroughly tested yet, but may be of interest.
+[Diamond](https://github.com/bbuchfink/diamond) is a sequence similarity search
+tool that is much faster than Blast and performance similar on other measures.
+If you have diamond installed, you can use `wgd dmd` for whole-paranome or
+one-vs.-one ortholog delineation, e.g.
+
+    $ wgd dmd ath.cds.fasta
+
+for a whole-paranome, and 
+
+    $ wgd dmd ath.cds.fasta vvi.cds.fasta
+
+for one-vs.-one orthologs.
+
+In the future this will replace `wgd mcl`. Please let me know of any bugs!
+
 ## Singularity container
 
 A singularity container is available for ``wgd``, allowing all to use
