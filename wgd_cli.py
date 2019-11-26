@@ -81,7 +81,7 @@ and arguments, which can be viewed by using the ``--help`` or ``-h`` flag. These
 should be quite self-explanatory, but for further documentation you can refer to
 the documentation of the specific functions that are called. These can be found
 on this page (e.g. the function called by ``wgd blast`` is
-:py:func:`wgd_cli.blast_`). 
+:py:func:`wgd_cli.blast_`).
 
 For more information on the methods used in ``wgd`` to compute |Ks| distributions,
 please refer to :ref:`methods`.
@@ -230,7 +230,7 @@ def cli(verbosity, logfile, version):
 def pre(sequences, rename, prefix, out):
     """
     Check and optionally rename CDS files
-    
+
     Example usage (renaming)
 
         wgd pre ath.cds.fasta vvi.cds.fasta --rename --prefix ath,vvi
@@ -302,7 +302,7 @@ def mcl(
         inflation_factor, eval_cutoff, output_dir, n_threads
 ):
     """
-    All-vs.-all blastp + MCL analysis.
+    All-vs.-all blastp + MCL clustering.
 
     Requires blastp, makeblastdb (ncbi-blast+ suite) and mcl. Note the two key
     parameters, being the e-value cut-off and inflation factor. It is advised to
@@ -481,6 +481,61 @@ def blast_mcl(
         return mcl_out
 
     return blast_results
+
+
+# Diamond + MCL
+@cli.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.argument('sequences', nargs=-1, type=click.Path(exists=True))
+@click.option('--outdir', '-o', default='wgd_dmd', show_default=True,
+    help='output directory')
+@click.option('--tmpdir', '-t', default=None, show_default=True,
+    help='tmp directory')
+@click.option('--inflation', '-I', default=2.0, help="inflation factor for MCL")
+@click.option('--eval', '-e', default=1e-10, help="e-value cut-off for similarity")
+@click.option('--ignorestop', is_flag=True, help="translate through STOP codons")
+@click.option('--nostrictcds', is_flag=True, help="do not enforce proper CDS sequences")
+def dmd(sequences, outdir, tmpdir, inflation, eval, ignorestop, nostrictcds):
+    """
+    All-vs.-all diamond blastp + MCL clustering.
+
+    Requires diamond and mcl. Note the two key  parameters, being the e-value
+    cut-off and inflation factor. It is advised to explore the effects of these
+    on your analysis.
+
+    Example 1 - whole paranome delineation:
+
+        wgd dmd ath.fasta
+
+    Example 2 - one vs. one ortholog delineation:
+
+        wgd dmd ath.fasta vvi.fasta
+
+    Example 3 - one vs. one ortholog delineation for multiple pairs:
+
+        wgd dmd ath.fasta vvi.fasta egr.fasta
+
+    wgd  Copyright (C) 2019 Arthur Zwaenepoel
+    This program comes with ABSOLUTELY NO WARRANTY;
+    """
+    from wgd.diamond import SequenceData
+    s = [SequenceData(s, out_path=outdir, tmp_path=tmpdir,
+        to_stop=not ignorestop, cds=not nostrictcds) for s in sequences]
+    if len(s) == 0:
+        logging.error("No sequences provided!")
+        return
+    elif len(s) == 1:
+        logging.info("One CDS file: will compute paranome")
+        s[0].get_paranome(inflation=inflation, eval=eval)
+        s[0].write_paranome()
+    else:
+        logging.info("Multiple CDS files: will compute RBH orthologs")
+        for i in range(len(s)-1):
+            for j in range(i+1, len(s)):
+                logging.info("{} vs. {}".format(s[i].prefix, s[j].prefix))
+                s[i].get_rbh_orthologs(s[j], eval=eval)
+                s[i].write_rbh_orthologs(s[j])
+    if tmpdir is None:
+        [x.remove_tmp(prompt=False) for x in s]
 
 
 # Ks ANALYSIS USING JOBLIB/ASYNC  ----------------------------------------------
