@@ -29,14 +29,15 @@ with open("README.md", "r") as fh:
 
 setup(
     name='wgd',
-    version='1.0',
+    version='1.1',
     packages=['wgd'],
     url='http://github.com/arzwa/wgd',
     license='GPL',
     author='Arthur Zwanepoel',
     author_email='arzwa@psb.vib-ugent.be',
-    description='wgd',
+    description='Command line tools for exploratory analyses of whole-genome duplications',
     py_modules=['wgd_cli'],
+    packages=setuptools.find_packages(),
     include_package_data=True,
     install_requires=[
         'click>=7.0',
@@ -55,6 +56,12 @@ setup(
         'ete3>=3.1',
         'bokeh>=1.0.4'
     ],
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+        "Operating System :: OS Independent",
+    ],
+    python_requires='>=3.6',
     entry_points='''
         [console_scripts]
         wgd=wgd_cli:cli
