@@ -7,15 +7,13 @@ Copyright (C) 2018 Arthur Zwaenepoel
 VIB/UGent center for plant systems biology -
 Bioinformatics & evolutionary genomics group http://bioinformatics.psb.ugent.be/beg/
 
-# wgd - simple command line tools for the analysis of ancient whole genome duplications
+# wgd - simple command line tools for the analysis of ancient whole-genome duplications
 
 ## Installation
 
-Python package and command line interface (CLI) for the analysis
-of whole genome duplications (WGDs). Tested with Python3.5 & Python3.6
-on Linux Ubuntu (some issues have been reported for Python3.7). If you 
-don't have python or pip installed a simple `sudo apt-get install python3-pip` 
-should do.
+Python package and command line interface (CLI) for the analysis of 
+whole-genome duplications (WGDs). Tested with Python3 on Linux. If you don't have
+python or pip installed a simple `sudo apt-get install python3-pip` should do.
 
 To install: clone the repo, navigate to it and install it with pip
 
@@ -60,7 +58,8 @@ for a whole-paranome, and
 
 for one-vs.-one orthologs.
 
-In the future this will replace `wgd mcl`. Please let me know of any bugs!
+This is part of a new `wgd` version that is forthcoming. In the future this will
+replace `wgd mcl`. Please let me know of any bugs!
 
 ## Singularity container
 
