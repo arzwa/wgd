@@ -40,7 +40,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'click>=7.0',
-	'biopython==1.75'
+	'biopython==1.75',
         'seaborn>=0.9.0',
         'coloredlogs>=10.0',
         'fastcluster==1.1.25',
