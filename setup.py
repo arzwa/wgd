@@ -37,11 +37,10 @@ setup(
     author_email='arzwa@psb.vib-ugent.be',
     description='Command line tools for exploratory analyses of whole-genome duplications',
     py_modules=['wgd_cli'],
-    packages=setuptools.find_packages(),
     include_package_data=True,
     install_requires=[
         'click>=7.0',
-	'biopython==1.75',
+	'biopython>=1.75',
         'seaborn>=0.9.0',
         'coloredlogs>=10.0',
         'fastcluster==1.1.25',
