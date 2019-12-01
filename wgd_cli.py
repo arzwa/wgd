@@ -229,7 +229,7 @@ def cli(verbosity, logfile, version):
 @click.option('--out', default=None, help='output file name prefixes')
 def pre(sequences, rename, prefix, out):
     """
-    Check and optionally rename CDS files
+    Check and optionally rename CDS files.
 
     Example usage (renaming)
 

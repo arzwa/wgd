@@ -156,29 +156,3 @@ class SequenceSimilarityGraph:
         out = sp.run(command, capture_output=True)
         logging.debug(out.stderr.decode())
         return outfile
-
-
-
-
-
-class KsDistribution:
-    def __init__(self):
-        # self.tmp_path = ...
-        # self.out_path = ...
-        # self.gene_families = ...
-        pass
-
-
-class Codeml:
-    pass
-
-
-class CodonAlignment:
-    def __init__(self):
-        # self.pro_sequences = ...
-        # self.cds_sequences = ...
-        # self.pro_alignment = ...
-        # self.cds_alignment = ...
-        # self.aligner = ...
-        # self.prequal = ...
-        pass

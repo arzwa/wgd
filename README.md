@@ -1,4 +1,4 @@
-[![Documentation Status](https://readthedocs.org/projects/wgd/badge/?version=latest)](http://wgd.readthedocs.io/en/latest/?badge=latest) 
+[![Documentation Status](https://readthedocs.org/projects/wgd/badge/?version=latest)](http://wgd.readthedocs.io/en/latest/?badge=latest)
 [![Hosted](https://img.shields.io/badge/hosted-singularity--hub-blue.svg)](https://singularity-hub.org/collections/2097)
 
 
@@ -11,15 +11,11 @@ Bioinformatics & evolutionary genomics group http://bioinformatics.psb.ugent.be/
 
 ## Installation
 
-Python package and command line interface (CLI) for the analysis of 
+Python package and command line interface (CLI) for the analysis of
 whole-genome duplications (WGDs). Tested with Python3 on Linux. If you don't have
 python or pip installed a simple `sudo apt-get install python3-pip` should do.
 
-To install: clone the repo, navigate to it and install it with pip
-
-    $ git clone https://github.com/arzwa/wgd.git
-    $ cd wgd
-    $ pip install .
+To install, simply run ``pip install wgd``
 
 Note that depending on your python installation and whether you're in a
 virtualenv, ``pip`` may default either to ``pip2`` or ``pip3``. If the
@@ -36,11 +32,24 @@ a command (e.g. `ksd`) run
     $ wgd ksd --help
 
 For **external software** requirements: please consult the relevant section
-in the docs: https://wgd.readthedocs.io/en/latest/index.html#external-software
+in the [docs](https://wgd.readthedocs.io/en/latest/index.html#external-software)
 
-To use as a Python package as well as to find additional documentation
-and examples for the CLI, please consult the docs at
-http://wgd.readthedocs.io/en/latest/
+## Quick start
+
+The main aim of `wgd` is computing whole-paranome and one-vs.-one ortholog Ks
+distributions. For a whole-paranome distribution of a CDS sequence fasta file,
+the minimal commands are:
+
+    $ wgd dmd ath.cds.fasta
+    $ wgd ksd wgd_dmd/ath.cds.fasta.mcl ath.cds.fasta
+
+For one-vs.one orthologs the minimal commands are
+
+    $ wgd dmd ath.cds.fasta vvi.cds.fasta
+    $ wgd ksd wgd_dmd/ath1000.fasta_vvi1000.fasta.rbh ath.cds.fasta vvi.cds.fasta
+
+For more information and these methods and other tools implemented in `wgd`,
+please consult the [docs](https://wgd.readthedocs.io/en/latest/).
 
 ## NEW: diamond support
 
@@ -52,7 +61,7 @@ one-vs.-one ortholog delineation, e.g.
 
     $ wgd dmd ath.cds.fasta
 
-for a whole-paranome, and 
+for a whole-paranome, and
 
     $ wgd dmd ath.cds.fasta vvi.cds.fasta
 
@@ -91,7 +100,7 @@ the wgd suite was extensively tested with data from the PLAZA platform,
 so for examples of the right input data formats (in particular CDS fasta
 files for sequence data and GFF files for structural annotation), please
 have a look [there](https://bioinformatics.psb.ugent.be/plaza/versions/plaza_v4_dicots/download/).
-It is generally advised not to include pipe characters (`|`) in your gene 
+It is generally advised not to include pipe characters (`|`) in your gene
 IDs, since these can have special meanings in certain parts of `wgd`.
 
 **Note on virtualenv:** you can install wgd in a _virtual environment_
@@ -102,7 +111,7 @@ calling the CLI, using `python3 ./wgd_cli.py --help` (assuming you are
 currently in the directory where you cloned wgd).
 
 ## Citation
- 
+
 Please cite us at https://doi.org/10.1093/bioinformatics/bty915
 
 ```
@@ -111,4 +120,3 @@ Zwaenepoel, A., and Van de Peer, Y. wgd - simple command line tools for the anal
 
 For citation of the tools used in wgd, please consult the documentation at
 https://wgd.readthedocs.io/en/latest/index.html#citation.
-

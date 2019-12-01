@@ -52,8 +52,7 @@ def can_i_run_software(software):
         # file is created
         if s == 'codeml':
             tmp_file = uniq_id()
-            with open(tmp_file, 'w') as o:
-                o.write('test')
+            os.system("touch {}".format(tmp_file))
             command = ['codeml', tmp_file]
         elif s == 'prank':
             command = [s, '--help']
@@ -70,9 +69,10 @@ def can_i_run_software(software):
             ex = 1
 
         # remove the dummy file
-        if s == 'codeml':
+        if s == 'codeml' and ex == 0:
             logging.info('codeml found')
             os.remove(tmp_file)
+            os.remove("codeml.ctl")
             subprocess.run(['rm', 'rub', 'rst1', 'rst'])
     return ex
 
