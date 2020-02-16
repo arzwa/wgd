@@ -1,4 +1,6 @@
 # Created by https://www.gitignore.io/api/python,pycharm+all
+_test/
+
 TODO.md
 wgd.simg
 

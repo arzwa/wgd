@@ -28,7 +28,7 @@ A python wrapper for codeml (PAML package, Yang 2007)
 import pandas as pd
 import numpy as np
 import os
-import subprocess
+import subprocess as sp
 import re
 import logging
 
@@ -221,15 +221,12 @@ class Codeml:
         """
         self.codeml = codeml
         self.tmp = tmp
-
-        if not os.path.isdir(self.tmp):
-            raise NotADirectoryError(
-                    'tmp directory {} not found!'.format(self.tmp))
-
         self.id = id
-        self.control_file = os.path.join(self.tmp, self.id + '.ctrl')
+        if not os.path.isdir(self.tmp):
+            raise NotADirectoryError('tmp directory {} not found!'.format(tmp))
+        self.control_file = self.id + '.ctrl'
         if not out_file:
-            self.out_file = os.path.join(self.tmp, self.id + '.codeml')
+            self.out_file = self.id + '.codeml'
         else:
             self.out_file = out_file
         self.control = {
@@ -241,14 +238,11 @@ class Codeml:
             'kappa': 2, 'fix_omega': 0, 'omega': .4, 'fix_alpha': 1, 'alpha': 0,
             'Malpha': 0, 'ncatG': 8,
             'getSE': 0, 'RateAncestor': 1, 'Small_Diff': .5e-6, 'cleandata': 1,
-            'method': 0
-        }
-
+            'method': 0}
         # update the control with kwargs
         for x in kwargs.keys():
             if x not in self.control:
-                raise KeyError("{} is not a valid keyword for the codeml "
-                               "control file.".format(x))
+                raise KeyError("{} is not a valid codeml param.".format(x))
             else:
                 self.control[x] = kwargs[x]
 
@@ -273,9 +267,10 @@ class Codeml:
         :param times: integer, perform codeml multiple times (average results)
         :return: dictionary with Ks, Kn and Kn/Ks (omega) values
         """
+        parentdir = os.path.abspath(os.curdir)
+        os.chdir(self.tmp)
         if msa is not None:
             self.control['seqfile'] = msa
-
         elif msa is None and self.control['seqfile'] is None:
             raise ValueError("No sequence file provided!")
 
@@ -290,25 +285,12 @@ class Codeml:
         best = None
         best_index = 0
         for i in range(times):
-            logging.debug(
-                    "Codeml iteration {0} for {1}".format(str(i + 1), msa))
-
-            # codeml hangs when filename is too long apparently
-            # however in most use cases the files are in the working directory
-            if os.path.isfile(os.path.basename(self.control_file)):
-                self.control_file = os.path.basename(self.control_file)
-
-            subprocess.run([self.codeml, self.control_file],
-                           stdout=subprocess.PIPE)
-            subprocess.run(
-                    ['rm', '2ML.dN', '2ML.dS', '2ML.t', '2NG.dN', '2NG.dS',
-                     '2NG.t', 'rst', 'rst1', 'rub'],
-                    stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            logging.debug("Codeml iteration {0} for {1}".format(str(i+1), msa))
+            sp.run([self.codeml, self.control_file], stdout=sp.PIPE)
+            sp.run(['rm', '2ML.dN', '2ML.dS', '2ML.t', '2NG.dN', '2NG.dS',
+                '2NG.t', 'rst', 'rst1', 'rub'], stdout=sp.PIPE, stderr=sp.PIPE)
             if not os.path.isfile(self.out_file):
-                logging.warning(
-                        'Codeml output file {} not found'.format(self.out_file))
-                return None
-
+                raise FileNotFoundError('Codeml output file not found')
             d, likelihood = _parse_codeml_out(self.out_file)
             output.append(d)
             if not best or likelihood > best:
@@ -317,19 +299,10 @@ class Codeml:
 
         logging.debug('Best MLE: ln(L) = {}'.format(best))
         results = output[best_index]
-
-        if not output:
-            return None
-
+        results_file = os.path.abspath(self.out_file)
         os.remove(self.control_file)
-
+        os.chdir(parentdir)
         if raw:
             return results
-
         else:
-            if results is not None:
-                return results['results'], os.path.abspath(self.out_file)
-            return None, None
-
-
-
+            return results['results'], results_file
