@@ -217,7 +217,7 @@ def cli(verbosity, logfile, version):
                             shell=True, stdout=f)
 
     if version:
-        logging.info("This is wgd v1.0")
+        logging.info("This is wgd v1.1")
     pass
 
 
