@@ -76,6 +76,7 @@ class SequenceData:
         out = sp.run(cmd, capture_output=True)
         logging.debug(out.stderr.decode())
         df = pd.read_csv(outfile, sep="\t", header=None)
+        os.move(outfile, self.out_path)
         df = df.loc[df[0] != df[1]]
         self.dmd_hits[seqs.prefix] = df = df.loc[df[10] <= eval]
         return df
