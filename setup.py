@@ -53,7 +53,7 @@ setup(
         'progressbar2>=3.39',
         'joblib==0.11', # 0.12 seems to break the logging in parallel for loops
         'ete3>=3.1',
-        'bokeh>=1.0.4'
+        'bokeh==1.4.0'
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
