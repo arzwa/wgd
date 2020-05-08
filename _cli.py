@@ -5,13 +5,13 @@ import sys
 import os
 import warnings
 import pandas as pd
-import coloredlogs
 import subprocess as sp
 warnings.filterwarnings("ignore", message="numpy.dtype size changed")
 warnings.filterwarnings("ignore", message="numpy.ufunc size changed")
 
+__version__ = "2.0.0"
 
-# CLI ENTRY POINT --------------------------------------------------------------
+# CLI entry point
 @click.group(context_settings={'help_option_names': ['-h', '--help']})
 @click.option('--verbosity', '-v', type=click.Choice(['info', 'debug']),
     default='info', help="Verbosity level, default = info.")
@@ -20,52 +20,20 @@ warnings.filterwarnings("ignore", message="numpy.ufunc size changed")
 @click.option('--version', is_flag=True, help="Print version number")
 def cli(verbosity, logfile, version):
     """
-    Welcome to the wgd command line interface!
-
-    \b
-                           _______
-                           \\  ___ `'.
-           _     _ .--./)   ' |--.\\  \\
-     /\\    \\\\   ///.''\\\\    | |    \\  '
-     `\\\\  //\\\\ //| |  | |   | |     |  '
-       \\`//  \\'/  \\`-' /    | |     |  |
-        \\|   |/   /("'`     | |     ' .'
-         '        \\ '---.   | |___.' /'
-                   /'""'.\\ /_______.'/
-                  ||     ||\\_______|/
-                  \\'. __//
-                   `'---'
-    \b
-    wgd  Copyright (C) 2019 Arthur Zwaenepoel
-    This program comes with ABSOLUTELY NO WARRANTY;
-    This is free software, and you are welcome to redistribute it
-    under certain conditions;
-
+    wgd - Copyright (C) 2019 Arthur Zwaenepoel\n
     Contact: arzwa@psb.vib-ugent.be
     """
-    if not logfile:
-        coloredlogs.install(fmt='%(asctime)s: %(levelname)s\t%(message)s',
-            level=verbosity.upper(), stream=sys.stdout)
-    else:
-        print('Logs will be written to {}'.format(logfile))
-        logging.basicConfig(filename=logfile,
-            filemode='a',
-            format='%(asctime)s: %(levelname)s\t%(message)s',
-            datefmt='%H:%M:%S',
-            level=verbosity.upper())
-
-    # get around problem with python multiprocessing library that can set all
-    # cpu affinities to a single cpu (found in OrthoFinder source code)
-    if sys.platform.startswith("linux"):
-        with open(os.devnull, "w") as f:
-            sp.call("taskset -p 0xffffffffffff %d" % os.getpid(),
-                shell=True, stdout=f)
+    logging.basicConfig(filename=logfile,
+        filemode='a',
+        format='%(asctime)s: %(levelname)s %(message)s',
+        datefmt='%H:%M:%S',
+        level=verbosity.upper())
     if version:
-        logging.info("This is wgd v2.0")
+        logging.info("This is wgd v{}".format(__version__))
     pass
 
 
-# Diamond + MCL_________________________________________________________________
+# Diamond and gene families
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
 @click.argument('sequences', nargs=-1, type=click.Path(exists=True))
 @click.option('--outdir', '-o', default='wgd_dmd', show_default=True,
@@ -80,7 +48,7 @@ def cli(verbosity, logfile, version):
     help="translate through STOP codons")
 @click.option('--nostrictcds', is_flag=True,
     help="don't enforce proper CDS sequences")
-def dmd(*args):
+def dmd(**kwargs):
     """
     All-vs.-all diamond blastp + MCL clustering.
 
@@ -99,16 +67,13 @@ def dmd(*args):
     Example 3 - one vs. one ortholog delineation for multiple pairs:
 
         wgd dmd ath.fasta vvi.fasta egr.fasta
-
-    wgd  Copyright (C) 2019 Arthur Zwaenepoel
-    This program comes with ABSOLUTELY NO WARRANTY;
     """
-    _dmd(*args)
+    _dmd(**kwargs)
 
 def _dmd(sequences, outdir, tmpdir, inflation, eval, ignorestop, nostrictcds):
-    from wgd.diamond import SequenceData
+    from wgd.core import SequenceData
     s = [SequenceData(s, out_path=outdir, tmp_path=tmpdir,
-        to_stop=not ignorestop, cds=not nostrictcds) for s in sequences]
+        to_stop=not ignorestop, cds=nostrictcds) for s in sequences]
     if len(s) == 0:
         logging.error("No sequences provided!")
         return
@@ -128,7 +93,21 @@ def _dmd(sequences, outdir, tmpdir, inflation, eval, ignorestop, nostrictcds):
     return s
 
 
-# Ks distribution_______________________________________________________________
+# Ks distribution construction
+@cli.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.argument('families', type=click.Path(exists=True))
+@click.argument('sequences', nargs=-1, type=click.Path(exists=True))
+@click.option('--tmpdir', '-t', default=None, show_default=True,
+    help='tmp directory')
+def ksd(families, sequences, tmpdir):
+    from wgd.core import get_gene_families, SequenceData, KsDistributionBuilder
+    s = [SequenceData(s, tmp_path=tmpdir, to_stop=False, cds=False)
+         for s in sequences]
+    with open(families, "r") as f:
+        fams = [x.strip().split("\t") for x in f.readlines()]
+    fams = get_gene_families(s, fams)
+    ksdb = KsDistributionBuilder(fams)
+    ksdb.get_distribution()
 
 
 if __name__ == '__main__':

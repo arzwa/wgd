@@ -89,21 +89,23 @@ class SequenceData:
     Sequence data container for Ks distribution computation pipeline. A helper
     class that bundles sequence manipulation methods.
     """
-    def __init__(self, cds_fasta, tmp_path=None, out_path="wgd_dmd",
+    def __init__(self, cds_fasta,
+            tmp_path=None, out_path="wgd_dmd",
             to_stop=True, cds=True):
         if tmp_path == None:
             tmp_path = str(uuid.uuid4())
         self.tmp_path  = _mkdir(tmp_path)
         self.out_path  = _mkdir(out_path)
         self.cds_fasta = cds_fasta
-        self.prefix = os.path.basename(self.cds_fasta)
+        self.prefix    = os.path.basename(self.cds_fasta)
         self.pro_fasta = os.path.join(tmp_path, self.prefix + ".tfa")
-        self.pro_db = os.path.join(tmp_path, self.prefix + ".db")
-        self.cds_seqs = {}
-        self.pro_seqs = {}
-        self.dmd_hits = {}
-        self.rbh = {}
-        self.mcl = {}
+        self.pro_db    = os.path.join(tmp_path, self.prefix + ".db")
+        self.cds_seqs  = {}
+        self.pro_seqs  = {}
+        self.dmd_hits  = {}
+        self.rbh       = {}
+        self.mcl       = {}
+        self.idmap     = {}  # a map from the newl safe id to the input seq id
         self.read_cds(to_stop=to_stop, cds=cds)
         _write_fasta(self.pro_fasta, self.pro_seqs)
 
@@ -111,14 +113,24 @@ class SequenceData:
         for i, seq in enumerate(SeqIO.parse(self.cds_fasta, 'fasta')):
             gid = "{0}_{1:0>5}".format(self.prefix, i)
             try:
-                aa_seq = seq.translate(to_stop=to_stop, cds=cds, id=seq.id)
+                aa_seq = seq.translate(to_stop=to_stop, cds=cds, id=seq.id,
+                                       stop_symbol="")
             except TranslationError as e:
                 logging.error("Translation error ({}) in seq {}".format(
                     e, seq.id))
                 continue
             self.cds_seqs[gid] = seq
             self.pro_seqs[gid] = aa_seq
+            self.idmap[seq.id] = gid
         return
+
+    def merge(self, other):
+        """
+        Merge other into self, keeping the paths etc. of self.
+        """
+        self.cds_seqs.merge(other.cds_seqs)
+        seld.pro_seqs.merge(other.pro_seqs)
+        self.idmap.merge(other.idmap)
 
     def make_diamond_db(self):
         cmd = ["diamond", "makedb", "--in", self.pro_fasta, "-d", self.pro_db]
@@ -218,19 +230,19 @@ class SequenceSimilarityGraph:
         return outfile
 
 
-def get_gene_families_paranome(seq_data, families, **kwargs):
-    gene_families = {}
-    for k, v in families.items():
-        cds = {x: seq_data.cds_seqs[x] for x in v}
-        pro = {x: seq_data.pro_seqs[x] for x in v}
-        fid = "GF{:0>5}".format(k)
-        tmp = os.path.join(seq_data.tmp_path, fid)
-        gene_families[k] = GeneFamily(fid, cds, pro, tmp, **kwargs)
+# Gene family i/o
+def get_gene_families(seq_data, families, **kwargs):
+    if len(seq_data) == 2:
+        seq_data[0].merge(seq_data[1])
+    seqs = seq_data[0]
+    gene_families = []
+    for i, family in enumerate(families):
+        cds = {seqs.idmap[x]: seqs.cds_seqs[seqs.idmap[x]] for x in family}
+        pro = {seqs.idmap[x]: seqs.pro_seqs[seqs.idmap[x]] for x in family}
+        fid = "GF{:0>5}".format(i)
+        tmp = os.path.join(seqs.tmp_path, fid)
+        gene_families.append(GeneFamily(fid, cds, pro, tmp, **kwargs))
     return gene_families
-
-
-def get_gene_families_rbh_orthologs(seq_data, families):
-    pass
 
 
 # NOTE: It would be nice to implement an option to do a full 'proper' approach
@@ -271,6 +283,7 @@ class GeneFamily:
         self.tree_options = tree_options
 
     def get_ks(self):
+        logging.info("Analysing family {}".format(self.id))
         self.align()
         self.run_codeml()
         self.get_tree()
@@ -355,7 +368,7 @@ def _get_ks(family):
     family.get_ks()
 
 
-class KsDistribution:
+class KsDistributionBuilder:
     def __init__(self, gene_families, n_threads=4):
         self.gene_families = gene_families
         self.df = None
@@ -363,16 +376,7 @@ class KsDistribution:
 
     def get_distribution(self):
         Parallel(n_jobs=self.n_threads)(
-            delayed(_get_ks)(v) for v in self.gene_families.values())
+            delayed(_get_ks)(family) for family in self.gene_families)
         self.df = pd.concat([pd.read_csv(x.ks_out, index_col=0)
             for x in self.gene_families.values()])
 
-
-# test
-s = SequenceData("./_test/data/ath1000.fasta", tmp_path="_test/tmpdir")
-s.get_paranome()
-gfs = get_gene_families_paranome(s, s.mcl)
-gfs = {i: gfs[i] for i in range(10,20)}
-ks = KsDistribution(gfs)
-ks.get_distribution()
-ks.df
