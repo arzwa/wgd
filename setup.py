@@ -2,7 +2,7 @@
 """
 Arthur Zwaenepoel
 
-Version 1.0
+Version 1.2
 
 Copyright (C) 2018 Arthur Zwaenepoel
 
@@ -29,7 +29,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='wgd',
-    version='1.1',
+    version='1.2',
     packages=['wgd'],
     url='http://github.com/arzwa/wgd',
     license='GPL',

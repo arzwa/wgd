@@ -238,7 +238,7 @@ def add_alignment_stats_(df, stats):
 def analyse_family(
         family_id, family, nucleotide, tmp='./', codeml='codeml',
         preserve=False, times=1, min_length=100, method='alc', aligner='muscle',
-        output_dir='./out'
+        output_dir='./out', **kwargs
 ):
     """
     Wrapper function for the analysis of one paralog family. Performs alignment
@@ -283,7 +283,7 @@ def analyse_family(
         logging.warning("Failed to obtain codon alignment for {}".format(family_id))
 
     # Calculate Ks values (codeml) ---------------------------------------------
-    codeml = Codeml(codeml=codeml, tmp=tmp, id=family_id)
+    codeml = Codeml(codeml=codeml, tmp=tmp, id=family_id, **kwargs)
     logging.debug('Performing codeml analysis on {}'.format(family_id))
     results_dict, codeml_out = codeml.run_codeml(
             os.path.basename(msa_path), preserve=preserve, times=times)
@@ -509,7 +509,7 @@ def analyse_family_pairwise(
 def ks_analysis_one_vs_one(
         nucleotide_sequences, protein_sequences, gene_families, tmp_dir='./tmp',
         output_dir='./ks.out', codeml_path='codeml', aligner='muscle',
-        preserve=True, times=1, n_threads=4
+        preserve=True, times=1, n_threads=4, **kwargs
 ):
     """
     Calculate a Ks distribution for one vs. one orthologs.
@@ -546,7 +546,8 @@ def ks_analysis_one_vs_one(
     Parallel(n_jobs=n_threads)(
             delayed(analyse_family)(
                     family, protein[family], nucleotide_sequences, tmp_dir,
-                    codeml_path, preserve, times, 'alc', aligner, output_dir
+                    codeml_path, preserve, times, 'alc', aligner, output_dir,
+                    **kwargs
             ) for family in protein.keys())
     logging.info('Analysis done')
 
@@ -582,7 +583,7 @@ def ks_analysis_paranome(
         tmp_dir='./tmp', output_dir='./ks.out', codeml_path='codeml',
         preserve=True, times=1, ignore_prefixes=False, n_threads=4,
         min_length=100, method='alc', aligner='muscle',
-        pairwise=False, max_pairwise=10000
+        pairwise=False, max_pairwise=10000, **kwargs
 ):
     """
     Calculate a Ks distribution for a whole paranome.
@@ -641,7 +642,7 @@ def ks_analysis_paranome(
     Parallel(n_jobs=n_threads)(delayed(analysis_function)(
             family[0], protein[family[0]], nucleotide_sequences, tmp_dir,
             codeml_path, preserve, times, min_length, method, aligner,
-            output_dir
+            output_dir, **kwargs
         ) for family in sorted_families)
     logging.info('Analysis done')
 

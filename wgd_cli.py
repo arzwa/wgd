@@ -597,10 +597,15 @@ def dmd(sequences, outdir, tmpdir, inflation, eval, ignorestop, nostrictcds):
         '--preserve', is_flag=True,
         help="keep multiple sequence alignment, codeml output and trees"
 )
+@click.option(
+        '--codeml_options', default="",
+        help="other options for codeml, as a comma separated string, "
+             "e.g. getSE=1,CodonFreq=1"
+)
 def ksd(
         gene_families, sequences, output_directory, protein_sequences, tmp_dir,
         aligner, times, min_msa_length, n_threads, wm, pairwise,
-        max_pairwise, ignore_prefixes, one_v_one, preserve
+        max_pairwise, ignore_prefixes, one_v_one, preserve, codeml_options
 ):
     """
     Ks distribution construction.
@@ -622,6 +627,8 @@ def ksd(
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
     """
+    codeml_opts = {x.split("=")[0].strip(): x.split("=")[1].strip()
+                   for x in codeml_options.split(",") if x != ""}
     ksd_(
             gene_families, sequences, output_directory, protein_sequences,
             tmp_dir, aligner, codeml='codeml',
@@ -629,7 +636,7 @@ def ksd(
             ignore_prefixes=ignore_prefixes, one_v_one=one_v_one,
             preserve=preserve, n_threads=n_threads,
             weighting_method=wm, pairwise=pairwise,
-            max_pairwise=max_pairwise
+            max_pairwise=max_pairwise, **codeml_opts
     )
 
 
@@ -638,7 +645,7 @@ def ksd_(
         tmp_dir=None, aligner='muscle', codeml='codeml', times=1,
         min_msa_length=100, ignore_prefixes=False, one_v_one=False,
         pairwise=False, preserve=False, n_threads=4,
-        weighting_method='fasttree', max_pairwise=10000
+        weighting_method='fasttree', max_pairwise=10000, **kwargs
 ):
     """
     Ks distribution construction pipeline. For usage in the ``wgd`` CLI.
@@ -741,7 +748,8 @@ def ksd_(
             tmp_dir, output_directory, codeml,
             n_threads=n_threads, preserve=preserve,
             times=times,
-            aligner=aligner
+            aligner=aligner,
+            **kwargs
         )
         results.round(5).to_csv(os.path.join(
             output_directory, '{}.ks.tsv'.format(base)), sep='\t')
@@ -771,6 +779,7 @@ def ksd_(
             method=weighting_method,
             pairwise=pairwise,
             max_pairwise=max_pairwise,
+            **kwargs
         )
         results.round(5).to_csv(os.path.join(
             output_directory, '{}.ks.tsv'.format(base)), sep='\t')

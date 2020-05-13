@@ -65,7 +65,11 @@ def _parse_codeml_out(codeml_out):
     # read codeml output file
     with open(codeml_out, 'r') as f:
         fcont = f.read()
+    n = int(fcont.split("\n")[3].split()[2].strip())
     codeml_results = fcont.split('pairwise comparison')[-1].split("\n\n\n")[1:]
+    if len(codeml_results) != n*(n-1)/2:
+        logging.error("Not all gene pairs present in {}".format(codeml_out))
+        return None, None
 
     columns = set()
     for pairwise_estimate in codeml_results:
@@ -236,11 +240,11 @@ class Codeml:
             'seqfile': None, 'outfile': self.out_file,
             'noisy': 0, 'verbose': 0, 'runmode': -2, 'seqtype': 1,
             'CodonFreq': 2, 'clock': 0, 'aaDist': 0,
-            'aaRatefile': 'dat/jones.dat', 'model': 0, 'NSsites': 0, 'icode': 0,
-            'Mgene': 0, 'fix_kappa': 0,
-            'kappa': 2, 'fix_omega': 0, 'omega': .4, 'fix_alpha': 1, 'alpha': 0,
-            'Malpha': 0, 'ncatG': 8,
-            'getSE': 0, 'RateAncestor': 1, 'Small_Diff': .5e-6, 'cleandata': 1,
+            'aaRatefile': 'dat/jones.dat', 'model': 0,
+            'NSsites': 0, 'icode': 0, 'Mgene': 0, 'fix_kappa': 0,
+            'kappa': 2, 'fix_omega': 0, 'omega': .4, 'fix_alpha': 1,
+            'alpha': 0, 'Malpha': 0, 'ncatG': 8, 'getSE': 0,
+            'RateAncestor': 1, 'Small_Diff': .5e-6, 'cleandata': 1,
             'method': 0
         }
 
