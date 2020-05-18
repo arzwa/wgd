@@ -70,13 +70,12 @@ class SequenceData:
     def run_diamond(self, seqs, eval=1e-10):
         self.make_diamond_db()
         run = "_".join([self.prefix, seqs.prefix + ".tsv"])
-        outfile = os.path.join(self.tmp_path, run)
+        outfile = os.path.join(self.out_path, run)
         cmd = ["diamond", "blastp", "-d", self.pro_db, "-q",
             seqs.pro_fasta, "-o", outfile]
         out = sp.run(cmd, capture_output=True)
         logging.debug(out.stderr.decode())
         df = pd.read_csv(outfile, sep="\t", header=None)
-        os.move(outfile, self.out_path)
         df = df.loc[df[0] != df[1]]
         self.dmd_hits[seqs.prefix] = df = df.loc[df[10] <= eval]
         return df
