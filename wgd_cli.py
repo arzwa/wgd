@@ -824,9 +824,14 @@ def ksd_(
         '--ks_range', '-r', nargs=2, default=(0.05, 5), show_default=True,
         type=float, help='Ks range to use for colored dotplot'
 )
+@click.option(
+        '--iadhore_options', default="",
+        help="other options for I-ADHoRe, as a comma separated string, "
+             "e.g. gap_size=30,q_value=0.75,prob_cutoff=0.05"
+)
 def syn(
         gff_file, gene_families, ks_distribution, output_dir, feature,
-        gene_attribute, min_length, ks_range
+        gene_attribute, min_length, ks_range, iadhore_options
 ):
     """
     Co-linearity analyses.
@@ -842,15 +847,20 @@ def syn(
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
     """
+    iadhore_opts = {x.split("=")[0].strip(): x.split("=")[1].strip()
+                   for x in iadhore_options.split(",") if x != ""}
+    if len(iadhore_opts) > 0:
+        logging.info("I-ADHoRe 3.0 options: {}".format(iadhore_opts))
     syn_(
             gff_file, gene_families, output_dir, ks_distribution, feature,
-            gene_attribute, min_length, ks_range
+            gene_attribute, min_length, ks_range, **iadhore_opts
     )
 
 
 def syn_(
         gff_file, families, output_dir, ks_distribution, feature='mRNA',
-        gene_attribute='Parent', min_length=250, ks_range=(0.05, 5)
+        gene_attribute='Parent', min_length=250, ks_range=(0.05, 5),
+        **kwargs
 ):
     """
     Co-linearity analysis with I-ADHoRe 3.0. For usage in the ``wgd`` CLI.
@@ -921,7 +931,8 @@ def syn_(
             os.path.join(output_dir, 'gene_lists'),
             os.path.join(output_dir, 'families.tsv'),
             config_file_name=os.path.join(output_dir, 'adhore.conf'),
-            output_path=os.path.join(output_dir, 'i-adhore-out'))
+            output_path=os.path.join(output_dir, 'i-adhore-out'),
+            **kwargs)
 
     # run i-adhore
     logging.info("Running I-ADHoRe 3.0")
