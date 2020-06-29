@@ -629,6 +629,7 @@ def ksd(
     """
     codeml_opts = {x.split("=")[0].strip(): x.split("=")[1].strip()
                    for x in codeml_options.split(",") if x != ""}
+    logging.debug(codeml_opts)
     ksd_(
             gene_families, sequences, output_directory, protein_sequences,
             tmp_dir, aligner, codeml='codeml',

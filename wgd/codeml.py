@@ -244,7 +244,7 @@ class Codeml:
             'NSsites': 0, 'icode': 0, 'Mgene': 0, 'fix_kappa': 0,
             'kappa': 2, 'fix_omega': 0, 'omega': .4, 'fix_alpha': 1,
             'alpha': 0, 'Malpha': 0, 'ncatG': 8, 'getSE': 0,
-            'RateAncestor': 1, 'Small_Diff': .5e-6, 'cleandata': 1,
+            'RateAncestor': 1, 'Small_Diff': .5e-6, 'cleandata': 0,
             'method': 0
         }
 

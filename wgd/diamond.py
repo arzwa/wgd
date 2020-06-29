@@ -5,7 +5,7 @@ import pandas as pd
 import subprocess as sp
 from Bio import SeqIO
 from Bio.Data.CodonTable import TranslationError
-
+from .utils import log_subprocess
 
 # helper functions
 def _write_fasta(fname, seq_dict):
@@ -62,10 +62,8 @@ class SequenceData:
 
     def make_diamond_db(self):
         cmd = ["diamond", "makedb", "--in", self.pro_fasta, "-d", self.pro_db]
-        out = sp.run(cmd, capture_output=True)
-        logging.debug(out.stderr.decode())
-        if out.returncode == 1:
-            logging.error(out.stderr.decode())
+        out = sp.run(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
+        log_subprocess(" ".join(cmd), out)
 
     def run_diamond(self, seqs, eval=1e-10):
         self.make_diamond_db()
@@ -73,8 +71,8 @@ class SequenceData:
         outfile = os.path.join(self.out_path, run)
         cmd = ["diamond", "blastp", "-d", self.pro_db, "-q",
             seqs.pro_fasta, "-o", outfile]
-        out = sp.run(cmd, capture_output=True)
-        logging.debug(out.stderr.decode())
+        out = sp.run(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
+        log_subprocess(" ".join(cmd), out)
         df = pd.read_csv(outfile, sep="\t", header=None)
         df = df.loc[df[0] != df[1]]
         self.dmd_hits[seqs.prefix] = df = df.loc[df[10] <= eval]
@@ -128,8 +126,8 @@ class SequenceData:
             ok = input("Removing {}, sure? [y|n]".format(self.tmp_path))
             if ok != "y":
                 return
-        out = sp.run(["rm", "-r", self.tmp_path], capture_output=True)
-        logging.debug(out.stderr.decode())
+        out = sp.run(["rm", "-r", self.tmp_path], stdout=sp.PIPE, stderr=sp.PIPE)
+        log_subprocess("rm", out)
 
 
 class SequenceSimilarityGraph:
@@ -145,14 +143,14 @@ class SequenceSimilarityGraph:
         command = ['mcxload', '-abc', g1, '--stream-mirror',
             '--stream-neg-log10', '-o', g3, '-write-tab', g2]
         logging.debug(" ".join(command))
-        out = sp.run(command, capture_output=True)
-        logging.debug(out.stderr.decode())
+        out = sp.run(command, stdout=sp.PIPE, stderr=sp.PIPE)
+        log_subprocess("mcxload", out)
         command = ['mcl', g3, '-I', str(inflation), '-o', g4]
         logging.debug(" ".join(command))
-        out = sp.run(command, capture_output=True)
-        logging.debug(out.stderr.decode())
+        out = sp.run(command, stdout=sp.PIPE, stderr=sp.PIPE)
+        log_subprocess("mcl", out)
         command = ['mcxdump', '-icl', g4, '-tabr', g2, '-o', outfile]
         logging.debug(" ".join(command))
-        out = sp.run(command, capture_output=True)
-        logging.debug(out.stderr.decode())
+        out = sp.run(command, stdout=sp.PIPE, stderr=sp.PIPE)
+        log_subprocess("mcxdump", out)
         return outfile

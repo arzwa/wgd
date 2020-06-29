@@ -63,7 +63,8 @@ def can_i_run_software(software):
         try:
             sp = subprocess.run(command, stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
-            logging.info(sp.stdout.decode("utf-8").strip())
+            logging.info("{} stdout: {}".format(s, sp.stdout.decode("utf-8").strip()))
+            logging.info("{} stderr: {}".format(s, sp.stderr.decode("utf-8").strip()))
         except FileNotFoundError:
             logging.error('{} executable not found!'.format(s))
             ex = 1

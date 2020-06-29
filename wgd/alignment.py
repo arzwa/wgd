@@ -116,11 +116,14 @@ def pairwise_alignment_stats(aln):
     """
     pairs = itertools.combinations(list(aln.keys()), 2)
     stats_dict = {}
-
+    saln, n = strip_gaps(aln)
     # loop over all pairs in the alignment
     for pair in pairs:
         id1, id2 = pair
-        stats_dict['__'.join(sorted(pair))] = get_stats(aln[id1], aln[id2])
+        pairid = '__'.join(sorted(pair))
+        d = get_stats(aln[id1], aln[id2])
+        d["AlignmentLengthStripped"] = n
+        stats_dict[pairid] = d
     return stats_dict
 
 
@@ -133,7 +136,7 @@ def get_stats(s1, s2):
     return {
         "AlignmentIdentity": identity,
         "AlignmentLength": len(s1),
-        "AlignmentLengthStripped": len(s1_),
+        "PairwiseAlignmentLength": len(s1_),
         "AlignmentCoverage": len(s1_)/len(s1)
     }
 
@@ -153,6 +156,22 @@ def strip_gaps_pair(s1, s2):
             s1_ += s1[i]
             s2_ += s2[i]
     return s1_, s2_
+
+
+def strip_gaps(aln):
+    naln = {sid: '' for sid, seq in aln.items()}
+    exseq = list(aln.values())[0]
+    exclude = set([])
+    for sid, seq in aln.items():
+        for i in range(len(seq)):
+            if seq[i] == '-':
+                exclude.add(i)
+    for sid, seq in aln.items():
+        for i in range(len(seq)):
+            if i in exclude:
+                continue
+            naln[sid] += seq[i]
+    return naln, len(list(naln.values())[0])
 
 
 def hamming_distance(s1, s2):
