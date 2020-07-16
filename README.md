@@ -15,7 +15,13 @@ Python package and command line interface (CLI) for the analysis of
 whole-genome duplications (WGDs). Tested with Python3 on Linux. If you don't have
 python or pip installed a simple `sudo apt-get install python3-pip` should do.
 
-To install, simply run ``pip install wgd``
+To install, simply run 
+
+```
+git clone https://github.com/arzwa/wgd.git
+cd wgd
+pip install --user .
+```
 
 Note that depending on your python installation and whether you're in a
 virtualenv, ``pip`` may default either to ``pip2`` or ``pip3``. If the
