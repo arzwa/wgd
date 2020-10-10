@@ -1,8 +1,8 @@
-#!/usr/bin/python3.5
+#!/usr/bin/python3.8
 """
 Arthur Zwaenepoel
 
-Version 1.0
+Version 2.0
 
 Copyright (C) 2018 Arthur Zwaenepoel
 
@@ -29,22 +29,22 @@ with open("README.md", "r") as fh:
 
 setup(
     name='wgd',
-    version='1.0',
+    version='2.0',
     packages=['wgd'],
     url='http://github.com/arzwa/wgd',
     license='GPL',
     author='Arthur Zwanepoel',
     author_email='arzwa@psb.vib-ugent.be',
     description='wgd',
-    py_modules=['wgd_cli'],
+    py_modules=['_cli'],
     include_package_data=True,
     install_requires=[
+        'numpy>=1.16',
         'click>=7.0',
-		'biopython==1.75',
+	'biopython==1.75',
         'seaborn>=0.9.0',
         'coloredlogs>=10.0',
         'fastcluster==1.1.25',
-        'numpy>=1.16',
         'sklearn',
         'scipy>=1.2',
         'matplotlib>=3.0.2',
@@ -52,11 +52,10 @@ setup(
         'pandas==0.24.1',
         'progressbar2>=3.39',
         'joblib==0.11', # 0.12 seems to break the logging in parallel for loops
-        'ete3>=3.1',
         'bokeh==1.4.0'
     ],
     entry_points='''
         [console_scripts]
-        wgd=wgd_cli:cli
+        wgd=_cli:cli
     ''',
 )

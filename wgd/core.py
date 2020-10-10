@@ -105,7 +105,7 @@ class SequenceData:
         self.dmd_hits  = {}
         self.rbh       = {}
         self.mcl       = {}
-        self.idmap     = {}  # a map from the newl safe id to the input seq id
+        self.idmap     = {}  # map from the new safe id to the input seq id
         self.read_cds(to_stop=to_stop, cds=cds)
         _write_fasta(self.pro_fasta, self.pro_seqs)
 
@@ -116,7 +116,7 @@ class SequenceData:
                 aa_seq = seq.translate(to_stop=to_stop, cds=cds, id=seq.id,
                                        stop_symbol="")
             except TranslationError as e:
-                logging.error("Translation error ({}) in seq {}".format(
+                logging.warning("Translation error ({}) in seq {}".format(
                     e, seq.id))
                 continue
             self.cds_seqs[gid] = seq
@@ -133,8 +133,9 @@ class SequenceData:
         self.idmap.merge(other.idmap)
 
     def make_diamond_db(self):
-        cmd = ["diamond", "makedb", "--in", self.pro_fasta, "-d", self.pro_db]
-        out = sp.run(cmd, capture_output=True)
+        cmd = ["diamond", "makedb", "--in",
+               self.pro_fasta, "-d", self.pro_db]
+        out = sp.run(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
         logging.debug(out.stderr.decode())
         if out.returncode == 1:
             logging.error(out.stderr.decode())
@@ -145,7 +146,7 @@ class SequenceData:
         outfile = os.path.join(self.tmp_path, run)
         cmd = ["diamond", "blastp", "-d", self.pro_db, "-q",
             seqs.pro_fasta, "-o", outfile]
-        out = sp.run(cmd, capture_output=True)
+        out = sp.run(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
         logging.debug(out.stderr.decode())
         df = pd.read_csv(outfile, sep="\t", header=None)
         df = df.loc[df[0] != df[1]]
@@ -177,8 +178,9 @@ class SequenceData:
         df.to_csv(gf, sep="\t", header=False, index=False, columns=[0,1,10])
         return SequenceSimilarityGraph(gf)
 
-    def write_paranome(self):
-        fname = os.path.join(self.out_path, "{}.mcl".format(self.prefix))
+    def write_paranome(self, fname=None):
+        if not fname:
+            fname = os.path.join(self.out_path, "{}.mcl".format(self.prefix))
         with open(fname, "w") as f:
             for k, v in sorted(self.mcl.items()):
                 f.write("\t".join([self.cds_seqs[x].id for x in v]))
@@ -200,7 +202,7 @@ class SequenceData:
             ok = input("Removing {}, sure? [y|n]".format(self.tmp_path))
             if ok != "y":
                 return
-        out = sp.run(["rm", "-r", self.tmp_path], capture_output=True)
+        out = sp.run(["rm", "-r", self.tmp_path], stdout=sp.PIPE, stderr=sp.PIPE)
         logging.debug(out.stderr.decode())
 
 
@@ -217,33 +219,44 @@ class SequenceSimilarityGraph:
         command = ['mcxload', '-abc', g1, '--stream-mirror',
             '--stream-neg-log10', '-o', g3, '-write-tab', g2]
         logging.debug(" ".join(command))
-        out = sp.run(command, capture_output=True)
+        out = sp.run(command, stdout=sp.PIPE, stderr=sp.PIPE)
         _log_process(out)
         command = ['mcl', g3, '-I', str(inflation), '-o', g4]
         logging.debug(" ".join(command))
-        out = sp.run(command, capture_output=True)
+        out = sp.run(command, stdout=sp.PIPE, stderr=sp.PIPE)
         _log_process(out)
         command = ['mcxdump', '-icl', g4, '-tabr', g2, '-o', outfile]
         _log_process(out)
-        out = sp.run(command, capture_output=True)
+        out = sp.run(command, stdout=sp.PIPE, stderr=sp.PIPE)
         _log_process(out)
         return outfile
 
 
 # Gene family i/o
-def get_gene_families(seq_data, families, **kwargs):
-    if len(seq_data) == 2:
-        seq_data[0].merge(seq_data[1])
-    seqs = seq_data[0]
+def _rename(listoflists, ids):
+    new_list = []
+    for l in listoflists:
+        new_list.append([ids[x] for x in l])
+    return new_list
+
+def get_gene_families(seqs, families, rename=True, **kwargs):
+    if type(seqs) == list:
+        if len(seqs) > 2:
+            raise ValueError("More than two sequence data objects?")
+        seqs[0].merge(seqs[1])
+        seqs = seqs[0]
+    if rename:
+        families = _rename(families, seqs.idmap)
     gene_families = []
     for i, family in enumerate(families):
-        cds = {seqs.idmap[x]: seqs.cds_seqs[seqs.idmap[x]] for x in family}
-        pro = {seqs.idmap[x]: seqs.pro_seqs[seqs.idmap[x]] for x in family}
+        #cds = {seqs.idmap[x]: seqs.cds_seqs[seqs.idmap[x]] for x in family}
+        #pro = {seqs.idmap[x]: seqs.pro_seqs[seqs.idmap[x]] for x in family}
+        cds = {x: seqs.cds_seqs[x] for x in family}
+        pro = {x: seqs.pro_seqs[x] for x in family}
         fid = "GF{:0>5}".format(i)
         tmp = os.path.join(seqs.tmp_path, fid)
         gene_families.append(GeneFamily(fid, cds, pro, tmp, **kwargs))
     return gene_families
-
 
 # NOTE: It would be nice to implement an option to do a full 'proper' approach
 # where we use the tree in codeml to estimate Ks?
@@ -291,7 +304,7 @@ class GeneFamily:
 
     def run_prequal(self):
         cmd = ["prequal", self.pro_fasta]
-        out = sp.run(cmd, capture_output=True)
+        out = sp.run(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
         _log_process(out, program="prequal")
         self.pro_fasta = "{}.filtered".format(self.pro_fasta)
 
@@ -307,7 +320,7 @@ class GeneFamily:
 
     def run_mafft(self, options="--auto"):
         cmd = ["mafft"] + options.split() + ["--amino", self.pro_fasta]
-        out = sp.run(cmd, capture_output=True)
+        out = sp.run(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
         with open(self.pro_alnf, 'w') as f: f.write(out.stdout.decode('utf-8'))
         _log_process(out, program="mafft")
         self.pro_aln = AlignIO.read(self.pro_alnf, "fasta")
@@ -334,7 +347,7 @@ class GeneFamily:
 
     def run_iqtree(self, options="-m LG"):
         cmd = ["iqtree", "-s", self.pro_alnf] + options.split()
-        out = sp.run(cmd, capture_output=True)
+        out = sp.run(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
         _log_process(out, program="iqtree")
         tree = Phylo.read(self.pro_alnf + ".treefile", format="newick")
         _label_internals(tree)
