@@ -128,7 +128,7 @@ def _parse_codeml_out(codeml_out):
         if w_m:
             w = w_m.group(1)
         else:
-            logging.warning("No ω value for {0} - {1}!".format(gene_1, gene_2))
+            logging.warning("No `Omega` value for {0} - {1}!".format(gene_1, gene_2))
             w = np.nan
 
         results_dict['Ks'][gene_1][gene_2] = ks_value
