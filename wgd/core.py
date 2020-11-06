@@ -1,3 +1,4 @@
+# Arthur Zwaenepoel (2020)
 import uuid
 import os
 import logging
@@ -15,6 +16,7 @@ from Bio.Data.CodonTable import TranslationError
 from Bio import Phylo
 from joblib import Parallel, delayed
 from wgd.codeml import Codeml
+from wgd.cluster import cluster_ks
 
 
 # helper functions
@@ -50,7 +52,7 @@ def _pal2nal(pro_aln, cds_seqs):
             if pro_aln[i, j] == "-":
                 cds_aln += "---"
             elif pro_aln[i, j] == "X":
-                cds_aln += "???"  # not sure wha best choice for codeml is
+                cds_aln += "???"  # not sure what best choice for codeml is
                 k += 3
             else:
                 cds_aln += cds_seq[k:k+3]
@@ -58,24 +60,9 @@ def _pal2nal(pro_aln, cds_seqs):
         aln[s.id] = cds_aln
     return MultipleSeqAlignment([SeqRecord(v, id=k) for k, v in aln.items()])
 
-def _write_aln_codeml(aln, fname):
-    with open(fname, "w") as f:
-        f.write("{} {}\n".format(len(aln), aln.get_alignment_length()))
-        for s in aln:
-            f.write("{}\n".format(s.id))
-            f.write("{}\n".format(s.seq))
-
 def _log_process(o, program=""):
     logging.debug("{} stderr: {}".format(program.upper(), o.stderr.decode()))
     logging.debug("{} stdout: {}".format(program.upper(), o.stdout.decode()))
-
-def _cluster(df, nanpolicy=1000):
-    # fill NaN values with something larger than all the rest, not a
-    # foolproof approach, but should be reasonable in most cases
-    if np.any(np.isnan(df)):
-        logging.warning("Data contains NaN values, replaced by "+str(nanpolicy))
-        df.fillna(nanpolicy, inplace=True)
-    return fastcluster.average(df)
 
 def _label_internals(tree):
     for i, c in enumerate(tree.get_nonterminals()):
@@ -243,7 +230,8 @@ def get_gene_families(seqs, families, rename=True, **kwargs):
     if type(seqs) == list:
         if len(seqs) > 2:
             raise ValueError("More than two sequence data objects?")
-        seqs[0].merge(seqs[1])
+        if len(seqs) == 2:
+            seqs[0].merge(seqs[1])
         seqs = seqs[0]
     if rename:
         families = _rename(families, seqs.idmap)
@@ -258,13 +246,14 @@ def get_gene_families(seqs, families, rename=True, **kwargs):
         gene_families.append(GeneFamily(fid, cds, pro, tmp, **kwargs))
     return gene_families
 
+
 # NOTE: It would be nice to implement an option to do a full 'proper' approach
 # where we use the tree in codeml to estimate Ks?
 class GeneFamily:
     def __init__(self, gfid, cds, pro, tmp_path,
-            aligner="mafft", tree_method="iqtree", ks_method="GY94",
-            eq_freq="F3X4", kappa=None, prequal=True, strip_gaps=True,
-            min_length=100, codeml_iter=1, substitution_model_iqtree=None,
+            aligner="mafft", tree_method="cluster", ks_method="GY94",
+            eq_freq="F3X4", kappa=None, prequal=False, strip_gaps=True,
+            min_length=3, codeml_iter=1, substitution_model_iqtree=None,
             aln_options="--auto", tree_options="-m LG"):
         self.id = gfid
         self.cds_seqs = cds
@@ -276,10 +265,9 @@ class GeneFamily:
         self.pro_alnf = os.path.join(self.tmp_path, "pro.aln")
         self.cds_aln = None
         self.pro_aln = None
-        self.codeml = None
-        self.pairwise_estimates = None
+        self.codeml_results = None
         self.tree = None
-        self.ks_out = os.path.join(self.tmp_path, "{}.csv".format(gfid))
+        self.out = os.path.join(self.tmp_path, "{}.csv".format(gfid))
 
         # config
         self.aligner = aligner  # mafft | prank | muscle
@@ -298,10 +286,31 @@ class GeneFamily:
     def get_ks(self):
         logging.info("Analysing family {}".format(self.id))
         self.align()
+        length = self.cds_aln.get_alignment_length()
+        if length < self.min_length:
+            self.nan_result()
+            return
         self.run_codeml()
         self.get_tree()
         self.compile_dataframe()
+    
+    def nan_result(self):
+        data = []
+        length = self.cds_aln.get_alignment_length()
+        for x in self.cds_seqs.keys():
+            for y in self.cds_seqs.keys():
+                if x == y: continue
+                pair = "__".join(sorted([x, y]))
+                data.append({
+                    "pair": pair, 
+                    "gene1": x, 
+                    "gene2": y, 
+                    "alnlen": length,
+                    "family": self.id})
+        df = pd.DataFrame.from_records(data).set_index("pair")
+        self.codeml_results = df
 
+    # NOT TESTED
     def run_prequal(self):
         cmd = ["prequal", self.pro_fasta]
         out = sp.run(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
@@ -329,13 +338,11 @@ class GeneFamily:
         self.cds_aln = _pal2nal(self.pro_aln, self.cds_seqs)
         if self.strip_gaps:
             self.cds_aln = _strip_gaps(self.cds_aln)
-        _write_aln_codeml(self.cds_aln, self.cds_alnf)
 
     def run_codeml(self):
-        codeml = Codeml(codeml="codeml", tmp=self.tmp_path, id=self.id)
-        results_dict, codeml_out = codeml.run_codeml(os.path.basename(
-            self.cds_alnf), preserve=True, times=self.codeml_iter)
-        self.pairwise_estimates = results_dict
+        codeml = Codeml(self.cds_aln, exe="codeml", tmp=self.tmp_path, prefix=self.id)
+        result = codeml.run_codeml(preserve=True, times=self.codeml_iter)
+        self.codeml_results = result
 
     def get_tree(self):
         # dispatch method
@@ -357,7 +364,7 @@ class GeneFamily:
         pass
 
     def cluster(self):
-        return _cluster(self.pairwise_estimates["Ks"])
+        return cluster_ks(self.codeml_results)
 
     def compile_dataframe(self):
         n = len(self.cds_seqs)
@@ -369,27 +376,25 @@ class GeneFamily:
                 gj = l[j].name
                 pair = "__".join(sorted([gi, gj]))
                 node = self.tree.common_ancestor(l[i], l[j])
-                d[pair] = {"node": node.name, "family": self.id,
-                    "gene1": gi, "gene2": gj}
-                for k, v in self.pairwise_estimates.items():
-                    d[pair][k] = v.loc[gi, gj]
+                length = self.cds_aln.get_alignment_length()
+                d[pair] = {"node": node.name, "family": self.id, "alnlen": length}
         df = pd.DataFrame.from_dict(d, orient="index")
-        df.to_csv(self.ks_out)
-
+        self.codeml_results = self.codeml_results.join(df)
 
 def _get_ks(family):
     family.get_ks()
+    family.codeml_results.to_csv(family.out)
 
 
 class KsDistributionBuilder:
     def __init__(self, gene_families, n_threads=4):
-        self.gene_families = gene_families
+        self.families = gene_families
         self.df = None
         self.n_threads = n_threads
 
     def get_distribution(self):
         Parallel(n_jobs=self.n_threads)(
-            delayed(_get_ks)(family) for family in self.gene_families)
-        self.df = pd.concat([pd.read_csv(x.ks_out, index_col=0)
-            for x in self.gene_families.values()])
+            delayed(_get_ks)(family) for family in self.families)
+        self.df = pd.concat([pd.read_csv(x.out, index_col=0) 
+            for x in self.families], sort=True)
 
