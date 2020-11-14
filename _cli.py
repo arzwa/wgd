@@ -1,4 +1,4 @@
-#!/usr/bin/python3.5
+#!/usr/bin/python3
 import click
 import logging
 import sys
@@ -108,6 +108,7 @@ def ksd(families, sequences, tmpdir):
     fams = get_gene_families(s, fams)
     ksdb = KsDistributionBuilder(fams)
     ksdb.get_distribution()
+    ksdb.df.to_csv("{}.ks.tsv".format(families))
 
 
 if __name__ == '__main__':
