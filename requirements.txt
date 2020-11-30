@@ -36,5 +36,4 @@ sklearn==0.0
 threadpoolctl==2.1.0
 toml==0.10.2
 tornado==6.0.4
-wgd @ file:///home/arzwa/dev/wgd
 zipp==3.4.0
