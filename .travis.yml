@@ -5,7 +5,10 @@ python:
     - '3.8'
     - '3.9'
 before_install:
+    - sudo apt-get update
     - sudo apt-get -y install mcl
+    - sudo apt-get -y install mafft
+    - sudo apt-get -y install fasttree
     - wget http://github.com/bbuchfink/diamond/releases/download/v2.0.5/diamond-linux64.tar.gz 
     - tar xzf diamond-linux64.tar.gz
     - export PATH=$PATH:$PWD/
