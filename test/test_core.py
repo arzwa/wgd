@@ -33,7 +33,8 @@ class TestSeqData:
         s1, s2 = data
         d = SequenceData(s1, out_path=tmpdir, tmp_path=tmpdir, cds=False, to_stop=True)
         d.get_paranome()
-        assert len(d.mcl) == 35  # Got the paranome
+        # MCL is not deterministic, but the number of families should be somewhere around 35
+        assert 30 < len(d.mcl) < 40  
 
         # round tripping for families?
         # write to file/read from file
