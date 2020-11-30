@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 Contact: arzwa@psb.vib-ugent.be
 """
+# https://stackoverflow.com/questions/43658870/requirements-txt-vs-setup-py
+# https://www.luisquintanilla.me/2018/02/18/testing-deploying-python-projects-travisci
 
 from setuptools import setup
 
