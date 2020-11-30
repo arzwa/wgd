@@ -1,28 +1,6 @@
 #!/usr/bin/python3.8
-"""
-Arthur Zwaenepoel
-
-Version 2.0
-
-Copyright (C) 2018 Arthur Zwaenepoel
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-Contact: arzwa@psb.vib-ugent.be
-"""
+# contact: arzwa@psb.vib-ugent.be
 # https://stackoverflow.com/questions/43658870/requirements-txt-vs-setup-py
-# https://www.luisquintanilla.me/2018/02/18/testing-deploying-python-projects-travisci
 
 from setuptools import setup
 
@@ -38,26 +16,13 @@ setup(
     author='Arthur Zwanepoel',
     author_email='arzwa@psb.vib-ugent.be',
     description='wgd',
-    py_modules=['_cli'],
+    py_modules=['cli'],
     include_package_data=True,
     install_requires=[
-        'numpy>=1.16',
-        'click>=7.0',
-	'biopython==1.75',
-        'seaborn>=0.9.0',
-        'coloredlogs>=10.0',
-        'fastcluster==1.1.25',
-        'sklearn',
-        'scipy>=1.2',
-        'matplotlib>=3.0.2',
-        'plumbum>=1.6.7',
-        'pandas==0.24.1',
-        'progressbar2>=3.39',
-        'joblib==0.11', # 0.12 seems to break the logging in parallel for loops
-        'bokeh==1.4.0'
+        # fill in
     ],
     entry_points='''
         [console_scripts]
-        wgd=_cli:cli
+        wgd=cli:cli
     ''',
 )
