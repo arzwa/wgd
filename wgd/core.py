@@ -298,7 +298,6 @@ class GeneFamily:
         self.strip_gaps = strip_gaps  # strip gaps based on overall alignment
         self.codeml_iter = codeml_iter
         self.min_length = min_length  # minimum length of codon alignment
-        self.substitution_model_iqtree = substitution_model_iqtree
         self.aln_options = aln_options
         self.tree_options = tree_options
 
