@@ -10,9 +10,10 @@ before_install:
     - sudo apt-get -y install mafft
     - sudo apt-get -y install fasttree
     - wget http://github.com/bbuchfink/diamond/releases/download/v2.0.5/diamond-linux64.tar.gz 
-    - tar xzf diamond-linux64.tar.gz
+    - tar -xzf diamond-linux64.tar.gz
     - export PATH=$PATH:$PWD/
     - wget http://abacus.gene.ucl.ac.uk/software/paml4.9j.tgz
+    - tar -xzf paml4.9j.tgz
     - cd paml4.9j 
     - cd src && make -f Makefile
     - export PATH=$PATH:$PWD/
