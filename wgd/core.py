@@ -69,8 +69,6 @@ def _label_internals(tree):
         c.name = str(i)
 
 
-# keep in dict with keys safe ids, with as values the full record, allowing at
-# all time full recovery of gene names etc.?
 class SequenceData:
     """
     Sequence data container for Ks distribution computation pipeline. A helper
@@ -97,6 +95,11 @@ class SequenceData:
         _write_fasta(self.pro_fasta, self.pro_seqs)
 
     def read_cds(self, to_stop=True, cds=True):
+        """
+        Read a CDS fasta file. We give each input record a unique safe ID, and
+        keep the full records in a dict with these IDs. We use the newly assigned
+        IDs in further analyses, but can reconvert at any time.
+        """
         for i, seq in enumerate(SeqIO.parse(self.cds_fasta, 'fasta')):
             gid = "{0}_{1:0>5}".format(self.prefix, i)
             try:
@@ -170,6 +173,7 @@ class SequenceData:
             fname = os.path.join(self.out_path, "{}.mcl".format(self.prefix))
         with open(fname, "w") as f:
             for k, v in sorted(self.mcl.items()):
+                # We report original gene IDs
                 f.write("\t".join([self.cds_seqs[x].id for x in v]))
                 f.write("\n")
         return fname
@@ -227,6 +231,12 @@ def _rename(listoflists, ids):
     return new_list
 
 def get_gene_families(seqs, families, rename=True, **kwargs):
+    """
+    Get the `GeneFamily` objects from a list of families (list with lists of
+    gene IDs) and sequence data. When `rename` is set to True, it is assumed
+    the gene IDs in the families are the original IDs (not those assigned 
+    when reading the CDS from file).
+    """
     if type(seqs) == list:
         if len(seqs) > 2:
             raise ValueError("More than two sequence data objects?")
@@ -247,14 +257,23 @@ def get_gene_families(seqs, families, rename=True, **kwargs):
     return gene_families
 
 
-# NOTE: It would be nice to implement an option to do a full 'proper' approach
-# where we use the tree in codeml to estimate Ks?
+# NOTE: It would be nice to implement an option to do a complete approach
+# where we use the tree in codeml to estimate Ks-scale branch lengths?
+# NOTE: Still have to implement the pairwise wokflow, feeding pairs of
+# aligned sequences to codeml instead of the whole alignment. Since codeml
+# in runmode 2 (pairwise comparisons) on a complete alignment removes *all*
+# gap-containing columns in the *full* alignment, feeding alignments pair 
+# by pair results in more and perhaps better Ks estimates when alignments
+# are gappy. On the other hand equilibrium codon frequencies are better 
+# estimated when providing the full alignment.
+# NOTE: The pairwise approach discussed in the above comment should be
+# implemented in `codeml.py`, and here this should just be a keyword arg.
 class GeneFamily:
     def __init__(self, gfid, cds, pro, tmp_path,
             aligner="mafft", tree_method="cluster", ks_method="GY94",
             eq_freq="F3X4", kappa=None, prequal=False, strip_gaps=True,
-            min_length=3, codeml_iter=1, substitution_model_iqtree=None,
-            aln_options="--auto", tree_options="-m LG"):
+            min_length=3, codeml_iter=1, aln_options="--auto", 
+            tree_options="-m LG"):
         self.id = gfid
         self.cds_seqs = cds
         self.pro_seqs = pro

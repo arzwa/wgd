@@ -4,6 +4,10 @@ import numpy as np
 from Bio import Phylo
 
 def cluster_ks(df):
+    """
+    Cluster a data frame with Ks estimates using average-linkage hierarchical
+    clustering.
+    """
     X = pairwise_matrix(df, "dS")
     Y = alc_cluster(X)
     T = to_phylo(Y, X)
@@ -30,7 +34,7 @@ def pairwise_matrix(df, col):
         d[g1][g2] = x
         d[g2][g1] = x
     df = pd.DataFrame.from_dict(d).fillna(0.)
-    # df[df.index] ensures the result is a proper distance matrix
+    # df[df.index] ensures the result is a proper (symmetric) distance matrix
     return df[df.index]
 
 def to_phylo(clustering, df):

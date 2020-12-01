@@ -12,6 +12,11 @@ before_install:
     - wget http://github.com/bbuchfink/diamond/releases/download/v2.0.5/diamond-linux64.tar.gz 
     - tar xzf diamond-linux64.tar.gz
     - export PATH=$PATH:$PWD/
+    - wget http://abacus.gene.ucl.ac.uk/software/paml4.9j.tgz
+    - cd paml4.9j 
+    - cd src && make -f Makefile
+    - export PATH=$PATH:$PWD/
+    - cd $HOME
 install:
     - pip install -r requirements.txt
     - pip install .
