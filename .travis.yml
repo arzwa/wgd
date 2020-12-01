@@ -17,7 +17,6 @@ before_install:
     - cd paml4.9j 
     - cd src && make -f Makefile
     - export PATH=$PATH:$PWD/
-    - cd $HOME
 install:
     - pip install -r requirements.txt
     - pip install .
