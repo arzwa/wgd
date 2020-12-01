@@ -14,9 +14,8 @@ before_install:
     - export PATH=$PATH:$PWD/
     - wget http://abacus.gene.ucl.ac.uk/software/paml4.9j.tgz
     - tar -xzf paml4.9j.tgz
-    - cd paml4.9j 
-    - cd src && make -f Makefile
-    - export PATH=$PATH:$PWD/
+    - pushd paml4.9j/src && make -f Makefile && popd 
+    - export PATH=$PATH:$PWD/paml4.9j/src/
 install:
     - pip install -r requirements.txt
     - pip install .
