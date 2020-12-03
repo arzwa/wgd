@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='wgd',
-    version='2.0',
+    version='2.0.0',
     packages=['wgd'],
     url='http://github.com/arzwa/wgd',
     license='GPL',

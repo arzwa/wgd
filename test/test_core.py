@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.ERROR)
 thisdir = os.path.dirname(os.path.abspath(__file__))
 
 
-# Not sure how to structure exactly...
+# Test the internals
 class TestCore:
     @pytest.fixture
     def data(self):
@@ -34,7 +34,7 @@ class TestCore:
         s1, s2 = data
         d = SequenceData(s1, out_path=tmpdir, tmp_path=tmpdir, cds=False, to_stop=True)
         d.get_paranome()
-        # MCL is not deterministic, but the number of families should be somewhere around 35
+        # MCL is not deterministic, but the number of families is somewhere around 35
         assert 30 < len(d.mcl) < 40  
 
         # round tripping for families?
@@ -94,3 +94,6 @@ class TestCore:
         assert len(ksdb.df.index.unique()) == len(ksdb.df.index)
         assert pytest.approx(25., 1.) == ksdb.df["dS"].mean()
         assert pytest.approx(90., 1.) == ksdb.df["S"].mean()
+
+
+# TODO: test CLI

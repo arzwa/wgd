@@ -118,9 +118,9 @@ class SequenceData:
         """
         Merge other into self, keeping the paths etc. of self.
         """
-        self.cds_seqs.merge(other.cds_seqs)
-        seld.pro_seqs.merge(other.pro_seqs)
-        self.idmap.merge(other.idmap)
+        self.cds_seqs.update(other.cds_seqs)
+        self.pro_seqs.update(other.pro_seqs)
+        self.idmap.update(other.idmap)
 
     def make_diamond_db(self):
         cmd = ["diamond", "makedb", "--in",
@@ -236,6 +236,10 @@ def get_gene_families(seqs, families, rename=True, **kwargs):
     gene IDs) and sequence data. When `rename` is set to True, it is assumed
     the gene IDs in the families are the original IDs (not those assigned 
     when reading the CDS from file).
+
+    Note: currently this is only defined for one or two genomes (paranome 
+    and one-to-one orthologs), but it should easily generalize to arbitrary
+    gene families.
     """
     if type(seqs) == list:
         if len(seqs) > 2:
@@ -415,4 +419,3 @@ class KsDistributionBuilder:
             delayed(_get_ks)(family) for family in self.families)
         self.df = pd.concat([pd.read_csv(x.out, index_col=0) 
             for x in self.families], sort=True)
-
