@@ -65,6 +65,7 @@ class TestCore:
         d = SequenceData(s1, out_path=tmpdir, tmp_path=tmpdir, cds=True, to_stop=True)
         d.get_paranome()
 
+        # TODO: split in subtests (functions)
         # alignment without gap-stripping
         fams = get_gene_families(d, d.mcl.values(), rename=False, 
                 prequal=False, strip_gaps=False)
@@ -89,6 +90,16 @@ class TestCore:
         assert cds_len == 3*(pro_len - gaps)
 
         # run Ks distribution construction
+        ksdb = KsDistributionBuilder(fams)
+        ksdb.get_distribution()
+        assert len(ksdb.df.index.unique()) == len(ksdb.df.index)
+        assert pytest.approx(25., 1.) == ksdb.df["dS"].mean()
+        assert pytest.approx(90., 1.) == ksdb.df["S"].mean()
+        
+        # pairwise mode
+        fams = get_gene_families(d, d.mcl.values(), 
+                rename=False, pairwise=True,
+                prequal=False, strip_gaps=False)
         ksdb = KsDistributionBuilder(fams)
         ksdb.get_distribution()
         assert len(ksdb.df.index.unique()) == len(ksdb.df.index)

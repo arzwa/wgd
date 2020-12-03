@@ -277,7 +277,7 @@ class GeneFamily:
             aligner="mafft", tree_method="cluster", ks_method="GY94",
             eq_freq="F3X4", kappa=None, prequal=False, strip_gaps=True,
             min_length=3, codeml_iter=1, aln_options="--auto", 
-            tree_options="-m LG"):
+            tree_options="-m LG", pairwise=False):
         self.id = gfid
         self.cds_seqs = cds
         self.pro_seqs = pro
@@ -304,6 +304,7 @@ class GeneFamily:
         self.min_length = min_length  # minimum length of codon alignment
         self.aln_options = aln_options
         self.tree_options = tree_options
+        self.pairwise = pairwise
 
     def get_ks(self):
         logging.info("Analysing family {}".format(self.id))
@@ -363,7 +364,10 @@ class GeneFamily:
 
     def run_codeml(self):
         codeml = Codeml(self.cds_aln, exe="codeml", tmp=self.tmp_path, prefix=self.id)
-        result = codeml.run_codeml(preserve=True, times=self.codeml_iter)
+        if self.pairwise:
+            result = codeml.run_codeml_pairwise(preserve=True, times=self.codeml_iter)
+        else:
+            result = codeml.run_codeml(preserve=True, times=self.codeml_iter)
         self.codeml_results = result
 
     def get_tree(self):

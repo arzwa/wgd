@@ -5,6 +5,7 @@ import subprocess as sp
 import logging
 import os
 import re
+from Bio.Align import MultipleSeqAlignment
 
 
 def _write_aln_codeml(aln, fname):
@@ -35,6 +36,34 @@ def _parse_pair(lines, start):
     p = "__".join(sorted([a, b]))
     x.update({"pair": p, "gene1": a, "gene2": b, "l": l})
     return x
+
+def _run_codeml(exe, control_file, out_file, preserve=False, times=1):
+    """
+    Run codeml assuming all necessary files are written and we are in the
+    directory with those files. Set `preserve` to true to keep intermediary
+    files. When `times > 1`, codeml ill be run `times` times and the best
+    result (highest likelihood) will be returned.
+    """
+    logging.debug("Performing codeml {} times".format(times))
+    max_results = None 
+    max_likelihood = None
+    for i in range(times):
+        logging.debug("Codeml iteration {0} for {1}".format(str(i+1), control_file))
+        sp.run([exe, control_file], stdout=sp.PIPE)
+        sp.run(['rm', '2ML.dN', '2ML.dS', '2ML.t', '2NG.dN', '2NG.dS',
+            '2NG.t', 'rst', 'rst1', 'rub'], stdout=sp.PIPE, stderr=sp.PIPE)
+        if not os.path.isfile(out_file):
+            raise FileNotFoundError('Codeml output file not found')
+        results = _parse_pairwise(out_file)
+        likelihood = sum(results["l"])
+        if not max_likelihood or likelihood > max_likelihood:
+            max_likelihood = likelihood
+            max_results = results
+    logging.debug('Best MLE: ln(L) = {}'.format(max_likelihood))
+    os.remove(control_file)
+    if not preserve:
+        os.remove(out_file)
+    return max_results
 
 
 class Codeml:
@@ -102,7 +131,6 @@ class Codeml:
         self.control_file = self.prefix + '.ctrl'
         self.aln_file = self.prefix + '.cdsaln'
         self.out_file = self.prefix + '.codeml'
-        self.results = None
         self.control = {
             'seqfile': self.aln_file, 
             'outfile': self.out_file,
@@ -151,40 +179,25 @@ class Codeml:
         with open(self.control_file, "w") as f:
             f.write(str(self))
 
-    def run_codeml(self, preserve=False, times=1):
-        """
-        Run codeml on a multiple sequence alignment file
-
-        :param preserve: boolean, preserve intermediate files?
-        :param times: integer, perform codeml multiple times (average results)
-        :return: dictionary with Ks, Kn and Kn/Ks (omega) values
-        """
-        parentdir = os.path.abspath(os.curdir)
-        os.chdir(self.tmp)
-        with open(self.control_file, 'w') as f:
-            self.write_ctrl()
+    def run_codeml(self, **kwargs):
+        parentdir = os.path.abspath(os.curdir)  # where we are currently
+        os.chdir(self.tmp)  # go to tmpdir
+        self.write_ctrl() 
         _write_aln_codeml(self.aln, self.aln_file)
-        logging.debug("Performing codeml {} times".format(times))
-        
-        max_results = None 
-        max_likelihood = None
-        for i in range(times):
-            logging.debug("Codeml iteration {0} for {1}".format(str(i+1), self.prefix))
-            sp.run([self.exe, self.control_file], stdout=sp.PIPE)
-            sp.run(['rm', '2ML.dN', '2ML.dS', '2ML.t', '2NG.dN', '2NG.dS',
-                '2NG.t', 'rst', 'rst1', 'rub'], stdout=sp.PIPE, stderr=sp.PIPE)
-            if not os.path.isfile(self.out_file):
-                raise FileNotFoundError('Codeml output file not found')
-            results = _parse_pairwise(self.out_file)
-            likelihood = sum(results["l"])
-            if not max_likelihood or likelihood > max_likelihood:
-                max_likelihood = likelihood
-                max_results = results
-
-        logging.debug('Best MLE: ln(L) = {}'.format(max_likelihood))
-        os.remove(self.control_file)
-        if not preserve:
-            os.remove(self.out_file)
+        results = _run_codeml(self.exe, self.control_file, self.out_file, **kwargs) 
         os.chdir(parentdir)
-        self.results = max_results
-        return max_results
+        return results
+
+    def run_codeml_pairwise(self, **kwargs):
+        parentdir = os.path.abspath(os.curdir)  # where we are currently
+        os.chdir(self.tmp)  # go to tmpdir
+        results = []
+        for i in range(len(self.aln)-1):
+            for j in range(i+1, len(self.aln)):
+                pair = MultipleSeqAlignment([self.aln[i], self.aln[j]])
+                self.write_ctrl() 
+                _write_aln_codeml(pair, self.aln_file)
+                results.append(_run_codeml(
+                        self.exe, self.control_file, self.out_file, **kwargs) )
+        os.chdir(parentdir)
+        return pd.concat(results)
