@@ -68,7 +68,7 @@ def dmd(**kwargs):
     """
     _dmd(**kwargs)
 
-def _dmd(sequences, outdir, tmpdir, inflation, eval, ignorestop, nostrictcds):
+def _dmd(sequences, outdir, tmpdir, inflation, eval, to_stop, cds):
     from wgd.core import SequenceData
     s = [SequenceData(s, out_path=outdir, tmp_path=tmpdir,
         to_stop=to_stop, cds=cds) for s in sequences]
