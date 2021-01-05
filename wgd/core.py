@@ -259,6 +259,8 @@ def get_gene_families(seqs, families, rename=True, **kwargs):
             fid = "GF{:0>5}".format(i)
             tmp = os.path.join(seqs.tmp_path, fid)
             gene_families.append(GeneFamily(fid, cds, pro, tmp, **kwargs))
+        else:
+            logging.warning("Skipping singleton family {}{}".format("GF{:0>5}".format(i),family))
     return gene_families
 
 
