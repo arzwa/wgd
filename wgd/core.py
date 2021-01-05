@@ -251,9 +251,7 @@ def get_gene_families(seqs, families, rename=True, **kwargs):
         families = _rename(families, seqs.idmap)
     gene_families = []
     for i, family in enumerate(families):
-        if len(family) == 1:
-            continue
-        elif len(family) > 1:
+        if len(family) > 1:
             #cds = {seqs.idmap[x]: seqs.cds_seqs[seqs.idmap[x]] for x in family}
             #pro = {seqs.idmap[x]: seqs.pro_seqs[seqs.idmap[x]] for x in family}
             cds = {x: seqs.cds_seqs[x] for x in family}
