@@ -104,6 +104,8 @@ def _dmd(sequences, outdir, tmpdir, inflation, eval, to_stop, cds):
     help="don't translate through STOP codons")
 @click.option('--cds', is_flag=True,
     help="enforce proper CDS sequences")
+@click.option('--pairwise', is_flag=True,
+    help="run codeml on all gene pairs separately")
 def ksd(**kwargs):
     """
     Paranome and one-to-one ortholog Ks distribution inference pipeline.
@@ -118,7 +120,7 @@ def ksd(**kwargs):
     """
     _ksd(**kwargs)
 
-def _ksd(families, sequences, outdir, tmpdir, to_stop, cds):
+def _ksd(families, sequences, outdir, tmpdir, to_stop, cds, pairwise):
     from wgd.core import get_gene_families, SequenceData, KsDistributionBuilder
     from wgd.viz import default_plot, apply_filters
     s = [SequenceData(s, tmp_path=tmpdir, out_path=outdir, to_stop=to_stop, cds=cds)
@@ -126,7 +128,7 @@ def _ksd(families, sequences, outdir, tmpdir, to_stop, cds):
     logging.info("tmpdir = {}".format(s[0].tmp_path))
     with open(families, "r") as f:
         fams = [x.strip().split("\t") for x in f.readlines()]
-    fams = get_gene_families(s, fams)
+    fams = get_gene_families(s, fams, pairwise=pairwise)
     ksdb = KsDistributionBuilder(fams)
     ksdb.get_distribution()
     prefix = os.path.basename(families)

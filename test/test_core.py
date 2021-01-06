@@ -57,7 +57,8 @@ class TestCore:
         d2 = SequenceData(s2, **kwargs)
         d1.get_rbh_orthologs(d2, eval=1e-3)
         df = d1.rbh[d2.prefix]
-        assert len(df.index) == 19  # Got all RBHs and Please make sure the version of PAML is 4.9j not 4.9i which might cause error
+        # test below fails with PAML 4.9i (works with 4.9j)
+        assert len(df.index) == 19  # Got all RBHs 
         assert len(df.columns) == 12  # Right No. columns
 
     def test_ksd(self, data, tmpdir):
@@ -73,7 +74,8 @@ class TestCore:
         f.align()
         cds_len = f.cds_aln.get_alignment_length()
         pro_len = f.pro_aln.get_alignment_length()
-        assert cds_len == 558  # Alignment working? Please make sure the version of PAML is 4.9j not 4.9i which might cause error
+        # test below fails with PAML 4.9i (works with 4.9j)
+        assert cds_len == 558  # Alignment working?
         assert cds_len == 3*pro_len  # "AA -> codon fine?
 
         # alignment with gap-stripping
