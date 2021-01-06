@@ -8,6 +8,22 @@ import re
 from Bio.Align import MultipleSeqAlignment
 
 
+def _strip_gaps(aln):
+    new_aln = aln[:,0:0]
+    for j in range(aln.get_alignment_length()):
+        if any([x == "-" for x in aln[:,j]]):
+            continue
+        else:
+            new_aln += aln[:,j:j+1]
+    return new_aln
+
+def _all_pairs(aln):
+    pairs = []
+    for i in range(len(aln)-1):
+        for j in range(i+1, len(aln)):
+            pairs.append([aln[i].id, aln[j]])
+    return pairs
+
 def _write_aln_codeml(aln, fname):
     with open(fname, "w") as f:
         f.write("{} {}\n".format(len(aln), aln.get_alignment_length()))
@@ -179,25 +195,38 @@ class Codeml:
         with open(self.control_file, "w") as f:
             f.write(str(self))
 
+    # We should output the pairs for which we couldn't estimate Ks 
+    # separately, so that we can make a nan_result for those, but work
+    # with those we could estimate without much trouble
     def run_codeml(self, **kwargs):
+        stripped_aln = _strip_gaps(self.aln)  # codeml does this anyway
+        if stripped_aln.get_alignment_length() == 0:
+            return None, _all_pairs(self.aln)
         parentdir = os.path.abspath(os.curdir)  # where we are currently
         os.chdir(self.tmp)  # go to tmpdir
         self.write_ctrl() 
         _write_aln_codeml(self.aln, self.aln_file)
         results = _run_codeml(self.exe, self.control_file, self.out_file, **kwargs) 
         os.chdir(parentdir)
-        return results
+        return results, None
 
     def run_codeml_pairwise(self, **kwargs):
         parentdir = os.path.abspath(os.curdir)  # where we are currently
         os.chdir(self.tmp)  # go to tmpdir
         results = []
+        no_results = []
         for i in range(len(self.aln)-1):
             for j in range(i+1, len(self.aln)):
                 pair = MultipleSeqAlignment([self.aln[i], self.aln[j]])
-                self.write_ctrl() 
-                _write_aln_codeml(pair, self.aln_file)
-                results.append(_run_codeml(
-                        self.exe, self.control_file, self.out_file, **kwargs) )
+                stripped_pair = _strip_gaps(pair)
+                if stripped_pair.get_alignment_length() == 0:
+                    no_results.append([p.id for p in pair])
+                    logging.warning("No results for pairs {}".format(no_results))
+                else:
+                    self.write_ctrl() 
+                    _write_aln_codeml(stripped_pair, self.aln_file)
+                    results.append(_run_codeml(self.exe, self.control_file, 
+                        self.out_file, **kwargs) )
         os.chdir(parentdir)
-        return pd.concat(results)
+        return pd.concat(results), no_results
+

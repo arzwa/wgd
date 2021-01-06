@@ -269,7 +269,7 @@ def get_gene_families(seqs, families, rename=True, **kwargs):
 class GeneFamily:
     def __init__(self, gfid, cds, pro, tmp_path,
             aligner="mafft", tree_method="cluster", ks_method="GY94",
-            eq_freq="F3X4", kappa=None, prequal=False, strip_gaps=True,
+            eq_freq="F3X4", kappa=None, prequal=False, strip_gaps=False,
             min_length=3, codeml_iter=1, aln_options="--auto", 
             tree_options="-m LG", pairwise=False):
         self.id = gfid
@@ -358,10 +358,13 @@ class GeneFamily:
 
     def run_codeml(self):
         codeml = Codeml(self.cds_aln, exe="codeml", tmp=self.tmp_path, prefix=self.id)
+        # TODO, do something with `no_result`
         if self.pairwise:
-            result = codeml.run_codeml_pairwise(preserve=True, times=self.codeml_iter)
+            result, no_result = codeml.run_codeml_pairwise(
+                    preserve=True, times=self.codeml_iter)
         else:
-            result = codeml.run_codeml(preserve=True, times=self.codeml_iter)
+            result, no_result = codeml.run_codeml(
+                    preserve=True, times=self.codeml_iter)
         self.codeml_results = result
 
     def get_tree(self):
