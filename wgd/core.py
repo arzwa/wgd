@@ -266,15 +266,6 @@ def get_gene_families(seqs, families, rename=True, **kwargs):
 
 # NOTE: It would be nice to implement an option to do a complete approach
 # where we use the tree in codeml to estimate Ks-scale branch lengths?
-# NOTE: Still have to implement the pairwise wokflow, feeding pairs of
-# aligned sequences to codeml instead of the whole alignment. Since codeml
-# in runmode 2 (pairwise comparisons) on a complete alignment removes *all*
-# gap-containing columns in the *full* alignment, feeding alignments pair 
-# by pair results in more and perhaps better Ks estimates when alignments
-# are gappy. On the other hand equilibrium codon frequencies are better 
-# estimated when providing the full alignment.
-# NOTE: The pairwise approach discussed in the above comment should be
-# implemented in `codeml.py`, and here this should just be a keyword arg.
 class GeneFamily:
     def __init__(self, gfid, cds, pro, tmp_path,
             aligner="mafft", tree_method="cluster", ks_method="GY94",
