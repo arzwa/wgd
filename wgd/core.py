@@ -251,13 +251,16 @@ def get_gene_families(seqs, families, rename=True, **kwargs):
         families = _rename(families, seqs.idmap)
     gene_families = []
     for i, family in enumerate(families):
-        #cds = {seqs.idmap[x]: seqs.cds_seqs[seqs.idmap[x]] for x in family}
-        #pro = {seqs.idmap[x]: seqs.pro_seqs[seqs.idmap[x]] for x in family}
-        cds = {x: seqs.cds_seqs[x] for x in family}
-        pro = {x: seqs.pro_seqs[x] for x in family}
         fid = "GF{:0>5}".format(i)
-        tmp = os.path.join(seqs.tmp_path, fid)
-        gene_families.append(GeneFamily(fid, cds, pro, tmp, **kwargs))
+        if len(family) > 1:
+            #cds = {seqs.idmap[x]: seqs.cds_seqs[seqs.idmap[x]] for x in family}
+            #pro = {seqs.idmap[x]: seqs.pro_seqs[seqs.idmap[x]] for x in family}
+            cds = {x: seqs.cds_seqs[x] for x in family}
+            pro = {x: seqs.pro_seqs[x] for x in family}
+            tmp = os.path.join(seqs.tmp_path, fid)
+            gene_families.append(GeneFamily(fid, cds, pro, tmp, **kwargs))
+        else:
+            logging.debug("Skipping singleton family {}{}".format(fid,family))
     return gene_families
 
 

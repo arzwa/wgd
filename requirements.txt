@@ -15,7 +15,7 @@ MarkupSafe==1.1.1
 matplotlib==3.2.2
 numpy==1.19.0
 packaging==20.4
-pandas==0.24.1
+pandas==1.2.0
 Pillow==7.1.2
 pluggy==0.13.1
 plumbum==1.6.9
