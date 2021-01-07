@@ -205,6 +205,7 @@ class Codeml:
         """
         stripped_aln = _strip_gaps(self.aln)  # codeml does this anyway
         if stripped_aln.get_alignment_length() == 0:
+            logging.warning("Stripped alignment length == 0 for {}".format(self.prefix))
             return None, _all_pairs(self.aln)
         parentdir = os.path.abspath(os.curdir)  # where we are currently
         os.chdir(self.tmp)  # go to tmpdir
@@ -228,7 +229,8 @@ class Codeml:
                 stripped_pair = _strip_gaps(pair)
                 if stripped_pair.get_alignment_length() == 0:
                     no_results.append([p.id for p in pair])
-                    logging.warning("No results for pairs {}".format(no_results))
+                    logging.warning("Alignment length of 0 for {} pairs in {}".format(
+                        len(no_results), self.prefix))
                 else:
                     self.write_ctrl() 
                     _write_aln_codeml(stripped_pair, self.aln_file)
