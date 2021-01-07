@@ -229,13 +229,14 @@ class Codeml:
                 stripped_pair = _strip_gaps(pair)
                 if stripped_pair.get_alignment_length() == 0:
                     no_results.append([p.id for p in pair])
-                    logging.warning("Alignment length of 0 for {} pairs in {}".format(
-                        len(no_results), self.prefix))
                 else:
                     self.write_ctrl() 
                     _write_aln_codeml(stripped_pair, self.aln_file)
                     results.append(_run_codeml(self.exe, self.control_file, 
                         self.out_file, **kwargs) )
+        if len(no_results) > 0:
+            logging.warning("Alignment length of 0 for {} pairs in {}".format(
+                len(no_results), self.prefix))
         os.chdir(parentdir)
         return pd.concat(results), no_results
 
