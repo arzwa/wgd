@@ -132,7 +132,7 @@ def _ksd(families, sequences, outdir, tmpdir, to_stop, cds, pairwise, strip_gaps
         fams = [x.strip().split("\t") for x in f.readlines()]
     fams = get_gene_families(s, fams, 
             pairwise=pairwise, 
-            strip_gaps=strip_gaps or (not pairwise))
+            strip_gaps=strip_gaps)
     ksdb = KsDistributionBuilder(fams)
     ksdb.get_distribution()
     prefix = os.path.basename(families)

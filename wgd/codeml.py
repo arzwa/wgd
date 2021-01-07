@@ -21,7 +21,7 @@ def _all_pairs(aln):
     pairs = []
     for i in range(len(aln)-1):
         for j in range(i+1, len(aln)):
-            pairs.append([aln[i].id, aln[j]])
+            pairs.append([aln[i].id, aln[j].id])
     return pairs
 
 def _write_aln_codeml(aln, fname):
@@ -195,10 +195,14 @@ class Codeml:
         with open(self.control_file, "w") as f:
             f.write(str(self))
 
-    # We should output the pairs for which we couldn't estimate Ks 
-    # separately, so that we can make a nan_result for those, but work
-    # with those we could estimate without much trouble
+    # We should output the pairs for which we couldn't estimate Ks separately,
+    # so that we can make a nan_result for those, but work with those we could
+    # estimate without much trouble
     def run_codeml(self, **kwargs):
+        """
+        Run codeml on the full alignment. This will exclude all gap-containing
+        columns, which may lead to a significant loss of data.
+        """
         stripped_aln = _strip_gaps(self.aln)  # codeml does this anyway
         if stripped_aln.get_alignment_length() == 0:
             return None, _all_pairs(self.aln)
@@ -208,9 +212,12 @@ class Codeml:
         _write_aln_codeml(self.aln, self.aln_file)
         results = _run_codeml(self.exe, self.control_file, self.out_file, **kwargs) 
         os.chdir(parentdir)
-        return results, None
+        return results, []
 
     def run_codeml_pairwise(self, **kwargs):
+        """
+        Run codeml on each pair of the alignment separately.
+        """
         parentdir = os.path.abspath(os.curdir)  # where we are currently
         os.chdir(self.tmp)  # go to tmpdir
         results = []

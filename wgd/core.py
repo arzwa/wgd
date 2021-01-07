@@ -283,6 +283,7 @@ class GeneFamily:
         self.cds_aln = None
         self.pro_aln = None
         self.codeml_results = None
+        self.no_codeml_results = None
         self.tree = None
         self.out = os.path.join(self.tmp_path, "{}.csv".format(gfid))
 
@@ -303,29 +304,31 @@ class GeneFamily:
     def get_ks(self):
         logging.info("Analysing family {}".format(self.id))
         self.align()
-        length = self.cds_aln.get_alignment_length()
-        if length < self.min_length:
-            self.nan_result()
-            return
         self.run_codeml()
-        self.get_tree()
-        self.compile_dataframe()
+        if self.codeml_results is not None:
+            self.get_tree()
+            self.compile_dataframe()
+        self.combine_results()
+
+    def combine_results(self):
+        if self.no_codeml_results is None:
+            return
+        self.codeml_results = pd.concat([self.codeml_results, self.no_codeml_results])
     
-    def nan_result(self):
+    def nan_result(self, pairs):
+        """
+        For a bunch of pairs obtain a data frame with missing data.
+        """
+        if len(pairs) == 0: return None
         data = []
-        length = self.cds_aln.get_alignment_length()
-        for x in self.cds_seqs.keys():
-            for y in self.cds_seqs.keys():
-                if x == y: continue
-                pair = "__".join(sorted([x, y]))
-                data.append({
-                    "pair": pair, 
-                    "gene1": x, 
-                    "gene2": y, 
-                    "alnlen": length,
-                    "family": self.id})
-        df = pd.DataFrame.from_records(data).set_index("pair")
-        self.codeml_results = df
+        for pair in pairs:
+            pairid = "__".join(sorted(pair))
+            data.append({
+                "pair": pairid, 
+                "gene1": pair[0], 
+                "gene2": pair[1], 
+                "family": self.id})
+        return pd.DataFrame.from_records(data).set_index("pair")
 
     # NOT TESTED
     def run_prequal(self):
@@ -366,9 +369,11 @@ class GeneFamily:
             result, no_result = codeml.run_codeml(
                     preserve=True, times=self.codeml_iter)
         self.codeml_results = result
+        self.no_codeml_results = self.nan_result(no_result)
 
     def get_tree(self):
         # dispatch method
+        # This likely will have to catch families of only two or three members.
         if self.tree_method == "cluster":
             tree = self.cluster()
         elif self.tree_method == "iqtree":
