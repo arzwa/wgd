@@ -68,6 +68,9 @@ def _label_internals(tree):
     for i, c in enumerate(tree.get_nonterminals()):
         c.name = str(i)
 
+def _label_families(df):
+    df.index = ["GF{:0>5}".format(i+1) for i in range(len(df.index))]
+
 
 class SequenceData:
     """
@@ -170,11 +173,13 @@ class SequenceData:
 
     def write_paranome(self, fname=None):
         if not fname:
-            fname = os.path.join(self.out_path, "{}.mcl".format(self.prefix))
+            fname = os.path.join(self.out_path, "{}.tsv".format(self.prefix))
         with open(fname, "w") as f:
-            for k, v in sorted(self.mcl.items()):
+            f.write("\t" + self.prefix + "\n")
+            for i, (k, v) in enumerate(sorted(self.mcl.items())):
                 # We report original gene IDs
-                f.write("\t".join([self.cds_seqs[x].id for x in v]))
+                f.write("GF{:0>5}\t".format(i+1))
+                f.write(", ".join([self.cds_seqs[x].id for x in v]))
                 f.write("\n")
         return fname
 
@@ -183,10 +188,10 @@ class SequenceData:
         fname = "{}_{}.rbh".format(self.prefix, prefix)
         fname = os.path.join(self.out_path, fname)
         df = self.rbh[prefix]
-        df["x"] = df[0].apply(lambda x: seqs.cds_seqs[x].id)
-        df["y"] = df[1].apply(lambda x: self.cds_seqs[x].id)
-        df.to_csv(fname, columns=["x", "y"], header=None, index=False, sep="\t")
-        # header=[prefix, self.prefix]
+        df[prefix] = df[0].apply(lambda x: seqs.cds_seqs[x].id)
+        df[self.prefix] = df[1].apply(lambda x: self.cds_seqs[x].id)
+        _label_families(df)
+        df.to_csv(fname, columns=[prefix, self.prefix], sep="\t")
 
     def remove_tmp(self, prompt=True):
         if prompt:
@@ -224,11 +229,21 @@ class SequenceSimilarityGraph:
 
 
 # Gene family i/o
-def _rename(listoflists, ids):
-    new_list = []
-    for l in listoflists:
-        new_list.append([ids[x] for x in l])
-    return new_list
+def _rename(family, ids):
+    return [ids[x] for x in family]
+
+def read_gene_families(fname):
+    return pd.read_csv(fname, sep="\t", index_col=0).apply(
+            lambda y: [x.split(", ") for x in y if x != ""])
+
+def merge_seqs(seqs):
+    if type(seqs) == list:
+        if len(seqs) > 2:
+            raise ValueError("More than two sequence data objects?")
+        if len(seqs) == 2:
+            seqs[0].merge(seqs[1])
+        seqs = seqs[0]
+    return seqs
 
 def get_gene_families(seqs, families, rename=True, **kwargs):
     """
@@ -241,20 +256,17 @@ def get_gene_families(seqs, families, rename=True, **kwargs):
     and one-to-one orthologs), but it should easily generalize to arbitrary
     gene families.
     """
-    if type(seqs) == list:
-        if len(seqs) > 2:
-            raise ValueError("More than two sequence data objects?")
-        if len(seqs) == 2:
-            seqs[0].merge(seqs[1])
-        seqs = seqs[0]
-    if rename:
-        families = _rename(families, seqs.idmap)
+    seqs = merge_seqs(seqs)
     gene_families = []
-    for i, family in enumerate(families):
-        fid = "GF{:0>5}".format(i)
+    for fid in families.index:
+        family = []
+        for col in families.columns:
+            ids = families.loc[fid][col]
+            if rename:
+                family += _rename(ids, seqs.idmap)
+            else:
+                family += ids
         if len(family) > 1:
-            #cds = {seqs.idmap[x]: seqs.cds_seqs[seqs.idmap[x]] for x in family}
-            #pro = {seqs.idmap[x]: seqs.pro_seqs[seqs.idmap[x]] for x in family}
             cds = {x: seqs.cds_seqs[x] for x in family}
             pro = {x: seqs.pro_seqs[x] for x in family}
             tmp = os.path.join(seqs.tmp_path, fid)

@@ -7,6 +7,13 @@ import subprocess as sp
 from collections import defaultdict
 from operator import itemgetter
 
+# read families from mcl or tsv output
+
+# write i-adhore config
+
+# run i-adhore
+
+# combine acnhor pairs with ks distribution
 
 def gffs_to_genelists(fnames, features, attributes, genes, outdir):
     confs = []

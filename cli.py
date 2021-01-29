@@ -124,12 +124,12 @@ def ksd(**kwargs):
 
 def _ksd(families, sequences, outdir, tmpdir, to_stop, cds, pairwise, strip_gaps):
     from wgd.core import get_gene_families, SequenceData, KsDistributionBuilder
+    from wgd.core import read_gene_families
     from wgd.viz import default_plot, apply_filters
     s = [SequenceData(s, tmp_path=tmpdir, out_path=outdir, to_stop=to_stop, cds=cds)
          for s in sequences]
     logging.info("tmpdir = {}".format(s[0].tmp_path))
-    with open(families, "r") as f:
-        fams = [x.strip().split("\t") for x in f.readlines()]
+    fams = read_gene_families(families)
     fams = get_gene_families(s, fams, 
             pairwise=pairwise, 
             strip_gaps=strip_gaps)

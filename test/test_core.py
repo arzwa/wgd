@@ -2,7 +2,8 @@ import pytest
 import os
 import logging
 import shutil
-from wgd.core import SequenceData, get_gene_families, KsDistributionBuilder
+from wgd.core import SequenceData, get_gene_families, read_gene_families 
+from wgd.core import KsDistributionBuilder
 
 # some config: set logging level, and get directory
 logging.basicConfig(level=logging.ERROR)
@@ -40,14 +41,13 @@ class TestCore:
         # round tripping for families?
         # write to file/read from file
         families = d.write_paranome()
-        with open(families, "r") as f:
-            fams = [x.strip().split("\t") for x in f.readlines()]
+        fams = read_gene_families(families)
         fams = get_gene_families(d, fams)
         assert len(d.mcl) == len(fams)  # Round tripped
 
         # construct gene families directly from `self.mcl`
-        fams2 = get_gene_families(d, d.mcl.values(), rename=False)
-        assert len(fams2) == len(fams)
+        #fams2 = get_gene_families(d, d.mcl.values(), rename=False)
+        #assert len(fams2) == len(fams)
 
     def test_rbh(self, data, tmpdir):
         logging.info("Testing RBH orthologs (requires diamond)")
@@ -68,9 +68,10 @@ class TestCore:
 
         # TODO: split in subtests (functions)
         # alignment without gap-stripping
-        fams = get_gene_families(d, d.mcl.values(), rename=False, 
-                prequal=False, strip_gaps=False)
-        f = fams[0]
+        families = d.write_paranome()
+        fams = read_gene_families(families)
+        gfams = get_gene_families(d, fams, prequal=False, strip_gaps=False)
+        f = gfams[0]
         f.align()
         cds_len = f.cds_aln.get_alignment_length()
         pro_len = f.pro_aln.get_alignment_length()
@@ -79,9 +80,8 @@ class TestCore:
         assert cds_len == 3*pro_len  # "AA -> codon fine?
 
         # alignment with gap-stripping
-        fams = get_gene_families(d, d.mcl.values(), rename=False,
-                prequal=False, strip_gaps=True)
-        f = fams[0]
+        gfams = get_gene_families(d, fams, prequal=False, strip_gaps=True)
+        f = gfams[0]
         f.align()
         cds_len = f.cds_aln.get_alignment_length()
         pro_len = f.pro_aln.get_alignment_length()
@@ -92,17 +92,16 @@ class TestCore:
         assert cds_len == 3*(pro_len - gaps)
 
         # run Ks distribution construction
-        ksdb = KsDistributionBuilder(fams)
+        ksdb = KsDistributionBuilder(gfams)
         ksdb.get_distribution()
         assert len(ksdb.df.index.unique()) == len(ksdb.df.index)
         assert pytest.approx(25., 1.) == ksdb.df["dS"].mean()
         assert pytest.approx(90., 1.) == ksdb.df["S"].mean()
         
         # pairwise mode
-        fams = get_gene_families(d, d.mcl.values(), 
-                rename=False, pairwise=True,
+        gfams = get_gene_families(d, fams, pairwise=True,
                 prequal=False, strip_gaps=False)
-        ksdb = KsDistributionBuilder(fams)
+        ksdb = KsDistributionBuilder(gfams)
         ksdb.get_distribution()
         assert len(ksdb.df.index.unique()) == len(ksdb.df.index)
         assert pytest.approx(25., 1.) == ksdb.df["dS"].mean()
