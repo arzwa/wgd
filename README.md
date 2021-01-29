@@ -40,6 +40,19 @@ a command (e.g. `ksd`) run
 For **external software** requirements: please consult the relevant section
 in the [docs](https://wgd.readthedocs.io/en/latest/index.html#external-software)
 
+**Note:** if you encounter issues, do verify you have the latest 
+[PAML](http://abacus.gene.ucl.ac.uk/software/#phylogenetic-analysis-by-maximum-likelihood-paml) version.
+To install the latest version, you best not rely on `apt-get` or any other 
+package manager but install from source. Something like this should work 
+(from within the directory where you want to install paml)
+
+```
+wget http://abacus.gene.ucl.ac.uk/software/paml4.9j.tgz
+tar -xzf paml4.9j.tgz
+pushd paml4.9j/src && make -f Makefile && popd 
+export PATH=$PATH:$PWD/paml4.9j/src/
+```
+
 ## Quick start
 
 The main aim of `wgd` is computing whole-paranome and one-vs.-one ortholog Ks
