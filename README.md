@@ -72,6 +72,8 @@ please consult the [docs](https://wgd.readthedocs.io/en/latest/).
 
 ## Singularity container
 
+**Note** this hasn't been updated in a while, it may or may not work.
+
 A singularity container is available for ``wgd``, allowing all to use
 all tools in ``wgd`` except ``wgd syn``, without having to install all
 required software on your system. To install Singularity follow
