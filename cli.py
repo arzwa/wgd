@@ -100,6 +100,8 @@ def _dmd(sequences, outdir, tmpdir, inflation, eval, to_stop, cds):
     help='tmp directory')
 @click.option('--tmpdir', '-t', default=None, show_default=True,
     help='tmp directory')
+@click.option('--nthreads', '-n', default=4, show_default=True,
+    help="number of threads to use")
 @click.option('--to_stop', is_flag=True, 
     help="don't translate through STOP codons")
 @click.option('--cds', is_flag=True,
@@ -122,7 +124,7 @@ def ksd(**kwargs):
     """
     _ksd(**kwargs)
 
-def _ksd(families, sequences, outdir, tmpdir, to_stop, cds, pairwise, strip_gaps):
+def _ksd(families, sequences, outdir, tmpdir, nthreads, to_stop, cds, pairwise, strip_gaps):
     from wgd.core import get_gene_families, SequenceData, KsDistributionBuilder
     from wgd.core import read_gene_families
     from wgd.viz import default_plot, apply_filters
@@ -133,7 +135,7 @@ def _ksd(families, sequences, outdir, tmpdir, to_stop, cds, pairwise, strip_gaps
     fams = get_gene_families(s, fams, 
             pairwise=pairwise, 
             strip_gaps=strip_gaps)
-    ksdb = KsDistributionBuilder(fams)
+    ksdb = KsDistributionBuilder(fams, n_threads=nthreads)
     ksdb.get_distribution()
     prefix = os.path.basename(families)
     outfile = os.path.join(outdir, "{}.ks.tsv".format(prefix))
