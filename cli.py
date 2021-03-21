@@ -140,7 +140,7 @@ def _ksd(families, sequences, outdir, tmpdir, nthreads, to_stop, cds, pairwise, 
     prefix = os.path.basename(families)
     outfile = os.path.join(outdir, "{}.ks.tsv".format(prefix))
     logging.info("Saving to {}".format(outfile))
-    ksdb.df.to_csv(outfile)
+    ksdb.df.fillna("NaN").to_csv(outfile,sep="\t")
     logging.info("Making plots")
     df = apply_filters(ksdb.df, [("dS", 1e-4, 5.), ("S", 10, 1e6)])
     fig = default_plot(df, title=prefix, rwidth=0.8, bins=50)
