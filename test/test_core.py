@@ -58,6 +58,7 @@ class TestCore:
         d1.get_rbh_orthologs(d2, eval=1e-3)
         df = d1.rbh[d2.prefix]
         # test below fails with PAML 4.9i (works with 4.9j)
+        # test below fails with diamond 0.9.18 (works with 2.0.5)
         assert len(df.index) == 19  # Got all RBHs 
         assert len(df.columns) == 12  # Right No. columns
 
@@ -76,6 +77,7 @@ class TestCore:
         cds_len = f.cds_aln.get_alignment_length()
         pro_len = f.pro_aln.get_alignment_length()
         # test below fails with PAML 4.9i (works with 4.9j)
+        # test below fails with diamond 0.9.18 (works with 2.0.5)
         assert cds_len == 558  # Alignment working?
         assert cds_len == 3*pro_len  # "AA -> codon fine?
 
