@@ -179,12 +179,11 @@ class SequenceData:
 
     def write_paranome(self, fname=None):
         if not fname:
-            fname = os.path.join(self.out_path, "{}.tsv".format(self.prefix))
+            fname = os.path.join(self.out_path, "{}.mcl.tsv".format(self.prefix))
         with open(fname, "w") as f:
-            f.write("\t" + self.prefix + "\n")
             for i, (k, v) in enumerate(sorted(self.mcl.items())):
                 # We report original gene IDs
-                f.write("GF{:0>5}\t".format(i+1))
+                f.write("GF{:0>5}: ".format(i+1))
                 f.write(", ".join([self.cds_seqs[x].id for x in v]))
                 f.write("\n")
         return fname
