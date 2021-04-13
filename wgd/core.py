@@ -238,7 +238,7 @@ def _rename(family, ids):
     return [ids[x] for x in family]
 
 def read_gene_families(fname):
-    return pd.read_csv(fname, sep="\t", index_col=0).apply(
+    return pd.read_csv(fname, sep=": ", index_col=0, engine='python', header=None).apply(
             lambda y: [x.split(", ") for x in y if x != ""])
 
 def merge_seqs(seqs):
