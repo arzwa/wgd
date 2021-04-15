@@ -17,6 +17,23 @@ def _strip_gaps(aln):
             new_aln += aln[:,j:j+1]
     return new_aln
 
+def _strip_aln(aln, max_gap_portion=0.333):
+    """
+    A column is considered as a gap position if more than a fraction `max_gap_portion` (a value
+    between 0 and 1) of the positions in this column are gaps. Default is 0.333
+    If the alignment is backtranslated into CDS, it does not have to consider reading frame anymore
+    """
+    new_aln = aln[:,0:0]
+    num_seq = len(aln)
+    for j in range(aln.get_alignment_length()):
+        num_gap = aln[:,j].count("-")
+        per_gap = num_gap / num_seq
+        if per_gap > max_gap_portion:
+            continue
+        else:
+            new_aln += aln[:,j:j+1]
+    return new_aln
+
 def _all_pairs(aln):
     pairs = []
     for i in range(len(aln)-1):
@@ -203,7 +220,7 @@ class Codeml:
         Run codeml on the full alignment. This will exclude all gap-containing
         columns, which may lead to a significant loss of data.
         """
-        stripped_aln = _strip_gaps(self.aln)  # codeml does this anyway
+        stripped_aln = _strip_aln(self.aln)
         if stripped_aln.get_alignment_length() == 0:
             logging.warning("Stripped alignment length == 0 for {}".format(self.prefix))
             return None, _all_pairs(self.aln)
@@ -226,8 +243,8 @@ class Codeml:
         for i in range(len(self.aln)-1):
             for j in range(i+1, len(self.aln)):
                 pair = MultipleSeqAlignment([self.aln[i], self.aln[j]])
-                stripped_pair = _strip_gaps(pair)
-                if stripped_pair.get_alignment_length() == 0:
+                stripped_pair = _strip_aln(pair, max_gap_portion=0)
+                if stripped_pair.get_alignment_length() == 0:   # should be min len 
                     no_results.append([p.id for p in pair])
                 else:
                     self.write_ctrl() 
