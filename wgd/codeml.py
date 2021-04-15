@@ -17,10 +17,10 @@ def _strip_gaps(aln):
             new_aln += aln[:,j:j+1]
     return new_aln
 
-def _strip_aln(aln, max_gap_portion=0.333):
+def _strip_aln(aln, max_gap_portion=0):
     """
     A column is considered as a gap position if more than a fraction `max_gap_portion` (a value
-    between 0 and 1) of the positions in this column are gaps. Default is 0.333
+    between 0 and 1) of the positions in this column are gaps. Default is 0 to remove all gaps.
     If the alignment is backtranslated into CDS, it does not have to consider reading frame anymore
     """
     new_aln = aln[:,0:0]
@@ -33,6 +33,39 @@ def _strip_aln(aln, max_gap_portion=0.333):
         else:
             new_aln += aln[:,j:j+1]
     return new_aln
+
+def _get_pairwise_stat(aln):
+    if len(aln) != 2:
+        raise Exception("This not a pairwise alignment")
+    saln=_strip_aln(aln)
+    id1, id2 = sorted([aln[0].id, aln[1].id])
+    pid = '__'.join([id1, id2])
+    saln_len = saln.get_alignment_length()
+    aln_len = aln.get_alignment_length()
+
+    if saln_len == 0:
+        identity = 0
+    else:
+        identity = (saln_len - _hamming_distance(saln[0].seq, saln[1].seq)) / saln_len
+    return {
+        "pair": pid,
+        "AlignmentIdentity": identity,
+        "AlignmentLength": aln_len,
+        "AlignmentLengthStripped": saln_len,
+        "AlignmentCoverage": saln_len / aln_len
+    }
+
+def _hamming_distance(s1, s2):
+    """
+    Return the Hamming distance between equal-length sequences
+
+    :param s1: string 1
+    :param s2: string 2
+    :return: the Hamming distances between s1 and s2
+    """
+    if len(s1) != len(s2):
+        raise ValueError("Undefined for sequences of unequal length")
+    return sum(el1 != el2 for el1, el2 in zip(s1, s2))
 
 def _all_pairs(aln):
     pairs = []
@@ -220,7 +253,7 @@ class Codeml:
         Run codeml on the full alignment. This will exclude all gap-containing
         columns, which may lead to a significant loss of data.
         """
-        stripped_aln = _strip_aln(self.aln)
+        stripped_aln = _strip_aln(self.aln, max_gap_portion=0.333)
         if stripped_aln.get_alignment_length() == 0:
             logging.warning("Stripped alignment length == 0 for {}".format(self.prefix))
             return None, _all_pairs(self.aln)
@@ -243,14 +276,20 @@ class Codeml:
         for i in range(len(self.aln)-1):
             for j in range(i+1, len(self.aln)):
                 pair = MultipleSeqAlignment([self.aln[i], self.aln[j]])
-                stripped_pair = _strip_aln(pair, max_gap_portion=0)
+                pair_stat = [_get_pairwise_stat(pair)]
+                pair_stat_df = pd.DataFrame.from_dict(pair_stat).set_index("pair")
+                stripped_pair = _strip_aln(pair)
                 if stripped_pair.get_alignment_length() == 0:   # should be min len 
                     no_results.append([p.id for p in pair])
                 else:
                     self.write_ctrl() 
                     _write_aln_codeml(stripped_pair, self.aln_file)
-                    results.append(_run_codeml(self.exe, self.control_file, 
-                        self.out_file, **kwargs) )
+                    codeml_df = _run_codeml(self.exe, self.control_file, 
+                        self.out_file, **kwargs)
+                    merged_df = pd.merge(pair_stat_df, codeml_df, on="pair")
+                    results.append(merged_df)
+                    #results.append(_run_codeml(self.exe, self.control_file, 
+                    #    self.out_file, **kwargs) )
         if len(no_results) > 0:
             logging.warning("Alignment length of 0 for {} pairs in {}".format(
                 len(no_results), self.prefix))

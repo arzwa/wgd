@@ -58,7 +58,7 @@ def _pal2nal(pro_aln, cds_seqs):
                 cds_aln += cds_seq[k:k+3]
                 k += 3
         aln[s.id] = cds_aln
-    return MultipleSeqAlignment([SeqRecord(v, id=k) for k, v in aln.items()])
+    return MultipleSeqAlignment([SeqRecord(v, id=k, description="", name="") for k, v in aln.items()])
 
 def _log_process(o, program=""):
     logging.debug("{} stderr: {}".format(program.upper(), o.stderr.decode()))
@@ -373,8 +373,10 @@ class GeneFamily:
 
     def get_codon_alignment(self):
         self.cds_aln = _pal2nal(self.pro_aln, self.cds_seqs)
-        if self.strip_gaps:
-            self.cds_aln = _strip_gaps(self.cds_aln)
+        with open(self.cds_alnf, 'w') as f:
+            f.write(self.cds_aln.format('fasta'))
+        #if self.strip_gaps:
+        #    self.cds_aln = _strip_gaps(self.cds_aln)
 
     def run_codeml(self):
         codeml = Codeml(self.cds_aln, exe="codeml", tmp=self.tmp_path, prefix=self.id)
