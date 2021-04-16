@@ -1390,6 +1390,14 @@ def viz_(
         '--n_threads', '-n', default=4, show_default=True,
         help="number of threads to use"
 )
+@click.option(
+        '--feature', '-f', default="mRNA", show_default=True,
+        help="Feature column in GFF file"
+)
+@click.option(
+        '--attribute', '-a', default="Parent", show_default=True,
+        help="Attribute column in GFF file"
+)
 def wf1(sequences, output_dir, gff_file, n_threads):
     """
     Standard workflow whole paranome Ks.
@@ -1419,9 +1427,10 @@ def wf1(sequences, output_dir, gff_file, n_threads):
 
     # wgd syn
     if gff_file:
+        os.chdir("..")
         syn_dir = os.path.join(output_dir, 'wgd_syn')
         syn_(gff_file=gff_file, families=mcl_out, output_dir=syn_dir,
-             ks_distribution=ks_results)
+             ks_distribution=ks_results, feature=feature, gene_attribute=attribute)
 
     return
 
