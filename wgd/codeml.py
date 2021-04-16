@@ -47,13 +47,14 @@ def _get_pairwise_stat(aln):
         identity = 0
     else:
         identity = (saln_len - _hamming_distance(saln[0].seq, saln[1].seq)) / saln_len
-    return {
+    stat = [{
         "pair": pid,
         "AlignmentIdentity": identity,
         "AlignmentLength": aln_len,
         "AlignmentLengthStripped": saln_len,
-        "AlignmentCoverage": saln_len / aln_len
-    }
+        "AlignmentCoverage": saln_len / aln_len}]
+    stat_df = pd.DataFrame.from_dict(stat).set_index("pair")
+    return(stat_df)
 
 def _hamming_distance(s1, s2):
     """
@@ -253,7 +254,7 @@ class Codeml:
         Run codeml on the full alignment. This will exclude all gap-containing
         columns, which may lead to a significant loss of data.
         """
-        stripped_aln = _strip_aln(self.aln, max_gap_portion=0.333)
+        stripped_aln = _strip_aln(self.aln)
         if stripped_aln.get_alignment_length() == 0:
             logging.warning("Stripped alignment length == 0 for {}".format(self.prefix))
             return None, _all_pairs(self.aln)
@@ -261,7 +262,14 @@ class Codeml:
         os.chdir(self.tmp)  # go to tmpdir
         self.write_ctrl() 
         _write_aln_codeml(self.aln, self.aln_file)
-        results = _run_codeml(self.exe, self.control_file, self.out_file, **kwargs) 
+        codeml_df = _run_codeml(self.exe, self.control_file, self.out_file, **kwargs) 
+        each_pair_df = []
+        for i in range(len(self.aln)-1):
+            for j in range(i+1, len(self.aln)):
+                pair = MultipleSeqAlignment([self.aln[i], self.aln[j]])
+                each_pair_df.append(_get_pairwise_stat(pair))
+        pair_stat_df = pd.concat(each_pair_df)
+        results = pd.merge(pair_stat_df, codeml_df, on="pair")
         os.chdir(parentdir)
         return results, []
 
@@ -276,8 +284,7 @@ class Codeml:
         for i in range(len(self.aln)-1):
             for j in range(i+1, len(self.aln)):
                 pair = MultipleSeqAlignment([self.aln[i], self.aln[j]])
-                pair_stat = [_get_pairwise_stat(pair)]
-                pair_stat_df = pd.DataFrame.from_dict(pair_stat).set_index("pair")
+                pair_stat_df = _get_pairwise_stat(pair)
                 stripped_pair = _strip_aln(pair)
                 if stripped_pair.get_alignment_length() == 0:   # should be min len 
                     no_results.append([p.id for p in pair])
