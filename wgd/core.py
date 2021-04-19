@@ -42,6 +42,23 @@ def _strip_gaps(aln):
             new_aln += aln[:,j:j+1]
     return new_aln
 
+def _strip_aln(aln, max_gap_portion=0):
+    """
+    A column is considered as a gap position if more than a fraction `max_gap_portion` (a value
+    between 0 and 1) of the positions in this column are gaps. Default is 0 to remove all gaps.
+    If the alignment is backtranslated into CDS, it does not have to consider reading frame anymore
+    """
+    new_aln = aln[:,0:0]
+    num_seq = len(aln)
+    for j in range(aln.get_alignment_length()):
+        num_gap = aln[:,j].count("-")
+        per_gap = num_gap / num_seq
+        if per_gap > max_gap_portion:
+            continue
+        else:
+            new_aln += aln[:,j:j+1]
+    return new_aln
+
 def _pal2nal(pro_aln, cds_seqs):
     aln = {}
     for i, s in enumerate(pro_aln):
@@ -144,7 +161,7 @@ class SequenceData:
         df = pd.read_csv(tmpfile, sep="\t", header=None)
         # print diamond output in original names
         outdf = df.copy()
-        outdf[0] = list(map(lambda x: self.cds_seqs[x].id, outdf[0]))
+        outdf[0] = list(map(lambda x: seqs.cds_seqs[x].id, outdf[0]))
         outdf[1] = list(map(lambda x: self.cds_seqs[x].id, outdf[1]))
         outfile = os.path.join(self.out_path, run)
         outdf.to_csv(outfile, sep="\t", header=False, index=False)
@@ -375,8 +392,8 @@ class GeneFamily:
         self.cds_aln = _pal2nal(self.pro_aln, self.cds_seqs)
         with open(self.cds_alnf, 'w') as f:
             f.write(self.cds_aln.format('fasta'))
-        #if self.strip_gaps:
-        #    self.cds_aln = _strip_gaps(self.cds_aln)
+        if self.strip_gaps:
+            self.cds_aln = _strip_aln(self.cds_aln)
 
     def run_codeml(self):
         codeml = Codeml(self.cds_aln, exe="codeml", tmp=self.tmp_path, prefix=self.id)
