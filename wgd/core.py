@@ -42,6 +42,23 @@ def _strip_gaps(aln):
             new_aln += aln[:,j:j+1]
     return new_aln
 
+def _strip_aln(aln, max_gap_portion=0):
+    """
+    A column is considered as a gap position if more than a fraction `max_gap_portion` (a value
+    between 0 and 1) of the positions in this column are gaps. Default is 0 to remove all gaps.
+    If the alignment is backtranslated into CDS, it does not have to consider reading frame anymore
+    """
+    new_aln = aln[:,0:0]
+    num_seq = len(aln)
+    for j in range(aln.get_alignment_length()):
+        num_gap = aln[:,j].count("-")
+        per_gap = num_gap / num_seq
+        if per_gap > max_gap_portion:
+            continue
+        else:
+            new_aln += aln[:,j:j+1]
+    return new_aln
+
 def _pal2nal(pro_aln, cds_seqs):
     aln = {}
     for i, s in enumerate(pro_aln):
@@ -58,7 +75,7 @@ def _pal2nal(pro_aln, cds_seqs):
                 cds_aln += cds_seq[k:k+3]
                 k += 3
         aln[s.id] = cds_aln
-    return MultipleSeqAlignment([SeqRecord(v, id=k) for k, v in aln.items()])
+    return MultipleSeqAlignment([SeqRecord(v, id=k, description="", name="") for k, v in aln.items()])
 
 def _log_process(o, program=""):
     logging.debug("{} stderr: {}".format(program.upper(), o.stderr.decode()))
@@ -135,13 +152,19 @@ class SequenceData:
 
     def run_diamond(self, seqs, eval=1e-10):
         self.make_diamond_db()
-        run = "_".join([self.prefix, seqs.prefix + ".tsv"])
-        outfile = os.path.join(self.tmp_path, run)
+        run = "_".join([self.prefix, seqs.prefix + ".diamond.tsv"])
+        tmpfile = os.path.join(self.tmp_path, run)
         cmd = ["diamond", "blastp", "-d", self.pro_db, "-q",
-            seqs.pro_fasta, "-o", outfile]
+            seqs.pro_fasta, "-o", tmpfile]
         out = sp.run(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
         logging.debug(out.stderr.decode())
-        df = pd.read_csv(outfile, sep="\t", header=None)
+        df = pd.read_csv(tmpfile, sep="\t", header=None)
+        # print diamond output in original names
+        outdf = df.copy()
+        outdf[0] = list(map(lambda x: seqs.cds_seqs[x].id, outdf[0]))
+        outdf[1] = list(map(lambda x: self.cds_seqs[x].id, outdf[1]))
+        outfile = os.path.join(self.out_path, run)
+        outdf.to_csv(outfile, sep="\t", header=False, index=False)
         df = df.loc[df[0] != df[1]]
         self.dmd_hits[seqs.prefix] = df = df.loc[df[10] <= eval]
         return df
@@ -173,12 +196,11 @@ class SequenceData:
 
     def write_paranome(self, fname=None):
         if not fname:
-            fname = os.path.join(self.out_path, "{}.tsv".format(self.prefix))
+            fname = os.path.join(self.out_path, "{}.mcl.tsv".format(self.prefix))
         with open(fname, "w") as f:
-            f.write("\t" + self.prefix + "\n")
             for i, (k, v) in enumerate(sorted(self.mcl.items())):
                 # We report original gene IDs
-                f.write("GF{:0>5}\t".format(i+1))
+                f.write("GF{:0>5}: ".format(i+1))
                 f.write(", ".join([self.cds_seqs[x].id for x in v]))
                 f.write("\n")
         return fname
@@ -233,7 +255,7 @@ def _rename(family, ids):
     return [ids[x] for x in family]
 
 def read_gene_families(fname):
-    return pd.read_csv(fname, sep="\t", index_col=0).apply(
+    return pd.read_csv(fname, sep=": ", index_col=0, engine='python', header=None).apply(
             lambda y: [x.split(", ") for x in y if x != ""])
 
 def merge_seqs(seqs):
@@ -298,6 +320,7 @@ class GeneFamily:
         self.no_codeml_results = None
         self.tree = None
         self.out = os.path.join(self.tmp_path, "{}.csv".format(gfid))
+        self.nan_out = os.path.join(self.tmp_path, "{}.nan.csv".format(gfid))
 
         # config
         self.aligner = aligner  # mafft | prank | muscle
@@ -320,12 +343,12 @@ class GeneFamily:
         if self.codeml_results is not None:
             self.get_tree()
             self.compile_dataframe()
-        self.combine_results()
+        #self.combine_results()
 
-    def combine_results(self):
-        if self.no_codeml_results is None:
-            return
-        self.codeml_results = pd.concat([self.codeml_results, self.no_codeml_results])
+    #def combine_results(self):
+    #    if self.no_codeml_results is None:
+    #        return
+    #    self.codeml_results = pd.concat([self.codeml_results, self.no_codeml_results])
     
     def nan_result(self, pairs):
         """
@@ -368,8 +391,10 @@ class GeneFamily:
 
     def get_codon_alignment(self):
         self.cds_aln = _pal2nal(self.pro_aln, self.cds_seqs)
+        with open(self.cds_alnf, 'w') as f:
+            f.write(self.cds_aln.format('fasta'))
         if self.strip_gaps:
-            self.cds_aln = _strip_gaps(self.cds_aln)
+            self.cds_aln = _strip_aln(self.cds_aln)
 
     def run_codeml(self):
         codeml = Codeml(self.cds_aln, exe="codeml", tmp=self.tmp_path, prefix=self.id)
@@ -415,25 +440,54 @@ class GeneFamily:
             for j in range(i+1, len(l)):
                 gj = l[j].name
                 pair = "__".join(sorted([gi, gj]))
+                if pair not in self.codeml_results.index:
+                    continue
                 node = self.tree.common_ancestor(l[i], l[j])
-                length = self.cds_aln.get_alignment_length()
-                d[pair] = {"node": node.name, "family": self.id, "alnlen": length}
+                dist = self.tree.distance(l[i], l[j])
+                outlier = 1 if self.codeml_results.loc[pair]['dS'] > 5 else 0
+                d[pair] = {"Node": node.name, "Family": self.id, "Outlier": outlier, "Distance": dist}
         df = pd.DataFrame.from_dict(d, orient="index")
         self.codeml_results = self.codeml_results.join(df)
+        self.node_weights()
+
+    def node_weights(self):
+    # note that this returns a df with the same number of rows
+        df = self.codeml_results.copy()
+        sw = 1 / df.groupby(["Family", "Node"])["dS"].transform('count')
+        self.codeml_results["WeightOutliersIncluded"] = sw
+        df = df[df["Outlier"] == 0]
+        sw = 1 / df.groupby(["Family", "Node"])["dS"].transform('count')
+        self.codeml_results["WeightsOutliersExcluded"] = sw
+        self.codeml_results["WeightsOutliersExcluded"] = self.codeml_results["WeightsOutliersExcluded"].fillna(0) 
 
 def _get_ks(family):
     family.get_ks()
-    family.codeml_results.to_csv(family.out)
+    outflag = False
+    if family.codeml_results is not None: 
+        family.codeml_results.to_csv(family.out)
+        outflag = True
+    if family.no_codeml_results is not None:
+        family.no_codeml_results.to_csv(family.nan_out)
+        outflag = True
+    if not outflag:
+        raise Exception("{} has empty results".format(family.id))
 
 
 class KsDistributionBuilder:
     def __init__(self, gene_families, n_threads=4):
         self.families = gene_families
         self.df = None
+        self.nan_df = None
         self.n_threads = n_threads
 
     def get_distribution(self):
         Parallel(n_jobs=self.n_threads)(
             delayed(_get_ks)(family) for family in self.families)
         self.df = pd.concat([pd.read_csv(x.out, index_col=0) 
-            for x in self.families], sort=True)
+            for x in self.families if os.path.exists(x.out)])
+        self.df.index.name = None
+        nan = [pd.read_csv(x.nan_out, index_col=0) for x in self.families 
+                if os.path.exists(x.nan_out)]
+        if nan:
+            self.nan_df = pd.concat(nan)
+            self.nan_df.index.name = None
