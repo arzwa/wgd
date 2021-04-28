@@ -320,6 +320,7 @@ class GeneFamily:
         self.no_codeml_results = None
         self.tree = None
         self.out = os.path.join(self.tmp_path, "{}.csv".format(gfid))
+        self.nan_out = os.path.join(self.tmp_path, "{}.nan.csv".format(gfid))
 
         # config
         self.aligner = aligner  # mafft | prank | muscle
@@ -342,12 +343,12 @@ class GeneFamily:
         if self.codeml_results is not None:
             self.get_tree()
             self.compile_dataframe()
-        self.combine_results()
+        #self.combine_results()
 
-    def combine_results(self):
-        if self.no_codeml_results is None:
-            return
-        self.codeml_results = pd.concat([self.codeml_results, self.no_codeml_results])
+    #def combine_results(self):
+    #    if self.no_codeml_results is None:
+    #        return
+    #    self.codeml_results = pd.concat([self.codeml_results, self.no_codeml_results])
     
     def nan_result(self, pairs):
         """
@@ -439,25 +440,54 @@ class GeneFamily:
             for j in range(i+1, len(l)):
                 gj = l[j].name
                 pair = "__".join(sorted([gi, gj]))
+                if pair not in self.codeml_results.index:
+                    continue
                 node = self.tree.common_ancestor(l[i], l[j])
-                length = self.cds_aln.get_alignment_length()
-                d[pair] = {"node": node.name, "family": self.id, "alnlen": length}
+                dist = self.tree.distance(l[i], l[j])
+                outlier = 1 if self.codeml_results.loc[pair]['dS'] > 5 else 0
+                d[pair] = {"Node": node.name, "Family": self.id, "Outlier": outlier, "Distance": dist}
         df = pd.DataFrame.from_dict(d, orient="index")
         self.codeml_results = self.codeml_results.join(df)
+        self.node_weights()
+
+    def node_weights(self):
+    # note that this returns a df with the same number of rows
+        df = self.codeml_results.copy()
+        sw = 1 / df.groupby(["Family", "Node"])["dS"].transform('count')
+        self.codeml_results["WeightOutliersIncluded"] = sw
+        df = df[df["Outlier"] == 0]
+        sw = 1 / df.groupby(["Family", "Node"])["dS"].transform('count')
+        self.codeml_results["WeightsOutliersExcluded"] = sw
+        self.codeml_results["WeightsOutliersExcluded"] = self.codeml_results["WeightsOutliersExcluded"].fillna(0) 
 
 def _get_ks(family):
     family.get_ks()
-    family.codeml_results.to_csv(family.out)
+    outflag = False
+    if family.codeml_results is not None: 
+        family.codeml_results.to_csv(family.out)
+        outflag = True
+    if family.no_codeml_results is not None:
+        family.no_codeml_results.to_csv(family.nan_out)
+        outflag = True
+    if not outflag:
+        raise Exception("{} has empty results".format(family.id))
 
 
 class KsDistributionBuilder:
     def __init__(self, gene_families, n_threads=4):
         self.families = gene_families
         self.df = None
+        self.nan_df = None
         self.n_threads = n_threads
 
     def get_distribution(self):
         Parallel(n_jobs=self.n_threads)(
             delayed(_get_ks)(family) for family in self.families)
         self.df = pd.concat([pd.read_csv(x.out, index_col=0) 
-            for x in self.families], sort=True)
+            for x in self.families if os.path.exists(x.out)])
+        self.df.index.name = None
+        nan = [pd.read_csv(x.nan_out, index_col=0) for x in self.families 
+                if os.path.exists(x.nan_out)]
+        if nan:
+            self.nan_df = pd.concat(nan)
+            self.nan_df.index.name = None
