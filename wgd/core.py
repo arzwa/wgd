@@ -18,6 +18,7 @@ from joblib import Parallel, delayed
 from wgd.codeml import Codeml
 from wgd.cluster import cluster_ks
 
+# Reconsider the renaming, more a pain than helpful?
 
 # helper functions
 def _write_fasta(fname, seq_dict):
@@ -234,7 +235,7 @@ def _rename(family, ids):
 
 def read_gene_families(fname):
     return pd.read_csv(fname, sep="\t", index_col=0).apply(
-            lambda y: [x.split(", ") for x in y if x != ""])
+            lambda y: [x.split(", ") for x in y if x != "" and type(x) == str])
 
 def merge_seqs(seqs):
     if type(seqs) == list:
@@ -256,7 +257,6 @@ def get_gene_families(seqs, families, rename=True, **kwargs):
     and one-to-one orthologs), but it should easily generalize to arbitrary
     gene families.
     """
-    seqs = merge_seqs(seqs)
     gene_families = []
     for fid in families.index:
         family = []
@@ -390,6 +390,8 @@ class GeneFamily:
             tree = self.cluster()
         elif self.tree_method == "iqtree":
             tree = self.run_iqtree(options=self.tree_options)
+        elif self.tree_method == "fasttree":
+            tree = self.run_fasttree()
         self.tree = tree
 
     def run_iqtree(self, options="-m LG"):
@@ -401,7 +403,13 @@ class GeneFamily:
         return tree
 
     def run_fasttree(self):
-        pass
+        tree_pth = self.pro_alnf + ".nw"
+        cmd = ["fasttree", '-out', tree_pth, self.pro_alnf]
+        out = sp.run(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
+        _log_process(out, program="fasttree")
+        tree = Phylo.read(self.pro_alnf + ".nw", format="newick")
+        _label_internals(tree)
+        return tree 
 
     def cluster(self):
         return cluster_ks(self.codeml_results)
@@ -427,13 +435,28 @@ def _get_ks(family):
 
 
 class KsDistributionBuilder:
-    def __init__(self, gene_families, n_threads=4):
+    def __init__(self, gene_families, seqs, n_threads=4):
         self.families = gene_families
         self.df = None
+        self.seqs = seqs
         self.n_threads = n_threads
 
     def get_distribution(self):
         Parallel(n_jobs=self.n_threads)(
             delayed(_get_ks)(family) for family in self.families)
-        self.df = pd.concat([pd.read_csv(x.out, index_col=0) 
+        df = pd.concat([pd.read_csv(x.out, index_col=0) 
             for x in self.families], sort=True)
+        self.df = add_original_ids(df, self.seqs)
+
+def reverse_map(seqs):
+    return {v: k for k, v in seqs.items()}
+
+def add_original_ids(df, seqs):
+    df.index.name = "p"
+    df = df.rename({"gene1": "g1", "gene2": "g2"}, axis=1)
+    revmap = reverse_map(seqs.idmap)
+    df["gene1"] = _rename(df["g1"], revmap)
+    df["gene2"] = _rename(df["g2"], revmap)
+    df["pair"] = df[["gene1","gene2"]].apply(lambda x: "__".join(sorted([x[0], x[1]])), axis=1) 
+    return df.set_index("pair")
+
