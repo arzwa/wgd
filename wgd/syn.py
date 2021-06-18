@@ -155,33 +155,4 @@ def get_anchors(out_path):
 def get_anchor_ksd(ks_distribution, anchors):
     return ks_distribution.join(anchors).dropna()
 
-#
-#def get_anchor_pairs(anchors, ks_distribution=None,
-#                     out_file='anchors_ks.csv'):
-#    """
-#    Get anchor pairs and their corresponding Ks values (if provided)
-#
-#    :param anchors: anchorpoints.txt output from I-ADHoRe 3.0
-#    :param ks_distribution: Ks distribution dataf rame
-#    :param out_file: output file name
-#    :return: pandas dataframe(s): anchors and data frame
-#    """
-#    anchors = anchors[['gene_x', 'gene_y']]
-#    ids = anchors.apply(lambda x: '__'.join(sorted(x)), axis=1)
-#    
-#    if type(ks_distribution) == pd.DataFrame:
-#        ks_anchors = ks_distribution.loc[
-#            ks_distribution.index.intersection(ids)]
-#
-#        if out_file:
-#            ks_anchors.to_csv(out_file, sep='\t')
-#
-#        return ks_distribution, ks_anchors
-#
-#    else:
-#        if out_file:
-#            anchors.to_csv(out_file, sep='\t')
-#
-#        return anchors
-#
-#
+
