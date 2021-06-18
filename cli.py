@@ -111,8 +111,8 @@ def _dmd(sequences, outdir, tmpdir, inflation, eval, to_stop, cds):
 @click.option('--strip_gaps', is_flag=True,
     help="remove all gap-containing columns in the alignment")
 @click.option('--tree_method', '-tree', 
-    type=click.Choice(['alc', 'fasttree', 'iqtree']), 
-    default='alc', show_default=True,
+    type=click.Choice(['cluster', 'fasttree', 'iqtree']), 
+    default='cluster', show_default=True,
     help="Tree inference method for node weighting")
 def ksd(**kwargs):
     """
@@ -131,17 +131,19 @@ def ksd(**kwargs):
 def _ksd(families, sequences, outdir, tmpdir, nthreads, to_stop, cds, pairwise,
         strip_gaps, tree_method):
     from wgd.core import get_gene_families, SequenceData, KsDistributionBuilder
-    from wgd.core import read_gene_families
+    from wgd.core import read_gene_families, merge_seqs
     from wgd.viz import default_plot, apply_filters
-    s = [SequenceData(s, tmp_path=tmpdir, out_path=outdir, to_stop=to_stop, cds=cds)
-         for s in sequences]
-    logging.info("tmpdir = {}".format(s[0].tmp_path))
+    if len(sequences) == 2:
+        tree_method = "cluster"  # for RBH others don't make sense (and crash)
+    s = merge_seqs([SequenceData(s, tmp_path=tmpdir, out_path=outdir,
+            to_stop=to_stop, cds=cds) for s in sequences])
+    logging.info("tmpdir = {}".format(s.tmp_path))
     fams = read_gene_families(families)
     fams = get_gene_families(s, fams, 
             pairwise=pairwise, 
             strip_gaps=strip_gaps,
             tree_method=tree_method)
-    ksdb = KsDistributionBuilder(fams, n_threads=nthreads)
+    ksdb = KsDistributionBuilder(fams, s, n_threads=nthreads)
     ksdb.get_distribution()
     prefix = os.path.basename(families)
     outfile = os.path.join(outdir, "{}.ks.tsv".format(prefix))
@@ -149,9 +151,71 @@ def _ksd(families, sequences, outdir, tmpdir, nthreads, to_stop, cds, pairwise,
     ksdb.df.to_csv(outfile)
     logging.info("Making plots")
     df = apply_filters(ksdb.df, [("dS", 1e-4, 5.), ("S", 10, 1e6)])
-    fig = default_plot(df, title=prefix, rwidth=0.8, bins=50)
+    ylabel = "Duplications"
+    if len(sequences) == 2:
+        ylabel = "RBH orthologs"
+    fig = default_plot(df, title=prefix, rwidth=0.8, bins=50, ylabel=ylabel)
     fig.savefig(os.path.join(outdir, "{}.ksd.svg".format(prefix)))
     fig.savefig(os.path.join(outdir, "{}.ksd.pdf".format(prefix)))
+    
+
+@cli.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.argument('gff_files', nargs=-1, type=click.Path(exists=True))
+@click.argument('families', type=click.Path(exists=True))
+@click.option('--ks_distribution', '-ks', default=None,
+    help="ks distribution tsv file (optional, see `wgd ksd`)")
+@click.option('--outdir', '-o', default='./wgd_syn', show_default=True, 
+    help='output directory')
+@click.option('--feature', '-f', default='gene', show_default=True,
+    help="keyword for parsing the genes from the GFF file (column 3)")
+@click.option('--attribute', '-a', default='ID', show_default=True,
+    help="keyword for parsing the gene IDs from the GFF file (column 9)")
+@click.option('--min_length', '-l', default=250, show_default=True,
+    help="minimum length of a genomic element to be included in dotplot.")
+@click.option('--ks_range', '-r', nargs=2, default=(0.05, 5), show_default=True,
+    type=float, help='Ks range to use for colored dotplot')
+@click.option('--iadhore_options', default="",
+    help="other options for I-ADHoRe, as a comma separated string, "
+         "e.g. gap_size=30,q_value=0.75,prob_cutoff=0.05")
+def syn(**kwargs):
+    _syn(**kwargs)
+
+def _syn(gff_files, families, ks_distribution, outdir, feature, attribute,
+        min_length, ks_range, iadhore_options):
+    """
+    Co-linearity and anchor inference using I-ADHoRe.
+    """
+    from wgd.syn import make_gene_table, configure_adhore, run_adhore
+    from wgd.syn import get_anchors, get_anchor_ksd
+    from wgd.viz import default_plot, apply_filters
+    # non-default options for I-ADHoRe
+    iadhore_opts = {x.split("=")[0].strip(): x.split("=")[1].strip()
+               for x in iadhore_options.split(",") if x != ""}
+    if len(iadhore_opts) > 0:
+        logging.info("I-ADHoRe 3.0 options: {}".format(iadhore_opts))
+    # read families and make table
+    prefix = os.path.basename(families)
+    families = pd.read_csv(families, index_col=0, sep="\t")
+    table = make_gene_table(gff_files, families, feature, attribute)
+    logging.info("Configuring I-ADHoRe co-linearity search")
+    conf, out_path = configure_adhore(table, outdir, **iadhore_opts)
+    logging.info("Running I-ADHoRe")
+    run_adhore(conf)
+    logging.info("Processing I-ADHoRe output")
+    anchors = get_anchors(out_path)
+    anchors.to_csv(os.path.join(outdir, "anchors.csv"))
+    if ks_distribution:
+        ylabel = "Duplications"
+        if len(gff_files) == 2:
+            ylabel = "RBH orthologs"
+        ksd = pd.read_csv(ks_distribution, index_col=0)
+        anchor_ks = get_anchor_ksd(ksd, anchors)
+        anchor_ks.to_csv(os.path.join(outdir, "{}.anchors.ks.csv".format(prefix)))
+        a = apply_filters(ksd,       [("dS", 1e-4, 5.), ("S", 10, 1e6)])
+        b = apply_filters(anchor_ks, [("dS", 1e-4, 5.), ("S", 10, 1e6)])
+        fig = default_plot(a, b, title=prefix, rwidth=0.8, bins=50, ylabel=ylabel)
+        fig.savefig(os.path.join(outdir, "{}.ksd.svg".format(prefix)))
+        fig.savefig(os.path.join(outdir, "{}.ksd.pdf".format(prefix)))
 
 
 if __name__ == '__main__':
