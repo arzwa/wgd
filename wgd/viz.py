@@ -84,3 +84,44 @@ def default_plot(
     plt.subplots_adjust(top=0.85)  # prevent suptitle from overlapping
     return fig
 
+
+def syntenic_depth_plot(segprofile):
+    cols = segprofile.columns
+    n = len(cols)
+    fig, axs = plt.subplots(1, int(n + n*(n-1)/2))
+    if n == 1:
+        axs = [axs]  # HACK
+    k = 0
+    for i in range(n):
+        for j in range(i, n):
+            pairs, counts = dupratios(segprofile[cols[i]], segprofile[cols[j]])
+            ax = axs[k]
+            ax.barh(np.arange(len(pairs)), counts, color="k", alpha=0.2)
+            ax.set_yticks(np.arange(len(pairs)))
+            ax.set_yticklabels(["{}:{}".format(int(x[0]), int(x[1])) for x in pairs])
+            ax.set_title("{}:{}".format(cols[i], cols[j]), fontsize=9)
+            k += 1
+    for ax in axs:
+        ymn, ymx = ax.get_ylim()
+        ax.set_ylim(-0.5, ymx)
+        ax.set_xlabel("# segments")
+    axs[0].set_ylabel("A:B ratio")
+    sns.despine(trim=False, offset=3)
+    fig.tight_layout()
+    return fig
+
+
+def dupratios(col1, col2, by="first"):
+    d = {}
+    for pair in zip(col1,col2):
+        if pair not in d:
+            d[pair] = 0
+        d[pair] += 1
+    if by == "first":
+        keyfun = lambda x: x
+    elif by == "ratio":
+        lambda x: x[0]/(1+x[1])
+    elif by == "second":
+        keyfun = lambda x: x[1]
+    kys = sorted(d, key=keyfun)
+    return kys, [d[k] for k in kys]

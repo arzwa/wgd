@@ -155,4 +155,14 @@ def get_anchors(out_path):
 def get_anchor_ksd(ks_distribution, anchors):
     return ks_distribution.join(anchors).dropna()
 
+def get_segments_profile(out_path):
+    segs = pd.read_csv(os.path.join(out_path, "segments.txt"), sep="\t", index_col=0)
+    le = pd.read_csv(os.path.join(out_path, "list_elements.txt"), sep="\t", index_col=0)
+    segs = segs.join(le.set_index("segment"), how="inner")
+    segs["segment"] = segs.index
+    counted = segs.groupby(["multiplicon", "genome"])["segment"].aggregate(lambda x: len(set(x)))
+    profile = counted.unstack(level=-1).fillna(0)
+    return profile
+
+
 

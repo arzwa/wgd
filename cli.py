@@ -186,8 +186,8 @@ def _syn(gff_files, families, ks_distribution, outdir, feature, attribute,
     Co-linearity and anchor inference using I-ADHoRe.
     """
     from wgd.syn import make_gene_table, configure_adhore, run_adhore
-    from wgd.syn import get_anchors, get_anchor_ksd
-    from wgd.viz import default_plot, apply_filters
+    from wgd.syn import get_anchors, get_anchor_ksd, get_segments_profile
+    from wgd.viz import default_plot, apply_filters, syntenic_depth_plot
     # non-default options for I-ADHoRe
     iadhore_opts = {x.split("=")[0].strip(): x.split("=")[1].strip()
                for x in iadhore_options.split(",") if x != ""}
@@ -202,9 +202,18 @@ def _syn(gff_files, families, ks_distribution, outdir, feature, attribute,
     conf, out_path = configure_adhore(table, outdir, **iadhore_opts)
     logging.info("Running I-ADHoRe")
     run_adhore(conf)
+
+    # general post-processing
     logging.info("Processing I-ADHoRe output")
     anchors = get_anchors(out_path)
     anchors.to_csv(os.path.join(outdir, "anchors.csv"))
+    segprofile = get_segments_profile(out_path)
+    segprofile.to_csv(os.path.join(outdir, "segprofile.csv"))
+    fig = syntenic_depth_plot(segprofile)
+    fig.savefig(os.path.join(outdir, "{}.syndepth.svg".format(prefix)))
+    fig.savefig(os.path.join(outdir, "{}.syndepth.pdf".format(prefix)))
+
+    # anchor Ks distributions
     if ks_distribution:
         ylabel = "Duplications"
         if len(gff_files) == 2:
