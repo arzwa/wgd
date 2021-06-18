@@ -24,6 +24,20 @@ To run `wgd`, you first need to activate the virtual environment
 source /path/to/ENV/bin/activate
 ```
 
+##Addition Notes
+
+When met with permission problem in installation, please try
+
+```
+pip install -e .
+```
+
+If multiply versions of `wgd` are installed in the system, please add the right path of interested version into the environment variables, for example
+
+```
+export PATH="$PATH:~/.local/bin/wgd"
+```
+
 ## Citation
  
 Please cite us at https://doi.org/10.1093/bioinformatics/bty915
