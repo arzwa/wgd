@@ -110,6 +110,10 @@ def _dmd(sequences, outdir, tmpdir, inflation, eval, to_stop, cds):
     help="run codeml on all gene pairs separately")
 @click.option('--strip_gaps', is_flag=True,
     help="remove all gap-containing columns in the alignment")
+@click.option('--tree_method', '-tree', 
+    type=click.Choice(['alc', 'fasttree', 'iqtree']), 
+    default='alc', show_default=True,
+    help="Tree inference method for node weighting")
 def ksd(**kwargs):
     """
     Paranome and one-to-one ortholog Ks distribution inference pipeline.
@@ -124,7 +128,8 @@ def ksd(**kwargs):
     """
     _ksd(**kwargs)
 
-def _ksd(families, sequences, outdir, tmpdir, nthreads, to_stop, cds, pairwise, strip_gaps):
+def _ksd(families, sequences, outdir, tmpdir, nthreads, to_stop, cds, pairwise,
+        strip_gaps, tree_method):
     from wgd.core import get_gene_families, SequenceData, KsDistributionBuilder
     from wgd.core import read_gene_families
     from wgd.viz import default_plot, apply_filters
@@ -134,7 +139,8 @@ def _ksd(families, sequences, outdir, tmpdir, nthreads, to_stop, cds, pairwise, 
     fams = read_gene_families(families)
     fams = get_gene_families(s, fams, 
             pairwise=pairwise, 
-            strip_gaps=strip_gaps)
+            strip_gaps=strip_gaps,
+            tree_method=tree_method)
     ksdb = KsDistributionBuilder(fams, n_threads=nthreads)
     ksdb.get_distribution()
     prefix = os.path.basename(families)

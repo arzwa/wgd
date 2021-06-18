@@ -390,6 +390,8 @@ class GeneFamily:
             tree = self.cluster()
         elif self.tree_method == "iqtree":
             tree = self.run_iqtree(options=self.tree_options)
+        elif self.tree_method == "fasttree":
+            tree = self.run_fasttree()
         self.tree = tree
 
     def run_iqtree(self, options="-m LG"):
@@ -401,7 +403,13 @@ class GeneFamily:
         return tree
 
     def run_fasttree(self):
-        pass
+        tree_pth = self.pro_alnf + ".nw"
+        cmd = ["fasttree", '-out', tree_pth, self.pro_alnf]
+        out = sp.run(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
+        _log_process(out, program="fasttree")
+        tree = Phylo.read(self.pro_alnf + ".nw", format="newick")
+        _label_internals(tree)
+        return tree 
 
     def cluster(self):
         return cluster_ks(self.codeml_results)

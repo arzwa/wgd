@@ -13,7 +13,7 @@ from operator import itemgetter
 
 # run i-adhore
 
-# combine acnhor pairs with ks distribution
+# combine anchor pairs with ks distribution
 
 def gffs_to_genelists(fnames, features, attributes, genes, outdir):
     confs = []
