@@ -24,7 +24,7 @@ To run `wgd`, you first need to activate the virtual environment
 source /path/to/ENV/bin/activate
 ```
 
-##Addition Notes
+###Additional Notes###
 
 When met with permission problem in installation, please try
 
