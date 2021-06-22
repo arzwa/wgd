@@ -197,9 +197,9 @@ def _syn(gff_files, families, ks_distribution, outdir, feature, attribute,
     prefix = os.path.basename(families)
     families = pd.read_csv(families, index_col=0, sep="\t")
     table = make_gene_table(gff_files, families, feature, attribute)
-    table.to_csv(os.path.join(outdir, "gene-table.csv"))
     logging.info("Configuring I-ADHoRe co-linearity search")
     conf, out_path = configure_adhore(table, outdir, **iadhore_opts)
+    table.to_csv(os.path.join(outdir, "gene-table.csv"))
     logging.info("Running I-ADHoRe")
     run_adhore(conf)
 
