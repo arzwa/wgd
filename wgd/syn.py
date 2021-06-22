@@ -50,7 +50,7 @@ def gff2table(gff, feature, attribute):
             x = l.split("\t")
             if x[2] == feature:
                 a = getattr(x[-1], attribute)
-                rows.append({"gene": a, "scaffold": x[0], "start": x[3], "or": x[6]})
+                rows.append({"gene": a, "scaffold": x[0], "start": int(x[3]), "or": x[6]})
     df = pd.DataFrame.from_dict(rows).set_index("gene")
     return df
 

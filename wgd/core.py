@@ -72,6 +72,11 @@ def _label_internals(tree):
 def _label_families(df):
     df.index = ["GF{:0>5}".format(i+1) for i in range(len(df.index))]
 
+def _process_unrooted_tree(treefile, fformat="newick"):
+    tree = Phylo.read(treefile, fformat).root_at_midpoint()
+    _label_internals(tree)
+    return tree
+
 
 class SequenceData:
     """
@@ -429,18 +434,14 @@ class GeneFamily:
         cmd = ["iqtree", "-s", self.pro_alnf] + options.split()
         out = sp.run(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
         _log_process(out, program="iqtree")
-        tree = Phylo.read(self.pro_alnf + ".treefile", format="newick")
-        _label_internals(tree)
-        return tree
+        return _process_unrooted_tree(self.pro_alnf + ".treefile")
 
     def run_fasttree(self):
         tree_pth = self.pro_alnf + ".nw"
         cmd = ["fasttree", '-out', tree_pth, self.pro_alnf]
         out = sp.run(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
         _log_process(out, program="fasttree")
-        tree = Phylo.read(self.pro_alnf + ".nw", format="newick")
-        _label_internals(tree)
-        return tree 
+        return _process_unrooted_tree(self.pro_alnf + ".nw")
 
     def cluster(self):
         return cluster_ks(self.codeml_results)

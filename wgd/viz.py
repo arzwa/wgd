@@ -1,11 +1,9 @@
-# TODO: still needs to be updated
 import plumbum as pb
 import matplotlib
-
+import itertools
 if not 'DISPLAY' in pb.local.env:
     matplotlib.use('Agg')  # use this backend when no X server
 import matplotlib.pyplot as plt
-import matplotlib
 import logging
 import numpy as np
 import seaborn as sns
@@ -125,3 +123,80 @@ def dupratios(col1, col2, by="first"):
         keyfun = lambda x: x[1]
     kys = sorted(d, key=keyfun)
     return kys, [d[k] for k in kys]
+
+
+# dot plot stuff
+def all_dotplots(df, anchors=None, **kwargs):
+    """
+    Generate dot plots for all pairs of species in `df`, coloring anchor pairs.
+    """
+    gdf = list(df.groupby("species"))
+    n = len(gdf)
+    figs = {}
+    for i in range(n):
+        for j in range(i, n):
+            fig, ax = plt.subplots(1, 1, figsize=(12,12))
+            spx, dfx = gdf[i]
+            spy, dfy = gdf[j]
+            logging.info("{} vs. {}".format(spx, spy))
+            df, xs, ys = get_dots(dfx, dfy, **kwargs)
+            if df is None:  # HACK, in case we're dealing with RBH orthologs...
+                continue
+            ax.scatter(df.x, df.y, s=0.1, color="k", alpha=0.5)
+            if not (anchors is None):
+                andf = df.join(anchors, how="inner")
+                ax.scatter(andf.x, andf.y, s=0.1, color="red", alpha=0.9)
+            ax.vlines(xs, ymin=0, ymax=ys[-1], alpha=0.1, color="k")
+            ax.hlines(ys, xmin=0, xmax=xs[-1], alpha=0.1, color="k")
+            ax.set_xlim(0, xs[-1])
+            ax.set_ylim(0, ys[-1])
+            ax.set_xlabel(spx)
+            ax.set_ylabel(spy)
+            figs[spx + "-vs-" + spy] = fig
+    return figs
+
+
+def get_dots(dfx, dfy, minlen=-1, maxsize=50):
+    dfx = filter_data_dotplot(dfx, minlen)
+    dfy = filter_data_dotplot(dfy, minlen)
+    dx = {k: list(v.index) for k, v in dfx.groupby("family")}
+    dy = {k: list(v.index) for k, v in dfy.groupby("family")}
+    xs = []
+    for family in dx.keys():
+        if not family in dy:
+            continue
+        if len(dx[family]) > maxsize or len(dy[family]) > maxsize:  
+            # large TE families for instance...
+            continue
+        for (x, y) in itertools.product(dx[family], dy[family]):
+            if x == y:
+                continue
+            pair = "__".join(sorted([x,y]))
+            xs.append({"pair":pair, "x": dfx.loc[x]["x"], "y": dfy.loc[y]["x"]})
+    #ax.scatter(xs, ys)
+    if len(xs) == 0:  # HACK
+        return None, None, None
+    df = pd.DataFrame.from_dict(xs).set_index("pair")
+    xl = list(np.unique(dfx["scaffstart"])) + [max(df.x)]
+    yl = list(np.unique(dfy["scaffstart"])) + [max(df.y)]
+    return df, xl, yl
+    
+
+def filter_data_dotplot(df, minlen):
+    lens = df.groupby("scaffold")["start"].agg(max)
+    lens.name = "len"
+    lens = pd.DataFrame(lens).sort_values("len", ascending=False)
+    scaffstart = [0] + list(np.cumsum(lens.len))[0:-1]
+    lens["scaffstart"] = scaffstart
+    df = df.join(lens, on="scaffold").sort_values("len", ascending=False)
+    # df now contains scaffold lengths
+    if minlen < 0:  # find a reasonable threshold, 5% of longest scaffold?
+        minlen = df.len.max() * 0.1
+        logging.info("`minlen` not set, taking 10% of longest scaffold ({})".format(minlen))
+    noriginal = len(df.index)
+    df = df.loc[df.len > minlen]
+    logging.info("Dropped {} genes because they are on scaffolds shorter "
+            "then {}".format(noriginal - len(df.index), minlen))
+    df["x"] = df["scaffstart"] + df["start"]
+    return df
+    
