@@ -5,7 +5,7 @@ import logging
 import numpy as np
 import pandas as pd
 import subprocess as sp
-import fastcluster
+import itertools
 from Bio import SeqIO
 from Bio import AlignIO
 from Bio.Seq import Seq
@@ -72,6 +72,11 @@ def _label_internals(tree):
 def _label_families(df):
     df.index = ["GF{:0>5}".format(i+1) for i in range(len(df.index))]
 
+def _process_unrooted_tree(treefile, fformat="newick"):
+    tree = Phylo.read(treefile, fformat).root_at_midpoint()
+    _label_internals(tree)
+    return tree
+
 
 class SequenceData:
     """
@@ -82,7 +87,7 @@ class SequenceData:
             tmp_path=None, out_path="wgd_dmd",
             to_stop=True, cds=True):
         if tmp_path == None:
-            tmp_path = str(uuid.uuid4())
+            tmp_path = "wgdtmp_" + str(uuid.uuid4())
         self.tmp_path  = _mkdir(tmp_path)
         self.out_path  = _mkdir(out_path)
         self.cds_fasta = cds_fasta
@@ -172,7 +177,9 @@ class SequenceData:
         df.to_csv(gf, sep="\t", header=False, index=False, columns=[0,1,10])
         return SequenceSimilarityGraph(gf)
 
-    def write_paranome(self, fname=None):
+    def write_paranome(self, fname=None, singletons=True):
+        if singletons: 
+            self.add_singletons_paranome()
         if not fname:
             fname = os.path.join(self.out_path, "{}.tsv".format(self.prefix))
         with open(fname, "w") as f:
@@ -184,15 +191,38 @@ class SequenceData:
                 f.write("\n")
         return fname
 
-    def write_rbh_orthologs(self, seqs):
-        prefix = seqs.prefix
-        fname = "{}_{}.rbh".format(self.prefix, prefix)
+    def add_singletons_paranome(self):
+        xs = set(itertools.chain.from_iterable(self.mcl.values()))  # all genes in families
+        gs = set(self.cds_seqs.keys())  # all genes
+        ys = gs - xs 
+        i = max(self.mcl.keys()) + 1
+        for j, y in enumerate(ys):
+            self.mcl[i + j] = [y]
+
+    def write_rbh_orthologs(self, seqs, singletons=True):
+        fname = "{}_{}.rbh.tsv".format(self.prefix, seqs.prefix)
         fname = os.path.join(self.out_path, fname)
-        df = self.rbh[prefix]
-        df[prefix] = df[0].apply(lambda x: seqs.cds_seqs[x].id)
+        df = self.rbh[seqs.prefix]
+        df[seqs.prefix] = df[0].apply(lambda x: seqs.cds_seqs[x].id)
         df[self.prefix] = df[1].apply(lambda x: self.cds_seqs[x].id)
+        if singletons:  # this must be here, cannot be before renaming, not after labeling fams
+            df = pd.concat([df, self.add_singletons_rbh(seqs)]) 
         _label_families(df)
-        df.to_csv(fname, columns=[prefix, self.prefix], sep="\t")
+        df.to_csv(fname, columns=[seqs.prefix, self.prefix], sep="\t")
+
+    def add_singletons_rbh(self, seqs):
+        # note this is implemented to work before the rbh table is modified
+        gs1 = set(self.cds_seqs.keys())  # all genes species 1
+        gs2 = set(seqs.cds_seqs.keys())  # all genes species 2
+        df  = self.rbh[seqs.prefix]
+        ys1 = gs1 - set(df[1])
+        ys2 = gs2 - set(df[0])
+        d = []
+        for y in ys1:
+            d.append({self.prefix: self.cds_seqs[y].id, seqs.prefix: ""})
+        for y in ys2:
+            d.append({seqs.prefix: seqs.cds_seqs[y].id, self.prefix: ""})
+        return pd.DataFrame.from_dict(d)
 
     def remove_tmp(self, prompt=True):
         if prompt:
@@ -234,8 +264,13 @@ def _rename(family, ids):
     return [ids[x] for x in family]
 
 def read_gene_families(fname):
-    return pd.read_csv(fname, sep="\t", index_col=0).apply(
-            lambda y: [x.split(", ") for x in y if x != "" and type(x) == str])
+    """
+    Read gene families from OrthoFinder format.
+    """
+    df = pd.read_csv(fname, sep="\t", index_col=0).fillna("")
+    for col in df.columns:
+        df[col] = df[col].apply(lambda x: x.split(", "))
+    return df
 
 def merge_seqs(seqs):
     if type(seqs) == list:
@@ -262,6 +297,7 @@ def get_gene_families(seqs, families, rename=True, **kwargs):
         family = []
         for col in families.columns:
             ids = families.loc[fid][col]
+            if ids == ['']: continue
             if rename:
                 family += _rename(ids, seqs.idmap)
             else:
@@ -398,18 +434,14 @@ class GeneFamily:
         cmd = ["iqtree", "-s", self.pro_alnf] + options.split()
         out = sp.run(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
         _log_process(out, program="iqtree")
-        tree = Phylo.read(self.pro_alnf + ".treefile", format="newick")
-        _label_internals(tree)
-        return tree
+        return _process_unrooted_tree(self.pro_alnf + ".treefile")
 
     def run_fasttree(self):
         tree_pth = self.pro_alnf + ".nw"
         cmd = ["fasttree", '-out', tree_pth, self.pro_alnf]
         out = sp.run(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
         _log_process(out, program="fasttree")
-        tree = Phylo.read(self.pro_alnf + ".nw", format="newick")
-        _label_internals(tree)
-        return tree 
+        return _process_unrooted_tree(self.pro_alnf + ".nw")
 
     def cluster(self):
         return cluster_ks(self.codeml_results)

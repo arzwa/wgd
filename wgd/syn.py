@@ -11,6 +11,20 @@ gff_header = ["gene", "scaffold", "start", "orientation"]
 # we construct first a table with each row a gene containing it's family,
 # scaffold, location and orientation
 def make_gene_table(gffs, families, feature, attribute):
+    """
+    Construct a table from a bunch of gff files and gene families such that all
+    information for synteny and co-linearity related analyses is in one place.
+    
+    :param gffs: a list of GFF *file names*
+    :param families: a pandas data frame with the gene families
+    :param feature: feature tag for the GFF files
+    :param attribute: attribute tag for parsing out gene IDs from last column
+    
+    Note: currently we assume the same attribute/feature is required for all
+    GFF files, and the burden is on the user to make sure this is the case. We
+    may wish, for flexibility, to allow a list of feature/attribute arguments
+    in the future, one for each GFF file.
+    """
     gfftables = [gff2table(gff, feature, attribute) for gff in gffs]
     familytable = gene2family(families)
     df = pd.concat(gfftables)
@@ -25,6 +39,9 @@ def getattr(s, attribute):
     return ""
 
 def gff2table(gff, feature, attribute):
+    """
+    Read a GFF file to a pandas data frame, from a filename.
+    """
     rows = []
     with open(gff, "r") as f:
         for l in f.readlines():
@@ -33,11 +50,15 @@ def gff2table(gff, feature, attribute):
             x = l.split("\t")
             if x[2] == feature:
                 a = getattr(x[-1], attribute)
-                rows.append({"gene": a, "scaffold": x[0], "start": x[3], "or": x[6]})
+                rows.append({"gene": a, "scaffold": x[0], "start": int(x[3]), "or": x[6]})
     df = pd.DataFrame.from_dict(rows).set_index("gene")
     return df
 
 def gene2family(families):
+    """
+    Get a gene to family ID mapping from a gene families data frame in
+    OrthoFinder format.
+    """
     rows = []
     for fam in families.index:
         for sp in families.columns:
@@ -50,8 +71,10 @@ def gene2family(families):
     df = pd.DataFrame.from_dict(rows).set_index("gene")
     return df
 
-# write i-adhore config
 def configure_adhore(table, outdir, **kwargs):
+    """
+    Write out all required files for running I-ADHoRe.
+    """
     if not os.path.exists(outdir):
         os.mkdir(outdir)
     famfile = os.path.join(outdir, "families.tsv")
@@ -154,5 +177,15 @@ def get_anchors(out_path):
 
 def get_anchor_ksd(ks_distribution, anchors):
     return ks_distribution.join(anchors).dropna()
+
+def get_segments_profile(out_path):
+    segs = pd.read_csv(os.path.join(out_path, "segments.txt"), sep="\t", index_col=0)
+    le = pd.read_csv(os.path.join(out_path, "list_elements.txt"), sep="\t", index_col=0)
+    segs = segs.join(le.set_index("segment"), how="inner")
+    segs["segment"] = segs.index
+    counted = segs.groupby(["multiplicon", "genome"])["segment"].aggregate(lambda x: len(set(x)))
+    profile = counted.unstack(level=-1).fillna(0)
+    return profile
+
 
 

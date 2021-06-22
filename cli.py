@@ -125,6 +125,9 @@ def ksd(**kwargs):
     Example 2 - one-to-one orthologs (RBH):
 
         wgd ksd orthologs.rbh cds1.fasta cds2.fasta
+
+    If you want to keep intermediate (temporary) files, please provide a directory
+    name for the `--tmpdir` option.
     """
     _ksd(**kwargs)
 
@@ -133,6 +136,9 @@ def _ksd(families, sequences, outdir, tmpdir, nthreads, to_stop, cds, pairwise,
     from wgd.core import get_gene_families, SequenceData, KsDistributionBuilder
     from wgd.core import read_gene_families, merge_seqs
     from wgd.viz import default_plot, apply_filters
+    if len(sequences) == 0: 
+        logging.error("Please provide at least one sequence file")
+        exit(0)
     if len(sequences) == 2:
         tree_method = "cluster"  # for RBH others don't make sense (and crash)
     s = merge_seqs([SequenceData(s, tmp_path=tmpdir, out_path=outdir,
@@ -157,11 +163,13 @@ def _ksd(families, sequences, outdir, tmpdir, nthreads, to_stop, cds, pairwise,
     fig = default_plot(df, title=prefix, rwidth=0.8, bins=50, ylabel=ylabel)
     fig.savefig(os.path.join(outdir, "{}.ksd.svg".format(prefix)))
     fig.savefig(os.path.join(outdir, "{}.ksd.pdf".format(prefix)))
+    if tmpdir is None:
+        [x.remove_tmp(prompt=False) for x in s]
     
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
-@click.argument('gff_files', nargs=-1, type=click.Path(exists=True))
 @click.argument('families', type=click.Path(exists=True))
+@click.argument('gff_files', nargs=-1, type=click.Path(exists=True))
 @click.option('--ks_distribution', '-ks', default=None,
     help="ks distribution tsv file (optional, see `wgd ksd`)")
 @click.option('--outdir', '-o', default='./wgd_syn', show_default=True, 
@@ -170,8 +178,10 @@ def _ksd(families, sequences, outdir, tmpdir, nthreads, to_stop, cds, pairwise,
     help="keyword for parsing the genes from the GFF file (column 3)")
 @click.option('--attribute', '-a', default='ID', show_default=True,
     help="keyword for parsing the gene IDs from the GFF file (column 9)")
-@click.option('--min_length', '-l', default=250, show_default=True,
+@click.option('--minlen', '-ml', default=-1, show_default=True,
     help="minimum length of a genomic element to be included in dotplot.")
+@click.option('--maxsize', '-ms', default=25, show_default=True,
+    help="maximum family size to include in analysis.")
 @click.option('--ks_range', '-r', nargs=2, default=(0.05, 5), show_default=True,
     type=float, help='Ks range to use for colored dotplot')
 @click.option('--iadhore_options', default="",
@@ -180,14 +190,14 @@ def _ksd(families, sequences, outdir, tmpdir, nthreads, to_stop, cds, pairwise,
 def syn(**kwargs):
     _syn(**kwargs)
 
-def _syn(gff_files, families, ks_distribution, outdir, feature, attribute,
-        min_length, ks_range, iadhore_options):
+def _syn(families, gff_files, ks_distribution, outdir, feature, attribute,
+        minlen, maxsize, ks_range, iadhore_options):
     """
     Co-linearity and anchor inference using I-ADHoRe.
     """
     from wgd.syn import make_gene_table, configure_adhore, run_adhore
-    from wgd.syn import get_anchors, get_anchor_ksd
-    from wgd.viz import default_plot, apply_filters
+    from wgd.syn import get_anchors, get_anchor_ksd, get_segments_profile
+    from wgd.viz import default_plot, apply_filters, syntenic_depth_plot, all_dotplots
     # non-default options for I-ADHoRe
     iadhore_opts = {x.split("=")[0].strip(): x.split("=")[1].strip()
                for x in iadhore_options.split(",") if x != ""}
@@ -197,14 +207,35 @@ def _syn(gff_files, families, ks_distribution, outdir, feature, attribute,
     prefix = os.path.basename(families)
     families = pd.read_csv(families, index_col=0, sep="\t")
     table = make_gene_table(gff_files, families, feature, attribute)
-    table.to_csv(os.path.join(outdir, "gene-table.csv"))
+    if len(table.dropna().index) == 0:
+        logging.error("No genes found in the GFF file for `feature={}` "
+                "and `attribute={}`, please double check command " 
+                "settings.".format(feature, attribute))
+        exit(1)
     logging.info("Configuring I-ADHoRe co-linearity search")
     conf, out_path = configure_adhore(table, outdir, **iadhore_opts)
+    table.to_csv(os.path.join(outdir, "gene-table.csv"))
     logging.info("Running I-ADHoRe")
     run_adhore(conf)
+
+    # general post-processing
     logging.info("Processing I-ADHoRe output")
     anchors = get_anchors(out_path)
     anchors.to_csv(os.path.join(outdir, "anchors.csv"))
+    segprofile = get_segments_profile(out_path)
+    segprofile.to_csv(os.path.join(outdir, "segprofile.csv"))
+    fig = syntenic_depth_plot(segprofile)
+    fig.savefig(os.path.join(outdir, "{}.syndepth.svg".format(prefix)))
+    fig.savefig(os.path.join(outdir, "{}.syndepth.pdf".format(prefix)))
+
+    # dotplot
+    logging.info("Generating dot plots")
+    figs = all_dotplots(table, anchors, maxsize=maxsize, minlen=minlen) 
+    for k, v in figs.items():
+        v.savefig(os.path.join(outdir, "{}.dot.svg".format(k)))
+        v.savefig(os.path.join(outdir, "{}.dot.pdf".format(k)))
+
+    # anchor Ks distributions
     if ks_distribution:
         ylabel = "Duplications"
         if len(gff_files) == 2:
