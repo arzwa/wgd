@@ -171,6 +171,8 @@ def run_adhore(config_file):
 
 def get_anchors(out_path):
     anchors = pd.read_csv(os.path.join(out_path, "anchorpoints.txt"), sep="\t", index_col=0)
+    if len(anchors) == 0:
+        return None
     anchors["pair"] = anchors[["gene_x", "gene_y"]].apply(lambda x: "__".join(sorted([x[0], x[1]])), axis=1)
     # there are duplicates, due to anchors being in multiple multiplicons
     return anchors[["pair", "multiplicon"]].drop_duplicates("pair").set_index("pair")
