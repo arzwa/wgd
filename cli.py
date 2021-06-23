@@ -141,8 +141,9 @@ def _ksd(families, sequences, outdir, tmpdir, nthreads, to_stop, cds, pairwise,
         exit(0)
     if len(sequences) == 2:
         tree_method = "cluster"  # for RBH others don't make sense (and crash)
-    s = merge_seqs([SequenceData(s, tmp_path=tmpdir, out_path=outdir,
-            to_stop=to_stop, cds=cds) for s in sequences])
+    seqs = [SequenceData(s, tmp_path=tmpdir, out_path=outdir,
+            to_stop=to_stop, cds=cds) for s in sequences]
+    s = merge_seqs(seqs)
     logging.info("tmpdir = {}".format(s.tmp_path))
     fams = read_gene_families(families)
     fams = get_gene_families(s, fams, 
@@ -164,7 +165,7 @@ def _ksd(families, sequences, outdir, tmpdir, nthreads, to_stop, cds, pairwise,
     fig.savefig(os.path.join(outdir, "{}.ksd.svg".format(prefix)))
     fig.savefig(os.path.join(outdir, "{}.ksd.pdf".format(prefix)))
     if tmpdir is None:
-        [x.remove_tmp(prompt=False) for x in s]
+        [x.remove_tmp(prompt=False) for x in seqs]
     
 
 @cli.command(context_settings={'help_option_names': ['-h', '--help']})
