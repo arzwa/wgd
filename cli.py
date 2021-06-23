@@ -205,13 +205,18 @@ def _syn(families, gff_files, ks_distribution, outdir, feature, attribute,
         logging.info("I-ADHoRe 3.0 options: {}".format(iadhore_opts))
     # read families and make table
     prefix = os.path.basename(families)
-    families = pd.read_csv(families, index_col=0, sep="\t")
-    table = make_gene_table(gff_files, families, feature, attribute)
+    fams = pd.read_csv(families, index_col=0, sep="\t")
+    table = make_gene_table(gff_files, fams, feature, attribute)
     if len(table.dropna().index) == 0:
-        logging.error("No genes found in the GFF file for `feature={}` "
-                "and `attribute={}`, please double check command " 
-                "settings.".format(feature, attribute))
+        logging.error("No genes from families file `{}` found in the GFF file "
+                "for `feature={}` and `attribute={}`, please double check command " 
+                "settings.".format(families, feature, attribute))
         exit(1)
+    if len(table.dropna()) < 1000:
+        logging.warning("Few genes from families `{}` found in the GFF file, better "
+                "Double check your command.".format(families))
+
+    # I-ADHoRe
     logging.info("Configuring I-ADHoRe co-linearity search")
     conf, out_path = configure_adhore(table, outdir, **iadhore_opts)
     table.to_csv(os.path.join(outdir, "gene-table.csv"))
@@ -221,6 +226,11 @@ def _syn(families, gff_files, ks_distribution, outdir, feature, attribute,
     # general post-processing
     logging.info("Processing I-ADHoRe output")
     anchors = get_anchors(out_path)
+    if anchors is None:
+        logging.warning("No anchors found, terminating! Please inspect your input files "
+                "and the I-ADHoRe results in `{}`".format(out_path))
+        exit(1)
+
     anchors.to_csv(os.path.join(outdir, "anchors.csv"))
     segprofile = get_segments_profile(out_path)
     segprofile.to_csv(os.path.join(outdir, "segprofile.csv"))
