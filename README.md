@@ -11,7 +11,8 @@ Bioinformatics & evolutionary genomics group https://www.vandepeerlab.org/
 
 **Note:** If you are interested in the methods implemented in `wgd`, you may also want to
 consider the [`ksrates`](https://github.com/VIB-PSB/ksrates) tool by Sensalari *et al.*
-which uses `wgd` to carefully compare multiple Ks distributions and model them. 
+which can be used to carefully compare multiple Ks distributions and model them (`ksrates`
+uses `wgd` under the hood). 
 
 ## Installation
 
