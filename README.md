@@ -122,7 +122,9 @@ currently in the directory where you cloned wgd).
 Please cite us at https://doi.org/10.1093/bioinformatics/bty915
 
 ```
-Zwaenepoel, A., and Van de Peer, Y. wgd - simple command line tools for the analysis of ancient whole genome duplications. Bioinformatics., bty915, https://doi.org/10.1093/bioinformatics/bty915
+Zwaenepoel, A., and Van de Peer, Y. 
+wgd - simple command line tools for the analysis of ancient whole genome duplications. Bioinformatics., 
+bty915, https://doi.org/10.1093/bioinformatics/bty915
 ```
 
 For citation of the tools used in wgd, please consult the documentation at
