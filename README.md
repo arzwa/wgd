@@ -9,6 +9,10 @@ Bioinformatics & evolutionary genomics group https://www.vandepeerlab.org/
 
 # wgd - simple command line tools for the analysis of ancient whole-genome duplications
 
+**Note:** If you are interested in the methods implemented in `wgd`, you may also want to
+consider the [`ksrates`](https://github.com/VIB-PSB/ksrates) tool by Sensalari *et al.*
+which uses `wgd` to carefully compare multiple Ks distributions and model them. 
+
 ## Installation
 
 Python package and command line interface (CLI) for the analysis of
