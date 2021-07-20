@@ -8,10 +8,12 @@ import re
 from Bio.Align import MultipleSeqAlignment
 
 
+GAPS = ["-", "?", "X"]  # these should be treated as gaps
+
 def _strip_gaps(aln):
     new_aln = aln[:,0:0]
     for j in range(aln.get_alignment_length()):
-        if any([x == "-" for x in aln[:,j]]):
+        if any([x in GAPS for x in aln[:,j]]):
             continue
         else:
             new_aln += aln[:,j:j+1]
