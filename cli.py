@@ -245,6 +245,7 @@ def _syn(families, gff_files, ks_distribution, outdir, feature, attribute,
     for k, v in figs.items():
         v.savefig(os.path.join(outdir, "{}.dot.svg".format(k)))
         v.savefig(os.path.join(outdir, "{}.dot.pdf".format(k)))
+        v.savefig(os.path.join(outdir, "{}.dot.png".format(k)))
 
     # anchor Ks distributions
     if ks_distribution:
