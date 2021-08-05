@@ -136,7 +136,7 @@ def all_dotplots(df, anchors=None, **kwargs):
     figs = {}
     for i in range(n):
         for j in range(i, n):
-            fig, ax = plt.subplots(1, 1, figsize=(12,12))
+            fig, ax = plt.subplots(1, 1, figsize=(10,10))
             spx, dfx = gdf[i]
             spy, dfy = gdf[j]
             logging.info("{} vs. {}".format(spx, spy))
@@ -146,13 +146,15 @@ def all_dotplots(df, anchors=None, **kwargs):
             ax.scatter(df.x, df.y, s=0.1, color="k", alpha=0.5)
             if not (anchors is None):
                 andf = df.join(anchors, how="inner")
-                ax.scatter(andf.x, andf.y, s=0.1, color="red", alpha=0.9)
+                ax.scatter(andf.x, andf.y, s=0.2, color="red", alpha=0.9)
             ax.vlines(xs, ymin=0, ymax=ys[-1], alpha=0.1, color="k")
             ax.hlines(ys, xmin=0, xmax=xs[-1], alpha=0.1, color="k")
             ax.set_xlim(0, xs[-1])
             ax.set_ylim(0, ys[-1])
-            ax.set_xlabel(spx)
-            ax.set_ylabel(spy)
+            ax.set_xlabel("${}$".format(spx))
+            ax.set_ylabel("${}$".format(spy))
+            ax.xaxis.label.set_fontsize(20)
+            ax.yaxis.label.set_fontsize(20)
             figs[spx + "-vs-" + spy] = fig
     return figs
 
