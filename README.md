@@ -9,9 +9,9 @@ VIB/UGent center for plant systems biology
 
 ## Introduction
 
-Whole genome duplication (WGD), a long-known important evolutionary force for eukaryotes, leaves its unique footprints on genome in various aspects, including the explosion of massive gene duplicates, the preservation of syntenic blocks, the burst of reconciled duplication events on certain branches in the concerned phylogenetic tree, the increase of chromosome numbers and et al. `wgd` is the program enabling users to recover such imprinting by means of deciphering the Ks distribution and synteny. We provide an exemplified workflow practice of how to detect such “WGD signature” from a given genomic dataset. The data required include the CDS (coding sequence) files and GFF (General Feature Format) files. The CDS and GFF files used in this tutorial are downloaded from [PLAZA](https://bioinformatics.psb.ugent.be/plaza/versions/plaza_v4_5_dicots/download/). The command lines of each step are given and explained with some reminders. We start from the installation step.
+Whole genome duplication (WGD), a long-known important evolutionary force for eukaryotes, leaves its unique footprints on genome in various aspects, including the explosion of massive gene duplicates, the preservation of syntenic blocks, the burst of reconciled duplication events on certain branches in the concerned phylogenetic tree, the increase of chromosome numbers and et al. `wgd` is the program enabling users to recover such imprinting by means of deciphering the Ks distribution and synteny. We provide an exemplified workflow practice of how to detect such “WGD signature” from a given genomic dataset.We divide the practice into four steps: Step1 Installation, Step2 Data Collection and Preparation, Step3 Construction of Ks Distribution and Step4 Syntenic Analysis.   
 
-## Installation
+## Step1 Installation
 
 To install `wgd` in a virtual environment, the following command lines could be used.
 
@@ -35,6 +35,10 @@ If multiply versions of `wgd` were installed in the system, please add the right
 ```
 export PATH="$PATH:~/.local/bin/wgd"
 ```
+
+## Step2 Data Collection and Preparation 
+
+Since the synonymous distance Ks (the number of synonymous substitutions per synonymous site) is a feasible proxy for the age of gene duplicates (see detailed discussions in the book chapter),the protein-coding genes are exactly what we need for the construction of age distribution of whole paranome in Step3. The gene positional information is needed for the profiling of the synteny relationship in Step4. Thus, we need the CDS (protein-coding sequences) and GFF (General Feature Format) files of interested species, here as *Vitis vinifera and *Amborella trichopoda, both of which are downloaded from [PLAZA](https://bioinformatics.psb.ugent.be/plaza/versions/plaza_v4_5_dicots/download/). A cleaning process for the CDS file is recommended, including: 1) only the longest transcripts are retained if alternatives are available; 2) genes with identical sequences or IDs are removed to eliminate redundancy; 3) the sequence length of CDS should be dividable by three and only contain ACGT characters while not contain any stop codons in the sequence (only at the end of sequence is allowed). The cleaned files are in the [data](https://github.com/heche-psb/wgd/tree/dev/data) directory.
 
 ## Citation
  
