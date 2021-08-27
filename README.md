@@ -3,7 +3,13 @@
 VIB/UGent center for plant systems biology 
 [Bioinformatics & evolutionary genomics group](https://www.vandepeerlab.org/)
 
-# wgd - simple command line tools for the analysis of ancient whole-genome duplications
+# `wgd` - simple command line tools for the analysis of ancient whole-genome duplications
+
+`wgd` is a python package designed for the inference of ancient whole-genome duplication (WGD) events from genome and transcriptome assembly. This tutorial elucidates the principle and usage of “wgd”, in accordance with a chapter of a soon-to-be published book. Please refer to the book chapter for more detailed discussion and elucidation.
+
+## Introduction
+
+Whole genome duplication (WGD), a long-known important evolutionary force for eukaryotes, leaves its unique footprints on genome in various aspects. `wgd` is the program enabling users to recover such imprinting by means of deciphering the Ks distribution and synteny. We provide an exemplified practice of how to detect such “WGD signature” from a given genomic data. 
 
 ## Installation
 
