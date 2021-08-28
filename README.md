@@ -100,7 +100,7 @@ perl dupliStacks.pl data/Vvi_wgd_syn/iadhore.conf
 ``` 
 Note that [dupliStacks.pl](https://github.com/VIB-PSB/i-ADHoRe/blob/master/post_processing/dupliStacks.pl) is an external perl script in `i-ADHoRe`, which we will merge into `wgd` soon. We don't keep the intermediate files in the [data](https://github.com/heche-psb/wgd/tree/dev/data) folder, only the final discussed results are kept.
 
-![](data/Vvi_wgd_syn/duplication-level.pdf)
+![](data/Vvi_wgd_syn/duplication-level.svg)
 
 The duplication level plot further shows that most syntenic regions consist of three homologous segments, which again is suggestive of *V. vitifera*’s ancestral hexaploidy. 
 
