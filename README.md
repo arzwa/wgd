@@ -74,6 +74,8 @@ The Ks distribution of *V. vinifera* shows a considerable enrichment of gene dup
 
 ## Step 4 Synteny Analysis
 
+### Intragenomic Synteny
+
 The multiplication of the entire genome is supposed to instantaneously generate an additional copy of each chromosome, retaining both the gene order and gene content of the original copy. Despite chromosomal rearrangements and rampant gene loss following WGD, gene order and gene content are expected to be more or less retained on at least some chromosomes in reasonable time frames. Such chromosomal region is named *Syntenic Region*, which is assumed to be originated from the duplication of a common ancestral genomic region and considered as strong evidence for WGD once detected. A straightforward way to depict the synteny relationship within a genome is to draw a `whole-genome dotplot`, where both the x-axis and y-axis represent the same genome, and each square represents a single chromosome-to-chromosome comparison. Homologs are shown as dots while anchor pairs, defined as homologous pairs on syntenic regions, are marked in a distinct color. To delineate the synteny relationship, we use [I-ADHoRe 3.0](https://github.com/VIB-PSB/i-ADHoRe) to obtain such dotplots using the following command. 
 
 ```
@@ -91,15 +93,35 @@ When multiple anchors are located adjacently, a red diagonal line, reflecting a 
 
 Let's take a look at the synteny depth (or multiplication level) bar plot, in which we can find that *V. vinifera* has obviously more "level>2" synteny regions , among which the multiplication level 3 is dominant, suggesting the hexaploidization origin. While *A. trichopoda* has near-zero "level>2" synteny regions.
 
-We perform an interspecific comparison to profile the synteny relationship between *V. vinifera* and *A. trichopoda*. The orthologous gene family is obtained by `OrthoFinder` using command:
+We can draw a duplication level plot to make this pattern clearer using i-adhore by command:
+
+```
+perl dupliStacks.pl data/Vvi_wgd_syn/iadhore.conf
+``` 
+Note that [dupliStacks.pl](https://github.com/VIB-PSB/i-ADHoRe/blob/master/post_processing/dupliStacks.pl) is an external perl script in `i-ADHoRe`, which we will merge into `wgd` soon. We don't keep the intermediate files in the [data](https://github.com/heche-psb/wgd/tree/dev/data) folder, only the final discussed results are kept.
+
+![](data/Vvi_wgd_syn/duplication-level.jpg)
+
+The duplication level plot further shows that most syntenic regions consist of three homologous segments, which again is suggestive of *V. vitifera*’s ancestral hexaploidy. 
+
+### Intergenomic Syteny
+
+Besides the intragenomic synteny evidence, the intergenomic synteny is another strong indicator for the inference of putative WGD events. This step we perform an intergenomic comparison to profile the synteny relationship between *V. vinifera* and *A. trichopoda*. The orthologous gene family needed here is obtained by `OrthoFinder` using command:
 
 ```
 orthofinder -f data/prot -t 16 -og
 ```
 
-The result file [Orthogroups.tsv](https://github.com/heche-psb/wgd/tree/dev/data/Orthogroups.tsv) is what we need for next step.  
- 
+The result file [Orthogroups.tsv](https://github.com/heche-psb/wgd/tree/dev/data/Orthogroups.tsv) is used for next step. We implement the following command.
 
+```
+wgd syn -f mRNA data/Orthogroups.tsv data/Atr.gff3 data/Vvi.gff3 -o data/Vvi_Atr_wgd_syn
+```
+
+![](data/Vvi_Atr_wgd_syn/Interspecific_dotplot.jpg)
+![](data/Vvi_Atr_wgd_syn/Orthogroups.tsv.syndepth.svg) 
+
+We modfiy the interspecific dotplot manually to highlight the syntenic regions which is 3:1 ratio. The synteny depth bar plot shows that except for an obvious 1:1 ratio, mainly a ratio of 2:1 and 3:1 is uncovered. Combined with the results of the intragenomic comparisons, we can rather confidently conclude that *V. vinifera* experienced a paleo-hexaploidization event after its divergence of *A. trichopoda*.
 
 ## Citation
  
