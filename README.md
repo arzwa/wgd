@@ -9,7 +9,7 @@ VIB/UGent center for plant systems biology
 
 ## Introduction
 
-Whole genome duplication (WGD), a long-known important evolutionary force for eukaryotes, leaves its unique footprints on genome in various aspects, including the explosion of massive gene duplicates, the preservation of syntenic blocks, the burst of reconciled duplication events on certain branches in the concerned phylogenetic tree, the increase of chromosome numbers and et al. `wgd` is the program enabling users to recover such imprinting by means of deciphering the Ks distribution and synteny. We provide an exemplified workflow practice of how to detect such “WGD signature” from a given genomic dataset. We divide the practice into four steps: Step1 Installation, Step2 Data Collection and Preparation, Step3 Construction of Ks Distribution and Step4 Synteny Analysis.   
+Whole genome duplication (WGD), a long-known important evolutionary force for eukaryotes, leaves its unique footprints on genome in various aspects, including the explosion of massive gene duplicates, the preservation of syntenic blocks, the burst of reconciled duplication events on certain branches in the concerned phylogenetic tree, the increase of chromosome numbers and et al. `wgd` is the program enabling users to recover such imprinting by means of deciphering the Ks distribution and synteny. We provide an exemplified workflow practice of how to detect such “WGD signature” from a given genomic dataset. We divide the practice into four steps: Step1 Installation, Step2 Data Collection and Preparation, Step3 Construction of Ks Distribution and Step 4 Synteny Analysis.   
 
 ## Step 1 Installation
 
@@ -38,7 +38,7 @@ export PATH="$PATH:~/.local/bin/wgd"
 
 ## Step 2 Data Collection and Preparation 
 
-Since the synonymous distance Ks (the number of synonymous substitutions per synonymous site) is a feasible proxy for the age of gene duplicates (see detailed discussions in the book chapter), the protein-coding genes are exactly what we need for the construction of age distribution of whole paranome in Step 3. The gene positional information is needed for the profiling of the synteny relationship in Step4. Thus, we need the CDS (protein-coding sequences) and GFF (General Feature Format) files of interested species, here as *Vitis vinifera* and *Amborella trichopoda*, both of which are downloaded from [PLAZA](https://bioinformatics.psb.ugent.be/plaza/versions/plaza_v4_5_dicots/download/). A cleaning process for the CDS file is recommended, including: 1) only the longest transcripts are retained if alternatives are available; 2) genes with identical sequences or IDs are removed to eliminate redundancy; 3) the sequence length of CDS should be dividable by three and only contain ACGT characters while not contain any stop codons in the sequence (only at the end of sequence is allowed). The cleaned files used in subsequent analysis are in the [data](https://github.com/heche-psb/wgd/tree/dev/data) directory.
+Since the synonymous distance Ks (the number of synonymous substitutions per synonymous site) is a feasible proxy for the age of gene duplicates (see detailed discussions in the book chapter), the protein-coding genes are exactly what we need for the construction of age distribution of whole paranome in Step 3. The gene positional information is needed for the profiling of the synteny relationship in Step 4. Thus, we need the CDS (protein-coding sequences) and GFF (General Feature Format) files of interested species, here as *Vitis vinifera* and *Amborella trichopoda*, both of which are downloaded from [PLAZA](https://bioinformatics.psb.ugent.be/plaza/versions/plaza_v4_5_dicots/download/). A cleaning process for the CDS file is recommended, including: 1) only the longest transcripts are retained if alternatives are available; 2) genes with identical sequences or IDs are removed to eliminate redundancy; 3) the sequence length of CDS should be dividable by three and only contain ACGT characters while not contain any stop codons in the sequence (only at the end of sequence is allowed). The cleaned files used in subsequent analysis are in the [data](https://github.com/heche-psb/wgd/tree/dev/data) directory.
 
 ## Step 3 Construction of Ks Distribution
 
@@ -64,7 +64,7 @@ wgd ksd -n 8 --pairwise data/Vvi_wgd_dmd/Vvi.cds.tsv data/Vvi.cds -o data/Vvi_wg
 wgd ksd -n 8 --pairwise data/Atr_wgd_dmd/Atr.cds.tsv data/Atr.cds -o data/Atr_wgd_ksd
 ```
 
-Note that here we set the option `--pairwise` to run `codeml` on all gene pairs separately. If `--pairwise` is not set, the aggressive algorithm built-in `codeml` would enforce all paralogs in the same family to have a single shared aligned nucleotide sequence with the removal of all gaps, resulting in a great loss of information. We recommend the set of `--pairwise` to fully exploit the information in the sequence data.
+Note that here we set the option `--pairwise` to run `codeml` on all gene pairs separately. If `--pairwise` is not set, the aggressive algorithm built-in `codeml` would enforce all paralogs in the same family to have a single shared aligned nucleotide sequence with the removal of all gaps, probably resulting in a great loss of information. We recommend the set of `--pairwise` to fully exploit the information in the sequence data.
 
 
 ![](data/Vvi_wgd_ksd/Vvi.cds.tsv.ksd.svg)
@@ -100,11 +100,11 @@ perl dupliStacks.pl data/Vvi_wgd_syn/iadhore.conf
 ``` 
 Note that [dupliStacks.pl](https://github.com/VIB-PSB/i-ADHoRe/blob/master/post_processing/dupliStacks.pl) is an external perl script in `i-ADHoRe`, which we will merge into `wgd` soon. We don't keep the intermediate files in the [data](https://github.com/heche-psb/wgd/tree/dev/data) folder, only the final discussed results are kept.
 
-![](data/Vvi_wgd_syn/duplication-level.jpg)
+![](data/Vvi_wgd_syn/duplication-level.pdf)
 
 The duplication level plot further shows that most syntenic regions consist of three homologous segments, which again is suggestive of *V. vitifera*’s ancestral hexaploidy. 
 
-### Intergenomic Syteny
+### Intergenomic Synteny
 
 Besides the intragenomic synteny evidence, the intergenomic synteny is another strong indicator for the inference of putative WGD events. This step we perform an intergenomic comparison to profile the synteny relationship between *V. vinifera* and *A. trichopoda*. The orthologous gene family needed here is obtained by `OrthoFinder` using command:
 
