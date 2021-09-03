@@ -94,9 +94,9 @@ def syntenic_depth_plot(segprofile):
         for j in range(i, n):
             pairs, counts = dupratios(segprofile[cols[i]], segprofile[cols[j]])
             ax = axs[k]
-            ax.barh(np.arange(len(pairs)), counts, color="k", alpha=0.2)
-            ax.set_yticks(np.arange(len(pairs)))
-            ax.set_yticklabels(["{}:{}".format(int(x[0]), int(x[1])) for x in pairs])
+            ax.bar(np.arange(len(pairs)), counts, color="k", alpha=0.2)
+            ax.set_xticks(np.arange(len(pairs)))
+            ax.set_xticklabels(["{}:{}".format(int(x[0]), int(x[1])) for x in pairs])
             ax.set_title("{}:{}".format(cols[i], cols[j]), fontsize=9)
             k += 1
     for ax in axs:
@@ -150,10 +150,13 @@ def all_dotplots(df, anchors=None, **kwargs):
             ax.hlines(ys, xmin=0, xmax=xs[-1], alpha=0.1, color="k")
             ax.set_xlim(0, xs[-1])
             ax.set_ylim(0, ys[-1])
-            ax.set_xlabel("${}$".format(spx))
-            ax.set_ylabel("${}$".format(spy))
-            ax.xaxis.label.set_fontsize(20)
-            ax.yaxis.label.set_fontsize(20)
+            ax.set_xlabel("${}$ (Mb)".format(spx))
+            ax.set_ylabel("${}$ (Mb)".format(spy))
+            ax.xaxis.label.set_fontsize(18)
+            ax.yaxis.label.set_fontsize(18)
+            ax.tick_params(axis='both', which='major', labelsize=16)
+            ax.set_xticklabels(ax.get_xticks() / 1e6)  # in Mb
+            ax.set_yticklabels(ax.get_yticks() / 1e6)  # in Mb
             figs[spx + "-vs-" + spy] = fig
     return figs
 

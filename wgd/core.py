@@ -73,7 +73,8 @@ def _label_families(df):
     df.index = ["GF{:0>5}".format(i+1) for i in range(len(df.index))]
 
 def _process_unrooted_tree(treefile, fformat="newick"):
-    tree = Phylo.read(treefile, fformat).root_at_midpoint()
+    tree = Phylo.read(treefile, fformat)
+    tree.root_at_midpoint()
     _label_internals(tree)
     return tree
 
