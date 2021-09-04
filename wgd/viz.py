@@ -59,6 +59,7 @@ def default_plot(
     
     # assemble panels
     keys = ["dS", "dS", "dN", "dN/dS"]
+    np.seterr(divide='ignore')
     funs = [lambda x: x, np.log10, np.log10, np.log10]
     fig, axs = plt.subplots(2, 2)
     for (c, a, dist) in zip(colors, alphas, args):

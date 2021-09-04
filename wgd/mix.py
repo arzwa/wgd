@@ -13,7 +13,7 @@ import seaborn as sns
 
 
 def filter_group_data(
-        df, aln_id=0, aln_len=300, aln_cov=0, min_ks=0, max_ks=5,
+        df, aln_len=300, min_ks=0, max_ks=5,
         weights_outliers_included=False
 ):
     """
@@ -31,23 +31,21 @@ def filter_group_data(
     """
     # pre node-grouping filters, irrespective of outlier removal
     df = df.dropna()
-    df = df[df["AlignmentCoverage"] >= aln_cov]
-    df = df[df["AlignmentIdentity"] >= aln_id]
-    df = df[df["AlignmentLength"] >= aln_len]
+    df = df[df["alnlen"] >= aln_len]
 
     # Ks range filters
     # if one filters before the node-weighting, the weights are adapted with
     # respect to the outlier filtering (as in Vanneste et al. 2013)
     if not weights_outliers_included:
-        df = df[df["Ks"] > min_ks]
-        df = df[df["Ks"] <= max_ks]
+        df = df[df["dS"] > min_ks]
+        df = df[df["dS"] <= max_ks]
 
     # grouping
-    df = df.groupby(['Family', 'Node']).mean()
+    df = df.groupby(['family', 'node']).mean()
 
     if weights_outliers_included:
-        df = df[df["Ks"] > min_ks]
-        df = df[df["Ks"] <= max_ks]
+        df = df[df["dS"] > min_ks]
+        df = df[df["dS"] <= max_ks]
 
     return df
 
@@ -59,7 +57,7 @@ def get_array_for_mixture(df):
     :param df: data frame
     :return: array
     """
-    X = np.array(df["Ks"].dropna())
+    X = np.array(df["dS"].dropna())
     X = X[X > 0]
     X = np.log(X).reshape(-1, 1)
     return X
@@ -89,7 +87,7 @@ def reflected_kde(df, min_ks, max_ks, bandwidth, bins, out_file):
     :param out_file: output file
     :return: nada
     """
-    ks = np.array(df['Ks'])
+    ks = np.array(df['dS'])
     ks_reflected = reflect(ks)
     fig, ax = plt.subplots(figsize=(9, 4))
     if bandwidth:
@@ -443,11 +441,11 @@ def get_component_probabilities(df, model):
     """
     df = df.dropna()
     df = df.drop_duplicates(keep='first')
-    df['log(Ks)'] = np.log(df['Ks'])
+    df['log(dS)'] = np.log(df['dS'])
     df = df.replace([np.inf, -np.inf], np.nan)
     df = df.dropna()
 
-    p = model.predict_proba(np.array(df['log(Ks)']).reshape(-1, 1))
+    p = model.predict_proba(np.array(df['log(dS)']).reshape(-1, 1))
     order = np.argsort([x[0] for x in model.means_])
     order_dict = {i: order[i] for i in range(len(order))}
     for c in range(len(order)):
