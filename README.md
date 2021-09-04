@@ -5,9 +5,11 @@ VIB/UGent center for plant systems biology
 
 # `wgd` - simple command line tools for the analysis of ancient whole-genome duplications
 
-`wgd` is a python package designed for the inference of ancient whole-genome duplication (WGD) events from genome and transcriptome assembly. This tutorial elucidates the principle and usage of `wgd`, in accordance with a chapter of a soon-to-be published book. Please refer to the book chapter for more detailed discussion and elucidation.
+`wgd` is a python package designed for the inference of ancient whole-genome duplication (WGD) events from genomic data. For the propose of illustrating both the principle and usage of `wgd`, we compile this step-by-step tutorial on how to seek evidence for a putative WGD event from a freshly obtained genomic data in hand. The primary theoretical elucidation is in the `Introduction` section. For readers who mainly want to learn the usage of `wgd`, skipping the `Introduction` section and starting right from the `Installation` section is also fine. Nevertheless, we recommend readers to spend some time on understanding the mechanism and considerations of how the Ks distribution becomes a widely used object to be used in detecting the signature of WGD events. This tutorial also serves as a corresponding code practice for a chapter of a soon-to-be published book. For those who are interested, we recommend turning to that book chapter for more detailed description and insightful discussions. 
 
 ## Introduction
+
+Whole-genome multiplications (WGMs),often colloquially referred to as whole-genome duplications (we also use `WGD` hereafter for conciseness), is a long-standing black box fascinating evolutionary biologist for decades. The scarce in the number of well-recorded established ancient 
 
 Whole genome duplication (WGD), a long-known important evolutionary force for eukaryotes, leaves its unique footprints on genome in various aspects, including the explosion of massive gene duplicates, the preservation of syntenic blocks, the burst of reconciled duplication events on certain branches in the concerned phylogenetic tree, the increase of chromosome numbers and et al. `wgd` is the program enabling users to recover such imprinting by means of deciphering the Ks distribution and synteny. We provide an exemplified workflow practice of how to detect such “WGD signature” from a given genomic dataset. We divide the practice into four steps: Step1 Installation, Step2 Data Collection and Preparation, Step3 Construction of Ks Distribution and Step 4 Synteny Analysis.   
 

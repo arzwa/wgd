@@ -189,6 +189,9 @@ def _ksd(families, sequences, outdir, tmpdir, nthreads, to_stop, cds, pairwise,
     help="other options for I-ADHoRe, as a comma separated string, "
          "e.g. gap_size=30,q_value=0.75,prob_cutoff=0.05")
 def syn(**kwargs):
+    """
+    Co-linearity and anchor inference using I-ADHoRe.
+    """
     _syn(**kwargs)
 
 def _syn(families, gff_files, ks_distribution, outdir, feature, attribute,
@@ -252,7 +255,7 @@ def _syn(families, gff_files, ks_distribution, outdir, feature, attribute,
         ylabel = "Duplications"
         if len(gff_files) == 2:
             ylabel = "RBH orthologs"
-        ksd = pd.read_csv(ks_distribution, index_col=0)
+        ksd = pd.read_csv(ks_distribution, sep="\t", index_col=0)
         anchor_ks = get_anchor_ksd(ksd, anchors)
         anchor_ks.to_csv(os.path.join(outdir, "{}.anchors.ks.csv".format(prefix)))
         a = apply_filters(ksd,       [("dS", 1e-4, 5.), ("S", 10, 1e6)])
@@ -260,6 +263,144 @@ def _syn(families, gff_files, ks_distribution, outdir, feature, attribute,
         fig = default_plot(a, b, title=prefix, rwidth=0.8, bins=50, ylabel=ylabel)
         fig.savefig(os.path.join(outdir, "{}.ksd.svg".format(prefix)))
         fig.savefig(os.path.join(outdir, "{}.ksd.pdf".format(prefix)))
+
+# MIXTURE MODELING
+@cli.command(context_settings={'help_option_names': ['-h', '--help']})
+@click.argument(
+        'ks_distribution', type=click.Path(exists=True), default=None
+)
+@click.option(
+        '--filters', '-f', type=int, default=300,
+        help="Alignment length",
+        show_default=True
+)
+@click.option(
+        '--ks_range', '-r', nargs=2, default=(0.005, 3), show_default=True,
+        type=float,
+        help='Ks range to use for modeling'
+)
+@click.option(
+        '--bins', '-b', default=50, show_default=True, type=int,
+        help="Number of histogram bins."
+)
+@click.option(
+        '--output_dir', '-o', default="wgd_mix", show_default=True,
+        help='output directory'
+)
+@click.option(
+        '--method', type=click.Choice(['gmm', 'bgmm']), default='gmm',
+        show_default=True, help="mixture modeling method"
+)
+@click.option(
+        '--components', '-n', nargs=2, default=(1, 4), show_default=True,
+        help='range of number of components to fit'
+)
+@click.option(
+        '--gamma', '-g', default=1e-3, show_default=True,
+        help='gamma parameter for bgmm models'
+)
+@click.option(
+        '--n_init', '-ni', default=1, show_default=True,
+        help='number of k-means initializations'
+)
+@click.option(
+        '--max_iter', '-mi', default=1000, show_default=True,
+        help='maximum number of iterations'
+)
+def mix(
+        ks_distribution, filters, ks_range, bins, output_dir, method,
+        components, gamma, n_init, max_iter
+):
+    """
+    Mixture modeling of Ks distributions.
+    Basic function
+    """
+    mix_(
+            ks_distribution, filters, ks_range, method, components, bins,
+            output_dir, gamma, n_init, max_iter
+    )
+def mix_(
+        ks_distribution, filters, ks_range, method, components, bins,
+        output_dir, gamma, n_init, max_iter
+):
+    """
+    Mixture modeling tools.
+
+    Note that histogram weighting is done after applying specified filters. Also
+    note that mixture models are fitted to node-averaged (not weighted)
+    histograms. Please interpret mixture model results with caution, for more
+    info, refer to :ref:`note_on_gmms`.
+    :param ks_distribution: Ks distribution data frame
+    :param filters: alignment stats filters (here only alignment length)
+    :param ks_range: Ks range used for models
+    :param method: mixture modeling method, Bayesian/ordinary Gaussian mixtures
+    :param components: number of components to use (tuple: (min, max))
+    :param bins: number histogram bins for visualization
+    :param output_dir: output directory
+    :param gamma: gamma parameter for BGMM
+    :param n_init: number of k-means initializations (best is kept)
+    :param max_iter: number of iterations
+    :return: nada
+    """
+    from wgd.mix import filter_group_data, get_array_for_mixture, fit_gmm
+    from wgd.mix import inspect_aic, inspect_bic, plot_aic_bic
+    from wgd.mix import plot_all_models_gmm, get_component_probabilities
+    from wgd.mix import fit_bgmm,plot_all_models_bgmm 
+
+    # make output dir if needed
+    if not os.path.exists(output_dir):
+        logging.info("Making directory {}".format(output_dir))
+        os.mkdir(output_dir)
+    # prepare data frame
+    logging.info("Preparing data frame")
+    df = pd.read_csv(ks_distribution, index_col=0, sep='\t')
+    df = filter_group_data(df, filters,
+                           ks_range[0], ks_range[1])
+    X = get_array_for_mixture(df)
+
+    logging.info(" .. max_iter = {}".format(max_iter))
+    logging.info(" .. n_init   = {}".format(n_init))
+
+    # GMM method
+    if method == "gmm":
+        logging.info("Method is GMM, interpret best model with caution!")
+        models, bic, aic, best = fit_gmm(
+                X, components[0], components[1], max_iter=max_iter,
+                n_init=n_init
+        )
+        inspect_aic(aic)
+        inspect_bic(bic)
+        logging.info("Plotting AIC & BIC")
+        plot_aic_bic(aic, bic, components[0], components[1],
+                     os.path.join(output_dir, "aic_bic.svg"))
+        logging.info("Plotting mixtures")
+        plot_all_models_gmm(models, X, ks_range[0], ks_range[1], bins=bins,
+                            out_file=os.path.join(output_dir, "gmms.svg"))
+
+    # BGMM method
+    else:
+        logging.info("Method is BGMM, weights are informative for best model")
+        logging.info(" .. gamma    = {}".format(gamma))
+        models = fit_bgmm(
+                X, components[0], components[1], gamma=gamma,
+                max_iter=max_iter, n_init=n_init
+        )
+        logging.info("Plotting mixtures")
+        plot_all_models_bgmm(models, X, ks_range[0], ks_range[1], bins=bins,
+                             out_file=os.path.join(output_dir, "bgmms.svg"))
+        logging.warning("Method is BGMM, unable to choose best model!")
+        logging.info("Taking model with most components for the component-wise"
+                     "probability output file.")
+        logging.info("To get the output file for a particular number of "
+                     "components, run wgd mix again ")
+        logging.info("with the desired component number as maximum.")
+        best = models[-1]
+
+    # save component probabilities
+    logging.info("Writing component-wise probabilities to file")
+    new_df = get_component_probabilities(df, best)
+    new_df.round(5).to_csv(os.path.join(
+            output_dir, "ks_{}.tsv".format(method)), sep="\t")
 
 
 if __name__ == '__main__':
