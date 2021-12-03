@@ -14,6 +14,8 @@ From: vibpsb/i-adhore
 	# click was complaining about this
 	export LC_ALL=C.UTF-8
 	export LANG=C.UTF-8
+	# set TMPDIR to a path defined within the container for mafft execution
+	export TMPDIR="/tmp"
 
 %post
 	# install PAML from source
@@ -23,9 +25,6 @@ From: vibpsb/i-adhore
 	# install python, git, etc.
 	apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -yq install python3-pip python3-tk git \
 	    build-essential mcl ncbi-blast+ muscle mafft prank fasttree phyml
-
-	# set an alias for fasttree
-	ln -s /usr/bin/fasttree /usr/bin/FastTree
 
 	# get wgd
 	git clone https://github.com/arzwa/wgd.git
