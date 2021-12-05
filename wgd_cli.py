@@ -1398,7 +1398,7 @@ def viz_(
         '--attribute', '-a', default="Parent", show_default=True,
         help="Attribute column in GFF file"
 )
-def wf1(sequences, output_dir, gff_file, n_threads):
+def wf1(sequences, output_dir, gff_file, feature, attribute, n_threads):
     """
     Standard workflow whole paranome Ks.
 
@@ -1407,7 +1407,7 @@ def wf1(sequences, output_dir, gff_file, n_threads):
 
     Example:
 
-        wgd pipeline_1 -gff snail.gff -n 16 snail.fasta snail_wgd_out
+        wgd pipeline_1 -gff snail.gff -n 16 -f mRNA -a Parent snail.fasta snail_wgd_out
 
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
