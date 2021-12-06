@@ -74,7 +74,6 @@ def can_i_run_software(software):
             logging.info('codeml found')
             os.remove(tmp_file)
             try:
-                os.remove("codeml.ctl")
                 subprocess.run(['rm', 'rub', 'rst1', 'rst'])
             except:  # no idea what could happen here
                 pass

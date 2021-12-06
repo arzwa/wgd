@@ -1390,7 +1390,15 @@ def viz_(
         '--n_threads', '-n', default=4, show_default=True,
         help="number of threads to use"
 )
-def wf1(sequences, output_dir, gff_file, n_threads):
+@click.option(
+        '--feature', '-f', default="mRNA", show_default=True,
+        help="Feature column in GFF file"
+)
+@click.option(
+        '--attribute', '-a', default="Parent", show_default=True,
+        help="Attribute column in GFF file"
+)
+def wf1(sequences, output_dir, gff_file, feature, attribute, n_threads):
     """
     Standard workflow whole paranome Ks.
 
@@ -1399,7 +1407,7 @@ def wf1(sequences, output_dir, gff_file, n_threads):
 
     Example:
 
-        wgd pipeline_1 -gff snail.gff -n 16 snail.fasta snail_wgd_out
+        wgd pipeline_1 -gff snail.gff -n 16 -f mRNA -a Parent snail.fasta snail_wgd_out
 
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
@@ -1419,9 +1427,10 @@ def wf1(sequences, output_dir, gff_file, n_threads):
 
     # wgd syn
     if gff_file:
+        os.chdir("..")
         syn_dir = os.path.join(output_dir, 'wgd_syn')
         syn_(gff_file=gff_file, families=mcl_out, output_dir=syn_dir,
-             ks_distribution=ks_results)
+             ks_distribution=ks_results, feature=feature, gene_attribute=attribute)
 
     return
 

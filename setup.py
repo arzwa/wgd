@@ -49,7 +49,7 @@ setup(
         'scipy>=1.2',
         'matplotlib>=3.0.2',
         'plumbum>=1.6.7',
-        'pandas==0.24.1',
+        'pandas==1.2.0',
         'progressbar2>=3.39',
         'joblib==0.11', # 0.12 seems to break the logging in parallel for loops
         'ete3>=3.1',

@@ -364,7 +364,7 @@ def syntenic_dotplot_ks_colored(
             # pe.Normal()])
 
     # colorbar
-    cbar = plt.colorbar(tmp, fraction=0.02, pad=0.01)
+    cbar = plt.colorbar(tmp, fraction=0.02, pad=0.01, ticks=list(range(0, 110, 10)))
     cbar.ax.set_yticklabels(['{:.2f}'.format(x) for x in np.linspace(0, 5, 11)])
 
     # saving
