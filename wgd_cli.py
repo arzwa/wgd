@@ -1278,6 +1278,11 @@ def viz(
 
     more information about bokeh: https://bokeh.pydata.org/en/latest/index.html
 
+    Example:
+
+        $ bokeh serve &
+        $ wgd viz -i -ks panda.ks
+
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
     """
