@@ -1407,7 +1407,7 @@ def wf1(sequences, output_dir, gff_file, feature, attribute, n_threads):
 
     Example:
 
-        wgd pipeline_1 -gff snail.gff -n 16 -f mRNA -a Parent snail.fasta snail_wgd_out
+        wgd wf1 -gff snail.gff -n 16 -f mRNA -a Parent snail.fasta snail_wgd_out
 
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
@@ -1450,7 +1450,7 @@ def wf2(sequences, output_dir, n_threads):
 
     Example:
 
-        wgd pipeline_2 -n 8 snail.fasta whale.fasta snail_vs_whale_ks_out
+        wgd wf2 -n 8 snail.fasta whale.fasta snail_vs_whale_ks_out
 
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
