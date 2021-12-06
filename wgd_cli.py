@@ -1024,6 +1024,10 @@ def kde(
     histograms. Not supported for one-vs.-one ortholog Ks distributions (but see
     `wgd viz`).
 
+    Example:
+
+        wgd kde panda.ks
+
     wgd  Copyright (C) 2018 Arthur Zwaenepoel
     This program comes with ABSOLUTELY NO WARRANTY;
     """
