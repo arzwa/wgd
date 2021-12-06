@@ -160,16 +160,16 @@ warnings.filterwarnings("ignore", message="numpy.ufunc size changed")
 
 # CLI ENTRY POINT --------------------------------------------------------------
 @click.group(context_settings={'help_option_names': ['-h', '--help']})
+@click.version_option("v1.1", prog_name="wgd", help="Print version number.")
 @click.option(
         '--verbosity', '-v', type=click.Choice(['info', 'debug']),
         default='info', help="Verbosity level, default = info."
 )
 @click.option(
         '--logfile', '-l', default=None,
-        help="File to write logs to (optional)"
+        help="File to write logs to (optional)."
 )
-@click.option('--version', is_flag=True, help="Print version number")
-def cli(verbosity, logfile, version):
+def cli(verbosity, logfile):
     """
     Welcome to the wgd command line interface!
 
@@ -215,10 +215,6 @@ def cli(verbosity, logfile, version):
         with open(os.devnull, "w") as f:
             subprocess.call("taskset -p 0xffffffffffff %d" % os.getpid(),
                             shell=True, stdout=f)
-
-    if version:
-        logging.info("This is wgd v1.1")
-    pass
 
 
 # Check and optionally refactor data -------------------------------------------
