@@ -77,19 +77,17 @@ please consult the [docs](https://wgd.readthedocs.io/en/latest/).
 
 ## Singularity container
 
-**Note** this hasn't been updated in a while, it may or may not work.
-
-A singularity container is available for ``wgd``, allowing all to use
-all tools in ``wgd`` except ``wgd syn``, without having to install all
+A Singularity container is available for ``wgd``, allowing to use
+all tools in ``wgd`` without having to install all
 required software on your system. To install Singularity follow
-the instructions [here](https://www.sylabs.io/docs/)
+the instructions [here](https://www.sylabs.io/docs/).
 
-If you have singulaity installed (and you're in the virtual machine when
-running on Windows or Mac), you can run the following to get the container
+If you have Singularity installed (and you're in the virtual machine when
+running on Windows or Mac), you can run the following to get the container:
 
     singularity pull --name wgd.simg shub://arzwa/wgd
 
-Then you can use ``wgd`` as follows
+Then you can use ``wgd`` as follows:
 
     singularity exec wgd.simg wgd <command>
 
