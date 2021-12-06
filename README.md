@@ -80,14 +80,24 @@ all tools in ``wgd`` without having to install all
 required software on your system. To install Singularity follow
 the instructions [here](https://www.sylabs.io/docs/).
 
-If you have Singularity installed (and you're in the virtual machine when
-running on Windows or Mac), you can run the following to get the container:
+Once you have Singularity installed (and you're in the virtual machine when 
+running on Windows or Mac), you can build the container image locally (requires root privileges). 
+To do so, first get the Singularity definition file from wgd GitHub repository 
+and then run the build command:
 
-    singularity pull --name wgd.simg shub://arzwa/wgd
+    git clone https://github.com/arzwa/wgd.git
+    cd wgd
+    sudo singularity build wgd.sif Singularity
 
 Then you can use ``wgd`` as follows:
 
-    singularity exec wgd.simg wgd <command>
+    singularity exec wgd.sif wgd <command>
+
+Alternatively, if you don't have root privileges, you can pull an older container
+from Singularity Hub, which however doesn't support the ``syn`` (collinearity via i-ADHoRe) and ``dmd`` (diamond aligner) commands:
+
+    singularity pull --name wgd.simg shub://arzwa/wgd
+
 
 ## Notes
 
