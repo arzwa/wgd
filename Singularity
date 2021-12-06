@@ -24,7 +24,7 @@ From: vibpsb/i-adhore
 
 	# install python, git, etc.
 	apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -yq install python3-pip python3-tk git \
-	    build-essential mcl ncbi-blast+ muscle mafft prank fasttree phyml
+	    build-essential diamond-aligner mcl ncbi-blast+ muscle mafft prank fasttree phyml
 
 	# get wgd
 	git clone https://github.com/arzwa/wgd.git

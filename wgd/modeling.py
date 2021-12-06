@@ -253,7 +253,7 @@ def plot_mixture(model, data, ax, l=0, u=5, color='black', alpha=0.2,
         else:
             curve = ss.norm.pdf(
                     x, loc=means[k], scale=np.sqrt(varcs[k])) * weights[k]
-        ax.plot(x, curve, '--k', color='black', alpha=0.4)
+        ax.plot(x, curve, '--k', alpha=0.4)
         if first:
             mix = curve
             first = False
