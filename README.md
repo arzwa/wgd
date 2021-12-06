@@ -2,8 +2,6 @@
 [![Hosted](https://img.shields.io/badge/hosted-singularity--hub-blue.svg)](https://singularity-hub.org/collections/2097)
 
 
-Copyright (C) 2018 Arthur Zwaenepoel
-
 VIB/UGent center for plant systems biology -
 Bioinformatics & evolutionary genomics group https://www.vandepeerlab.org/
 
