@@ -5,6 +5,22 @@
 VIB/UGent center for plant systems biology -
 Bioinformatics & evolutionary genomics group https://www.vandepeerlab.org/
 
+**Important note:** A substantially expanded and improved version of `wgd` is now mainly maintained 
+by Hengchi Chen [here](https://github.com/heche-psb/wgd). Software related issues are supposed 
+to be posted there. A number of new functions pertaining to the collinear visualization, 
+substitution rate correction, mixture modeling and WGD dating have been freshly (re)implemented 
+there. We are actively preparing our manuscript for wgd v2. Any suggestions are welcome! 
+Meanwhile, please cite the following reference when you use `wgd` in your work:
+
+```
+Chen, H., & Zwaenepoel, A. (2023).
+Inference of Ancient Polyploidy from Genomic Data.
+In Polyploidy: Methods and Protocols (pp. 3-18). New York, NY: Springer US.
+```
+
+
+---
+
 # wgd - simple command line tools for the analysis of ancient whole-genome duplications
 
 **Note:** If you are interested in the methods implemented in `wgd`, you may also want to
