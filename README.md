@@ -7,10 +7,11 @@ Bioinformatics & evolutionary genomics group https://www.vandepeerlab.org/
 
 ## Important note
 
-A **substantially expanded and improved version** of `wgd` is now mainly maintained 
-by Hengchi Chen [**here**](https://github.com/heche-psb/wgd). Please consider using that version, 
-as wgd v1 will no longer be maintained as of 2023. Software related issues are supposed 
-to be posted there. A number of new functions pertaining to the collinear visualization, 
+[A **substantially expanded and improved version** of wgd is now mainly maintained 
+by Hengchi Chen at `https://github.com/heche-psb/wgd`](https://github.com/heche-psb/wgd). 
+Please consider using that version, as wgd v1 will no longer be updated as of 2023. 
+Software related issues are supposed to be posted there. 
+A number of new functions pertaining to the collinear visualization, 
 substitution rate correction, mixture modeling and WGD dating have been freshly (re)implemented 
 there. We are actively preparing our manuscript for wgd v2. Any suggestions are welcome! 
 Meanwhile, please cite the following reference when you use `wgd` in your work:
